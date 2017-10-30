@@ -1,0 +1,44 @@
+\begin{picture}(0,0)%
+\includegraphics{img/tex/fork}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4705,2775)(33,-2008)
+\put(226,-1575){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}
+\begin{minipage}{4.5cm}switch(pid = fork()) \{\\
+\mbox{}\ \ \ \ case -1: /* Chyba */\\
+\mbox{}\ \ \ \ case\ \ 0: /* Dítì\ \ */\\
+\mbox{}\ \ \ \ \emprg{default: /* Rodiè */}\\
+\}\end{minipage}}%
+}}}
+\put(2701,-1575){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}%
+\begin{minipage}{4.5cm}switch(pid = fork()) \{\\
+\mbox{}\ \ \ \ case -1: /* Chyba */\\
+\mbox{}\ \ \ \ \emprg{case\ \ 0: /* Dítì\ \ */}\\
+\mbox{}\ \ \ \ default: /* Rodiè */\\
+\}\end{minipage}}%
+}}}
+\put(181,-1006){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}getpid()==1234, pid==2345}%
+}}}
+\put(1441,659){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}getpid() == 1234}%
+}}}
+\put(2656,-1006){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}getpid()==2345, pid==0}%
+}}}
+\put(2791,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}dítì (nový proces)}%
+}}}
+\put(2071,-691){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}rodiè (pokraèuje)}%
+}}}
+\put(1486,90){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}
+\begin{minipage}{4.5cm}switch(\emprg{pid = fork()}) \{\\
+\mbox{}\ \ \ \ case -1: /* Chyba */\\
+\mbox{}\ \ \ \ case\ \ 0: /* Dítì\ \ */\\
+\mbox{}\ \ \ \ default: /* Rodiè */\\
+\}\end{minipage}}%
+}}}
+\end{picture}

@@ -1,0 +1,85 @@
+\begin{picture}(0,0)%
+\includegraphics{img/tex/mount}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4186,2893)(45,-2042)
+\put(271,-1276){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfsops}%
+}}}
+\put(1441,-1276){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfsops}%
+}}}
+\put(3016,-601){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vnodeops}%
+}}}
+\put(181,-511){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}root vnode}%
+}}}
+\put(181,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}super block}%
+}}}
+\put(1351,-511){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}root vnode}%
+}}}
+\put(1351,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}super block}%
+}}}
+\put( 91,659){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs mount list}%
+}}}
+\put(1666,-1681){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vsw\_vfsops}%
+}}}
+\put(1756,-1051){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_vnodecovered}%
+}}}
+\put(3331,524){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}f\_vnode}%
+}}}
+\put(3826, 29){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v\_op}%
+}}}
+\put(4231,-1141){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}mount}%
+}}}
+\put(4231,-1306){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}point}%
+}}}
+\put(4231,-1471){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}in}%
+}}}
+\put(4231,-1636){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}rootvfs}%
+}}}
+\put(3826,-1321){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v\_op}%
+}}}
+\put(3061,704){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}struct file}%
+}}}
+\put(3061,254){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}VNODE}%
+}}}
+\put(3061,-106){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}INODE}%
+}}}
+\put(3061,-1096){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}VNODE}%
+}}}
+\put(3061,-1456){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}INODE}%
+}}}
+\put(3016,-1951){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vnodeops}%
+}}}
+\put(316,479){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}rootvfs}%
+}}}
+\put(406,-16){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_next}%
+}}}
+\put(1576,-16){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_next}%
+}}}
+\put(271,-286){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_data}%
+}}}
+\put(1441,-286){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_data}%
+}}}
+\put( 91,-916){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_op}%
+}}}
+\put(1261,-916){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_op}%
+}}}
+\put(2791,-826){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfs\_mountedhere}%
+}}}
+\put(811,-1681){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vfssw[]}%
+}}}
+\put(2476,-1231){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v\_vfsp}%
+}}}
+\put(2611,254){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v\_vfsp}%
+}}}
+\put(1531,254){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}VFS}%
+}}}
+\put(361,254){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}VFS}%
+}}}
+\end{picture}

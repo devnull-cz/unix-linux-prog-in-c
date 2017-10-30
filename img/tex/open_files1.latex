@@ -1,0 +1,97 @@
+\setlength{\unitlength}{3947sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4374,3042)(589,-2398)
+\put(601, 14){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}process A}%
+}}}}
+\put(2176,-61){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}WRONLY}%
+}}}}
+\put(2180,-1027){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}count 2}%
+}}}}
+\put(2176,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}RDONLY}%
+}}}}
+\put(2180,-1777){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}count 1}%
+}}}}
+\put(2176,-1936){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}RDWR}%
+}}}}
+\thinlines
+{\color[rgb]{0,0,0}\put(2101,-511){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-886){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-1261){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-1636){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-2011){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-136){\line( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(2101,-2386){\framebox(900,2625){}}
+}%
+\put(3676,-1711){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/etc/passwd}%
+}}}}
+\put(3676,-1561){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}count 3}%
+}}}}
+\put(3676,-811){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/etc/group}%
+}}}}
+\put(3676,-661){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}count 1}%
+}}}}
+\put(601,539){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}user file}%
+}}}}
+\put(601,389){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}descriptor table}%
+}}}}
+{\color[rgb]{0,0,0}\put(1201,-136){\vector( 4, 1){900}}
+}%
+{\color[rgb]{0,0,0}\put(1201,-286){\vector( 4,-3){936}}
+}%
+{\color[rgb]{0,0,0}\put(1201,-1786){\vector( 1, 0){900}}
+}%
+{\color[rgb]{0,0,0}\put(1201,-1636){\vector( 3, 2){865.385}}
+}%
+{\color[rgb]{0,0,0}\put(3001,-1111){\vector( 3,-2){588.462}}
+}%
+{\color[rgb]{0,0,0}\put(3001,-1808){\vector( 4, 1){605.177}}
+}%
+{\color[rgb]{0,0,0}\put(3001, 14){\vector( 1,-1){637.500}}
+}%
+{\color[rgb]{0,0,0}\put(3601,-361){\line( 1, 0){1350}}
+}%
+{\color[rgb]{0,0,0}\put(3601,-961){\line( 1, 0){1350}}
+}%
+{\color[rgb]{0,0,0}\put(3601,-1861){\line( 1, 0){1350}}
+}%
+{\color[rgb]{0,0,0}\put(3601,-2386){\framebox(1350,2612){}}
+}%
+{\color[rgb]{0,0,0}\put(3601,-1336){\line( 1, 0){1350}}
+}%
+{\color[rgb]{0,0,0}\put(601,-361){\line( 1, 0){600}}
+}%
+{\color[rgb]{0,0,0}\put(601,-886){\framebox(600,825){}}
+}%
+{\color[rgb]{0,0,0}\put(601,-1699){\line( 1, 0){600}}
+}%
+{\color[rgb]{0,0,0}\put(601,-2386){\framebox(600,825){}}
+}%
+{\color[rgb]{0,0,0}\put(601,-1861){\line( 1, 0){600}}
+}%
+{\color[rgb]{0,0,0}\put(601,-2011){\line( 1, 0){600}}
+}%
+{\color[rgb]{0,0,0}\put(601,-211){\line( 1, 0){600}}
+}%
+{\color[rgb]{0,0,0}\put(601,-511){\line( 1, 0){600}}
+}%
+\put(2101,464){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}file table}%
+}}}}
+\put(3601,464){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}inode table}%
+}}}}
+\put(601,-1486){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\bfdefault}{\updefault}{\color[rgb]{0,0,0}process B}%
+}}}}
+\put(2180, 98){\makebox(0,0)[lb]{\smash{{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}count 1}%
+}}}}
+\end{picture}%

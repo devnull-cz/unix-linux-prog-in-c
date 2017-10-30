@@ -1,0 +1,63 @@
+\begin{picture}(0,0)%
+\includegraphics{pipe.pstex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4686,2892)(7,-2098)
+\put( 91,659){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}shell:}%
+}}}
+\put( 91,-331){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}case 0:}%
+}}}
+\put( 91,-526){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{close}(1);}%
+}}}
+\put( 91,-916){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{close}(pd[0]);}%
+}}}
+\put( 91,-1111){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ close(pd[1]);}%
+}}}
+\put( 91,-1306){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ execl("/bin/ls", "/bin/ls",}%
+}}}
+\put( 91,-1501){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \ \ \ \ \ \ "/", NULL);}%
+}}}
+\put(3106,-106){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}konzument (rodic)}%
+}}}
+\put(676,-106){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}producent (dite)}%
+}}}
+\put(1261,-1771){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}pd[1]}%
+}}}
+\put(2701,-1771){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}pd[0]}%
+}}}
+\put(3421,-1996){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/bin/more}%
+}}}
+\put(1846,614){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}int pd[2];}%
+}}}
+\put(1846,224){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}switch(fork()) \{}%
+}}}
+\put(2611,-331){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}default:}%
+}}}
+\put(2611,-526){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{close}(0);}%
+}}}
+\put(2611,-721){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{dup}(pd[0]);}%
+}}}
+\put(2611,-916){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ close(pd[0]);}%
+}}}
+\put(2611,-1111){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{close}(pd[1]);}%
+}}}
+\put(2611,-1306){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ execl("/bin/more",}%
+}}}
+\put(2611,-1501){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \ \ \ \ \ \ "/bin/more", NULL);}%
+}}}
+\put(451,-1996){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/bin/ls}%
+}}}
+\put(496,659){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}ls | more}%
+}}}
+\put(1846,419){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\emprg{pipe}(pd);}%
+}}}
+\put( 91,-721){\makebox(0,0)[lb]{\smash{\SetFigFont{8}{9.6}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\ \ \emprg{dup}(pd[1]);}%
+}}}
+\end{picture}

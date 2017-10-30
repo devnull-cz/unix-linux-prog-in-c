@@ -1,0 +1,49 @@
+.\" Reimplementation of a slide "Otevrene soubory z pohledu jadra"
+.\" The "Programming in UNIX" lecture.  Page circa 86.
+.\"
+.\" cat xxx.roff | pic | groff -Tps | ps2eps > xxx.eps
+.\"
+.sp .2i
+.PS
+{ "Per-process File" "Descriptor Tables" }
+{ move right 1.7i "System" "File Table" }
+{ move right 3.4i "System" "Inode Table" }
+move down .3i
+box ht 0.2i wid .8i "Process A"
+FD1: box same
+FD2: box same
+box same
+box ht 0.5i wid .8i "." "." "."
+move .2i
+box ht 0.2i wid .8i "Process B"
+FD3: box same
+FD4: box same
+FD5: box same
+box ht 0.5i wid .8i "." "." "."
+move right 1.7i
+up
+box ht 0.4i wid .8i "..."
+RDWR: box same "Count 2" "RDWR"
+box same
+RDONLY: box same "Count 2" "RDONLY"
+box same
+box same
+WRONLY: box same "Count 1" "WRONLY"
+move right 1.7i
+down
+box same
+box same
+ETCGRP: box same "Count 1" "/etc/group"
+box same
+box same
+ETCPASSWD: box same "Count 4" "/etc/passwd"
+box same "..."
+arrow from right of FD1 to left of WRONLY
+arrow from right of FD2 to left of RDONLY
+arrow from right of FD3 to left of RDONLY
+arrow from right of FD4 to left of RDWR
+arrow from right of FD5 to left of RDWR
+arrow from right of RDWR to left of ETCPASSWD
+arrow from right of RDONLY to left of ETCPASSWD
+arrow from right of WRONLY to left of ETCGRP
+.PE

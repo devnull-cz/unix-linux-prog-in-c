@@ -1,0 +1,1331 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[0]{manipulace s procesy, spou¹tìní programù}{procesy}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item základní pojmy a konvence UNIXu a jeho API
+\item pøístupová práva, periferní zaøízení, systém souborù
+\item \emsl{process manipulation, program execution}
+\item signály
+\item synchronizace a komunikace procesù
+\item sí»ová komunikace
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Procesy
+
+changequote([[[, ]]])
+
+\pdfbookmark[1]{text/data/bss/stack/heap}{procmem}
+
+\begin{slide}
+\sltitle{Process memory layout in userspace}
+\begin{center}
+\input{img/tex/mem_user.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item ka¾dý proces má tøi základní segmenty (pamì»ové segmenty, nemluvíme o
+hardwarových segmentech):
+    \begin{itemize}
+    \item text \dots{} kód programu
+    \item data \dots{} inicializované promìnné
+    \item zásobník
+    \end{itemize}
+\item sekce \texttt{text} a \texttt{data} jsou ulo¾eny ve spustitelném souboru
+\item sekce pro inicializované i neinicializované promìnné a heap jsou brány
+dohromady jako data
+\item dále lze do adresového prostoru pøipojit segmenty sdíl{}ené
+pamìti (\texttt{shmat}) nebo soubory (\texttt{mmap}).
+\item text je sdíl{}en v¹emi procesy, které provádí stejný kód. Datový
+segment a zásobník jsou privátní pro ka¾dý proces.
+\item ka¾dý systém mù¾e pou¾ívat zcela jiné rozdìl{}ení adresového prostoru
+procesu (a typicky tomu tak je). Konkrétní pøíklad je na následujícím slajdu, a
+zobrazuje i sekce pro \texttt{mmap} a \emph{heap}.
+\item \emph{bss} \dots{} neinicializované promìnné (\texttt{bss}
+pochází z assembleru IBM 7090 a znamená \uv{block started by
+symbol}). Za bìhu programu tvoøí sekce \texttt{data}, \texttt{bss} a heap
+(není na obrázku) dohromady datové segmenty procesu. Velikost heapu lze mìnit
+pomocí systémových volání \texttt{brk} a \texttt{sbrk}.
+\item poznámka -- neinicializované promìnné jsou statické promìnné, které
+(pøe\-kva\-pi\-vì) nejsou inicializované -- tj. globální promìnné nebo promìnné
+definované jako \texttt{static} ve funkcích i mimo funkce. Jak víte z pøedná¹ek
+o jazyku C, v¹echny tyto promìnné jsou pøi startu programu automaticky
+inicializované nulami. Proto není nutné mít jejich hodnotu v binárce. Jakmile
+ale nìjakou z takových pro\-mìn\-ných inicializujete, bude ji¾ souèástí datového
+segmentu programu na disku.
+\item \emph{(u¾ivatelský) zásobník} \dots{} lokální nestatické promìnné,
+parametry funkcí (na urèitých architekturách v daných modech - 32-bit x86),
+ná\-vra\-to\-vé adresy. Ka¾dý proces má dva zásobníky, jeden
+pro u¾ivatelský re¾im a jeden pro re¾im jádra. U¾ivatelský zásobník procesu
+automaticky roste podle potøeby (neplatí, pokud se pou¾ívají vlákna, tam má
+navíc ka¾dé vlákno zásobník svùj).
+\item \emph{oblast user (u-area)} \dots{} obsahuje informace o procesu pou¾ívané
+jádrem, které nejsou potøebné, kdy¾ je proces odlo¾en na disku (poèet otevøených
+souborù, nastavení o¹etøení signálù, poèet segmentù sdíl{}ené pamìti, argumenty
+programu, promìnné prostøedí, aktuální adresáø, atd.). Tato oblast je pøístupná
+pouze pro jádro, které v¾dy vidí právì jednu u-oblast patøící právì bì¾ícímu
+procesu. Dal¹í informace o procesu, které jádro mù¾e potøebovat i pro jiný ne¾
+právì bì¾ící proces, nebo i kdy¾ je proces odlo¾en, jsou ve struktuøe
+\texttt{proc}. Struktury \texttt{proc} pro v¹echny procesy jsou stále rezidentní
+v pamìti a viditelné v re¾imu jádra.
+\end{itemize}
+
+
+\begin{slide}
+\sltitle{Example: Solaris 11 x86 32-bit}
+\begin{center}
+\includegraphics[width=54mm]{img/eps/x86-memory-proc-mem-layout.eps}  
+\end{center}
+\end{slide}
+
+\label{SOLARIS_PROC_ADDR_SPACE}
+
+\begin{itemize}
+\item z obrázku lze vyèíst nìkolik dal¹ích vìcí:
+
+\begin{itemize}
+\item maximální velikost kernelu pro Solaris 11 x86 32-bit je 256 megabajtù
+\item mezi namapováním kernelu a pamìtí vyhrazenou pro \texttt{mmap} je volné
+místo
+\item zásobník roste smìrem k ni¾¹ím adresám a jeho velikost je omezena na 128
+megabajtù
+\end{itemize}
+
+\item \emph{heap} je èást pamìti, kterou si proces mù¾e zvìt¹ovat pomocí volání
+\texttt{brk} a \texttt{sbrk}, a je èasto pou¾ívaná funkcí \texttt{malloc}.
+Funguje to tak, ¾e \texttt{malloc} si postupnì zvìt¹uje heap podle potøeby, a
+pøiøazenou pamì» internì spravuje a pøidìluje ji procesu po èástech. Kdy¾ tedy
+voláte \texttt{free}, neznamená to, ¾e vracíte pamì» systému, ale pouze
+internímu alokátoru.
+\item oblast pro \texttt{mmap} se pou¾ívá pro mapování souborù, tedy i
+sdíl{}ených knihoven. Nìkteré alokátory pou¾ívají internì i tuto pamì»,
+napøíklad pro vìt¹í kusy pamìti ¾ádané najednou. Je mo¾né exkluzivnì pou¾ívat
+pouze \texttt{mmap}, pro aplikaci je to zcela transparentní. Pøi pou¾ití
+\texttt{mmap} je mo¾né pamì» systému vracet (voláním \texttt{munmap}), na rozdíl
+od implementace pomocí \texttt{brk}/\texttt{sbrk}.
+\item obrázek byl pøevzat z [McDougall-Mauro], a není na nìm oblast pro
+neinicializované promìnné. Pokud si ale na tomto systému necháte vypsat adresu
+jedné z nich, zjistíte, ¾e inicializované i neinicializované promìnné sdílí
+spoleèný datový segment, na obrázku oznaèený jako ,,executable -- DATA''.
+Pøíklad: \priklad{pmap/proc-addr-space.c}
+\item mapování kernelu není nutné, napøíklad u Solarisu na \emph{amd64}
+architektuøe (tj. 64-bit) u¾ kernel do u¾ivatelského prostoru procesu
+mapován není.
+\item \texttt{brk} ani \texttt{sbrk} nejsou souèástí normy, pøenositelné
+aplikace by proto mìly pou¾ívat, pokud podobnou funkcionalitu potøebují, volání
+\texttt{mmap}, viz strana \pageref{MMAP}.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Process memory layout in kernel}
+\begin{center}
+\input{img/tex/mem_kernel.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item proces se dostane do re¾imu jádra buï pøíchodem
+\emph{pøeru¹ení vyvolaného procesorem} (výpadek stránky, neznámá
+instrukce,...), \emph{èasovaèem} (v pravidelných intervalech je
+potøeba aktivovat plánovaè procesù), \emph{periferním zaøízením},
+nebo instrukcí synchronního pøeru¹ení (standardní knihovna takto
+pøedává øízení jádru, aby obslou¾ilo \emph{systémové volání}).
+\item v pamìti je pouze jedna kopie kódu a dat jádra, sdíl{}ená v¹emi
+procesy. Kód jádra je v¾dy celý rezidentní v pamìti, není odkládán
+na disk.
+\item \emph{text jádra} \dots{} kód jádra operaèního systému,
+zavedený pøi startu systému a rezidentní v~pamìti po celou dobu bìhu
+systému. Nìkteré implementace umo¾òují pøidávat funkèní moduly do
+jádra za bìhu (napø. pøi pøidání nového zaøízení se do jádra
+dynamicky pøidá nový ovladaè), není proto tøeba kvùli ka¾dé zmìnì
+regenerovat jádro a restartovat systém.
+\item \emph{data a bss jádra} \dots{} datové struktury pou¾ívané
+jádrem, souèástí je i u-oblast právì bì¾ícího procesu.
+\item \emph{zásobník jádra} \dots{} samostatný pro ka¾dý proces, je
+prázdný, jestli¾e je proces v u¾ivatelském re¾imu (a tedy pou¾ívá
+u¾ivatelský zásobník).
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{segmenty - text/data/stack}{memsegments}
+
+\begin{slide}
+\sltitle{Process memory segments}
+\begin{center}
+\input{img/tex/segmenty.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item takto vypadá vìt¹inou reprezentace pamì»ových segmentù procesu v jádøe.
+\item základním rysem této architektury je tzv. \emph{memory object}, co¾ je
+abstrakce mapování mezi kusem pamìti a místem, kde jsou data normálnì ulo¾ena
+(tzv. \emph{backing store} nebo \emph{data object}). Takové místo ulo¾ení mù¾e
+být napøíklad swap nebo soubor. Adresový prostor procesu je pak mno¾ina
+mapování na rùzné datové objekty. Existuje i \emph{anonymní objekt}, který
+nemá místo trvalého ulo¾ení (pou¾ívá se napøíklad pro zásobník). Fyzická pamì»
+pak slou¾í jako cache pro data tìchto namapovaných datových objektù.
+\item tato zde velmi hrubì popsaná architektura se nazývá VM (od \emph{Virtual
+Memory}), a objevila se v SunOS 4.0. Na této architektuøe je zalo¾ena
+architektura viruální pamìti v SVR4. Více informací viz [Vahalia], pùvodní
+èlánek z roku 1987 pøedstavující tuto architekturu: Gingell, R. A., Moran J.
+P., Shannon, W.  A. -- \emph{Virtual Memory Architecture in SunOS} nebo
+pøedná¹ka o operaèních systémech na MFF (NSWI004 - Operaèní systémy).
+\item z jakých segmentù se skládá pamì»ový prostor konkrétního
+procesu lze zjistit pomocí pøíkazu \texttt{pmap(1)} (na Solarisu, na NetBSD a v
+nìkterých Linuxových distribucích) nebo \texttt{procmap(1)} (v OpenBSD)
+nebo \texttt{vmmap(1)} v Mac OS X.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{virtual memory}{virtmem}
+
+\begin{slide}
+\sltitle{Virtual memory}
+\begin{center}
+\input{img/tex/virt_mem.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item ka¾dý proces vidí svùj adresový prostor jako souvislý interval
+(virtuálních) adres od nuly po nìjakou maximální hodnotu. Pøístupné jsou pouze
+ty adresy, na kterých je namapován nìkterý segment procesu (to je právì to
+mapování, o kterém se mluví na pøedchozím slajdu).
+\item jádro dále rozdìluje pamì» procesu na stránky. Ka¾dá stránka má své
+u\-mí\-stì\-ní v~rámci fyzické pamìti. Toto umístìní je dáno stránkovacími
+tabulkami jádra a stránky mohou být v rámcích libovolnì promíchány vùèi jejich
+poøadí ve virtuální adresovém prostoru. 
+\item pokud není stránka právì pou¾ívána, mù¾e být také odlo¾ena na disk.
+\item pamì»ový manager jádra zaji¹»uje mapování mezi virtuálními adresami
+po\-u\-¾í\-va\-ný\-mi kódem u¾ivatelských procesù i jádra na fyzické adresy a
+naètení odlo¾ených stránek z~disku pøi výpadku stránky.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Virtual memory implementation}
+\begin{itemize}
+\item processes in UNIX use virtual addresses to access physical memory.
+The virtual - physical convertion is performed by hardware with the help
+of kernel.
+\item in case of memory shortage unused parts of memory are stored to
+(\emsl{swap}) space on disk. 
+\item before SVR2 the \texttt{swapper} process (nowadays
+\texttt{sched}) swapped out whole processes. 
+\item from SVR2 on (\emsl{demand paging}) is used with \emsl{copy-on-write}.
+Pages are allocated only after first use and private pages are copied only
+after modification. Freeing and swapping of individual pages is performed
+by the \texttt{pageout} process, swapping of whole processes is done only
+when critically low on memory.
+\end{itemize}
+\end{slide}
+
+\begin{description}
+\item[pøeklad adres:] pøístup na neplatnou adresu nebo pokus o zápis
+do pamìti pouze pro ètení vyvolá signál \texttt{SIGSEGV}.
+\item[swap:] odkládací prostor se vytváøí na samostatném oddílu
+disku, od SVR4 mù¾e být i v~souboru.
+\item[swapper:] proces \texttt{swapper} se sna¾í odlo¾it na disk nìjaký
+proces, který není zam\-èen v~pamìti, a na uvolnìné místo zavést døíve
+odlo¾ený proces.
+\item[demand paging:] pøi ¾ádosti procesu o pamì» se pouze upraví
+tabulka stránek. První instrukce adresující obsah stránky vyvolá
+výjimku. Jádro ji o¹etøí tím, ¾e alokuje stránku. 
+\item[copy-on-write:] více procesù mù¾e sdílet zapisovatelnou
+fyzickou stránku, která je ale logicky privátní pro ka¾dý proces
+(tato situace nastane napø. po vytvoøení procesu voláním
+\texttt{fork}). Dokud procesy z pamìti pouze ètou, pøistupují ke
+sdíl{}ené stránce. Pokud se proces pokusí obsah stránky zmìnit, vyvolá
+výjimku. Jádro zkopíruje stránku, pøidìlí procesu kopii, která u¾ je
+privátní a proces ji mù¾e dále libovolnì mìnit. Ostatní procesy
+pou¾ívají stále ne\-zmì\-nì\-nou pùvodní stránku.
+\item stránky k odlo¾ení se hledají algoritmem \emph{NRU} (not recently
+used): ka¾dá stránka má pøíznaky \texttt{referenced} a
+\texttt{modified}, na zaèátku vynulované. Pøi prvním pøístupu se
+nastaví \texttt{referenced}, pøi zmìnì \texttt{modified}. Oba
+pøíznaky se periodicky nulují. Pøednostnì se uvolòují stránky, které
+nejsou modifikované ani pou¾ité. Stránky kódu programu a mapovaných
+souborù se neukládají do odkládacího prostoru, ale obnovují se z
+pøíslu¹ného souboru.
+\end{description}
+
+
+%%%%%
+
+\pdfbookmark[1]{Process states}{procstates}
+
+\begin{slide}
+\sltitle{Stavy procesu}
+\begin{center}
+\input{img/tex/stavy_proc.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item po ukonèení procesu voláním \texttt{exit} nebo v reakci na
+signál pøechází proces do stavu mátoha (zombie), proto¾e jádro si
+musí pamatovat k èíslu procesu jeho návratovou hodnotu. Celá pamì»
+procesu je uvolnìna, zbývá pouze struktura \texttt{proc}. Proces lze
+definitivnì zru¹it, a¾ kdy¾ se jeho rodiè zeptá na návratovou
+hodnotu voláním typu \texttt{wait}. Kdy¾ nebude pùvodní rodiè k dispozici,
+provede volání \texttt{wait} proces \texttt{init}, který pøevzal rodièovství.
+\item v dne¹ních UNIXech se obvykle do odkládací oblasti na disku
+(swap area) neodkládají celé procesy, ale jednotlivé stránky pamìti.
+\item proces je \emph{uspán}, kdy¾ o to sám po¾ádá, napø. zaène
+èekat na dokonèení periferní operace. \emph{Preempce} je naopak
+nedobrovolné odebrání procesoru plá\-no\-va\-èem.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Process scheduling}
+\begin{itemize}
+\item \emph{preemptive} -- if a process does not give up CPU
+(e.g. by entering a sleep to wait on some event), the CPU is taken away
+after time quantum expiration.
+\item processes are classified into queues according to priority,
+CPU is assigned to the first ready process from queue with biggest priority.
+\item SVR4 introduced priority queues and real-time support with guaranteed
+maximal response time.
+\item contrary to the previous versions, in SVR4 bigger number means
+bigger priority.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{základem preemptivního plánování jsou pravidelná pøeru¹ení od
+èasovaèe}, která odeberou procesor bì¾ícímu procesu a pøedají øízení jádru
+(aktivuje se plánovaè procesù).
+\item jiná varianta je nepreemptivní (kooperativní) plánování, kdy proces
+bì¾í, dokud se sám nevzdá procesoru, tj. dokud nezavolá takovou systémovou
+funkci, která pøepne kontext na jiný proces. Nevýhodou kooperativního
+plánování je, ¾e jeden proces mù¾e stále blokovat procesor a ostatní procesy
+se nikdy nedostanou na øadu. 
+\item UNIX pou¾ívá pro u¾ivatelské procesy pouze preemptivní plánování.
+\item tradièní UNIXové \emsl{jádro} funguje kooperativním zpùsobem, tj. proces
+bì¾ící v re¾imu jádra není pøeplánován, dokud se sám nevzdá procesoru.
+\emsl{Jádra moderních UNIXù jsou ji¾ preemtivní} -- je to hlavnì kvùli real-time
+systémùm; tam je potøeba mít mo¾nost bì¾ící proces zbavit procesoru o\-kam\-¾i\-tì,
+neèekat na to, a¾ se vrátí z re¾imu jádra nebo se sám uspí. Pozor na a» to
+nepletete -- UNIX byl od samého zaèátku preemptivní systém, ale jeho jádro bylo
+nepreemptivní.
+\item pøi preemptivním plánování mù¾e být proces kdykoliv pøeru¹en a øízení
+pøe\-dá\-no jinému procesu. Proces si proto nikdy nemù¾e být jistý, ¾e urèitou
+operaci (více ne¾ jednu intstrukci, kromì systémových volání se zaruèenou
+a\-to\-miè\-nos\-tí) provede atomicky, bez ovlivnìní ostatními procesy. Pokud
+je tøeba zajistit atomiènost nìjaké akce, musí se procesy navzájem
+synchronizovat. Pøi kooperativním plánování problém synchronizace odpadá
+(atomická posloupnost operací se zajistí tím, ¾e se proces bìhem ní nevzdá
+procesoru).
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{Priority classes for process scheduling}{prioclasses}
+
+\begin{slide}
+\sltitle{Priority classes}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item \emsl{system}
+    \begin{itemize}
+    \item priority 60 to 99 
+    \item reserved for system processes (\texttt{pageout},
+    \texttt{sched}, \dots) 
+    \item fixed priorita 
+    \end{itemize}
+\item \emsl{real-time}
+    \begin{itemize}
+    \item priority 100 to 159 
+    \item fixed priorita 
+    \item a time quantum corresponds to priority value
+    \end{itemize}
+\item \emsl{time-shared}
+    \begin{itemize}
+    \item priority 0 to 59 
+    \item dynamic 2 part priority, fixed user part and
+    dynamic system part -- if a process uses CPU extensively,
+    its priority is being decreased (and time quantum increased)
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item systémová tøída je pou¾ívána pouze jádrem, u¾ivatelský proces bì¾ící v
+re\-¾i\-mu jádra si ponechává svou plánovací charakteristiku.
+\item procesy ve tøídì reálného èasu mají nejvy¹¹í prioritu, proto musí být
+správnì nakonfigurovány, aby nezablokovaly zbytek systému.
+\item jestli¾e je proces ve tøídì sdíl{}ení èasu uspán a èeká na nìjakou
+událost, je mu doèasnì pøiøazena systémová priorita. Po probuzení se takový
+proces dostane na procesor døíve, ne¾  ostatní procesy, které nespí.
+\item pevná èást priority procesu ve tøídì sdíl{}ení èasu se dá nastavit
+pomocí\\ \texttt{int \funnm{setpriority}(int \emph{which}, id\_t \emph{who},
+int \emph{prio});}\\ nebo\\ \texttt{int \funnm{nice}(int \emph{in{}cr});} \\
+Hodnota \emph{which} udává co bude v argumentu \emph{who}. Pokud je napø.
+\emph{which} \emph{PRIO\_PGRP}, bude v \emph{who} èíslo skupiny procesù.
+Pozor na volání \funnm{nice} které vrací novou hodnotu nice. Proto¾e je
+-1 validní hodnota, je potøeba pøed volání vyèistit \texttt{errno} a pokud
+funkce vrátí -1 tak ji zkontrolovat.
+\item prioritní tøídu a hodnotu nice daného procesu lze zobrazit pøepínaèem
+-l programu ps(1) nebo pomocí specifikace hodnot které se mají vypsat.
+\item Pøíklad: hodnoty priority mají na rùzných systémech rùzné ¹kály.
+Napø. na Mac OS X 10.9 má spu¹tìný proces hodnotu priority 30, po zvý¹ení
+hodnoty nice (proces je "hodnìj¹í" na ostatní procesy a dobrovolnì tedy sní¾il
+svoji prioritu) se mu hodnota prorita sní¾í na 21 co¾ na Mac OS X znamená
+i sní¾ení priority:
+\begin{verbatim}
+$ sleep 200 &
+[1] 36877
+$ ps -O pri,nice -p $!
+  PID PRI NI   TT  STAT      TIME COMMAND
+36877  31  0 s003  S      0:00.00 sleep 200
+$ renice 10 -p $!
+$ ps -O pri,nice -p $!
+  PID PRI NI   TT  STAT      TIME COMMAND
+36877  21 10 s003  SN     0:00.00 sleep 200
+\end{verbatim}
+Na Linuxu 3.10 to ale bude vypadat jinak - po zvý¹ení hodnoty nice se zvý¹í i
+hodnota priority, to ale v této verzi znamená, ¾e proces bude bì¾et s
+prioritou ni¾¹í.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{process groups}{procgrps}
+
+\begin{slide}
+\sltitle{Process groups, controlling terminals}
+\begin{itemize}
+\item every process belongs to a \emph{process group}
+\item each group can have a leading process, so called \emph{group leader}
+\item every process can have a \emph{controlling terminal} (usualy it is login
+terminal)
+\item special file \texttt{/dev/tty} is associated with controlling terminal
+of each process
+\item each terminál is associated with process group, this group
+is called (\emph{controlling group})
+\item job control (\emph{job control}) is mechanism, how to stop and wakeup
+process groups and control their access to terminals.
+\item \emph{session} is a collection of process groups created for the purpose
+of job control
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item kdy¾ se u¾ivatel pøihlásí do systému, je vytvoøená nová relace, která se
+skládá z jedné skupiny procesù, ve které je jeden proces -- ten který vykonává
+u¾ivatelùv shell. Tento proces je zároveò vedoucí této jediné skupiny procesù a
+také je vedoucí relace. V pøípadì, ¾e job control je povolen, ka¾dý pøíkaz nebo
+kolona pøíkazù vytvoøí novou skupinu procesù, jeden z procesù v ka¾dé skupinì se
+v¾dy stane vedoucím procesem dané skupiny. Jedna ze skupin mù¾e bì¾et na
+popøedí, ostatní bì¾í na pozadí. Signály, které jsou generované z klávesnice
+(tj. stiskem kombinace kláves, nemyslí se tím spu¹tìní pøíkazu \texttt{kill}!),
+jsou zaslány pouze skupinì, která bì¾í na popøedí.
+\item pokud job control není zapnut, znamená spustìní pøíkazu na pozadí pouze
+to, ¾e shell neèeká na jeho ukonèení. Existuje pouze jedna skupina procesù,
+signály z klávesnice se posílají v¹em procesùm be¾ícím na popøedí i na pozadí.
+Nelze pøesouvat procesy z pozadí na popøedí a naopak.
+\item kdy¾ proces, který má kontrolní terminál, otevøe soubor \texttt{/dev/tty},
+tak se asociuje se svým kontrolním terminálem. Tj. pokud dva rùzné procesy z
+rùzných relací otevøou tento soubor, pøistupují oba k rùzným terminálùm.
+\item v bashi se skupina procesù (job) pozastaví pomocí \texttt{Ctrl-Z}, a
+rozbìhne pøes ,,\texttt{fg \%N}'' kde \texttt{N} je èíslo jobu podle výpisu
+pøíkazu \texttt{jobs}. Více informací viz sekce ,,JOB CONTROL'' v manuálové
+strán\-ce pro bash.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{getpid, getpgrp, getppid, getsid}{getp}
+
+\begin{slide}
+\sltitle{Process identification}
+\texttt{pid\_t \funnm{getpid}(void);}
+\begin{itemize}
+\item returns the process ID of the calling process.
+\end{itemize}
+\texttt{pid\_t \funnm{getpgrp}(void);}
+\begin{itemize}
+\item returns the PGID of the calling process
+\end{itemize}
+\texttt{pid\_t \funnm{getppid}(void);} 
+\begin{itemize}
+\item returns the process ID of the calling process.
+\end{itemize}
+\texttt{pid\_t \funnm{getsid}(pid\_t \emph{pid});}
+\begin{itemize}
+\item returns the session ID of the calling process.
+for process \texttt{pid} (0 means for the calling process)
+\end{itemize}
+\end{slide}
+
+\begin{description}
+\item[skupiny procesù] umo¾òují posílat signály najednou celé skupinì.
+\item[session] (relace, sezení) je kolekce procesù vytvoøená pro úèely øízení
+prací (\emph{job control}). Procesy sezení sdílejí jeden \emph{øídící terminál}.
+Session zahrnuje jednu nebo více skupin procesù. Max. jedna skupina v rámci
+sezení bì¾í na popøedí (\emph{foreground process group}) a má pøístup k øídicímu
+terminálu pro vstup i výstup, ostatní bì¾í na pozadí (\emph{background process
+groups}) a mají k øídicímu terminálu pøístup volitelnì jen pro výstup nebo vùbec
+(nepovolená operace s terminálem pozastaví proces).
+\item[rodièovský proces:] Ka¾dý proces (kromì \texttt{swapper}u, pid~==~0) má
+rodièe, tj. proces, který ho stvoøil voláním \texttt{fork}. Jestli¾e rodiè
+skonèí døíve ne¾ dítì, adoptivním rodièem se stává proces \texttt{init},
+který se také postará o uklizení zombie po skonèení procesu.
+\end{description}
+\begin{itemize}
+\item Programatické zji¹»ování informací o ostatních procesech lze pomocí
+nestandardních rozhraní (napø. knihovna \texttt{libproc} na Solarisu postavená
+na filesystému \texttt{procfs}, který je pøipojen pod \texttt{/proc}).
+\item Pozor na to, ¾e zji¹»ovat ¾e rodiè skonèil pomocí kontroly hodnoty
+vrácené z \texttt{getppid} na hodnotu 1 (co¾ je bì¾nì proces \texttt{init}
+resp. jeho ekvivalent), není portabilní.
+\\
+V rùzných virtualizovaných prostøedích (PID namespaces v Linux, Zones v
+Solarisu) to nemusí platit. Viz pøíklad \priklad{session/getppid.c}.
+\end{itemize}
+
+
+%%%%
+
+\pdfbookmark[1]{setpgrp, setsid}{setp}
+
+\begin{slide}
+\sltitle{creating new process group/session}
+\texttt{int \funnm{setpgid}(pid\_t \emph{pid}, pid\_t \emph{pgid});}
+\begin{itemize}
+\item sets the PGID of the process specified by pid to pgid.
+\end{itemize}
+\texttt{pid\_t \funnm{setsid}(void);}
+\begin{itemize}
+\item creates a new session if the calling process is not a process
+group leader.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item pro volání \funnm{setpgid} platí:
+\begin{enumerate}
+\item pid == pgid : proces s \emph{pid} se stane vedoucím skupiny procesù
+\item pid != pgid : proces s \emph{pid} se stane èlenem skupiny procesù
+\end{enumerate}
+\item Proces, který je¹tì není
+vedoucím skupiny procesù, se mù¾e stát vedoucím sezení a zároveò skupiny procesù
+voláním \texttt{setsid}. Jestli¾e proces u¾ je vedoucím skupiny, \texttt{setsid}
+sel¾e, pak je tøeba provést \texttt{fork} a \texttt{setsid} zavolat v synovském
+procesu. Takový proces nemá øídicí terminál, mù¾e ho získat otevøením terminálu,
+který je¹tì není øídicím terminálem sezení, kdy¾ pøi \texttt{open} neuvede
+pøíznak \texttt{O\_NOCTTY}, nebo jiným implementaènì závislým zpù\-so\-bem.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{fork}{fork}
+
+\begin{slide}
+\sltitle{Vytvoøení procesu: \texttt{fork()}}
+\begin{center}
+\input{img/tex/fork.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item \label{FORK} dítì je témìø pøesnou kopií rodièe. Základní atributy, které
+se li¹í, jsou:
+\begin{itemize}
+\item \emsl{PID} procesu a \emsl{parent PID}
+\item pokud mìl rodiè více vláken, má syn pouze to, které \texttt{fork}
+zavolalo; o tom více na stranì \pageref{FORKALL}, a¾ se dostaneme k vláknùm.
+Tyto informace by ka¾dopádnì mìly být v manuálové stránce \texttt{fork(2)}.
+\item úètovací èasy se nastaví na 0
+\item nedìdí se nastavení \texttt{alarm} a zámky souborù
+\end{itemize}
+\item co je dùle¾ité je, ¾e tabulky deskriptorù jsou stejné v obou procesech,
+èím¾ více procesù mù¾e sdílet a posunovat spoleènou pozici v souboru, a také ¾e
+masky signálù se nemìní, viz strana \pageref{SIGNALBLOCKINGEXAMPLE}.
+\item pro urychlení a men¹í spotøebu pamìti se adresový prostor nekopíruje, ale
+pou¾ívá se mechanizmus \emph{copy-on-write}.
+\item je logické, ¾e pøi úspì¹ném provedení volání otec dostane jako návratovou
+hodnotu volání \texttt{fork} PID syna a syn èíslo 0; syn si toti¾ mù¾e velmi
+jedno\-du\-¹e svùj vlastní PID zjistit voláním \texttt{getpid}. Otec ale neumí
+jednodu¹e zjistit PID syna, navíc v situaci, pokud ji¾ døíve vytvoøil syny jiné.
+\item pøíklad: \priklad{fork/fork.c}
+\item \label{VFORK} zajímavostí mù¾e být volání \texttt{vfork}, kterým se kdysi
+obcházel problém, kdy draze vytvoøený proces byl okam¾itì pøepsán následným
+voláním \texttt{exec}. Tento problém byl dávno vyøe¹en ji¾ zmínìným pou¾itím
+mechanizmu copy-on-write, ale pøí\-klad \priklad{fork/vfork.c} ukazuje, jak toto
+volání fungovalo.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{exec}{exec}
+
+\begin{slide}
+\sltitle{Spu¹tìní programu: \texttt{exec}}
+\texttt{extern char **\funnm{environ};\\
+int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
+\begin{itemize}
+\item spustí program definovaný celou cestou \texttt{path}, dal¹í argumenty se
+pak pøedají programu v parametrech \texttt{argc} a \texttt{argv} funkce
+\texttt{main}. Seznam argumentù je ukonèen pomocí \texttt{(char *)0}, tj.
+\texttt{NULL}. \texttt{arg0} by mìl obsahovat jméno programu (tj. ne celou
+cestu)
+\item úspì¹né volání \texttt{execl} se nikdy nevrátí, proto¾e spu¹tìný program
+zcela nahradí dosavadní adresový prostor procesu. 
+\item program dìdí promìnné prostøedí, tj. obsah \texttt{environ}. 
+\item handlery signálù se nahradí implicitní obsluhou
+\item zavøou se deskriptory souborù, které mají nastavený pøíznak
+\texttt{FD\_CLOEXEC} (implicitnì není nastaven).
+\end{itemize}
+\end{slide}
+
+\label{EXEC}
+
+\begin{itemize}
+\item o signálech více na stranì \pageref{SIGNALS}
+\item v \texttt{path} musí být celá (absolutní nebo relativní) cesta ke
+spustitelnému souboru. Obsah promìnné prostøedí \texttt{PATH} se pou¾ívá jen
+pøi voláních \texttt{execlp} a \texttt{execvp}, kdy¾ argument
+\texttt{path} neobsahuje znak \texttt{'/'}.
+\item nìkdy se pou¾ívá \texttt{argv[0]} rùzné od jména spustitelného souboru.
+Napø. \texttt{login} vlo¾í na zaèátek jména spou¹tìného shellu znak
+\texttt{'-'}. Shell podle toho pozná, ¾e má fungovat jako login-shell, tj.
+napøíklad naèíst \texttt{/etc/profile}.
+\item \texttt{exec} nepøedá kontrolu naètenému programu v pamìti pøímo, ale
+pøes dynamický linker (té¾ nazývaný \emph{loader}), poté co ho (= toho
+\emph{loader}a) namapuje do adresového prostoru procesu. Loader následnì
+namapuje potøebné dynamické objekty a teprve poté pøedá kontrolu aplikaci. Viz
+také strana \pageref{RUNTIMELINKER}. Pro jednoduché ovìøení staèí vytvoøit
+program obsahující pouze tøeba volání \texttt{open}. Tento program pak
+spus»te pomocí \texttt{truss(1)} takto: \texttt{truss ./a.out}. Uvidíte, která
+volání se pou¾ijí je¹tì pøedtím, ne¾ se zavolá \texttt{open}.
+\item \texttt{exec} nezmìní hodnoty RUID a RGID. A pokud je to program s
+nastaveným SUID bitem, tak se EUID a uschované UID nastaví na UID majitele
+spustitelného souboru.
+\item dne¹ní unixové systémy umí spou¹tìt i skripty, které zaèínají øádkem\\
+\texttt{\#!/\emph{interpreter\_path}/\emph{interpreter\_name} \emph{[args]}}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{execv, execle, execl, execve, execlp}{execvariants}
+
+\begin{slide}
+\sltitle{Varianty slu¾by \texttt{exec}}
+\setlength{\baselineskip}{0.8\baselineskip}
+\texttt{int \funnm{execv}(const char *\emph{path}, char *const \emph{argv}[]);} 
+\begin{itemize}
+\item obdoba \texttt{execl()}, ale argumenty jsou v poli \texttt{argv},
+jeho¾ poslední prvek je \texttt{NULL}. 
+\end{itemize}
+\begin{minipage}{\slidewidth}
+\vspace{-1ex}\texttt{\begin{tabbing}
+int \funnm{execle}(\=const char *\emph{path}, const char *\emph{arg0},
+... ,\\\> char *const \emph{envp}[]);
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item obdoba \texttt{execl()}, ale místo \texttt{environ} se pou¾ije
+\texttt{envp}. 
+\end{itemize}
+\begin{minipage}{\slidewidth}
+\vspace{-1ex}\texttt{\begin{tabbing}
+int \funnm{execve}(\=const char *\emph{path}, char *const \emph{argv}[],\\
+\>char *const \emph{envp}[]);
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item obdoba \texttt{execv()}, ale místo \texttt{environ} se pou¾ije
+\texttt{envp}. 
+\end{itemize}
+\texttt{int \funnm{execlp}(const char *\emph{file}, const char *\emph{arg0},
+...);\\
+int \funnm{execvp}(const char *\emph{file}, char *const \emph{argv}[]);}
+\begin{itemize}
+\item obdoby \texttt{execl()} a \texttt{execv()}, ale pro hledání
+spustitelného souboru se pou¾ije promìnná \texttt{PATH}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{l} = list (tj. lineární seznam argumentù), \emsl{v} = vector (tj.
+pole ukazatelù na øetìzce), \emsl{e} = environment (tj. pøedávají se promìnné
+prostøedí), \emsl{p} = PATH.
+\item kromì \texttt{execlp} a \texttt{execvp} je nutné jméno programu v¾dy
+zadávat celou cestu.
+\item v¹echny varianty kromì \texttt{execle} a \texttt{execve}
+pøedávají spou¹tìnému programu také své aktuální prostøedí, tj. obsah
+pole \texttt{environ}.
+\item z mnì neznámých historických dùvodù neexistuje volání s
+\emsl{p} a \emsl{e} dohromady.
+\item \label{EXEC_DATE} pøíklad: \priklad{exec/exec-date.c}
+\item \label{EXECL} následující pou¾ití volání \texttt{execl} je ¹patnì, proto¾e
+mu chybí povinný parametr pro \texttt{argv[0]}:
+
+\begin{verbatim}
+	execl("/bin/ls", NULL);
+\end{verbatim}
+
+Na nìkterých systémech to má zajímavý efekt. Jeliko¾ je \texttt{NULL} brán jako
+oèekávaný \texttt{argv[0]}, dal¹í data na zásobníku jsou akceptována jako
+ukazatele na øetìzce, dokud se nenalezne dal¹í \texttt{NULL}. V na¹em pøípadì
+tak pøíkaz \texttt{ls} zkou¹í zobrazit informace o souborech, jako jejich¾ jména
+jsou pou¾ity øetìzce nastavení promìnných prostøedí z pole \texttt{environ}, o
+nich¾ ji¾ víme, ¾e se voláním \texttt{execl} spou¹tìnému programu pøedávají:
+
+\begin{verbatim}
+$ ./a.out 
+: BLOCKSIZE=K: No such file or directory
+: FTP_PASSIVE_MODE=YES: No such file or directory
+: HISTCONTROL=ignoredups: No such file or directory
+: HISTSIZE=10000: No such file or directory
+...
+...
+\end{verbatim}
+
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{ELF}{ELF}
+
+\begin{slide}
+\sltitle{Formát spustitelného souboru}
+\begin{itemize}
+\item \emsl{Common Object File Format (COFF)} -- star¹í System V 
+\item \emsl{Extensible Linking Format (ELF)} -- nový v SVR4 
+\item èasto se mluví o \emsl{a.out} formátu, proto¾e tak se jmenuje
+(pokud není pou¾it pøepínaè \texttt{-o}) výstup linkeru. 
+\item Formát ELF:\quad
+\raisetab{\begin{tabular}[t]{|c|}
+\hline
+hlavièka souboru\\
+\hline
+\quad \quad tabulka programových hlavièek \quad\quad \\
+\hline
+sekce 1\\
+\hline
+$\vdots$\\
+\hline
+sekce N\\
+\hline
+tabulka hlavièek sekcí\\
+\hline
+\end{tabular}}
+\end{itemize}
+\end{slide}
+
+\label{ELF}
+
+\begin{itemize}
+\item Standard nestanovuje formát spustitelného souboru. I kdy¾ vìt¹ina
+unixových systémù pøe¹la na ELF, stále se najdou mainstreamové systémy
+pou¾ívající jiné formáty. Napø. Mac OS X (co¾ je certifikovaný UNIX)
+pou¾ívá tzv. \emph{Mach-O} formát. Stejnì jako ELF je strukturovaný,
+odli¹uje se napø. v tom, ¾e za hlavièkou následují tzv. \emph{load
+commands}, které se odkazují na sekce v dal¹í èásti. Za nimi
+následují samotné segmenty, které se skládají ze sekcí. Ka¾dý segment je
+úsek virtuální pamìti, kterou dynamický linker mapuje do adresového
+prostoru procesu. Ka¾dá sekce obsahuje kód nebo data daného typu.
+
+
+\item Hlavièka souboru (\emph{ELF header}) obsahuje základní informace o
+souboru.
+\item Na Solarisu je k dispozici program \texttt{elfdump} umo¾òující
+zobrazení prakticky v¹ech sekcí v ELF souboru a jejich obsahu v lidsky èitelné
+formì. V Linuxu lze pou¾ít program \texttt{readelf}, jeho funkcionalita je
+ov¹em proti \texttt{elfdump} omezena.
+\item Tabulka programových hlavièek (\emph{program header table}) je pøítomna
+pouze u souborù obsahujících spustitelné programy, zobrazí se pomocí
+``\texttt{elfdump -p}''. Obsahuje informaci o rozvr¾ení virtuální pamìti
+procesu.
+\item Sekce obsahují instrukce, data, tabulku symbolù, relokaèní data, apod.
+\item Tabulka hlavièek sekcí (\emph{section header table}) obsahuje slu¾ební
+informace pro linker, ``\texttt{elfdump -c}''.
+\item Není to tak dávno co nìkteré unixové systémy pøe¹ly na ELF. Napø.
+OpenBSD pøe¹lo z \emph{a.out} formátu (co¾ je dal¹í formát
+spustitelných souborù, viz a.out(5) man page na OpenBSD) na ELF ve verzi
+3.4 v roce 2003. Proti ELFu je a.out mnohem jednodu¹¹í a ménì obecný,
+hodí se tedy dobøe na zkoumání fundamentálních principù zavádìní
+spustitelných souborù do pamìti.
+Základem hlavièka (obsahující napø. informace o tom zda spustitelný soubor
+vy¾aduje slu¾by run time linkeru nebo zda obsahuje Position
+Independent Code) a pak dal¹ích nepovinných 6 sekcí (text, data, relokace
+v textovém segmentu, relokace v datovém segmentu, tabulka symbolù, tabulka
+stringù korespondujících s jednotlivými symboly).
+\item Dnes je naprosto bì¾né ¾e virtuální adresy spustitelného souboru,
+namapovaných knihoven, zásobníku a heapu jsou náhodné, mìní se pøi ka¾dém
+spu¹tìní procesu. Tato technika (\emph{Adress Space Layout Randomization})
+slou¾í k znesnadnìní útokù, které potøebují znát napø. adresy symbolù v
+knihovnì \texttt{libc} nebo zásobníku. Poprvé s touto ideou pøi¹el
+Linux, OpenBSD byl první systém který ji zaèal pou¾ívat pro v¹echny
+programy implicitnì. Rùzné sys\-té\-my aplikují tuto techniku s rùznými
+parametry a na rùzné èásti programu. O\-bec\-nì\-ji vzato lze vná¹et náhodnost
+do dal¹ích èástí systému (napø. ID procesù, iniciální sekvenèní èísla pro TCP
+apod.).
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{exit, wait, waitpid}{procexit}
+
+\begin{slide}
+\sltitle{Ukonèení procesu}
+\setlength{\baselineskip}{0.6\baselineskip}
+\texttt{void \funnm{exit}(int \emph{status});}
+\begin{itemize}
+\item ukonèí proces s návratovým kódem \texttt{status}.
+\item nikdy se nevrátí na instrukci následující za voláním.
+\end{itemize}
+\texttt{pid\_t \funnm{wait}(int *\emph{stat\_loc});}
+\begin{itemize}
+\item poèká, a¾ skonèí nìkterý synovský proces, vrátí jeho PID a do
+\verb#stat_loc# ulo¾í návratový kód, který lze dále testovat: 
+    \begin{itemize}
+    \item \texttt{WIFEXITED(stat\_val)} \dots{} proces volal
+    \texttt{exit()}
+    \item \texttt{WEXITSTATUS(stat\_val)} \dots{} argument
+    \texttt{exit()}
+    \item \texttt{WIFSIGNALED(stat\_val)} \dots{} proces dostal
+    signál 
+    \item \texttt{WTERMSIG(stat\_val)} \dots{} èíslo signálu 
+    \item \texttt{WIFSTOPPED(stat\_val)} \dots{} proces
+    pozastaven 
+    \item \texttt{WSTOPSIG(stat\_val)} \dots{} èíslo signálu
+    \end{itemize}
+\end{itemize}
+\texttt{pid\_t \funnm{waitpid}(pid\_t \emph{pid}, int *\emph{stat\_loc},
+int \emph{opts});}
+\begin{itemize}
+\item èekání na jeden proces.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \texttt{status\_loc} roven \texttt{NULL} znaèí ignoraci statusu
+\item funkce \texttt{\_exit} funguje jako \texttt{exit} s tím, ¾e se neprovádí
+flush stdio streamù a nevolají se funkce nastavené pomocí \texttt{atexit}
+\item ve standardu je je¹tì \texttt{WIFCONTINUED(stat\_val)}, co¾ znaèí opìtné
+roz\-bìh\-nu\-tí procesu po jeho pøedchozím zastavení, je to ale souèást jistého
+roz¹íøení, které nemusí v¹echny systémy podporovat.
+\item poznámka -- pozastavit proces lze pomocí ,,\texttt{kill -STOP <PID>}'',
+rozbìhnout pak pøes ,,\texttt{kill -CONT <PID>}''.
+\item \texttt{opts} ve \texttt{waitpid} jsou OR-kombinace následujích
+pøíznakù:
+    \begin{itemize}
+    \item \texttt{WNOHANG} \dots{} neèeká, pokud není status
+    okam¾itì k dispozici
+    \item \texttt{WUNTRACED} \dots{} vrátí status i zastavených
+    procesù, které je¹tì nebyly testovány po jejich zastavení. \texttt{WSTOPPED}
+    mù¾e na nìkterých systémech být synonymem pro \texttt{WUNTRACED}, není ale
+    souèástí normy.
+    \item \texttt{WCONTINUED} \dots{} vrátí status i tìch procesù, které je¹tì
+    nebyly testovány od po\-kra\-èo\-vá\-ní procesu po zastavení. Bez tohoto
+    pøíznaku nejsou takové procesy reportovány. Souèástí stejného roz¹íøení jako
+    \texttt{WIFCONTINUED}.
+    \item pro \texttt{WUNTRACED} a \texttt{WCONTINUED} platí, ¾e v
+    pøenositelných aplikacích byste tyto pøíznaky mìli pou¾ívat jen kdy¾ je
+    v \texttt{<unistd.h>} definováno makro \texttt{\_POSIX\_JOB\_CONT\-ROL}.
+    \end{itemize}
+\item \texttt{pid} ve \texttt{waitpid}:
+    \begin{itemize}
+    \item \texttt{== -1} \dots{} libovolné dítì
+    \item \texttt{> 0} \dots{} jedno dítì
+    \item \texttt{== 0} \dots{} dítì ve stejné skupinì procesù jako volající
+    proces
+    \item \texttt{< -1} \dots{} dítì ve skupinì \texttt{abs(pid)}
+    \end{itemize}
+\item rodiè by mìl v¾dy na své dìti zavolat \texttt{wait} nebo
+\texttt{waitpid}, proto¾e jinak se v~systému hromadí \emph{zombie}
+(ukonèené procesy, které pouze èekají, a¾ si rodiè pøeète jejich
+návratovou hodnotu). Hromadìní tìchto zombie procesù v tabulce procesù kernelu
+mù¾e skonèit vyèerpáním ve¹keré volné pamìti, tak¾e pozor na to. Pokud takový
+rodiè sám skonèí, v¹echny jeho syny adoptuje process \texttt{init}, který se tak
+postará i o v¹echny zombie procesy.
+\item \label{WAITPID} pøíklad: \priklad{wait/wait.c}
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: spu¹tìní programu a èekání}
+\begin{center}
+\input{img/tex/fork_wait.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item toto je klasický zpùsob jak spustit nìjaký program a po jeho skonèení
+pokraèovat. Rodiè nemusí jen èekat na ukonèení potomka, ale mù¾e vykonávat dál
+svùj kód.
+\item pozor na to, ¾e aèkoli to na obrázku tak vypadá, návratová hodnota je
+pouze souèást toho, co dostanete z volání \texttt{wait}. Na její získání je
+potøeba pou¾ít makra z pøedchozího slajdu.
+\end{itemize}
+
+%%%%%
+
+\label{PIPEREADWRITE}
+
+\pdfbookmark[1]{pipe}{pipe}
+
+\begin{slide}
+\sltitle{Roura: \texttt{pipe()}}
+\texttt{int \funnm{pipe}(int \emph{fildes}[2]);}
+\begin{itemize}
+\item vytvoøí rouru a dva deskriptory 
+    \begin{itemize}
+    \item \texttt{fildes[0]} \dots{} ètení z roury 
+    \item \texttt{fildes[1]} \dots{} zápis do roury 
+    \end{itemize}
+\item roura zaji¹»uje synchronizaci ètení a zápisu: 
+    \begin{itemize}
+    \item zapisující proces se zablokuje, kdy¾ je roura plná,
+    \item ètoucí proces se zablokuje, kdy¾ je roura prázdná.
+    \end{itemize}
+\item ètoucí proces pøeète konec souboru (tj. \texttt{read()} vrátí
+\texttt{0}), pokud jsou uzavøeny v¹echny kopie \texttt{fildes[1]}. 
+\item pojmenovaná roura (vytvoøená voláním \texttt{mkfifo()})
+funguje stejnì, ale má pøidìl{}ené jméno v systému souborù a mohou ji
+tedy pou¾ívat libovolné procesy.
+\end{itemize}
+\end{slide}
+
+\label{PIPE}
+
+\begin{itemize}
+\item nepojmenovanou rouru vytváøí jeden proces a mù¾e ji pøedat
+pouze svým potomkùm (pomocí deskriptorù zdìdìných pøi
+\texttt{fork}). Toto omezení se dá obejít pomocí pøedání
+otevøeného deskriptoru pøes u{}nix-domain socket.
+\item jestli¾e funkce \texttt{write} zapí¹e do roury nejvý¹e
+\texttt{PIPE\_BUF} (systémová konstanta) bajtù, je zaruèeno, ¾e
+zápis bude atomický, tj. tato data nebudou prolo¾ena daty
+zapisovanými souèasnì jinými procesy. 
+\item \label{TWO_WAY_PIPES} v normì SUSv3 není specifikováno, zda
+\texttt{fildes[0]} je také otevøený pro zápis a zda \texttt{fildes[1]} je té¾
+otevøený pro ètení. Pozor na to, ¾e napøíklad FreeBSD a Solaris mají roury
+obousmìrné, ale Linux (kdy¾ jsem se naposledy díval) ne. Je proto velmi vhodné
+poèítat pouze s jednosmìrnými rourami.
+\item \emsl{dùle¾ité:} pro ètení/zápis z/do roury platí stejné podmínky jako
+pro pojmenovanou rouru, jak jsou uvedeny na stranì \pageref{NAMEDPIPE}. To také
+znamená, ¾e jediný zpùsob, jak ètenáøovi roury ``poslat'' end-of-file je, ¾e
+v¹ichni za\-pi\-so\-va\-te\-lé musí zavøít pøíslu¹ný desk\-rip\-tor pro zápis,
+pøípadnì v¹echny takové deskriptory, mají-li jich více.
+\item pøíklady: \priklad{pipe/broken-pipe.c}, \priklad{pipe/main.c}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: roura mezi dvìma procesy}
+\begin{center}
+\input{img/tex/pipe.tex}
+\end{center}
+\end{slide}
+
+\label{FDSHARING}
+
+\begin{itemize}
+\item zavøení zápisového deskriptoru \texttt{pd[1]} (ozn.
+{\color[rgb]{1,0,0} $\triangleright$}) v procesu konzumenta je
+nutné, proto¾e jinak se na rouøe nikdy nedetekuje konec souboru.
+\item ètecí deskriptor v procesu producenta \texttt{pd[0]} je také
+vhodné zavírat (ozn. {\color[rgb]{1,0,0} $\triangleright$}), proto¾e
+kdy¾ konzument pøedèasnì skonèí, dostane producent signál
+\texttt{SIGPIPE}. Kbyby deskriptor v producentovi nebyl zavøen,
+producent se nedozví, ¾e konzument skonèil, a po naplnìní bufferu
+roury v jádru se zablokuje.
+\item pokud nemáme jistotu, ¾e pøed voláním \texttt{pipe} byl otevøen
+deskriptor \texttt{0}, musíme v producentovi pou¾ít \texttt{dup2(pd[1], 1)},
+proto¾e \texttt{dup(pd[1])} by mo\-hl vrátit deskriptor \texttt{0} místo
+po¾adovaného \texttt{1}. Také je tøeba testovat, zda nenastala situace
+\verb#pd[1] == 1#, abychom si nechtìnì nezavøeli rouru. Podobnì je tøeba
+otestovat \verb#pd[0] == 0# v konzumentovi.
+\item je lep¹í vytváøet rouru od syna k otci, proto¾e typicky nejdøív skonèí
+proces zapisující do roury, ètoucí proces pøeète zbylá data, zpracuje je, nìco
+vypí¹e a teprve pak skonèí. 
+
+Dùvodem je to, ¾e shell, který pøíslu¹nou kolonu pøíkazù spou¹tí, èeká na
+ukonèení otce a o jeho syny se nezajímá. Kdyby tedy smìøovala roura od otce k
+synovi, otec jako producent dat skonèí, shell vypí¹e prompt, ale pak je¹tì syn,
+který plní funkci konzumenta, mù¾e vypsat nìjaký výstup. Mo¾ným øe¹ením je
+èekání otce na skonèení syna, jen¾e to se nedá zajistit, pokud otec provede
+exec.
+\item pùvodní \emph{Bourne shell} staví rouru tak, ¾e poslední proces v rouøe
+vytvoøí pøedposlední jako svého syna, ten vytvoøí pøedchozí proces a tak se
+postupuje a¾ k zaèátku roury.
+\item v shellu \texttt{bash} jsou v¹echny procesy v rouøe pøímo potomky shellu
+(shell volá \texttt{fork} tolikrát, jak dlouhá je roura). Shell pøed vypsáním
+promptu èeká, a¾ v¹echny procesy roury skonèí.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Sdíl{}ená pamì» -- úvod}
+\begin{itemize}
+\item pajpy a soubory jako metody meziprocesové komunikace vy¾adují
+systémová volání
+\item výhoda: procesy nemohou po¹kodit adresový prostor jiného
+procesu
+\item nevýhoda: velká re¾ie pro systémová volání, typicky
+\funnm{read}, \funnm{write}
+\item sdíl{}ená pamì» je namapování èásti pamìti do adresového
+prostoru více procesù
+\item odstranìní nevýhody, ztráta dosavadní výhody
+\item synchronizace pøístupu do sdíl{}ené pamìti
+\begin{itemize}
+  \item System V semafory
+  \item POSIX semafory bez nutnosti systémového volání v bì¾ném
+  pøípadì
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item mapování souborù do pamìti je jednou z implementací sdíl{}ené
+pamìti. Pro popis úseku sdíl{}ené pamìti pou¾ívá soubor.
+\item takto implementovaná sdíl{}ená pamì» je tedy pravidelnì
+zapisována na disk
+\item pro sdíl{}ení bez re¾ie zápisu zmìnìných dat na disk je mo¾né pou¾ít
+\emph{memory based} filesystém, napøíklad \emph{tmpfs} (Solaris, NetBSD -- zde
+byl \emph{tmpfs} napsán v roce 2005 jako souèást \emph{Summer of Code}
+sponzorovaného firmou Google, FreeBSD má podobnou vlastnost pod názvem
+\emph{memory disk}).  Jako tzv. \emph{backing store} pro pamì»ové stránky
+patøící tìmto filesystémùm je obecnì mo¾né pou¾ít swap oblast na disku.
+\item pro synchronizaci pøístupu do sdíle{}né pamìti se vìt¹inou pou¾ívají
+semafory.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{mmap}{mmap}
+
+\begin{slide}
+\sltitle{Mapování souborù do pamìti (1)}
+\begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
+void *\funnm{mmap}(\=void *\emph{addr}, size\_t \emph{l{}en},
+int \emph{prot}, int \emph{flags},\\\> int \emph{fildes}, off\_t \emph{off});
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item do pamì»ového prostoru procesu od adresy \texttt{addr}
+(\texttt{0} \dots{}adresu pøidìlí jádro) namapuje úsek délky
+\texttt{l{}en} zaèínající na pozici \texttt{off} souboru
+reprezentovaného deskriptorem \texttt{fildes}. 
+\item vrací adresu namapovaného úseku nebo \texttt{MAP\_FAILED}. 
+\item v \texttt{prot} je OR-kombinace \texttt{PROT\_READ} (lze
+èíst), \texttt{PROT\_WRITE} (lze zapisovat), \texttt{PROT\_EXEC}
+(lze spou¹tìt), nebo \texttt{PROT\_NONE} (nelze k~datùm
+pøistupovat). 
+\item ve \texttt{flags} je OR-kombinace \texttt{MAP\_PRIVATE} (zmìny
+jsou privátní pro proces, neukládají se do souboru),
+\texttt{MAP\_SHARED} (zmìny se ukládají do souboru),
+\texttt{MAP\_FIXED} (jádro nezmìní addr).
+\end{itemize}
+\end{slide}
+
+\label{MMAP}
+
+\begin{itemize}
+\setlength{\itemsep}{0.8\itemsep}
+\item Pøíklady: \priklad{mmap/reverse.c}, \priklad{mmap/map-nocore.c}
+\item v pøíznacích musí být pøítomen \emsl{právì jeden} z \texttt{MAP\_PRIVATE}
+a \texttt{MAP\_SHARED}
+\item mapování souborù do pamìti je alternativou ke zpracování souborù pomocí
+\texttt{read}, \texttt{write}, \texttt{lseek}.  Po namapování lze se
+souborem pracovat jako s datovou strukturou v pamìti. Soubor se nekopíruje celý
+do pamìti, alokují se pouze stránky na které se pøistupuje. Pokud je potøeba
+stránku uvolnit, obsah se ukládá zpìt do souboru (kdy¾ je pou¾it
+\texttt{MAP\_SHARED} -- tento zpùsob namapování je tedy ekvivalentní tomu, kdy
+program zapí¹e do stejného souboru pomocí \texttt{write(2)}) nebo do swapu --
+pou¾ívá se mechanizmus copy-on-write (pøi \texttt{MAP\_PRIVATE}).
+\item pro namapování souboru do pamìti tedy potøebuji soubor nejdøíve otevøít
+pomocí \texttt{open}. Mód v \texttt{prot} nemù¾e být ``vy¹¹í'' ne¾ bylo
+specifikováno v módu pro \texttt{open}. Pou¾ití \texttt{MAP\_FIXED} se
+nedoporuèuje, proto¾e to mù¾e být problém pro pøenositelnost kódu.
+\item \textbf{varování:} toto se týká pouze \texttt{MAP\_SHARED} -- pokud je
+soubor jiným procesem zkrácen tak, ¾e zkrácení se týká i právì namapované èásti,
+pøi pøístupu do takové pamìti je procesu
+zaslán signál \texttt{SIGBUS} resp. \texttt{SIGSEGV}.
+Øe¹ením je pou¾ít mandatory locking, to ale není
+v¹ude implementováno. V pøípadì, ¾e je namapovaná pamì» pou¾ita jako parametr
+volání \texttt{write}, signál se nepo¹le, proto¾e \texttt{write} vrátí -1
+a \texttt{errno} je nastaveno na \texttt{EFAULT}.
+\item pøi pou¾ití \texttt{MAP\_PRIVATE} vidím na Solarisu v¹echny zmìny
+provedené jinými procesy, které namapovaly sdíl{}enì, a¾ do té doby, kdy do
+stránky zapí¹u -- v tom okam¾iku se vytvoøí kopie stránky a dal¹í takové zmìny
+ji¾ nevidím. Na FreeBSD tyto zmìny nevidím ani pøed zápisem. Viz specifikace:
+\emph{,,It is unspecified whether modifications to the underlying object done
+after the \texttt{MAP\_PRIVATE} mapping is established are visible through the
+\texttt{MAP\_PRIVATE} mapping.''}
+\item hodnota \texttt{off+l{}en} mù¾e pøekraèovat aktuální velikost souboru, za
+konec souboru ale nelze zapisovat a soubor tak prodlou¾it - proces by obdr¾el
+signál \texttt{SIGBUS} resp. \texttt{SIGSEGV},
+viz pøíklad \priklad{mmap/lseek.c}.  Signál dostanu stejnì tak v situaci, kdy
+do read-only namapovaného segmentu zkusím zapsat (je to logické, pøiøazení
+nemá návratovou hodnotu kterou byste mohli otestovat).
+\item mapuje se v¾dy po celých stránkách, hodnoty \texttt{off} (a pøi
+\texttt{MAP\_FIXED} i \texttt{addr}) musí být správnì zarovnané.  Poslední
+stránka je za koncem souboru doplnìna nulami a tento úsek se nikdy nepøepisuje
+do souboru.
+\item Anonymní mapování lze sdílet mezi rùznými procesy pouze pomocí
+\texttt{fork()}. Jedinou alternativou je pamì» sdílená pomocí systémového
+volání \texttt{shmat}.
+\item pøístup do namapovaného úseku, ale za poslední existující stránku
+namapovaného objektu, zpùsobí signál \texttt{SIGBUS} resp. \texttt{SIGSEGV}.
+Neplatí to v¹ude úplnì pøesnì, viz pøíklad \priklad{mmap/sigbus.c}.
+\item Pøi pou¾ití \texttt{MAP\_FIXED} namapování souboru nahradí pøípadné
+pøedchozí mapování stránek v rozsahu.
+\texttt{addr} a¾ \texttt{addr+l{}en-1}, viz pøíklad \priklad{mmap/override.c}.
+\item existující roz¹íøení pro flagy (nejsou souèástí SUSv3):
+    \begin{itemize}
+    \setlength{\itemsep}{0.8\itemsep}
+    \item pøíznak \texttt{MAP\_ANON} ve FreeBSD a Solarisu -- vytvoøení
+    anonymního segmentu bez vazby na soubor, deskriptor musí být \texttt{-1}.
+    Mapuje se tak anonymní objekt, který jak víme má místo fyzického ulo¾ení
+    na swapu (tedy není trvalé). Linux má podobnou funkcionalitu pøes
+    \texttt{MAP\_ANONYMOUS}. Tento pøíznak pou¾ívají pamì»ové alokátory, které
+    pracují s voláním \texttt{mmap}, viz také strana
+    \pageref{SOLARIS_PROC_ADDR_SPACE}.
+    \item v IRIXu lze pomocí \texttt{MAP\_AUTOGROW} automaticky
+    zvìt¹it namapovaný objekt pøi pøístupu za jeho stávající konec.
+    \end{itemize}
+\item bì¾ným pøíkazem, který pou¾ívá mapování souborù do pamìti, je
+\texttt{cat(1)}. Èíst z takové pamìti je prostì rychlej¹í ne¾ opakovanì volat
+\texttt{read}, kde je nutné se pro ka¾dé takové volání pøepnout z u¾ivatelského
+re¾imu do re¾imu jádra a zpìt.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{msync, munmap, mprotect}{msync}
+
+\begin{slide}
+\sltitle{Mapování souborù do pamìti (2)}
+\texttt{int \funnm{msync}(void *\emph{addr}, size\_t \emph{l{}en},
+int \emph{flags});}
+\begin{itemize}
+\item zapí¹e zmìnìné stránky v úseku l{}en bajtù od adresy addr do
+souboru. Hodnota flags je OR-kombinace 
+    \begin{itemize}
+    \item \texttt{MS\_ASYNC} \dots{} asynchronní zápis 
+    \item \texttt{MS\_SYNC} \dots{} synchronní zápis 
+    \item \texttt{MS\_INVALIDATE} \dots{} zru¹it namapovaná data,
+    která se li¹í od obsahu souboru 
+    \end{itemize}
+\end{itemize}
+\texttt{int \funnm{munmap}(void *\emph{addr}, size\_t \emph{l{}en});}
+\begin{itemize}
+\item zapí¹e zmìny, zru¹í mapování v délce \texttt{l{}en} od adresy
+\texttt{addr}. 
+\end{itemize}
+\texttt{int \funnm{mprotect}(void *\emph{addr}, size\_t \emph{l{}en},
+int \emph{prot});}
+\begin{itemize}
+\item zmìní pøístupová práva k namapovanému úseku souboru. Hodnoty
+prot jsou stejné jako u \texttt{mmap()}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item ulo¾ení zmìn do souboru na disk je zaruèené a¾ po provedení
+\texttt{msync} nebo \texttt{munmap}, ale ostatní procesy, které
+mají soubor namapován, vidí zmìny hned.
+\item mapování pamìti a nastavování pøístupových práv pou¾ívá napø.
+knihovna Electric Fence, která slou¾í pro ladìní chyb pøi práci s
+dynamickou pamìtí.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: mapování souborù do pamìti}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{alltt}
+int main(int argc, char *argv[])
+\{
+    int fd, fsz; char *addr, *p1, *p2, c;
+
+    fd = \emprg{open}(argv[1], O\_RDWR);
+    fsz = \emprg{lseek}(fd, 0, SEEK\_END);
+    p1 = addr = \emprg{mmap}(0, fsz, PROT\_READ|PROT\_WRITE,
+                     MAP\_SHARED, fd, 0);
+    p2 = p1 + fsz - 1;
+    while(p1<p2) \{
+        c = *p1; *p1++ = *p2; *p2-- = c;
+    \}
+    \emprg{munmap}(addr, fsz); 
+    \emprg{close}(fd);
+    return (0);
+\}
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item Tento program otoèí poøadí znakù v souboru (zapí¹e soubor od konce k
+za\-èát\-ku).
+\item Jedna z hlavních výhod sdílených segmentù je mo¾nost pracovat s
+daty v souboru pomocí pointerové aritmetiky. Obecnì je ale nutné dát pozor
+na zarovnání pøi dereferencích; napø. na SPARCu dojde pøi takovém pøístupu
+signál \texttt{SIGBUS}, viz pøíklad \priklad{mmap/aligned.c}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{dlopen, dlsym, dlclose, dlerror}{dynlib}
+
+\begin{slide}
+\sltitle{Dynamický pøístup ke knihovnám}
+\texttt{void *\funnm{dlopen}(const char *\emph{file}, int \emph{mode});} 
+\begin{itemize}
+\item zpøístupní knihovnu v souboru \texttt{file}, vrátí
+\emsl{handle} nebo \texttt{NULL}.
+\item v \emph{mode} je OR-kombinace \texttt{RTLD\_NOW} (okam¾ité relokace),
+\texttt{RTLD\_LAZY} (odlo¾ené relokace), \texttt{RTLD\_GLOBAL}
+(symboly budou globálnì dostupné), \texttt{RTLD\_LOCAL} (nebudou
+globálnì dostupné). 
+\end{itemize}
+\texttt{void *\funnm{dlsym}(void *\emph{handle}, const char *\emph{name});}
+\begin{itemize}
+\item vrátí adresu symbolu zadaného jména z knihovny. 
+\end{itemize}
+\texttt{int \funnm{dlclose}(void *\emph{handle});}
+\begin{itemize}
+\item ukonèí pøístup ke knihovnì. 
+\end{itemize}
+\texttt{char *\funnm{dlerror}(void);}
+\begin{itemize}
+\item vrátí textový popis chyby pøi práci s knihovnami.
+\end{itemize}
+\end{slide}
+
+\label{DLOPEN}
+
+\begin{itemize}
+\item pomocí tìchto funkcí lze implementovat dynamicky nahrávané plug-in moduly
+naèítané aplikací podle potøeby (napø. podle obsahu jejího
+kon\-fi\-gu\-raè\-ní\-ho souboru).
+\item dynamickým naèítáním knihoven se také dá vyøe¹it situace, kdy potøebujeme
+vyu¾ít nìkolik knihoven, které definují symbol se stejným jménem. Jedna knihovna
+se pøímo pøilinkuje k programu, k ostatním se pøistupuje pomocí \texttt{dlopen}.
+\item soubor musí být ve správném formátu (sdíl{}ená knihovna \texttt{.so} ve
+formátu \emph{ELF} resp. formátu podporovaném na daném systému),
+napøíklad u \texttt{gcc} to znamená pou¾ít pøepínaè \texttt{-shared},
+u \texttt{cc} na Solarisu (Sun Studio Compiler) je to pøepínaè \texttt{-G}.
+Na OS X (s formátem \emph{Mach-O}) je to \texttt{-dynamiclib}, knihovny
+mají pøíponu \texttt{.dynlib}.
+\item pokud cesta obsahuje znak \texttt{/}, bere se podle tvaru jako globální
+nebo re\-la\-tiv\-ní. Pokud lomítko neobsahuje, pou¾ije se pro hledaní objektu
+defaultní na\-sta\-ve\-ní dynamického linkeru, typicky \texttt{/lib} a
+\texttt{/usr/lib}, které se dá roz¹íøít pomocí promìnné
+\texttt{LD\_LIBRARY\_PATH}. Na její pou¾ití ov¹em pozor, viz poznámky na
+stranì \pageref{EVIL_LDLIBPATH}.
+\item konstanty pro parametr \emph{mode} funkce \funnm{dlopen}:
+    \begin{itemize}
+    \item \texttt{RTLD\_NOW} -- v¹echny relokace (vyøe¹ení v¹ech odkazù) pro
+    symboly nalezené v pøipojovaném objektu jsou provedeny okam¾itì po nata¾ení
+    knihovny, aplikace má jistotu, ¾e jsou v¹echny symboly pøístupné
+    \item \texttt{RTLD\_LAZY} -- relokace mohou být odlo¾eny a¾ do chvíle
+    pou¾ití symbolu. Co to v praxi znamená? Pokud otevøete objekt, který závisí
+    na dal¹ích objektech, dynamický linker tyto ostatní závislé objekty mapuje
+    do pa\-mì\-ti, a¾ kdy¾ jsou opravdu potøeba. Mù¾e se tak stát, ¾e závislosti
+    neexistují, ale volání \texttt{dlopen} stejnì uspìje. U \texttt{RTLD\_NOW}
+    se závislé objekty mapují do pamìti hned, a teprve pak \texttt{dlopen} vrátí
+    pøíslu¹ný handle. Na Solarisu mù¾ete defaultní chování pro dynamický linker
+    vynutit promìnnými prostøedí \texttt{LD\_BIND\_NOW} a
+    \texttt{LD\_BIND\_LAZY}. Pøi konfliktu nastavení má v¾dy pøednost nastavení
+    \texttt{NOW}, a» ji¾ je globální nebo jen v módu volání \texttt{dlopen} pøi
+    mapování jednoho konkrétního objektu. Pøi spou¹tìní aplikace jsou v¹echny
+    závislé objekty defaultnì mapované hned, ale je mo¾né jednotlivé knihovny
+    linkovat pro ,,lazy binding'' pomocí \texttt{-z lazyload}, viz manuálové
+    stránky pro \texttt{ld} a \texttt{ld.so.1}. Pøíklad:
+    \priklad{dyn-lib/ld-lazy.c}.
+    \item \texttt{RTLD\_GLOBAL} \dots{} symboly z knihovny mohou být pou¾ity pøi
+    zpracování relokací v ostatních knihovnách a jsou dostupné pomocí
+    \texttt{dlopen(0, RTLD\_GLOBAL)}. Toto je defaultní nastavení pro objekty
+    mapované pøi spu¹tìní programu. Pro \texttt{dlopen} je defaultní nastavení
+    \texttt{RTLD\_LOCAL}. To znamená, ¾e je mo¾né namapovat stejnou knihovnu
+    nìkolikrát a symboly se nebudou vzájemnì pøekrývat. Pozor ale na to, kdy¾
+    takové knihovny budou pou¾ívat symboly jiného globální objektu - napø.
+    \texttt{errno} z \texttt{libc.so}. Takový symbol je dále spoleèný pro
+    v¹echny namapované objekty, vèetnì tìch mapovaných pomocí
+    \texttt{RTLD\_LOCAL}.
+    \end{itemize}
+\item \label{RTLD_NEXT} speciální handle \texttt{RTLD\_NEXT} hledá symbol pouze
+v knihovnách nahraných po knihovnì, ve které je volání \texttt{dlsym}. Hodí se
+pro pøedefinování existujících funkcí, pokud v redefinované funkci potøebujeme
+volat pùvodní. Kni\-ho\-vna s novou funkcí se nahrává jako první (napø. pomocí
+promìnné \texttt{LD\_PRELOAD}), adresu pùvodní funkce získá voláním
+\texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}. Pøíklad:
+\priklad{dyn-lib/rtld\_next.c}.
+\item v¹echny tyto funkce jsou souèástí dynamického linkeru, který má ka¾dá
+dynamicky slinkovaná aplikace namapovaný ve svém adresovém prostoru. Viz také
+strany \pageref{RUNTIMELINKER} a \pageref{EXEC}.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: zpøístupnìní knihovny}
+\begin{alltt}
+char *err;
+void *handle;
+double y, x = 1.3;
+double (*fun)(double); 
+char *libname = "libm.so", *fn\_name = "sin";
+
+if ((handle = \emprg{dlopen}(libname, RTLD\_NOW)) == NULL) \{
+        fprintf(stderr, "%s\bs{}n", dlerror()); exit(1);
+\}
+fun = \emprg{dlsym}(handle, fn\_name);
+if ((err = \emprg{dlerror}()) != NULL)
+        fprintf(stderr, "%s\bs{}n", err); exit(1);
+y = fun(x);
+\emprg{dlclose}(handle);
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item zde se volá funkce \texttt{sin} z knihovny matematických funkcí
+\texttt{libm.so}.
+\item funkce \texttt{dlsym} vrátí adresu symbolu daného jména, ale
+v¾dy jako ukazatel na \texttt{void}, neprobíhá ¾ádná typová kontrola
+ani není k dispozici ¾ádná informace o typu symbolu. Ten, kdo tuto
+adresu pou¾ívá, musí zajistit její správné pøetypování. 
+\item pøi pou¾ití knihoven v C++ je tøeba si uvìdomit, ¾e C++
+pou¾ívá \emph{name mangling}, tj. do jména funkce (metody) je
+zakódováno pøípadné jméno tøídy nebo namespace a typy parametrù.
+\item pøíklad: \priklad{dyn-lib/dlopen.c}
+\end{itemize}
+
+\endinput

@@ -1,0 +1,37 @@
+\begin{picture}(0,0)%
+\includegraphics{startx.pstex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4524,2004)(-11,-1198)
+\put(721,659){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}startx [clientargs] [-- serverargs]}%
+}}}
+\put( 91,209){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}xinit [[client [opts]] [-- [server] [display] [opts]]}%
+}}}
+\put(2926,-241){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\~{}/.xinitrc}%
+}}}
+\put( 91,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{9}{10.8}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/usr/lib/X11/xinit/xserverrc}%
+}}}
+\put(2521,-1141){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}twm}%
+}}}
+\put(3196,-1141){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}xterm}%
+}}}
+\put(4096,-1141){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}xman}%
+}}}
+\put(2521,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{9}{10.8}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/usr/lib/X11/xinit/xinitrc}%
+}}}
+\put(496,-1141){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}/usr/bin/X11/X}%
+}}}
+\put(1171,-16){\makebox(0,0)[lb]{\smash{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}server}%
+}}}
+\put(3601,-16){\makebox(0,0)[lb]{\smash{\SetFigFont{9}{10.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}klienti}%
+}}}
+\put(473,-241){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}\~{}/.xserverrc}%
+}}}
+\end{picture}

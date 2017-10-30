@@ -1,0 +1,174 @@
+% Slidy k pøedná¹ce UNIX
+% (c) 1999-2015, Martin Beran, Jan Pechanec, Vladimir Kotal
+
+% (janp) poznamky
+%
+% obrazky
+%   - staci udelat obrazek v jakemkoli formatu, zkonvertovat to do EPS (aby to
+%   melo BoudingBox), napr. pomoci ImageMagicks ("convert abc.gif abc.eps") a
+%   includovat pomoci \includegraphics s tim, ze zadam velikost cimz vlastne
+%   delam na obrazek scale. Priklad s img/examples/circle.eps:
+%
+%   \includegraphics[width=30mm]{circle.eps}
+%
+
+changequote([[[, ]]])
+
+%\documentclass[article]{seminar}
+%\documentclass[slidesonly]{seminar}
+%\documentclass[a4paper]{seminar}
+
+\usepackage{multicol}
+\usepackage{tabularx}
+
+%\input{seminar.bg2}
+%\usepackage{seminar}
+
+% color doc: http://en.wikibooks.org/wiki/LaTeX/Colors
+% color defs: http://www.w3schools.com/html/html_colors.asp
+\usepackage{color}
+\definecolor{MyDarkBlue}{RGB}{71,57,146} % BlueViolet
+\definecolor{MyDarkRed}{RGB}{139,00,00}
+
+% hyperref docs:
+%   http://www.tug.org/applications/hyperref/manual.html
+%   http://en.wikibooks.org/wiki/LaTeX/Hyperlinks
+%
+\usepackage[bookmarks,breaklinks=true,%
+	colorlinks=true,linkcolor=MyDarkBlue,urlcolor=MyDarkRed,%
+	pdftex,%
+	pdfauthor={Vladimír Kotal},%
+	pdftitle={Programování v UNIXu},%
+	pdfsubject={slajdy pro (NSWI015)},%
+	pdfkeywords={UNIX, programovani, MFF, MFF-UK},%
+	pagebackref=true,%
+	]{hyperref}
+\usepackage{url}
+% by default \url will use monospaced font. suppress this and use normal font.
+\urlstyle{same}
+
+% colored frame around source code path to examples
+% which is actually a link
+\newcommand{\priklad}[1]{\fcolorbox{cyan}{white}{\href{http://mff.devnull.cz/pvu/src/#1}{\texttt{#1}}}}
+
+% s timhle nefunguje hyperref !
+%\usepackage{sem-a4}
+
+% (janp)
+\usepackage[czech]{babel}
+\usepackage[latin2]{inputenc}
+\usepackage[OT1]{fontenc}
+%\usepackage{czech}
+% (janp) end
+\usepackage{alltt}
+\usepackage{graphicx}
+%\usepackage{psfrag}
+%\usepackage{pstricks} % colortbl s tím nefunguje
+%\usepackage{colortbl}
+
+%%% Makra %%%
+
+% (janp)
+\chardef\clqq=254  \sfcode254=0 \lccode254=0
+\chardef\crqq=255  \sfcode255=0 \lccode255=0
+%\DeclareRobustCommand\uv[1]{{\leavevmode\clqq#1\crqq}}
+\DeclareRobustCommand\uv[1]{{\leavevmode{},,#1''}}
+% (janp) end
+
+\renewcommand{\slidelabel}{}
+\setlength{\textwidth}{0.9\textwidth}
+
+\newcommand{\sltitle}[1]{{\centering\textbf{\Large #1}
+    \vskip 2em plus 0pt minus 2em\par}} % Slide title
+
+% bold
+\newcommand{\emsl}[1]{\textbf{#1}} % Emphasizing in slides
+
+\newcommand{\emprg}[1]{\emph{\color[rgb]{1,0,0} #1}} % Emphasize in programs
+\newcommand{\emblue}[1]{\emph{\color[rgb]{0,0,1} #1}} % emph in blue
+
+% my very importatn note
+\newcommand{\rednote}[1]{\color[rgb]{1,0,0} #1}
+
+\newcommand{\CHECK}[1]{{\color[rgb]{1,0,0} $\star$#1$\star$}} % What should be
+							      % checked
+
+\newenvironment{itemize2} % Itemize with smaller font
+    {\begin{itemize}\small} {\end{itemize}}
+    
+\newsavebox{\boxTMP}
+\newcommand{\raisetab}[1]{ % Align first table row with other text
+    \sbox{\boxTMP}{\begin{tabular}{c}\hline X\\\hline\end{tabular}}
+    \raisebox{\ht\boxTMP}{#1}}
+
+\newcommand{\funnm}[1] {% Emphasized function name
+    {\bf #1}}
+
+\newcommand{\funml}[1] { % Multi-line function prototype
+    \begin{minipage}{\slidewidth}
+    \vspace{-1ex}\texttt{\begin{tabbing}#1\end{tabbing}}
+    \end{minipage}}
+
+\newcommand{\bs}{\char92\relax} % TT backslash
+% http://tex.stackexchange.com/questions/9363/how-does-one-insert-a-backslash-or-a-tilde-into-latex
+\newcommand{\tilda}{\char`\~} % TT tilda
+
+\newtoks\prgcharsI\newtoks\prgcharsII
+{\catcode`\_=13\catcode`\&=13\global\prgcharsI={_}\global\prgcharsII={&}}
+\def\prgchars{ % Do not require backslashes for these characters often used
+                % in C program source code
+    \catcode`\_=13\catcode`\&=13
+    \expandafter\def\the\prgcharsI{\_}\expandafter\def\the\prgcharsII{\&}}
+
+% Fonty
+%\DeclareTextFontCommand{\textrm}{\usefont{IL2}{cmss}{m}{n}}
+%\DeclareTextFontCommand{\textbf}{\usefont{IL2}{cmss}{bx}{n}}
+%\DeclareTextFontCommand{\texttt}{\usefont{IL2}{cmtt}{m}{n}}
+%\DeclareTextFontCommand{\noterm}{\usefont{IL2}{cmr}{m}{n}}
+%\DeclareTextFontCommand{\notebf}{\usefont{IL2}{cmr}{bx}{n}}
+
+% (janp)
+%\DeclareOldFontCommand{\rm}{\usefont{IL2}{cmss}{m}{n}}{\mathrm}
+%\DeclareOldFontCommand{\bf}{\usefont{IL2}{cmss}{bx}{n}}{\mathbf}
+%\DeclareOldFontCommand{\tt}{\usefont{IL2}{cmtt}{m}{n}}{\mathtt}
+
+%\usefont{IL2}{cmr}{m}{n}
+
+% (janp)
+%\renewcommand{\slidefonts}{\usefont{IL2}{cmss}{m}{n}
+% (janp)
+%\def\descriptionlabel##1{\hspace\labelsep\bfseries ##1}}
+
+\centerslidesfalse
+
+% (janp)
+%\csprimeson
+
+%\graphicspath{{./img/tex}}
+
+
+\begin{document}
+
+%\usefont{IL2}{cmr}{m}{n}
+%\renewcommand{\slidefonts}{\usefont{IL2}{cmss}{m}{n}}
+
+\hyphenation{stra-na}
+
+\input{uvod.m4.tex}
+\input{soubory.m4.tex}
+\input{procesy.m4.tex}
+\input{signaly.m4.tex}
+\input{synchronizace.m4.tex}
+\input{site.m4.tex}
+\input{vlakna.m4.tex}
+%\input{sprava_systemu.m4.tex}
+\input{changelog.m4.tex}
+%\input{ostatni.m4.tex}
+%\input{leftovers.m4.tex}
+
+\begin{slide}
+\centerslidestrue
+\sltitle{The End.}
+\end{slide}
+
+\end{document}

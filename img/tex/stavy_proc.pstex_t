@@ -1,0 +1,81 @@
+\begin{picture}(0,0)%
+\includegraphics{stavy_proc.pstex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(3972,2859)(541,-2053)
+\put(2363,614){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}bezi}%
+}}}
+\put(2363,419){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v uziv.}%
+}}}
+\put(2363,224){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}rezimu}%
+}}}
+\put(2386,-331){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}bezi}%
+}}}
+\put(2386,-526){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v rezimu}%
+}}}
+\put(2386,-721){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}jadra}%
+}}}
+\put(3781,-781){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}spi}%
+}}}
+\put(3781,-976){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v pameti}%
+}}}
+\put(3781,-1681){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}spi}%
+}}}
+\put(3781,-1876){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}na disku}%
+}}}
+\put(991,-781){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}pripraven}%
+}}}
+\put(991,-976){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}v pameti}%
+}}}
+\put(991,-1681){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}pripraven}%
+}}}
+\put(991,-1876){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}na disku}%
+}}}
+\put(4141, 74){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}matoha}%
+}}}
+\put(4141,-121){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}(zombie)}%
+}}}
+\put(541,389){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}vznik}%
+}}}
+\put(3241,659){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}zanik}%
+}}}
+\put(541, 29){\makebox(0,0)[b]{\smash{\SetFigFont{41}{49.2}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}*}%
+}}}
+\put(1846,-331){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}preempce}%
+}}}
+\put(1621,-1006){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}procesoru}%
+}}}
+\put(1531,-871){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}prideleni}%
+}}}
+\put(1171,-1321){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}zavedeni}%
+}}}
+\put(3871,-1321){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}odlozeni}%
+}}}
+\put(811,-1321){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}odlozeni}%
+}}}
+\put(2386,-1411){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}probuzeni}%
+}}}
+\put(2386,-1951){\makebox(0,0)[b]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}probuzeni}%
+}}}
+\put(2971,-511){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}uspani}%
+}}}
+\put(2521,-61){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}navrat}%
+}}}
+\put(2206,-61){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}preruseni}%
+}}}
+\put(3511,164){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}exit}%
+}}}
+\put(3466,-16){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}kill}%
+}}}
+\put(3241,479){\makebox(0,0)[b]{\smash{\SetFigFont{14}{16.8}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}$\dagger$}%
+}}}
+\put(3736,389){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}wait}%
+}}}
+\end{picture}

@@ -1,0 +1,817 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[0]{synchronizace a komunikace procesù}{synchro}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item základní pojmy a konvence UNIXu a jeho API
+\item pøístupová práva, periferní zaøízení, systém souborù
+\item process manipulation, program execution
+\item signály
+\item \emsl{synchronizace a komunikace procesù}
+\item sí»ová komunikace
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Synchronizace procesù a IPC
+
+changequote([[[, ]]])
+
+\pdfbookmark[1]{konflikt pøi sdílení dat}{conflict}
+
+\begin{slide}
+\sltitle{Problém: konflikt pøi sdíl{}ení dat}
+\begin{itemize}
+\item máme strukturu \texttt{struct \{ int a, b; \} \emph{shared};}
+\item
+\begin{alltt}
+for( ; ; ) \{
+    \emprg{/* neatomická operace */
+    a = shared.a; b = shared.b;}
+    if (a != b) printf("NEKONZISTENTNÍ STAV");
+    \emprg{/* neatomická operace */
+    shared.a = val; shared.b = val;}
+\} 
+\end{alltt}
+\item jestli¾e tento cyklus spustíme ve dvou rùzných procesech (nebo
+vláknech), které obì sdílejí stejnou strukturu shared a mají rùzné hodnoty
+\texttt{val}, bude docházet ke konfliktùm. 
+\item pøíèina: operace na zvýraznìných øádcích nejsou atomické.
+\end{itemize}
+\end{slide}
+
+\label{SYNCHRONIZATION}
+
+\begin{itemize}
+\item ani operace, kterou lze v C zapsat jedním pøíkazem, nemusí být
+atomická.  Pø.: na RISC\-ových procesorech se pøíkaz \verb.a++.
+typicky pøelo¾í jako sekvence:
+
+\begin{verbatim}
+load reg,[a]
+inc reg
+store [a],reg
+\end{verbatim}
+
+a to z toho dùvodu, ¾e na této architektuøe nelze inkrementovat èíslo pøímo v
+pamìti. Pro tyto pøípady má napøíklad Solaris sadu funkcí
+\texttt{atomic\_add(3c)}, jejich¾ pou¾ití je mnohem rychlej¹í ne¾ klasické
+zamykací mechanismy. Více viz strana \pageref{ATOMIC_ADD}.
+\item obecnì obdobný problém nastává, kdy¾ více procesù sdílí nìjaký systémový
+zdroj.
+\item \label{RACE_C} pøíklad: \priklad{race/race.c}
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Scénáø konfliktu}
+\begin{tabular}{rl@{\hspace{2cm}}|c|c|}
+\multicolumn{2}{l}{Procesy \emsl{A}\texttt{(val==1)} a
+\emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
+\multicolumn{1}{c}{\texttt{b}}\\
+% \cline{3-4}
+1. & poèáteèní stav struktury & ? & ? \\
+% \cline{3-4}
+2. & proces \emsl{A} zapí¹e do polo¾ky \texttt{a} & 1 & ? \\
+% \cline{3-4}
+3. & proces \emsl{B} zapí¹e do polo¾ky \texttt{a} & 2 & ? \\
+% \cline{3-4}
+4. & proces \emsl{B} zapí¹e do polo¾ky \texttt{b} & 2 & 2 \\
+% \cline{3-4}
+5. & proces \emsl{A} zapí¹e do polo¾ky \texttt{b} & 2 & 1 \\
+% \cline{3-4}
+6. & \multicolumn{1}{l}{\parbox[t]{5cm}{struktura je v nekonzistentním stavu
+a jeden z procesù to zjistí.}}
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item dal¹í mo¾nost:
+\begin{enumerate}
+\item struktura je v konzistentním stavu, napø. \texttt{(1, 1)}
+\item proces \texttt{B} zapí¹e \texttt{2} do polo¾ky \texttt{a}
+\item proces \texttt{A} pøeète hodnotu struktury \texttt{(2, 1)}
+døíve, ne¾ proces \texttt{B} stihne zapsat polo¾ku \texttt{b}
+\end{enumerate}
+\item pozor na to, ¾e synchronizaèní problémy se èasto projeví a¾ na
+víceprocesorovém stroji, nebo na více procesorech ne¾ kolik jich máte pøi vývoji
+k dispozici apod. Je tøeba na to myslet pøi testování.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{vzájemné vylouèení}{mutexcl}
+
+\begin{slide}
+\sltitle{Øe¹ení: vzájemné vylouèení procesù}
+\begin{itemize}
+\item je potøeba zajistit atomicitu operací nad strukturou, tzn.
+jeden proces provádí modifikaci a dokud neuvede strukturu do
+konzistentního stavu, druhý proces s ní nemù¾e manipulovat. 
+\end{itemize}
+\begin{tabular}{rl@{\hspace{2cm}}|c|c|}
+\multicolumn{2}{l}{Procesy \emsl{A}\texttt{(val==1)} a
+\emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
+\multicolumn{1}{c}{\texttt{b}}\\
+% \cline{3-4}
+1. & poèáteèní stav struktury & ? & ? \\
+% \cline{3-4}
+2. & proces \emsl{A} zapí¹e do polo¾ky \texttt{a} & 1 & ? \\
+% \cline{3-4}
+\setbox0=\hbox{$\left\{\vphantom{\begin{tabular}{c}\hline1\\
+\hline1\\ \hline1\\ \hline \end{tabular}}\right.$}
+\ht0=0pt\dp0=0pt\box0
+3. & proces \emsl{B} musí èekat & 1 & ? \\
+% \cline{3-4}
+4. & proces \emsl{A} zapí¹e do polo¾ky \texttt{b} & 1 & 1 \\
+% \cline{3-4}
+\setbox0=\hbox{$\left\{\vphantom{\begin{tabular}{c}\hline1\\
+\hline1\\ \hline \end{tabular}}\right.$}
+\dimen0=\ht0 \advance\dimen0 by \dp0 \dimen0=0.25\dimen0
+\ht0=0pt\dp0=0pt \raisebox{-\dimen0}{\box0}%
+5. & proces \emsl{B} zapí¹e do polo¾ky \texttt{a} & 2 & 1 \\ 
+% \cline{3-4}
+6. & proces \emsl{B} zapí¹e do polo¾ky \texttt{b} & 2 & 2 \\ 
+% \cline{3-4}
+7. & \multicolumn{1}{l}{Struktura je v konzistentním stavu.}\\
+\end{tabular}
+\end{slide}
+
+\label{CRITICALSECTION}
+
+\begin{itemize}
+\item je tøeba zajistit vzájemné vylouèení i pøi ètení, aby ètoucí proces
+nepøeèetl nekonzistentní obsah struktury uprostøed zmìn. Pøi zápisu je nutné
+vylouèit v¹echny ostatní procesy, ale pøi ètení staèí vylouèit jen zápis,
+souèasné ètení více procesy nevadí.
+\item \emsl{\emph{kritická sekce}} je kus kódu, který by mìl provádìt pouze jeden
+proces nebo vlákno, jinak mù¾e dojít k nekonzistencím; napøíklad ¹patnì
+pospojovaný vázaný seznam, neodpovídající si indexy v databázi apod. Je mo¾né to
+definovat i tak, ¾e kritická sekce je kód, který pøistupuje k nebo modifikuje
+blí¾e neurèený zdroj sdíl{}ený více procesy nebo vlákny a proto je nutné pøístup k
+takovému kódu synchronizovat. Kritická sekce by mìla být co nejkrat¹í, aby
+ostatní procesy (vlákna) ¾ádající o vstup do této sekce èekaly co nejkrat¹í
+mo¾nou dobu. Druhá definice je o nìco obecnìj¹í, proto¾e se do ní vejdou i
+situace, kdy pouze jeden proces nebo vlákno mù¾e stav mìnit, ale pokud se tak
+nedìje, mù¾e více procesù èi vláken daný stav èíst, to znamená ¾e kód kritické
+sekce za jistých pøesnì definovaných podmínek mù¾e vykonávat více procesù nebo
+vláken najednou.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Problém: konflikt zapisovatelù a ètenáøù}
+\begin{itemize}
+\item nìkolik bì¾ících procesù zapisuje protokol o své èinnosti do
+spoleèného log-souboru. Nový záznam je pøipojen v¾dy na konec
+souboru. 
+\item pokud zápis záznamu není proveden atomickou operací, mù¾e
+dojít k promíchání více souèasnì zapisovaných záznamù. 
+\item zapisovat smí v¾dy pouze jeden proces. 
+\item dal¹í procesy ètou data z log-souboru. 
+\item pøi pøeètení právì zapisovaného záznamu obdr¾íme nesprávná
+(neúplná) data. 
+\item bìhem operace zápisu ze souboru nelze èíst. Kdy¾ nikdo
+nezapisuje, mù¾e více procesù èíst souèasnì.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item povoleny jsou tedy 2 situace: jeden zapisovatel nebo více ètenáøù
+\item na lokálním disku lze pro synchronizaci zapisovatelù pou¾ít øe¹ení pomocí
+pøí\-zna\-ku \texttt{O\_APPEND}, které ale nebude fungovat napø. na vzdál{}eném
+disku pøístupném pøes NFS nebo v pøípadì, ¾e zápis jedné logovací zprávy je
+proveden více ne¾ jedním voláním \texttt{write()}. Navíc to neøe¹í synchronizaci
+ètenáøù -- lze èíst i v prùbìhu zápisu.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Øe¹ení: zamykání souborù}
+\begin{itemize}
+\item zapisující proces zamkne soubor pro zápis. Ostatní procesy
+(zapisovatelé i ètenáøi) se souborem nemohou pracovat a musí èekat
+na odemèení zámku. 
+\item ètoucí proces zamkne soubor pro ètení. Zapisovatelé musí èekat
+na odemèení zámku, ale ostatní ètenáøi mohou také zamknout soubor
+pro ètení a èíst data. 
+\item v jednom okam¾iku mù¾e být na souboru aktivní nejvý¹e jeden
+zámek pro zápis nebo libovolnì mnoho zámkù pro ètení, ale ne oba
+typy zámkù souèasnì. 
+\item z dùvodu efektivity by ka¾dý proces mìl dr¾et zámek co
+nejkrat¹í dobu a pokud mo¾no nezamykat celý soubor, ale jen úsek, se
+kterým pracuje.  Preferované je pasivní èekání, aktivní èekání je
+vhodné jen na velmi krátkou dobu.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item dva zpùsoby èekání:
+\begin{description}
+\item[aktivní (busy waiting)] -- proces v cyklu testuje podmínku, na
+kterou èeká, dokud není splnìna
+\item[pasivní] -- proces se zaregistruje v jádru jako èekající na
+podmínku a pak se uspí, jádro ho probudí, kdy¾ dojde ke splnìní
+podmínky
+\end{description}
+\item \label{BUSYWAITING} aktivní èekání je ospravedlnitelné pouze ve
+speciálních situacích. Na takové situace asi v zápoètovém programu nenarazíte a
+urèitì ne v pøíkladu u zkou¹ky. \emsl{Pou¾ití aktivního èekání v takovém pøípadì
+automaticky znamená nesplnìní zadání písemky.}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{synchronizaèní mechanismy}{synchromechs}
+
+\begin{slide}
+\sltitle{Synchronizaèní mechanismy}
+\begin{itemize}
+\item teoretické øe¹ení -- algoritmy vzájemného vylouèení (Dekker
+1965, Peterson 1981) 
+\item zákaz pøeru¹ení (na 1 CPU stroji), speciální \emph{test-and-set} instrukce
+\item \emsl{lock-soubory}
+\item nástroje poskytované operaèním systémem 
+    \begin{itemize}
+    \item \emsl{semafory} (souèást System V IPC) 
+    \item \emsl{zámky pro soubory} (\texttt{fcntl()}, \texttt{flock()}) 
+    \item synchronizace vláken: \emsl{mutexy} (ohranièují kritické
+    sekce, pouze jedno vlákno mù¾e dr¾et mutex), \emsl{podmínkové
+    promìnné} (zablokují vlákno, dokud jiné vlákno nesignalizuje
+    zmìnu podmínky), \emsl{read-write zámky} (sdíl{}ené a exkluzivní
+    zámky, podobnì jako pro soubory)
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Dekker i Peterson potøebují k dosa¾ení po¾adavaného výsledku
+\emsl{pouze sdíle{}nou pamì»}, tj. nìkolik promìnných sdíle{}ných obìma
+procesy.
+\item Dekkerovo øe¹ení se udává jako první øe¹ení problému
+vzájemného vylouèení dvou procesù, ani¾ by bylo nutné aplikovat
+naivní algoritmus striktního støí\-dá\-ní, tj. pokud druhý proces
+nevykazoval zájem o vstup do kritické sekce, mohl tam první (a
+naopak) proces vstoupit tolikrát za sebou, kolikrát chtìl. Dekkerovo
+øe¹ení není vùbec triviální, porovnejte s o 16 let mlad¹ím øe¹ením
+Petersonovým, napøíklad na \texttt{en.wikipedia.org} (hledejte ``Dekker's
+algorithm'', ``Peterson's algorithm'')
+\item my se nebudeme zabývat teoretickými algoritmy vzájemného
+vylouèení ani nebudeme popisovat hardwarové mechanismy pou¾ívané
+jádrem.  Zamìøíme se pouze na pou¾ití lock souborù (které vyu¾ívají
+atomiènosti nìkterých souborových operací) a speciálních
+synchronizaèních nástrojù poskytovaných jádrem.
+\item podmínkové promìnné = \emph{conditional variables}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{lock soubory}{lockfiles}
+
+\begin{slide}
+\sltitle{Lock-soubory}
+\begin{itemize}
+\item pro ka¾dý sdíle{}ný zdroj existuje dohodnuté jméno souboru.
+Zamèení zdroje se provede vytvoøením souboru, odemèení smazáním
+souboru. Ka¾dý proces musí otestovat, zda soubor existuje, a pokud
+ano, tak poèkat. 
+\end{itemize}
+\begin{alltt}
+void \funnm{lock}(char *lockfile) \{ 
+    while( (fd = open(lockfile, 
+                      O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) 
+        sleep(1); {\rm /* Èekáme ve smyèce na odemèení */}
+    close(fd); 
+\} 
+
+void \funnm{unlock}(char *lockfile) \{ 
+    unlink(lockfile); 
+\}
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item \label{LOCK_UNLOCK} klíèem k úspìchu je samozøejmì pou¾ití flagu
+\texttt{O\_EXCL}
+\item pøíklad: \priklad{file-locking/lock-unlock.c}, a pou¾ijte spoleènì se
+shellovým skriptem \priklad{file-locking/run.sh}.
+\item pøi havárii procesu nedojde ke zru¹ení pøípadných zámkù a ostatní procesy
+by èekaly vìènì. Proto je vhodné si do lock-souboru poznamenat PID procesu,
+který zámek vytvoøil. Proces, který èeká na odemèení, mù¾e testovat, zda proces,
+kterému zámek patøí, stále bì¾í. Kdy¾ ne, lze zámek zru¹it a znovu zkusit
+vytvoøit. User level pøíkaz který toto umí a dovoluje pou¾ívat lock soubory z
+shellových skriptù je napøíklad \emsl{shlock}(1) (na FreeBSD v
+\texttt{/usr/ports/sysutils/shlock}), teoreticky by v¹ak mohl zpùsobit situaci z
+následujícího odstavce.
+\item \emsl{pozor:} jestli¾e více procesù najednou zjistí, ¾e proces dr¾ící
+zámek u¾ neexistuje, mù¾e dojít k následující chybì. První proces sma¾e zámek a
+znovu ho vytvoøí se svým PID. Dal¹í proces udìlá toté¾, proto¾e operace pøeètení
+obsahu souboru a jeho následného smazání není atomická. Teï si ale oba procesy
+myslí, ¾e získaly zámek!
+\item \emsl{problém:} funkce \texttt{lock()} obsahuje aktivní èekání na uvolnìní
+zámku. Lze øe¹it napø. tak, ¾e proces, který získá zámek, otevøe pro zápis
+pojmenovanou rouru. Èekající procesy se uspí tím, ¾e zkusí èíst z roury.
+Souèástí \texttt{unlock()} bude i zavøení roury a tím uvolnìní èekajících
+procesù. \label{SLEEP1} \emsl{Upozoròuji na to, ¾e zkou¹kové pøíklady pro zadání
+obsahující jakoukoli synchronizaci nejsou akceptovány jako správné, pokud je
+jakkoli pou¾ito aktivní èekání, vèetnì ukázaného øe¹ení typu \texttt{sleep(1)}
+volaného ve smyèce.}
+\item lock soubory se v praxi vìt¹inou pou¾ívají pouze pro situace, kdy se
+napøíklad hlídá násobné spu¹tìní té¾e aplikace. \emsl{Ze zku¹enosti radìji opìt
+upozoròuji, ¾e pokud je bude student na zkou¹ce pou¾ívat napøíklad pro
+synchronizaci vláken, neuspìje.}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{fcntl}{fcntl}
+
+\begin{slide}
+\sltitle{Zamykání souborù: \texttt{fcntl()}}
+\texttt{int \funnm{fcntl}(int \emph{fildes}, int \emph{cmd}, ...);}
+\begin{itemize}
+\item k nastavení zámkù pro soubor \texttt{fildes} se pou¾ívá
+\texttt{cmd}: 
+    \begin{itemize}
+    \item \texttt{F\_GETLK} \dots{} vezme popis zámku z tøetího argumentu a
+    nahradí ho popisem existujícího zámku, který s ním koliduje 
+    \item \texttt{F\_SETLK} \dots{} nastaví nebo zru¹í zámek popsaný tøetím
+    argumentem, pokud nelze zámek nastavit, ihned vrací $-1$
+    \item \texttt{F\_SETLKW} \dots{} jako \texttt{F\_SETLK}, ale uspí
+    proces, dokud není mo¾né nastavit zámek (\texttt{W} znamená ``wait'')
+    \end{itemize}
+\item tøetí argument obsahuje popis zámku a je typu ukazatel na
+\texttt{struct flock}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item zamykání souborù sdíle{}ných pøes NFS zaji¹»uje démon
+\texttt{lockd}.
+\item zámky jsou obecnì dvou typù:
+    \begin{description}
+    \item [advisory locks] -- pro správnou funkci musí v¹echny procesy
+    pracující se zámèenými soubory kontrolovat zámky pøed ètením nebo zápisem
+    souboru; jsou více pou¾ívané
+    \item [mandatory locks] -- jestli¾e je na souboru zámek, budou ètecí a
+    zápisové operace se souborem automaticky zablokovány, tj. zámek se uplatní
+    i v procesech, které ho explicitnì nekontrolují
+        \begin{itemize}
+	\label{MANDATORY}
+	\item nedoporuèují se, ne v¾dy fungují (napø. \texttt{lockd}
+	implementuje pouze advisory locking)
+	\item pro urèitý soubor se zapne nastavením bitu SGID a zru¹ením práva
+	spu¹tìní pro skupinu (tj. nastavení, které jinak nemá velký smysl - mít
+	set GID executable bit na souboru, který není spustitelný).
+	Funguje to tak, ¾e jeden proces si vezme zámek na daném souboru 
+	(napø. pomocí \texttt{fcntl}). Dal¹í procesy pak nemusí explicitnì
+	zamykat, proto¾e ka¾dou operaci \texttt{open/read/write} s daným
+	souborem kontroluje kernel
+	proti zámkùm na souboru a vynutí èekání a¾ do chvíle kdy je zámek
+	explicitnì první procesem uvolnìn.\\
+	Systém, který mandatory locking implementuje, je napøíklad Solaris nebo
+	Linux, FreeBSD tuto vlastnost naopak nepodporuje. Ma\-nu\-á\-lo\-vá
+	stránka fcntl(2) na Linuxu (2013) nedoporuèuje mandatory locking
+	pou¾ívat, proto¾e Linuxová implementace obsahuje chyby které vedou k
+	soubìhu a mandatory zamykání nedoká¾e tedy zajistit konzistenci.
+        \end{itemize}
+    \end{description}
+\item Je dùle¾ité si uvìdomit, ¾e po skonèení procesu se v¹echny zámky, které
+dr¾el uvolní.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{flock}{flock}
+
+\begin{slide}
+\sltitle{Zamykání souborù: \texttt{struct flock}}
+\begin{itemize}
+\item \texttt{l\_type} \dots{} typ zámku 
+    \begin{itemize}
+    \item \texttt{F\_RDLCK} \dots{} sdíl{}ený zámek (pro ètení), více
+    procesù 
+    \item \texttt{F\_WRLCK} \dots{} exkluzivní zámek (pro zápis),
+    jeden proces 
+    \item \texttt{F\_UNLCK} \dots{} odemèení 
+    \end{itemize}
+\item \texttt{l\_whence} \dots{} jako u \texttt{lseek()}, tj.
+\texttt{SEEK\_SET},
+\texttt{SEEK\_CUR}, \texttt{SEEK\_END}
+\item \texttt{l\_start} \dots{} zaèátek zamykaného úseku vzhledem k
+\texttt{l\_whence}
+\item \texttt{l\_len} \dots{} délka úseku v bajtech, 0 znamená do konce souboru
+\item \texttt{l\_pid} \dots{} PID procesu dr¾ícího zámek, pou¾ívá se
+jen pro \texttt{F\_GETLK} pøi návratu
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item soubory se dají zamykat po èástech a dá se zjistit, který
+proces dr¾í zámek. Pøi ukonèení procesu se automaticky uvolní
+v¹echny jeho zámky.
+\item pokud pøi pou¾ití \texttt{F\_GETLK} není pøíslu¹ná èást
+souboru zamèená, je struktura \texttt{flock} vrácena bez zmìny kromì
+první polo¾ky, která je nastavena na \texttt{F\_UNLCK}.
+\item \label{FCNTL_LOCKING} pøíklad: \priklad{file-locking/fcntl-locking.c}
+\item \label{FCNTL_FIXED_RACE_C} pøíklad na fcntl (je to pomocí fcntl
+,,opravená'' verze døívej¹ího pøí\-kla\-du \priklad{race/race.c} ze strany
+\pageref{RACE_C}): \priklad{race/fcntl-fixed-race.c}.
+\item zamykání pøes \texttt{fcntl} i \texttt{lockf} má jednu
+dùle¾itou vlastnost, kterou výsti¾nì popisuje napøíklad manuálová
+stránka pro \texttt{fcntl} v systému FreeBSD:
+
+\emph{This interface follows the completely stupid semantics of System V
+and IEEE Std 1003.1-1988 (``POSIX.1'') that require that all locks
+associated with a file for a given process are removed when any file
+descriptor for that file is closed by that process. This semantic
+means that applications must be aware of any files that a subroutine
+library may access. For example if an application for updating the
+password file locks the password file database while making the
+update, and then calls \texttt{getpwnam}(3) to retrieve a record,
+the lock will be lost because \texttt{getpwnam}(3) opens, reads, and
+closes the password database.}
+\item Funkce \texttt{lockf} (souèástí SUSv3) je jednodu¹¹í variantou
+\texttt{fcntl}, specifikuje se pouze jak zamknout a kolik bajtù od souèasné
+pozice v souboru. Velmi èasto je implementována jako wrapper kolem
+\texttt{fcntl}.
+\item Pøíklad \priklad{file-locking/lockf.c} demonstruje jak funguje
+mandatory locking a ukazuje pou¾ití funkce \texttt{lockf}.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{deadlock}{deadlock}
+
+\begin{slide}
+\sltitle{Deadlock (aka uváznutí)}
+\begin{itemize}
+\item máme dva sdíl{}ené zdroje \texttt{res1} a \texttt{res2} chránìné
+zámky \texttt{lck1} a \texttt{lck2}. Procesy \texttt{p1} a
+\texttt{p2} chtìjí ka¾dý výluèný pøístup k obìma zdrojùm.
+\end{itemize}
+\begin{center}
+\input{img/tex/deadlock.tex}
+\end{center}
+\begin{itemize}
+\item \emsl{pozor na poøadí zamykání!}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item obecnì deadlock vznikne, jestli¾e proces èeká na událost, která nemù¾e
+nastat. Zde napø. na sebe dva procesy èekají navzájem, a¾ ten druhý u\-vol\-ní
+zámek, ale k tomu nikdy nedojde. Dal¹í mo¾ností je deadlock jednoho procesu,
+který ète z roury a pøedtím zapomnìl uzavøít zápisový konec roury.  Jestli¾e
+rouru nemá u¾ nikdo dal¹í otevøenou, pokus o ètení ze zablokuje, proto¾e nejsou
+zavøeny v¹echny kopie zápisového deskriptoru a tedy nenastane konec souboru na
+rouøe, ale ètoucí proces svùj zápisový deskriptor nemù¾e zavøít, proto¾e èeká ve
+volání \texttt{read}:
+
+\label{FIFODEADLOCK}
+\begin{verbatim}
+int main(void)
+{
+        int c, fd;
+        mkfifo("test", 0666);
+        fd = open("test", O_RDWR);
+        read(fd, &c, sizeof(c));
+        /* never reached */
+        return (0);
+}
+
+$ ./a.out 
+^C
+\end{verbatim}
+\item \texttt{fcntl()} provádí kontrolu a pøi výskytu deadlocku vrátí chybu
+\texttt{EDEADLK}.
+\item je vhodné se deadlocku sna¾it vyvarovat správným naprogramováním a
+nespoléhat se na kontrolu systému.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{System V IPC}{sysvipc}
+
+\begin{slide}
+\sltitle{System V IPC}
+\begin{itemize}
+\item \emsl{IPC} je zkratka pro \emph{Inter-Process Communication}
+\item komunikace mezi procesy \emsl{v rámci jednoho systému}, tj.
+nezahrnuje sí»ovou komunikaci 
+\item \emsl{semafory} \dots{} pou¾ití pro synchronizaci procesù 
+\item \emsl{sdíl{}ená pamì»} \dots{} pøedávání dat mezi procesy,
+pøiná¹í podobné problémy jako sdíl{}ení souborù, k øe¹ení lze pou¾ít
+semafory 
+\item \emsl{fronty zpráv} \dots{} spojují komunikaci (zpráva nese
+data) se synchronizací (èekání procesu na pøíchod zprávy) 
+\item prostøedky IPC mají podobnì jako soubory definovaná \emsl{pøístupová
+práva} (pro ètení a zápis) pro vlastníka, skupinu a ostatní.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item uvìdomte si, ¾e tyto prostøedky se vztahují ke konkrétnímu systému, System
+V, kde se objevily jako první. Dal¹í systémy je pak pøevzaly. \emsl{Ze
+tøí zde uvedených synchronizaèních prostøedkù Systemu V se budeme zabývat pouze
+semafory. Pro sdíl{}enou pamì» je mo¾né pou¾ít ji¾ probrané volání
+\texttt{mmap}, místo zasílání zpráv je mo¾né pou¾ít so\-cke\-ty (budou v nìkteré
+z pøí¹tích pøedná¹ek).}
+\item prostøedky IPC existují i poté, kdy skonèí proces, který je vytvoøil. O
+jejich zru¹ení je nutno explicitnì po¾ádat (ze shellu lze zjistit seznam IPC
+prostøedkù pøíkazem \texttt{ipcs} a smazat je pøíkazem \texttt{ipcrm}). Stav a
+obsah existujících prostøedkù IPC zùstává v platnosti, i kdy¾ s nimi právì
+nepracuje ¾ádný proces (napø. data ve sdíle{}né pamìti zùstávají, i kdy¾ ji
+nemá ¾ádný proces pøipojenou).
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Semafory}
+\begin{itemize}
+\item zavedl je E. Dijkstra
+\item semafor s je datová struktura obsahující 
+    \begin{itemize}
+    \item celé nezáporné èíslo \texttt{i} (volná kapacita) 
+    \item frontu procesù \texttt{q}, které èekají na uvolnìní 
+    \end{itemize}
+\item operace nad semaforem: 
+    \begin{description}
+    \item [init(s, n)]~\\
+    vyprázdnit \texttt{s.q; s.i = n}
+    \item [P(s)]~\\
+    \texttt{if(s.i > 0) s.i-- else\\
+    uspat volající proces a zaøadit do s.q }
+    \item [V(s)]~\\
+    \texttt{if(s.q prázdná) s.i++ else\\
+    odstranit jeden proces z s.q a probudit ho}
+    \end{description}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{P} je z holandského \uv{proberen te verlagen} -- zkus
+dekrementovat, \emsl{V} pak ze slova \uv{verhogen} -- inkrementovat.
+\item operace \texttt{P(s)} a \texttt{V(s)} lze zobecnit: hodnotu semaforu je
+mo¾né mìnit o libovolnou hodnotu \texttt{n} \dots{} \texttt{P(s,~n)},
+\texttt{V(s,~n)}.
+\item Allen B. Downey: \emph{The Little Book of Semaphores}, Second Edition,
+on-line na \url{http://greenteapress.com/semaphores/}
+\item \emph{binární semafor} má pouze hodnotu 0 nebo 1
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Vzájemné vylouèení pomocí semaforù}
+\begin{itemize}
+\item jeden proces inicializuje semafor
+\begin{alltt}
+sem s;
+init(s, 1);
+\end{alltt}
+\item kritická sekce se doplní o operace nad semaforem
+\begin{alltt}
+...
+\emprg{P(s)};
+kritická sekce;
+\emprg{V(s)};
+...
+\end{alltt}
+\end{itemize}
+\end{slide}
+
+
+\begin{itemize}
+\item inicializace semaforu na hodnotu \texttt{n} dovolí vstoupit do kritické
+sekce \texttt{n} procesùm. Zde semafor funguje jako zámek, v¾dy ho odemyká
+(zvy¹uje hodnotu) stejný proces, který ho zamknul (sní¾il hodnotu).
+\item obecnì ale mù¾e semafor zvednout jiný proces, ne¾ který ho sní¾il; jinak
+by to ani nemìlo velký smysl. Je zde rozdíl oproti zámkùm, viz strana
+\pageref{MUTEXES}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{segmget, semctl, semop}{semfncs}
+
+\begin{slide}
+\sltitle{API pro semafory}
+\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int
+\emph{semflg});}
+\begin{itemize}
+\item vrátí identifikátor pole obsahujícího \texttt{nsems} semaforù asociovaný
+s~klíèem \texttt{key} (klíè \texttt{IPC\_PRIVATE} \dots{} privátní semafory, pøi
+ka¾dém pou¾ití vrátí jiný identifikátor). \texttt{semflg} je OR-kombinace
+pøístupových práv a konstant \texttt{IPC\_CREAT} (vytvoøit, pokud neexistuje),
+\texttt{IPC\_EXCL} (chyba, pokud existuje). 
+\end{itemize}
+\texttt{int \funnm{semctl}(int \emph{semid}, int \emph{semnum},
+int \emph{cmd}, ...);}
+\begin{itemize}
+\item øídicí funkce, volitelný ètvrtý parametr \texttt{arg} je typu
+\texttt{union~semun}. 
+\end{itemize}
+\texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t
+\emph{nsops});}
+\begin{itemize}
+\item zobecnìné operace P a V.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item jak získat klíè pro \texttt{semget} je vysvìtleno na strane
+\pageref{FTOK}.
+\item nejvìt¹í zajímavost na System V implementaci semaforù je skuteènost, ¾e
+daný syscall neoperuje nad jedním semaforem, ale nad \emsl{polem semaforù}, a to
+atomicky. Vìt¹inou v¹ak budete potøebovat pouze jeden semafor, tj. pole o jednom
+prvku. Pro takové pou¾ití jsou System V semafory zbyteènì slo¾ité.
+\item pøístupová práva jsou jen pro ètení a zápis; bit execute zde nemá smysl.
+\item podobné schéma API funkcí (funkce na vytvoøení, øízení a operace) dodr¾ují
+i ostatní System V IPC mechanismy.
+\item jakmile je jednou pole semaforù jedním procesem vytvoøeno, mohou i ostatní
+procesy pou¾ít \texttt{semctl()} a \texttt{semop()}, ani¾ by pøedtím volaly
+\texttt{semget()}. To platí i pro semafory vytvoøené s klíèem
+\texttt{IPC\_PRIVATE}, pro které nelze volat \texttt{semget()}, proto¾e by se
+tím vytvoøilo nové pole semaforù. Je to tak proto, aby i privátní semafory mohly
+být dìdìné v rámci \texttt{fork}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{API pro semafory: \texttt{semctl()}}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item \texttt{semnum} \dots{} èíslo semaforu v poli 
+\item mo¾né hodnoty \texttt{cmd}: 
+    \begin{itemize}
+    \item \texttt{GETVAL} \dots{} vrátí hodnotu semaforu 
+    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{nastaví semafor na hodnotu}
+    \texttt{arg.val}
+    \item \texttt{GETPID} \dots{} PID procesu, který provedl
+    poslední operaci 
+    \item \texttt{GETNCNT} \dots{} poèet procesù èekajících na vìt¹í
+    hodnotu 
+    \item \texttt{GETZCNT} \dots{} poèet procesù èekajících na nulu 
+    \item \texttt{GETALL} \dots{} ulo¾í hodnoty v¹ech semaforù do
+    pole
+    \texttt{arg.array}
+    \item \texttt{SETALL} \dots{} nastaví v¹echny semafory podle
+    \texttt{arg.array}
+    \item \texttt{IPC\_STAT} \dots{} do \texttt{arg.buf} dá poèet
+    semaforù, pøístupová práva a èasy posledních \texttt{semctl()} a
+    \texttt{semop()}
+    \item \texttt{IPC\_SET} \dots{} nastaví pøístupová práva 
+    \item \texttt{IPC\_RMID} \dots{} zru¹í pole semaforù
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item volání \texttt{semctl(semid, semnum, SETVAL, arg)} odpovídá obecné
+semaforové inicializaèní operaci \texttt{init(s,~n)}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{API pro semafory: \texttt{semop()}}
+\begin{itemize}
+\item operace se provádí atomicky (tj. buï se povede pro v¹echny
+semafory, nebo pro ¾ádný) na \texttt{nsops} semaforech podle pole
+\texttt{sops} struktur \texttt{struct~sembuf}, která obsahuje: 
+    \begin{itemize}
+    \item \texttt{sem\_num} \dots{} èíslo semaforu 
+    \item \texttt{sem\_op} \dots{} operace 
+        \begin{itemize}
+        \item \texttt{P(sem\_num, abs(sem\_op))} pro \texttt{sem\_op < 0}
+        \item \texttt{V(sem\_num, sem\_op)} pro \texttt{sem\_op > 0}
+        \item èekání na nulovou hodnotu semaforu pro \texttt{sem\_op == 0} 
+        \end{itemize}
+    \item \texttt{sem\_flg} \dots{} OR-kombinace 
+        \begin{itemize}
+        \item \texttt{IPC\_NOWAIT} \dots{} kdy¾ nelze operaci hned provést,
+        neèeká a vrátí chybu 
+        \item \texttt{SEM\_UNDO} \dots{} pøi ukonèení procesu vrátit
+        operace se semaforem
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item atomiènost pøes mno¾inu semaforù zajistí, ¾e nedojde k deadlocku
+v následující situaci: dva procesy $A$ a $B$ budou pou¾ívat dva semafory k
+øízení pøístupu (zamykání) ke dvìma systémovým zdrojùm. Proces $A$ je bude
+zamykat v poøadí $(0, 1)$ a proces $B$ v poøadí $(1, 0)$. Ve chvíli,
+kdy proces $A$ zamkne semafor $0$ a $B$ zamkne $1$, dojde k
+deadlocku, proto¾e ani jeden proces nemù¾e pokraèovat (potøeboval by
+zamknout druhý semafor). Pøi pou¾ití atomické operace zamèení obou
+semaforù najednou bude úspì¹ný v¾dy právì jeden proces, který získá
+oba semafory, druhý bude èekat.
+\item \texttt{SEM\_UNDO} zajistí, ¾e pøi ukonèení procesu dojde k odemèení
+semaforù (po\-u\-¾i\-tých jako zámky), které tento proces mìl zamèené.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{ftok}{ftok}
+
+\begin{slide}
+\sltitle{Vytváøení prostøedkù IPC}
+\begin{itemize}
+\item jeden proces prostøedek vytvoøí, ostatní se k nìmu pøipojí. 
+\item po skonèení pou¾ívání je tøeba prostøedek IPC zru¹it. 
+\item funkce \texttt{semget()}, \texttt{shmget()} a
+\texttt{msgget()} mají jako první parametr klíè identifikující
+prostøedek IPC. Skupina procesù, která chce komunikovat, se musí
+domluvit na spoleèném klíèi. Rùzné skupiny komunikujících procesù by
+mìly mít rùzné klíèe. 
+\end{itemize}
+\texttt{key\_t \funnm{ftok}(const char *\emph{path}, int \emph{id});}
+\begin{itemize}
+\item vrátí klíè odvozený ze zadaného jména souboru \texttt{path} a
+èísla \texttt{id}. Pro stejné \texttt{id} a libovolnou cestu
+odkazující na stejný soubor vrátí stejný klíè. Pro rùzná \texttt{id}
+nebo rùzné soubory na stejném svazku vrátí rùzné klíèe. 
+\end{itemize}
+\end{slide}
+
+\label{FTOK} poznámky k \texttt{ftok()}:
+\begin{itemize}
+\item z \texttt{id} se pou¾ije jen nejni¾¹ích 8 bitù.
+\item není specifikováno, zda bude stejný klíè vrácen i po smazání a
+znovuvytvoøení souboru. Vìt¹inou ne, proto¾e v klíèi se èasto odrá¾í èíslo
+indexového uzlu.
+\item rùzné klíèe pro rùzné soubory nejsou v¾dy zaruèené. Napø. na Linuxu se
+klíè získá kombinací 16 bitù èísla i-uzlu, 8 bitù \texttt{id} a 8 bitù
+vedlej¹ího èísla zaøízení. Stejný klíè pro rùzné soubory je vrácen, pokud se
+èísla i-uzlù shodují na spodních 16 bitech.
+\item pokud tedy nepøíbuzné procesy chtìjí pou¾ívat stejný semafor, \emsl{musí
+být jmého souboru pro klíè domluveno pøedem.}
+\item \label{SEM_FIXED_RACE_C} pøíklad na semafory (je to pomocí semaforù
+,,opravená'' verze døívej¹ího pøí\-kla\-du \priklad{race/race.c} ze strany
+\pageref{RACE_C}): \priklad{race/sem-fixed-race.c}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{shm\_open, sem\_open, mq\_open}{posixipc}
+
+\begin{slide}
+\sltitle{Dal¹í prostøedky IPC}
+\begin{itemize}
+\item POSIX a SUSv3 definují je¹tì dal¹í prostøedky komunikace mezi procesy: 
+    \begin{itemize}
+    \item \emsl{signály} \dots{} pro u¾ivatelské úèely lze vyu¾ít signály
+    \texttt{SIGUSR1} a \texttt{SIGUSR2}
+    \item \emsl{POSIXová sdíl{}ená pamì»} pøístupná pomocí \texttt{shm\_open()}
+    a \texttt{mmap()}
+    \item \emsl{POSIXové semafory} \dots{} \texttt{sem\_open()},
+    \texttt{sem\_post()}, \texttt{sem\_wait()}, \dots
+    \item \emsl{POSIXové fronty zpráv} \dots{} \texttt{mq\_open()},
+    \texttt{mq\_send()}, \texttt{mq\_receive()}, \dots{} 
+    \end{itemize}
+\item Z BSD pochází \emsl{sokety (sockets)} umo¾òující komunikaci v~doménách
+\texttt{AF\_UNIX} (komunikace v rámci jednoho poèítaèe) a \texttt{AF\_INET}
+(komunikace na jednom poèítaèi nebo po síti).
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item POSIXové IPC pou¾ívá pro pojmenování jednotlivých IPC objektù
+øetìzce místo numerických identifikátorù, proto do znaèné míry
+odpadají problémy s identifikací známé ze System V IPC (kde se øe¹í
+napø. funkcí \texttt{ftok()}).
+\item POSIXová rozhraní zde uvedená jsou souèástí roz¹íøení 1003.1b (aka
+POSIX.4), viz strana \pageref{POSIX4}.
+\item sokety se z BSD roz¹íøily i do ostatních UNIXových systémù a
+dostaly se i do normy SUSv2.
+\item existují dal¹í API specifické pro konkrétní systém, napø. Solaris doors.
+\end{itemize}
+
+
+\label{SYNCHRONIZATIONEND}
+
+%%%%%
+
+% »
+% ï
+% ò
+% kód
+
+\endinput

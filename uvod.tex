@@ -1,0 +1,3464 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Titulní slide
+
+changequote([[[, ]]])
+
+\begin{slide}
+\centerslidestrue
+\begin{center}
+\title{\LARGE Programování v UNIXu}
+\author{(NSWI015)}
+\date{verze: \rm\today}
+\maketitle
+
+\vspace{2ex}
+{\small (c) 2011 -- 2017 Vladimír Kotal}\\
+{\small (c) 2005 -- 2011, 2016 -- 2017 Jan Pechanec}\\
+{\small (c) 1999 -- 2004 Martin Beran}
+%{\footnotesize (slajdy jsou pokraèováním materiálù Martina Berana\\
+%pøedná¹ejícího tuto pøedná¹ku v letech 1999 -- 2004)}
+
+\vspace{3ex}
+SISAL MFF UK, Malostranské nám. 25, 118 00 Praha 1 
+
+%\url{http://mff.devnull.cz/}
+
+\hspace{5mm}
+
+\begin{figure}[htb!]
+  \includegraphics[scale=0.75]{img/by-nc-sa-small}
+\end{figure}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item Toto jsou oficiální materiály pro výuku pøedmìtu \emph{Programování v
+UNIXu} (kód pøedmìtu NSWI015) na Matematicko-fyzikální fakultì Univerzity
+Karlovy.
+\item Tyto materiály jsou uveøejnìny pod licencí
+\href{http://creativecommons.org/licenses/by-nc-sa/3.0/cz/}{Creative Commons BY-NC-SA 3.0}.
+Soubory k ukázkovým pøíkladùm uvedené vý¹e jsou
+\href{http://creativecommons.org/licenses/publicdomain/}{Public Domain}, pokud v nich není
+uvedeno jinak.
+\item Tento pøedmìt je 2/1, cvièení bude jednou za dva týdny.
+\item V¹echny informace, které budete potøebovat, a materiály k pøedná¹ce jsou
+na \url{http://mff.devnull.cz/}, vèetnì aktuální verze tìchto poz\-nám\-ko\-vých
+slajdù (\url{http://mff.devnull.cz/pvu/slides/}).  \textbf{Døíve, ne¾ zaènete
+ma\-te\-ri\-á\-ly po\-u\-¾í\-vat, pøe\-svìdète se, ¾e není no\-vìj\-¹í verze!}
+\item Ukázkové pøíklady jsou na 
+\url{http://mff.devnull.cz/pvu/src/},
+pokud se budu v poznámkách odkazovat na konkrétní pøíklad, link zde uvedený
+slou¾í jako koøenový adresáø.
+\item Je potøeba se zapsat na cvièení v SISu.
+\item Zápoèet je za zápoètový program.
+\item Zkou¹ka má písemnou a ústní èást.
+\item Zkou¹et se bude to, co bude odpøedneseno (kromì témat na vyplnìní
+pøípadnì zbylého èasu). Vìt¹ina informací je ve slajdech, ale øada dùle¾itých
+podrobností mù¾e chybìt.
+\item Pøedpoklady:
+\begin{itemize}
+\item U¾ivatelská znalost UNIXu, programování v shellu na úrovni
+pøedná¹ky \uv{Úvod do UNIXu} (NSWI095)
+\item Znalost jazyka C
+\item Znalost základních pojmù teorie operaèních systémù
+\end{itemize}
+\item Tento text je prùbì¾nì doplòován, ChangeLog zaèíná na stranì
+\pageref{CHANGELOG}. Upozornìní na chyby prosím posílejte na kontakty,
+které najdete na vý¹e uvedené stránce.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Úvod
+
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje 
+\item základní pojmy a konvence UNIXu a jeho API 
+\item pøístupová práva, periferní zaøízení, systém souborù 
+\item process manipulation, program execution
+\item signály 
+\item synchronizace a komunikace procesù 
+\item sí»ová komunikace 
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu 
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Budeme se zabývat hlavnì principy UNIXu a programováním pro UNIX
+pouze v~jazyce C.
+\item \emsl{Pøedná¹ka je pøevá¾nì o systémových voláních, tj. rozhraním mezi
+u¾ivatelským prostorem a jádrem}.
+\item Pøi popisu API se budeme dr¾et normy \emph{Single UNIX Specification,
+version~4} (SUSv4). Systémy, které tuto specifikaci podporují, mohou pou¾ívat
+oznaèení UNIX~V7. Pøedchozí verzi SUSv3 splòují poslední verze systémù
+Solaris, AIX, HP-UX a Mac~OS~X na rùzných architekturách
+(\url{http://www.opengroup.org/openbrand/register/xy.htm}).
+\item Pro konkrétní pøíklady budu pou¾ívat vìt¹inou systémy FreeBSD
+a Linux.
+\end{itemize}
+
+%%%%%
+\pdfbookmark[0]{úvod, vývoj UNIXu a C, programátorské nástroje}{uvod}
+
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item \emsl{úvod, vývoj UNIXu a C, programátorské nástroje}
+\item základní pojmy a konvence UNIXu a jeho API 
+\item pøístupová práva, periferní zaøízení, systém souborù 
+\item manipulace s procesy, spou¹tìní programù 
+\item signály 
+\item synchronizace a komunikace procesù 
+\item sí»ová komunikace 
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu 
+\end{itemize}
+\end{slide}
+
+%%%%%
+
+\pdfbookmark[1]{literatura}{literatura}
+
+\begin{slide}
+\sltitle{Literatura v èe¹tinì}
+\begin{enumerate}
+\item Skoèovský, L.: \emsl{Principy a problémy operaèního systému
+UNIX}.  Science, 1993
+\item Skoèovský, Ludìk: \emsl{UNIX, POSIX, Plan9}. L. Skoèovský,
+Brno, 1998
+\item Jelen, Milan: \emsl{UNIX V - programování v systému}. Grada,
+Praha 1993
+\item \emsl{Linux - Dokumentaèní projekt}. Computer Press, 1998;
+\url{http://www.cpress.cz/knihy/linux}
+\item Herout, Pavel: \emsl{Uèebnice jazyka C}. 2 díly. Kopp,
+Èeské Budìjovice, 2004 (4., respektive 2. pøepracované vydání)
+\end{enumerate}
+
+\end{slide}
+
+\emsl{Ohlednì unixu doporuèuji spí¹e literaturu v anglickém jazyce}.
+
+\begin{enumerate}
+\item V¹estranný úvod do UNIXu, ale dost struèná; Skoèovský je autorem více
+èeských knih o unixu, ale dnes jsou ji¾ více nebo ménì zastaralé.
+\item Pokroèilej¹í pohled, ale pøedpokládá pøedbì¾né znalosti, místy
+tì¾ko stravitelná.
+\item Programování v C pro UNIX System~V, práce se soubory a s
+procesy, System~V IPC, nepopisuje napø. vlákna a sítì.
+\item O Linuxu bylo samozøejmì v èe¹tinì vydáno mnoho dal¹ích knih.
+\item Vynikající knihy o jazyce C.
+\end{enumerate}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Literatura - design a principy systému}
+
+\begin{enumerate}
+\item Uresh Vahalia: \emsl{UNIX Internals: The New Frontiers}.
+ Prentice Hall; 1st edition, 1995
+\item Bach, Maurice J.: \emsl{The Design of the UNIX Operating System}.
+Prentice Hall, 1986
+\item McKusick, M. K., Neville-Neil, G. V.: \emsl{The Design and
+Implementation of the FreeBSD Operating System}. Addison-Wesley, 2004
+%\item Goodheart, B.; Cox, J.: \emsl{The Magic Garden Explained: the
+%Internals of UNIX System~V Release 4}. Prentice Hall, 1994
+\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; 2nd
+edition, 2006.
+\item \emsl{Linux Documentation Project}. \url{http://tldp.org/}
+\end{enumerate}
+\end{slide}
+
+Tyto knihy se zabývají stavbou unixu, pou¾itými algoritmy, strukturami apod.,
+nejsou to kniho o programování pod tímto systémem.
+
+\begin{enumerate}
+\item Skvìlá kniha, zabývá se obecnými my¹lenkami UNIXu a porovnává systémy
+SVR4.2, 4.4BSD, Solarix 2.x a Mach. 12/2005 mìlo vyjít druhé, doplnìné vydání.
+Po nìkolika letech èekání pøestalo druhé vydání figurovat v listingu na amazon.com,
+a tedy se budeme muset zøejmì smíøit s tím, ¾e nevyjde.
+\item Klasická kniha o UNIXu, popis struktury a funkcí jádra UNIX System~V Rel.
+2, èásteènì i 3; pøesto¾e je to kniha z dne¹ního pohledu ji¾ zastaralá, lze ji
+poøád jednoznaènì doporuèit, proto¾e to je jedna z nejlep¹ích knih, co byla kdy o
+UNIXu napsána. V roce 1993 vy¹el èeský pøeklad, \emsl{Principy operaèního
+systému UNIX}, SAS.
+\item Popis struktury a funkcí jádra FreeBSD 5.2; tato kniha navazuje na
+klasickou knihu \emsl{The Design and Implementation of the 4.4 BSD Operating
+System} od stejného autora (resp. jeden ze ètyø, uvedený jako první).
+\item Nejlep¹í kniha o operaèním systému Solaris. Obsahuje podrobné informace o
+tom, jak tento systém funguje vèetnì nejnovìj¹ích vìcí z verze 10 jako jsou
+zóny, Crypto Framework, DTrace, Least Privilege model a dal¹í.
+\item Domovská strana Linux dokumentaèního projektu.
+\end{enumerate}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Literatura - programování}
+\begin{enumerate}
+\item Stevens, W. R., Rago, S. A.: \emsl{Advanced Programming in UNIX(r)
+Environment}. Addison-Wesley, 2nd edition, 2005.
+\item Rochkind, M. J.: \emsl{Advanced UNIX Programming},
+Addison-Wesley; 2nd edition, 2004
+\item Stevens, W. R., Fenner B., Rudoff, A. M.: \emsl{UNIX Network
+Programming, Vol. 1 -- The Sockets Networking API}. Prentice Hall,
+3rd edition, 2004
+\item Butenhof, D. R.: \emsl{Programming with POSIX Threads},
+Addison-Wesley; 1st edition, 1997
+% I don't why but after I switched from FreeBSD to Solaris, I can't typeset
+% word "unix" anymore. It's like it wasn't there. Using {} trick helps.
+\item UNIXové specifikace, viz \url{http://www.unix.org}
+\item manuálové stránky (zejm. sekce 2, 3)
+\end{enumerate}
+\end{slide}
+
+\label{REF_PROGRAMMING}
+
+\begin{enumerate}
+\item Pravdìpodobnì není lep¹í knihy o programování pod unixem (neobsahuje
+sí»ové programování, to je v knize 3).
+\item Aktualizované vydání dal¹í z klasických knih o programování pod unixem.
+Obsahuje i sí»ové programování a aè samozøejmì není tak podrobná jako spojení
+knih 1 a 3, mù¾e to být nìkdy naopak výhodou. Tuto knihu jednoznaènì doporuèuji,
+pokud chcete nìco kupovat a chcete mít pro zaèátek jen jednu knihu. Pokud bych
+ji mìl charakterizovat jednou vìtou, bylo by to, ¾e autor vidí a doká¾e ukázat
+souvislosti, co¾ je velmi vzácná vlastnost.
+\item Klasická kniha o sí»ovém programování, jedna z nejlep¹ích k tomuto
+tématu; existuje i druhý díl \emsl{UNIX Network Programming, Volume 2:
+Interprocess Communications}, která se zabývá komunikací mezi procesy (roury,
+POSIX IPC, System~V IPC, synchronizace vláken, RPC).
+\item Velmi dobrá a podrobná kniha o programování s vlákny.
+\item Domovská stránka posledních specifikací rozhraní UNIXu.
+\item Podrobný popis jednotlivých funkcí (v Linuxu bì¾nì ne zcela dostaèující;
+manuálové stránky v tomto systému jsou èasto hor¹í kvality ne¾ u systémù
+ostatních).
+\item \label{POSIX4} Kniha, která se neve¹la na slajd a která pøekraèuje obsah
+této pøedná¹ky: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers Guide:
+Programming for the Real World}, O'Reilly; 1st edition, 1995. Výborná kniha s
+krásnou obálkou o real-time roz¹íøeních POSIXu. Viz také strany
+\pageref{REALTIMEEXTENSIONS} a \pageref{SIGWAITINFO}.
+\item[\ldots] a spousta dal¹ích knih, online dokumentací a internetových
+zdrojù, poslední dobou vychází pomìrnì hodnì knih o Linuxu, zamìøených na
+pou¾ívání i programování.
+\item[\ldots] jdìte na \url{http://www.amazon.com/} a zadejte klíèové slovo
+``u{}nix''. Pokud byste z Amazonu nìco kupovali, dejte pozor na to, ¾e mnoho
+knih má aktualizovaná vydání i po nìkolika málo letech, nìkdy i levnìj¹í ne¾
+ta pùvodní, která jsou v¹ak stále na skladu a v on-line nabídce; tak a»
+zbyteènì nekoupíte star¹í vydání ne¾ to aktuální. Navíc se vyplatí
+zkontrolovat i u pøíslu¹ného vydavatelství, ¾e není v brzké dobì naplánováno
+vydání nové -- tato informace nìkdy na Amazonu je, nìkdy ne.
+\item[\ldots] na Amazonu se mù¾e vyplatit nakoupit knihy z druhé ruky, proto¾e
+jsou èasto výraznì levnìj¹í ne¾ knihy nové. Problém je, ¾e vìt¹inou není mo¾né
+je poslat pøímo do ÈR, ale musí vám je nìkdo pøivézt.
+\end{enumerate}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Literatura - historie UNIXu}
+\begin{itemize}
+\item Peter Salus: \emsl{A Quarter Century of UNIX}, Addison-Wesley;
+1st~edition (1994)
+\item Libes D., Ressler, S.: \emsl{Life With Unix: A Guide for
+Everyone}, Prentice Hall (1989)
+\item \emsl{Open Sources: Voices from the Open Source Revolution},
+kapitola \emsl{Twenty Years of Berkeley Unix From AT\&T-Owned to
+Freely Redistributable}; O'Reilly (1999); on-line na webu:
+\url{http://oreilly.com/openbook/opensources/book/index.html}
+\item[\ldots] mnoho materiálù na webu; èasto v¹ak obsahující
+ne zcela pøesné informace
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Kapitola o BSD Unixu z \emph{Open Sources} napsaná Marshallem 
+Kirk McKusickem je opravdu výborná.
+\end{itemize}
+%%%%%
+
+\pdfbookmark[1]{historie UNIXu}{unixhist}
+
+\begin{slide}
+\sltitle{(Pre)historie UNIXu}
+\begin{itemize}
+\item 1925 -- \emsl{Bell Telephone Laboratories} -- výzkum v
+komunikacích (napø. 1947: transistor) v rámci AT\&T
+\item 1965 -- BTL s General Electric a MIT vývoj OS \emsl{Multics}
+(MULTIplexed Information and Computing System) 
+\item 1969 -- Bell Labs opou¹tí projekt, \emsl{Ken Thompson} pí¹e
+assembler, základní OS a systém souborù pro PDP-7 
+\item 1970 -- Multi-cs $\Rightarrow$ Uni-cs $\Rightarrow$ Uni-x
+\item 1971 -- UNIX V1, a portován na PDP-11
+\item prosinec 1971 -- první edice \emph{UNIX Programmer's Manual}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item AT\&T = American Telephone and Telegraph Company
+\item Multics byl systém, který významnì ovlivnil dal¹í vývoj operaèních
+systémù. Obsahoval mnoho v té dobì inovativních my¹lenek, z nich¾ ale ne v¹echny
+byly pøijímány kladnì. Významnì ovlivnil právì UNIX, který mnoho my¹lenek
+pøevzal a jeho nedostatky se naopak sna¾il napravit. Hlavní rozdíl byl asi ten,
+¾e UNIX byl navr¾en jako mnohem jednodu¹¹í systém, ne¾ Multics.
+\item po odchodu BTL z projektu Multics prodala GE svoji poèítaèovou divizi
+firmì Honeywell vèetnì projektu Multics, který se pak pod její patronací dále
+aktivnì vyvíjel (virtuální pamì», multiprocesory, \dots), a¾ do roku 1985.
+Poslední instalace Multics-u fungovala na kanadském Ministerstvu obrany
+(Canadian Department of National Defence) a systém byl napøíklad je¹tì aktivnì
+pou¾íván pro vojenské operace bìhem války v Perském zálivu. Definitivní shutdown
+byl proveden 31. øíjna 2000. Více informací je mo¾né nalézt na
+\url{http://www.multicians.org}.
+\item pøed poèátkem práce na vývojovém prostøedí pro PDP-7 napsal Thompson
+program \emph{Space Travel}, který byl vyvinut na jiném prostøedí (Honeywell
+635) a na pásce pøenesen na PDP-7.
+\item celkem bylo 10 edicí tohoto manuálu, korespondující deseti verzím UNIXu
+vzniklých v BTL.
+\item UNIX V1 nemìl volání \texttt{pipe} !!!
+\item manuál pro verzi 1:
+%\url{www.cs.bell-labs.com/who/dmr/1stEdman.html}.
+\url{http://man.cat-v.org/unix-1st/}
+Stojí za to nahlédnout, jak jeho struktura ovlivnila vzhled dne¹ních
+ma\-nu\-á\-lo\-vých stránek.
+\item \emsl{za pov¹imnutí stojí, ¾e UNIX je zhruba o 10 let star¹í ne¾ DOS}
+\item systém Multics mìl 9 hlavních cílù, jak popsáno v èlánku
+\emph{Introduction and Overview of the Multics System} z roku 1965. Za
+nejzajímavìj¹í cíl bych pova¾oval po¾adavek na nepøeru¹ovaný bìh systému.
+\item Multics byl napsaný v jazyce PL/I (Programming Language \#1), tedy døíve
+ne¾ byl UNIX pøepsaný do C !
+\item Multicsu byl v roce 1980 udìl{}en jako prvnímu systému level B2. Po
+nìkolik let to byl jediný systém s tímto bezpeènostím levelem.
+\item GE byla zalo¾ena v roce 1892 slouèením dvou spoleèností, z nich¾ jedna
+byla Edison General Electric Company zalo¾ená roku 1879 Thomasem Alvou Edisonem
+(vynálezce ¾árovky, filmové kamery, \dots); v souèasné dobì její dceøinné
+spoleènosti pokrývají mnoho oblastí, vèetnì dodávky jednoho ze dvou typù motorù
+pro Airbus 380 nebo bankovnictví.
+\item PDP = Programmed Data Processor. První typ, \emph{PDP-1}, se prodávala za
+\$120.000 v dobì, kdy se jiné poèítaèe prodávaly za ceny pøes milión. To byla
+také strategie fy DEC - pojem \emph{computer} tehdy znamenal drahou vìc,
+potøebující sál a tým lidí, který se o to v¹echno bude starat. Proto DEC své
+ma¹iny nenazýval poèítaèi, ale pravì slovem \emph{PDPs}.
+\item PDP-11 je legendární ma¹ina od firmy DEC, postupnì vznikaly verze PDP-1 az
+PDP-16, kromì PDP-2, PDP-13. Existují PDP-11 systémy, které je¹tì dnes bì¾í, a
+také firmy, které pro nì vyrábìjí náhradní díly.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Historie UNIXu, pokraèování}
+\begin{itemize}
+\item únor 1973 -- UNIX V3 obsahoval \emph{cc} pøekladaè (jazyk C
+byl vytvoøen \emsl{Dennisem Ritchiem} pro potøeby UNIXu)
+\item øíjen 1973 -- UNIX byl pøedstaven veøejnosti èlánkem \emph{The
+UNIX Timesharing System} na konferenci ACM
+\item listopad 1973 -- \emsl{UNIX V4 pøepsán do jazyka C}
+\item 1975 -- UNIX V6 byl první verzí UNIXu bì¾nì k dostání mimo BTL
+\item 1979 -- UNIX V7, pro mnohé ``the last true UNIX'', obsahoval
+\emph{uucp}, Bourne shell; velikost kernelu byla pouze 40KB !!!
+\item 1979 -- UNIX V7 portován na 32-bitový VAX-11
+\item 1980 -- Microsoft pøíchází s XENIXem, který je zalo¾ený na
+UNIXu~V7
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item ACM = Association for Computing Machinery, zalo¾ena 1947. UNIX pøedstavili
+Ken Thompson a Dennis Ritchie.
+\item \emsl{akt pøepsání UNIXu do jazyka C byl mo¾ná nejvýznamnìj¹ím momentem
+v historii tohoto systému} $\Rightarrow$ UNIX mohl být mnohem jednodu¹eji
+portován na jiné architektury
+\item na verzi 6 je zalo¾ena legendární kniha \emph{A commentary on the Unix
+Operating System}, její¾ autorem je John Lions.
+\item Microsoft neprodával XENIX pøímo, ale licencoval ho OEM výrobcùm
+(Original Equipment Manufacturer) jako byl Intel, SCO a jiní. Jiné firmy pak
+XENIX dále portovaly na 286 (Intel) a 386 (SCO, 1987). Na webu je mo¾né najít
+zajímavé informace popisující tuto dobu a tehdy kladný vztah Microsoftu k
+UNIXu.
+% find UNIX-v7/ -type f -name '*. wc -l {} \; | \
+%     awk 'BEGIN { cnt = 0; } { cnt += $1; } END { printf("lines: %d\n", cnt); }'
+%lines: 188319
+%find UNIX-v7/ -type f -name '*.[cshy]' | wc -l
+%    1131
+\item UNIX V7 mìl cca 188 tisíc øádek zdrojového kódu
+v cca 1100 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
+pøes soubory se jménem \texttt{*.[cshy]}).
+\item pokud vás více zajímá historie uni{}xu, podívejte se na Wikipedii na heslo
+``u{}nix'' a skrz odkazy máte na dlouho co èíst.
+% http://minnie.tuhs.org/Seminars/Saving_Unix/sslides/ss-sslides.html
+\item V roce 1973 byl UNIX víceu¾ivatelský systém (konta s hesly) s podporou pro 
+multiprocessing s ochranou procesù a stránkováním. Mìl signály, roury,
+hierarchický systém souborù s mount pointy, souborová práva (User/group/other
+r/w/x), hard linky, zaøízení pøístupná jako soubory. Kernel byl napsán v jazyku C
+a v pamìti zabíral jeho obraz 26 Kilobytù. Pro práci se soubory slou¾ily
+systémová volání \texttt{open()}, \texttt{close()}, \texttt{read()},
+\texttt{write()}, \texttt{seek()}, \texttt{pipe()}.
+K manipulaci s procesy volání \texttt{fork()}, \texttt{exec()}, \texttt{wait()},
+\texttt{exit()}. Celkem bylo 48 syscallù, z nich existuje 35 do dne¹ní doby.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Divergence UNIXu}
+\begin{itemize}
+\item pol. 70. let -- uvolòování UNIXu na univerzity: pøedev¹ím \emsl{University
+of California v Berkeley}
+\item 1979 -- z UNIX/32V (zmínìný port na VAX) poskytnutého do
+Berkeley se vyvíjí \emsl{BSD Unix (Berkeley Software Distribution)}
+verze 3.0; poslední verze 4.4 v roce 1993
+\item 1982 \emsl{AT\&T}, vlastník BTL, mù¾e vstoupit na trh poèítaèù
+(zakázáno od roku 1956) a pøíchází s verzí \emph{System III} (1982)
+a¾ \emph{V.4} (1988) -- tzv. \emph{SVR4}
+\item vznikají UNIX International, OSF (Open Software Foundation),
+X/OPEN, \dots 
+\item 1991 -- Linus Torvalds zahájil vývoj OS Linux, verze jádra 1.0 byla
+dokonèena v r. 1994
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item UNIX je univerzální operaèní systém fungující na ¹iroké ¹kále poèítaèù
+od embedded a handheld systémù (Linux), pøes osobní poèítaèe a¾ po velké
+servery a superpoèítaèe.
+\item UNIX V3 = \emph{UNIX verze 3}, UNIX V.4 = \emph{system 5 release 4}
+atd., tj. UNIX V3 != SVR3.
+\item UNIX System III tedy není UNIX V3; v této dobì (pozdní 70. léta) bylo v
+BTL nìkolik skupin, které pøíspívaly do vývoje UNIXu. Vx verze byly vyvíjeny v
+rámci \emph{Computer Research Group}, dal¹í skupiny byly \emph{Unix System
+Group} (USG), \emph{Programmer's WorkBench} (PWB). Dal¹í vìtví UNIXu byl
+Columbus UNIX té¾ v rámci BT. Na tìchto rùzných verzích je právì zalo¾ena
+verze System III. Zájemce o více informací odkazuji na web.
+\item UNIX se roz¹tìpil na dvì hlavní vìtve: AT\&T a BSD, jednotliví výrobci
+pøicházeli s~vlastními modifikacemi. \emsl{Jednotlivé klony od sebe navzájem
+pøebíraly vlastnosti.}
+% find SysV-R4.0/ -type f -name '*.[cshy]' | wc -l
+%    5714
+%find SysV-R4.0/ -type f -name '*.[cshy]' -exec wc -l {} \; | ~/bin/sum.awk 
+%lines: 1500713
+\item System V R4 mìl cca 1.5 milionu øádek zdrojového kódu
+v cca 5700 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
+pøes soubory se jménem \texttt{*.[cshy]}).
+\item Univerzita v Berkeley získala jako jedna z prvních licenci UNIXu v roce
+1974. Bìhem nìkolika let studenti (jedním z nich byl Bill Joy, pozdìj¹í
+zakladatel firmy Sun Microsystems a autor C-shellu) vytvoøili SW balík
+\emph{Berkeley Software Distribution} (BSD) a prodávali ho v roce 1978 za
+\$50. Tyto poèáteèní verze BSD obsahovaly pouze SW a utility (první verze:
+Pascal pøekladaè, editor \emph{ex}), ne systém ani ¾ádné jeho zmìny. To pøi¹lo
+a¾ s verzí 3BSD. verze 4BSD vzniká roku 1980 ji¾ jako projekt financovaný
+agenturou DARPA a vedený Billem Joyem. Trpí problémy spojenými s nedostateèným
+výkonem a vzniká tak vyladìný systém 4.1BSD dodávaný od roku 1981.
+\item 4.1BSD mìlo být pùvodnì 5BSD, ale poté, co AT\&T vzneslo  námitky, ¾e by
+si zákazníci mohli plést 5BSD se systémem System~V, pøe¹lo BSD na èíslování
+4.xBSD. Bì¾nou vìcí bylo, ¾e ne¾ psát vlastní kód, vývojáøi z Berkeley se
+radìji nejdøíve podívali kolem, co je ji¾ hotové. Tak BSD napøíklad pøevzalo
+virtuální pamì» z Machu a nebo NFS-kompatibilní kód vyvinutý na jedné kanadské
+univerzitì.
+%\item (1988) 4.3BSD-Tahoe mìl ji¾ rozdìl{}ený kód kernelu na závislý na
+%architektuøe a nezávislý
+%\item (1989) \emph{Networking Release 1}, první volnì ¹iøitelný kód z
+%Berkeley obsahující sí»ový kód z Tahoe, nezávislý na licenèní politice AT\&T.
+%Licenèní politika z Berkeley byla oproti politice AT\&T velmi liberální.
+\item výrobci hardware dodávali varianty UNIXu pro své poèítaèe a
+komercializace tak je¹tì zhor¹ila situaci co týèe diverzifikace totoho systému
+\item v 80-tých letech se proto zaèaly objevovat snahy o standardizaci. Standard
+øíká, jak má vypadat systém navenek (pro u¾ivatele, programátora a správce),
+nezabývá se implementací. Cílem je pøenositelnost aplikací i u¾ivatelù. V¹ech\-ny
+systémy toti¾ z dálky vypadaly jako UNIX, ale pøi bli¾¹ím prozkoumání se li¹ily
+v mnoha dùle¾itých vlastnostech. System~V a BSD se napø. li¹ily v pou¾itém
+filesystému, sí»ové architektuøe i v architektuøe virtuální pamìti.
+\item kdy¾ v roce 1987 firmy AT\&T a Sun (jeho¾ tehdej¹í SunOS byl zalo¾ený
+na BSD) spojily svoje úsilí na vyvinutí jednoho systému, který by obsahoval to
+nejlep¹í z obou vìtví, kromì nad¹ených reakcí to vzbudilo i strach u mnoha
+dal¹ích výrobcù unixových systémù, kteøí se báli, ¾e by to pro obì firmy
+znamenalo obrovskou komerèní výhodu. Vzniká proto Open Software Foundation
+(nezamìòovat za FSF), a zakládajícími èleny byly mimo jiné firmy
+Hewlett-Packard, IBM a Digital. Z toho vze¹lý systém OSF/1 ale nebyl pøíli¹
+úspì¹ný, a dodával ho pouze Digital, který ho pøejmenoval na Digital UNIX.
+Zajímavostí je, ¾e systém je postavený na mikrojádru Mach. Po akvizici
+Digitalu Compaqem byl systém pøejmenován na Tru64 a s tímto jménem je dále
+podporován firmou Hewlett-Packard, která se v roce 2002 s Compaqem spojila. Mezitím
+firmy AT\&T a Sun kontrovaly zalo¾ením UNIX International. Toto období pøelomu
+80-tých a 90-tých let se nazývá \emsl{Unix Wars} -- boj o to, co bude
+``standardním unixem''.
+\item OSF a UI se staly velkými rivaly, ale velmi rychle se støetly s
+neèekaným protivníkem - s firmou Microsoft.
+\item (1992) 386BSD zalo¾ené na \emph{Networking Release 2}; Bill Jolitz
+vytvoøil 6 chybìjících souborù a dal tak dohromady funkèní BSD systém pro
+i386. Tento systém se stal základem systémù \emph{NetBSD} a \emph{FreeBSD} (a
+dal¹ích, z tìchto dvou systémù vycházejících).
+\item (1995) 4.4BSD-Lite Release 2, po které následuje rozpu¹tìní CSRG, která
+skoro 20 let pilotovala vývoj BSD vìtve. Více ji¾ zmínìná kapitola o BSD
+Unixu.
+\end{itemize}
+
+%%%%%
+
+\pagebreak
+
+\pdfbookmark[1]{souèasné unixové systémy}{currentunix}
+
+\begin{slide}
+\sltitle{Souèasné UNIXy}
+Hlavní komerèní unixové systémy:
+\begin{itemize}
+\item Sun Microsystems: \emsl{SunOS} (není ji¾ dále vyvíjen), \emsl{Solaris}
+\item Apple: \emsl{macOS} (døíve Mac OS X)
+\item SGI: \emsl{IRIX} (není ji¾ dále vyvíjen)
+\item IBM: \emsl{AIX}
+\item HP: \emsl{HP-UX}, \emsl{Tru64 UNIX} (Compaq)
+\item SCO: \emsl{SCO Unix}
+\item Xinuos (kdysi Novell): \emsl{UNIXware}
+\end{itemize}
+Open source:
+\begin{itemize}
+\item \emsl{FreeBSD}, \emsl{NetBSD}, \emsl{OpenBSD}
+\item \emsl{Linux} distribuce
+\end{itemize}
+\end{slide}
+
+
+\begin{itemize}
+\item Striktnì technicky vzato se jako UNIX mù¾e oznaèovat pouze systém, který
+pro¹el certifikací Single Unix Specification.
+Z vý¹e uvedeného seznamu by to byly 4 operaèní systémy,
+které byly registrovány jako UNIX 03 na rùzných architekturách
+(\url{http://www.opengroup.org/openbrand/register/}). Ostatní sys\-témy, které
+nebyly certifikovány, se oznaèují jako Unix-like, aèkoliv v mnoha pøípadech
+splòují vìt¹inù po¾adavkù standardu. Bì¾nì se nicménì pou¾ívá oznaèení Unix
+pro obì dvì skupiny.
+\item kdy¾ jsem cca v roce 1998 projel nmapem v¹echny DNS root servery, abych
+zjistil na kterých systémech bì¾í, bylo 80\% z nich na SunOS/Solaris. IRIX je
+zase systém, který po mnoho let ovládal televizní/filmový prùmysl (napø. Pixar
+studio kde na IRIXu vznikly filmy jako \emph{A Bug's Life}, \emph{Toy Story} a
+dal¹í). A na AIX napøíklad bì¾el \emph{Deep Blue}, paralelní superpoèítaè,
+který v roce 1997 porazil v ¹esti fascinujících zápasech 3.5 ku 2.5
+úøadujícího velmistra ¹achu Garriho Kasparova. Jinými slovy -- ka¾dý systém má
+svoje úspìchy.
+\item jak ji¾ bylo zmínìno, Tru64 UNIX vychází z OSF/1 firmy DEC. Ta pøedtím
+dodávala Ultrix, zalo¾ený na BSD unixu.
+\item OpenSolaris byl projekt vzniklý v èervnu 2005 a byl zalo¾en na podmno¾inì
+zdrojových textù vývojové verze Solarisu (kernel, knihovny, pøíkazy).
+Distribuce vze¹lé z komunity jsou napøíklad LiveCD \emph{BeleniX},
+\emph{SchilliX} a \emph{Nexenta}. Pøesto¾e projekt OpenSolaris ji¾ dále nepokraèuje,
+existuje open source fork \emph{Illumos} a na nìm zalo¾ené distribuce
+\emph{SmartOS} a \emph{OpenIndiana}.
+\item pozor na to, ¾e Linux je pouze jádro, ne systém, na rozdíl tøeba od
+FreeBSD. Illumos je nìco mezi tím, jádro + drivery, základní pøíkazy a
+knihovny, a v binární podobì to má nìco pøes 100MB. V obou pøípadech je tedy
+správné pou¾ívat spojení ``Linux (Illumos) distribuce'', kdy¾ se bavíme o
+celém systému.
+\item ka¾dá komerèní varianta vycházela z jednoho ze dvou hlavních systémù --
+UNIX V nebo BSD, a pøidávala si své vlastnosti. Díky mnoha verzím UNIXu tak
+vzniká velký poèet rùzných standardù (strana \pageref{UNIXSTANDARDS}). Nakonec
+se vìt¹ina výrobcù shodla na nìkolika základních.
+\item graf znázoròující historii unixových systémù a závislosti mezi nimi na
+19-ti A4 listech ve formátu PS/PDF je k nalezení na
+\url{http://www.levenez.com/unix/}
+\end{itemize}
+
+%%%%%
+
+\pagebreak
+
+\pdfbookmark[1]{standardy UNIXu}{unixstd}
+
+\begin{slide}
+\sltitle{Standardy UNIXu}
+\begin{itemize}
+\renewcommand{\baselinestretch}{0.8}
+\item \emsl{SVID} (System~V Interface Definition) 
+    \begin{itemize2}
+    \item \uv{fialová kniha}, kterou AT\&T vydala poprvé v roce 1985
+    \item dnes ve verzi SVID3 (odpovídá SVR4) 
+    \end{itemize2}
+\item \emsl{POSIX} (Portable Operating System based on UNIX)
+    \begin{itemize2}
+    \item série standardù organizace IEEE znaèená P1003.xx, postupnì je
+    pøejímá vrcholový nadnárodní orgán ISO 
+    \end{itemize2}
+\item \emsl{XPG} (X/Open Portability Guide) 
+    \begin{itemize2}
+    \item doporuèení konsorcia X/Open, které bylo zalo¾eno v r. 1984 pøedními
+    výrobci platforem typu UNIX
+    \end{itemize2}
+\item \emsl{Single UNIX Specification}
+    \begin{itemize2}
+    \item standard organizace The Open Group, vzniklé v roce 1996 slouèením
+    X/Open a OSF 
+    \item dnes Version~4 (\emsl{SUSv4})
+    \item splnìní je nutnou podmínkou pro u¾ití obchodního názvu UNIX
+    \end{itemize2}
+\end{itemize}
+\end{slide}
+
+\label{UNIXSTANDARDS}
+
+\begin{itemize}
+\item základní informace je, ¾e oblast standardù týkající se unixových systémù
+je vìc znaènì slo¾itá a na první pohled velmi nepøehledná.
+\item AT\&T dovolila výrobcùm nazývat svoji komerèní UNIX variantu ``System
+V'' pouze pokud splòovala podmínky standardu SVID. AT\&T také publikovala
+\emph{System~V Verification Suite} (SVVS), které ovìøilo, zda daný systém
+odpovídá standardu. 
+\item POSIX (Portable Operating System Interface) je standardizaèní snaha
+organizace IEEE (Institute of Electrical and Electronics Engineers).
+\item SUSv4 je spoleèný standard The Open Group, IEEE (Std. 1003.1, 2008
+Edition) a ISO (ISO/IEC 9945-2008).
+\item Pro certifikaci operaèního systému na Single Unix Specification
+je nutné aby systém (na dané architektuøe, napø. 64-bit x86) pro¹el sadou
+testù. Výsledky testù jsou pak vyhodnoceny. Testy samotné jsou sdru¾eny
+do tzv. \emph{test suites}, co¾ jsou sady automatických testù, které
+projdou systém a zjistí jestli splòuje rozhraní dané normou.
+Pro SUSv3 je takových test suites cca 10.
+\item Rozhraní specifikované normou POSIX.1-2008 se dìlí na 4
+základní skupiny: XSH (System Interfaces), XCU (Shell and Utilities), XBD
+(Base definitions). Z nich je co do poètu
+rozhraní nejobsáhlej¹í XSH, která popisuje více ne¾ 1000 rozhraní.
+\item Skupiny rozhraní POSIXu spolu se skupinou Xcurses, která je souèástí
+Single Unix Specification (ale nikoliv souèást POSIX báze v normì IEEE Std
+1003.1-2001) zahrnují celkem 1742 rozhraní, které tvoøí Single Unix
+Specification (2003). Tabulky rozhraní SUS je mo¾né získat zde:
+\url{http://www.unix.org/version3/inttables.pdf}
+\item komerèní UNIXy vìt¹inou sledují Single UNIX Specification, splnìní této
+normy je právì podmínkou pro u¾ití názvu UNIX (znaèka UNIX 98 odpovídá
+SUSv2, znaèka UNIX 03 odpovídá SUSv3, SUSv4 je UNIX V7 - neplést s historickým
+V7 UNIX). Je postavena na bázi POSIXu. My se budeme dr¾et SUSv4. Popis datových
+struktur a algoritmù jádra v tomto materiálu bude vìt¹inou vycházet ze
+System~V Rel.~4.
+\item na Solarisu je obsáhlá manuálová stránka \texttt{standards(5)}, kde mù¾ete
+na jednom místì nalézt mnoho informací týkající se standardù. Jednotlivé pøíkazy
+splòující danou normu jsou navíc umístìny do vyhrazených adresáøù. Napø.
+program \texttt{tr} je v adresáøích \texttt{/usr/xpg4/bin/} a
+\texttt{/usr/xpg6/bin/}, v ka¾dém je verze pøíkazu splòující danou normu.
+Na pøepínaèe a chování dané normou se pak lze spolehnout napø. pøi psaní
+shellových skriptù.
+\item opìt na Solarisu, podívejte se na hlavièkový soubor
+\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[1]{POSIX}{POSIX}
+
+\begin{slide}
+\sltitle{POSIX}
+\begin{itemize}
+\renewcommand{\baselinestretch}{0.8}
+\item tvrzení ``tento systém je POSIX kompatibilní'' nedává ¾ádnou konkrétní
+informaci
+\begin{itemize}
+\item asi podporuje POSIX1990 a mo¾ná i nìco dal¹ího (co?)
+\end{itemize}
+\item dotyèný buï neví co je POSIX nebo si myslí, ¾e to nevíte vy
+\item jediná rozumná reakce je otázka ``jaký POSIX?''
+\item POSIX je \emsl{rodina standardù}
+\item prvním dokumentem je \emph{IEEE Std POSIX1003.1-1988}, pozdìji po vzniku
+dal¹ích roz¹íøení neformálnì odkazovaný jako POSIX.1
+\item poslední verze POSIX.1 je \emph{IEEE Std 1003.1, 2004 Edition}
+\begin{itemize}
+\item obsahuje v sobì ji¾ i to, co døíve definoval POSIX.2 (Shell and Utilities)
+a rùzná, døíve samostatná roz¹íøení
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\label{POSIX}
+
+\begin{itemize}
+\item prvním dokumentem je \emph{IEEE Std POSIX1003.1-1988}, døíve oznaèovaný
+pros\-tì jako POSIX, pak odkazovaný jako \emph{POSIX.1}, proto¾e POSIXem se nyní
+míní sada vzájemnì souvisejících standardù. POSIX.1 v té dobì obsahoval
+programovací API, tj. práce s procesy, signály, soubory, èasovaèi atd. S malými
+zmìnami byl pøevzat organizací ISO (\emph{ISO 9945-1:1990}), a je
+oz\-na\-èo\-va\-ný i
+jako POSIX1990. IEEE oznaèení je \emph{IEEE Std POSIX1003.1-1990}. Tento
+standard byl sám o sobì velký úspìch, ale stále je¹tì nespojoval tábory System~V
+a BSD, proto¾e v sobì napøíklad nezahrnoval BSD sockety nebo IPC (semafory,
+zprávy, sdíl{}ená pamì») ze System~V. Souèástí standardu je i ``POSIX
+conformance test suite (PCTS)'', který je volnì k dispozici.
+\item oznaèení POSIX vymyslel Richard Stallman, tedy èlovìk, který v roce 1983
+zalo¾il GNU projekt.
+\item dùle¾itá ro¾¹íøení k IEEE Std 1003.1-1990 (jsou souèástí IEEE Std 1003.1,
+2004 Edition):
+\begin{itemize}
+\item \emph{IEEE Std 1003.1b-1993 Realtime Extension}, neformálnì známý jako
+POSIX.4, proto¾e to bylo jeho pùvodní oznaèení pøed pøeèíslováním; já budu toto
+roz¹íøení nìkdy také nazývat POSIX.4. Vìt¹ina tohoto roz¹íøení je nepovinná,
+tak¾e tvrzení ``systém podporuje POSIX.1b'' má je¹tì hor¹í vypovídací hodnotu
+ne¾ ``systém je POSIX kompatibilní'', a to prakticky nulovou. Jediná povinná
+èást POSIX.4 je malé doplnìní k signálùm oproti POSIX1990. Je proto nutné v¾dy
+uvést, co z POSIX.4 je implementováno -- napø. sdíl{}ená pamì», semafory,
+real-time signály, zamykání pamìti, asynchronní I/O, èasovaèe atd.
+\item \emph{IEEE Std 1003.1c-1995 Threads}, viz strana \pageref{POSIXTHREADS}.
+\item \emph{IEEE Std 1003.1d-1999 Additional Realtime Extensions}
+\item \emph{IEEE Std 1003.1j-2000 Advanced Realtime Extensions}, viz strana
+\pageref{RWLOCKS}.
+\item \dots
+\end{itemize}
+\item standardy POSIX je mo¾né nalézt na \url{http://www.open-std.org/}.
+HTML verze je volnì k prohlí¾ení, za PDF verzi se platí.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Jazyk C
+
+\pdfbookmark[1]{Jazyk C}{C}
+\label{C_LANGUAGE}
+
+\begin{slide}
+\sltitle{Jazyk C}
+\begin{itemize}
+\item témìø celý UNIX je napsaný v C, pouze nejni¾¹í strojovì
+závislá èást v~assembleru $\Rightarrow$ pomìrnì snadná
+pøenositelnost
+\item navrhl Dennis Ritchie z Bell Laboratories v roce 1972. 
+\item následník jazyka B od Kena Thomsona z Bell Laboratories. 
+\item vytvoøen jako prostøedek pro pøenos OS UNIX na jiné poèítaèe
+-- silná vazba na UNIX. 
+\item varianty jazyka:
+    \begin{itemize}
+    \item pùvodní K\&R C 
+    \item standard ANSI/ISO C
+    \end{itemize}
+\item \emsl{úspìch jazyka C daleko pøesáhl úspìch samotného UNIXu}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item CPL $\Rightarrow$ BCPL $\Rightarrow$ B (Thompson, interpret)
+$\Rightarrow$ C
+\item K\&R C -- jazyk C tak, jak je popsaný v klasické knize Brian W.
+Kernighan, Dennis M. Ritchie: The C Programming Language (Prentice-Hall,
+1978).
+\item v roce 1983 ANSI (American National Standards Institute) zformoval výbor
+pro vytvoøení C standardu. Po dlouhém a pracném procesu byl v roce 1989
+standard koneènì hotov, a je známý nejèastìji jako ``ANSI C'', pøípadnì jako
+C89 (napøíklad pøekladaè pro tuto normu se v Sun Studiu jmenuje \texttt{c89},
+jeliko¾ i to samotné jméno programu musí být podle normy).
+Druhé vydání K\&R knihy (1988) je ji¾ upravené právì pro nadcházející ANSI C.
+V roce 1990 bylo ANSI C adoptováno organizací ISO jako ISO/IEC 9899:1990;
+tento C standard tak mù¾e být nìkdy oznaèován i jako C90.
+\item se C standardem se pak nìjakou dobu nehýbalo, a¾ na konci 90-tých let
+pro¹el dal¹í revizí v rámci ISO a vzniká ISO 9899:1999, èastìji oznaèovaný
+jako C99. V roce 2000 pak naopak tento standard pøevzal ANSI. 
+\item rozdíly mezi C89 a C99 jsou mimo jiné zahrnutí inline funkcí, definicí
+pro\-mìn\-ných napøíklad i do \texttt{for} konstrukce, jednoøádkových
+komentáøù pomocí \texttt{//}, nových funkcí jako \texttt{snprintf} apod.
+\item specifikaci C standardu a mnoho dal¹ích otevøených standardù je mo¾né
+nalézt na \url{http://www.open-std.org/}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Formáty dat}
+\begin{itemize}
+\item poøadí bajtù -- závisí na architektuøe poèítaèe
+    \begin{itemize}
+    \item \raisetab{
+    \begin{tabular}[t]{r|c|c|c|c|}
+%    \cline{2-5}
+    big endian: 0x11223344 =
+    &11&22&33&44\\
+%    \cline{2-5}
+    \multicolumn{1}{r}{\texttt{addr +}}&
+    \multicolumn{1}{c}{0}&\multicolumn{1}{c}{1}&
+    \multicolumn{1}{c}{2}&\multicolumn{1}{c}{3}
+    \end{tabular}}
+    \item \raisetab{
+    \begin{tabular}[t]{r|c|c|c|c|}
+%    \cline{2-5}
+    little endian: 0x11223344 =
+    &44&33&22&11\\
+%    \cline{2-5}
+    \multicolumn{1}{r}{\texttt{addr +}}&
+    \multicolumn{1}{c}{0}&\multicolumn{1}{c}{1}&
+    \multicolumn{1}{c}{2}&\multicolumn{1}{c}{3}
+    \end{tabular}}
+    \end{itemize}
+\item øádky textových souborù konèí v UNIXu znakem \emsl{LF}
+(nikoliv \texttt{CRLF}). Volání \verb.putc('\n'). tedy pí¹e pouze
+jeden znak.
+\item big endian -- SPARC, MIPS, sí»ové poøadí bajtù
+\item little endian -- Intel
+\end{itemize}
+\end{slide}
+
+\label{BYTE_ORDERS}
+
+\begin{itemize}
+\item velký pozor na výstupy programù typu \texttt{hexdump}, které defaultnì
+vypisují soubor v 16-ti bitových èíslech, co¾ svádí vidìt soubor jinak, ne¾ jak
+je opravdu zapsaný na disku; viz pøíklad (i386, FreeBSD). První èíslo v souboru
+je znak 'i', který ale reprezentuje ni¾¹ích 8 bitù 16-ti bitového èísla, tak¾e
+pokud vypí¹eme první 2 bajty jako short integer, musí být reprezentace znaku 'i'
+(tj. èíslo 69) a¾ za 6a. Obdobnì pro 'kl'.
+
+\begin{verbatim}
+$ echo -n ijkl > test
+$ hexdump test
+0000000 6a69 6c6b
+0000004
+\end{verbatim}
+
+je samozøejmì mo¾né pou¾ít jiný formát výstupu:
+
+\begin{verbatim}
+$ hexdump -C test 
+00000000 69 6a 6b 6c
+00000004
+\end{verbatim}
+
+\item UNIX norma pøíkaz \texttt{hexdump} nemá, ale definuje \texttt{od} (octal
+dump), tak¾e zde je jeho \texttt{hexdump}u ekvivalentní formát výpisu na
+\emph{SPARCu} (Solaris); v¹imnìte si zmìny oproti výpisu na \emph{i386} !
+
+\begin{verbatim}
+$ od -tx2 test
+0000000 696a 6b6c
+0000004
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Deklarace a definice funkce}
+\begin{itemize}
+\item K\&R
+    \begin{itemize2}
+    \item deklarace
+    \begin{verbatim}
+    návratový_typ indentifikátor();
+    \end{verbatim}
+    \vskip -2\baselineskip~
+    \item definice
+    \begin{verbatim}
+    návratový_typ indentifikátor(par [,par...])
+    typ par;...
+    { /* tìlo funkce */ }
+    \end{verbatim}
+    \vskip -2\baselineskip~
+    \end{itemize2}
+\item ANSI
+    \begin{itemize2}
+    \item deklarace
+    \begin{verbatim}
+    návratový_typ indentifikátor(typ par [,typ par...]);
+    \end{verbatim}
+    \vskip -2\baselineskip~
+    \item definice
+    \begin{verbatim}
+    návratový_typ indentifikátor(typ par [,typ par...])
+    { /* tìlo funkce */ }
+    \end{verbatim}
+    \vskip -2\baselineskip~
+    \end{itemize2}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item pou¾ívejte pouze novìj¹í (ANSI) typ deklarací a v¾dy deklarujte
+prototypy funkcí, tj. inkludujte hlavièkové soubory. Výjimkou mù¾e asi jen to,
+pokud budete pracovat s kódem, který byl napsaný podle K\&R.
+\item rùznými zápisy deklarací se dostáváme rovnou i k rùzným stylùm
+psaní zdrojových textù. Nìkteré systémy to pøíli¹ neøe¹í (Linux),
+jiné systémy mají velmi striktní pravidla pro psaní zdrojových textù
+(napø. Solaris, viz on-line \emph{C Style and Coding Standards for
+SunOS}: \url{http://mff.devnull.cz/pvu/common/cstyle.ms.pdf}).
+Snad ka¾dý UNIXový systém má program indent(1), který vám pomocí pøepínaèù
+pøeformátuje jakýkoli C zdrojový text do po¾adovaného výstupu.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[1]{C style}{cstyle}
+
+\begin{slide}
+\sltitle{C style}
+\begin{itemize}
+\item vìc zdánlivì podøadná, pøitom extrémnì dùle¾itá -- úprava zdrojových
+kódù programu
+\item mnoho zpùsobù jak ano:
+
+\begin{verbatim}
+int
+main(void)
+{
+        char c;
+        int i = 0;
+
+        printf("%d\n", i);
+        return (0);
+}
+\end{verbatim}
+
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item u C stylu je nejdùle¾itìj¹í to, aby byl konzistentní. Pokud skupina
+programátorù pracuje na jednom projektu, není zas a¾ tak dùle¾ité, na jakém
+stylu se dohodnou (pokud je alespoò trochu rozumný), ale aby se dohodli.
+Jednotný a dobøe zvolený styl ¹etøí èas a brání zbyteèným chybám.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\sltitle{C style (cont.)}
+\begin{itemize}
+\item mnoho zpùsobù jak \emsl{NE} (tzv. assembler styl):
+
+\begin{verbatim}
+int main(void) {
+int i = 0; char c;
+printf("%d\n", i);
+return (0);
+}
+\end{verbatim}
+
+\item nebo (schizofrenní styl):
+\begin{verbatim}
+int main(void) {
+        int i = 0; char c;
+        if (1)
+        printf("%d\n", i);i=2;
+return (0);
+}
+\end{verbatim}
+
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item pamatujte na to, ¾e dobrý styl zdrojových kódù je i vizitkou programátora.
+Kdy¾ se v rámci pøijímacích pohovorù odevzdávají i ukázkové kódy, tak hlavní
+dùvod pøekvapivì není ten, aby se zjistilo, ¾e vám daný program funguje. Úprava
+samotného zdrojového textu je jedním z kriterií, proto¾e to pøenesenì mù¾e
+svìdèit i o dal¹ích skuteènostech -- nìkdo napø. bude odhadovat, ¾e pokud pí¹ete
+neèistý a neupravený kód, tak jste mo¾ná je¹tì nepracovali na nìèem opravdu
+slo¾itém èi nìèem zahrnujícím spolupráci s více programátory, proto¾e v tom
+pøípadì je rozumnì èistý kód jednou z podmínek úspìchu a jednou ze zku¹eností,
+které z takové spolupráce vycházejí. Toto je samozøejmì zèásti subjektivní
+názor, ale èistým kódem nic nezkazíte, minimálnì nekazíte oèi svým cvièícím.
+\item informace o C stylu pou¾ívaném pro zdrojové kódy Solarisu,
+vèetnì skriptu, který vám zdrojáky zkontroluje a upozorní na
+pøípadné nedostatky, je mo¾né nalézt na
+\url{http://mff.devnull.cz/pvu/common/cstyle.html}. Pokud budete do\-dr\-¾o\-vat
+tento styl pøi psaní zkou¹kových pøíkladù, u¹etøíte mi tím práci pøi
+vyhodnocování.
+Obecnì je dobré, abyste si zkusili, co je to psát kód podle nìjakého
+konkrétního stylu, a ten pro daný ,,projekt'' dodr¾et.
+\item bohu¾el ani vý¹e uvedený skript není v¹emocný. Je zalo¾ený na kontrole
+pomocí regulárních výrazù, tak¾e tøeba ten assembler styl ze slajdu projde bez
+chyby, proto¾e bez skuteèné analýzy kódu není mo¾né (?) kontrolovat správné
+odsazování. V¹e ostatní je na nìm, dle \texttt{cstyle} skriptu, korektní.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Utility}
+\begin{tabular}{ll}
+\emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& pøekladaè C\\
+\emsl{CC}, \emsl{g++}$^\dagger$& pøekladaè C++\\
+\emsl{ld}& spojovací program (linker)\\
+\emsl{ldd}& pro zjistìní závislostí dynamického objektu\\
+\emsl{cxref}$^*$& køí¾ové odkazy ve zdrojových textech v C\\
+\emsl{sccs}$^*$, \emsl{rcs},\emsl{cvs}& správa verzí zdrojového kódu\\
+\emsl{make}$^*$& øízení pøekladu podle závislostí\\ 
+\emsl{ar}$^*$& správa knihoven objektových modulù\\
+\emsl{dbx}, \emsl{gdb}$^\dagger$& debuggery\\
+\emsl{prof}, \emsl{gprof}$^\dagger$& profilery\\
+\end{tabular}
+
+\hspace{0.5cm}$^*$ SUSv3 $^\dagger$ GNU
+\end{slide}
+
+SUSv3
+\begin{itemize}
+\item standardní pøíkaz volání kompilátoru a linkeru C je \texttt{c99} (podle
+ISO normy pro C z roku 1999)
+\item \texttt{cb} (C program beautifier) není
+\item pro správu verzí je \texttt{sccs}
+\item debuggery a profilery nejsou
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Konvence pro jména souborù}
+\begin{tabular}{ll}
+\texttt{*.c} & jména zdrojových souborù programù v C\\
+\texttt{*.cc} & jména zdrojových souborù programù v C++\\
+\texttt{*.h} & jména hlavièkových souborù (headerù)\\
+\texttt{*.o} & pøelo¾ené moduly (object files)\\
+\texttt{a.out} & jméno spustitelného souboru (výsledek úspì¹né kompilace)
+\end{tabular}
+
+\begin{tabular}{ll}
+\texttt{/usr/inc{}lude} & koøen stromu systémových headerù\\
+\texttt{/usr/lib/lib*.a} & statické knihovny objektových modulù\\
+\texttt{/usr/lib/lib*.so} & umístìní dynamických sdíle{}ných knihoven\\&
+      objektových modulù
+\end{tabular}
+\end{slide}
+
+\begin{description}
+\item[statické knihovny] -- pøi linkování se kód funkcí pou¾itých z knihovny
+stane souèástí výsledného spustitelného programu. Dnes se u¾ moc nepou¾ívá.
+\item[sdíle{}né knihovny] -- program obsahuje pouze odkaz na knihovnu, pøi
+spu¹tìní programu se potøebné knihovny naètou do pamìti ze souborù \texttt{*.so}
+a pøilinkují.
+\end{description}
+
+\begin{itemize}
+\item dnes se vìt¹inou pou¾ívají sdíle{}né knihovny, proto¾e
+nezabírají tolik diskového prostoru (knihovna je na disku jednou,
+není souèástí ka¾dého spustitelného souboru) a snadnìji se upgradují
+(staèí instalovat novou verzi knihovny, není tøeba pøelinkovat
+programy).  Poslední verze Solarisu u¾ napøíklad vùbec neobsahuje
+\texttt{libc.a}, díky èemu¾ ji¾ programátor nemù¾e vytvoøit
+statickou binárku, ani¾ by mìl dostateèné znalosti systému.
+\item nìkdy se bez statických knihoven neobejdeme. V nìkterých
+situacích není mo¾né pou¾ít knihovny dynamické, spustitelné soubory
+jsou takzvané \emph{standalone binaries} a pou¾ití naleznou
+napøíklad pøi bootování operaèního systému.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Princip pøekladu}
+\begin{center}
+\input{img/tex/princip_prekladu.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item u slo¾itìj¹ích programù bývá zvykem rozdìlit zdrojový text
+programu do nìkolika modulù, které obsahují pøíbuzné funkce a tyto
+moduly se pak mohou pøekládat zvlá¹» (dokonce ka¾dý modul mù¾e být v
+jiném jazyce a pøekládán jiným pøekladaèem). Výhodou je jednak
+urychlení pøekladu (pøekládají se v¾dy jen moduly zmìnìné od
+posledního pøekladu) a jednak flexibilita (nìk\-te\-ré moduly se mohou
+pou¾ívat v rùzných programech). Pro øízení pøekladu se obvykle
+pou¾ívá utilita \texttt{make}.
+\item \emph{pøekladaè} jednotlivé zdrojové moduly pøelo¾í do tvaru
+tzv. \emph{objektových modulù}, je¾ obsahují kód programu (vèetnì
+volání lokálních funkcí), ale namísto volání externích funkcí
+obsahují jen tabulku jejich jmen.
+\item po fázi pøekladu nastupuje \emph{spojovací program} (té¾
+\emph{linker} editor nebo \emph{loader}), který zkompletuje výsledný
+program vèetnì vyøe¹ení externích odkazù mezi moduly a systémovými
+knihovnami resp. mezi moduly navzájem.
+\item pou¾ité statické knihovny jsou zkopírovány do spustitelného
+souboru. Na sdíle{}né knihovny jsou ve spustitelném souboru pouze
+odkazy a linkuje je runtime linker pøi ka¾dém spu¹tìní programu. Více viz
+dynamický linker na stranì \pageref{RUNTIMELINKER}.
+\item pomocí parametrù linkeru lze urèit, zda se budou pou¾ívat
+statické nebo dynamické knihovny. Zdrojový kód je v obou pøípadech
+stejný. Existuje i mechanismus (\texttt{dlopen},
+\texttt{dlsym}\dots), pomocí kterého se za bìhu programu vybere
+sdíle{}ná knihovna a dají se volat její funkce.  Tímto zpùsobem mù¾ete
+také zjistit, zda v systému je pøítomna pøíslu¹ná funkcionalita a
+pokud ne, zachovat se podle toho. Více na stranì \pageref{DLOPEN}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøeklad jednoho modulu (preprocesor)}
+\begin{center}
+\input{img/tex/preprocesor.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item preprocesor provádí expanzi maker, ètení vlo¾ených (inc{}lude) souborù a
+vynechává komentáøe.
+\item výstup preprocesoru lze získat pomocí \texttt{cc -E} pøípadnì pøímo
+zavoláním \texttt{cpp}, nemusí to být ale v¾dy toté¾ proto¾e nìkteré
+pøekladaèe mají preprocesor integrován v sobì. Preprocesor mù¾ete samozøejmì
+pou¾ívat i pro jiné projekty, které s pøe\-kla\-dem zdrojových souborù v
+jazyce C nemusí mít vùbec nic spoleèného.
+\item pou¾ití preprocesoru se mù¾e velmi hodit v situaci, kdy potøebujete
+zasáhnout do cizího kódu, plného podmíneèných vkládání rùzných hlavièkových
+souborù a rùzných definic závislých na daných podmínkách. Pøi hledání pùvodce
+chyby vám právì mù¾e hodnì pomoci samostatného zpracování vstupního souboru
+pomocí preprocesuru, kde problém ji¾ vìt¹inou rozpoznáte snadno.
+\item \texttt{cpp} (nebo \texttt{cc -E} vám doká¾e na standardní chybový výstup
+zobrazit i celý strom vklá\-da\-ných souborù, co¾ opìt pøi podmíneèných
+pøekladech mù¾e být velmi u¾iteèná vìc. Staèí pro to pou¾ít volbu \texttt{-H} a
+pøesmìrovat výstup do \texttt{/dev/null} èím¾ dostanete pouze hierarchii
+vkládaných hlavièkových souborù.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøeklad jednoho modulu (kompilátor)}
+\begin{center}
+\input{img/tex/kompilator.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item obrázek vý¹e je pøíklad výstupu pro i386 platformu (32-bit, AT\&T syntax).
+\item pøeklad z C do assembleru
+\item výstup této fáze pøekladu lze získat pomocí \texttt{cc -S}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøeklad jednoho modulu (assembler)}
+\begin{center}
+\input{img/tex/assembler.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item opìt pøíklad výstupu pro i386 platformu (32-bit).
+\item pøeklad z assembleru do strojového kódu
+\item objektový modul je výsledkem pøíkazu \texttt{cc -c}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Kompilátor}
+\renewcommand{\arraystretch}{1.1}
+\begin{itemize}
+\item volání:\\
+\texttt{cc [\emph{options}] \emph{soubor} \dots}
+\item nejdùle¾itìj¹í pøepínaèe:\\
+\begin{tabular}{ll}
+\texttt{-o \emph{soubor}} & jméno výsledného souboru\\
+\texttt{-c} & pouze pøeklad (nelinkovat)\\
+\texttt{-E} & pouze preprocesor (nepøekládat)\\ 
+\texttt{-l} & slinkuj s pøíslu¹nou knihovnou\\
+\texttt{-L\emph{jméno}} & pøidej adresáø pro hledání knihoven z \texttt{-l}\\
+\texttt{-O\emph{level}} & nastavení úrovnì optimalizace\\
+\texttt{-g} & pøeklad s ladicími informacemi\\
+\texttt{-D\emph{jméno}} & definuj makro pro preprocesor\\
+\texttt{-I\emph{adresáø}} & umístìní \texttt{\#include} souborù
+\end{tabular}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \texttt{-l}/\texttt{-L} jsou pøepínaèe linker editoru, tj.
+kompilátor pøíslu¹né informace pøedá, ale jsou pou¾ívány tak èasto,
+¾e jsou vlo¾eny i do tohoto slajdu.
+\item kompilátor a linker mají mnoho dal¹ích pøepínaèù ovlivòujících
+generovaný kód, vypisování varovných hlá¹ení nebo variantu jazyka
+(K\&R/ANSI). Je tøeba nastudovat dokumentaci konkrétního produktu.
+\end{itemize}
+
+
+
+%%%%%
+
+\pdfbookmark[1]{pøeddefinovaná makra}{stdmacros}
+
+\begin{slide}
+\sltitle{Pøeddefinovaná makra}
+\begin{tabbing}
+\hskip 11em \= \kill
+\verb#__FILE__#, \verb#__LINE__#, \verb#__DATE__#, \verb#__TIME__#,
+\verb#__cplusplus#, apod.\\
+\> jsou standardní makra kompilátoru C/C++\\
+\verb#unix# \> v¾dy definováno v Unixu\\
+\verb#mips#, \verb#i386#, \verb#sparc# \> hardwarová architektura\\
+\verb#linux#, \verb#sgi#, \verb#sun#, \verb#bsd# \> klon operaèního systému\\
+\verb#_POSIX_SOURCE#, \verb#_XOPEN_SOURCE# \\
+\> pøeklad podle pøíslu¹né normy\\
+\end{tabbing}
+
+pro pøeklad podle urèité normy by pøed prvním \verb.#include. mìl
+být øádek s definicí následujícího makra. Pak naètìte \texttt{unistd.h}.
+
+\begin{tabular}{l@{\hspace{3em}}l}
+\emsl{UNIX 98} &\verb.#define _XOPEN_SOURCE 500.\\
+\emsl{SUSv3} &\verb.#define _XOPEN_SOURCE 600.\\
+\emsl{SUSv4} &\verb.#define _XOPEN_SOURCE 700.\\
+\emsl{POSIX1990} &\verb.#define _POSIX_SOURCE.
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item funguje to tak, ¾e pomocí konkrétních maker definujete co chcete (napø.
+\texttt{\_POSIX\_SOURCE}) a podle nastavení jiných maker (napø.
+\texttt{\_POSIX\_VERSION}) pak zjistíte, co jste dostali. Musíte ale v¾dy po
+nastavení maker nainkludovat \texttt{unistd.h} a pou¾ít správný pøekladaè.
+Napøíklad se pokusíme pøelo¾it program \priklad{basic-utils/standards.c}, který
+vy\-¾a\-du\-je SUSv3, na systému podporujícím SUSv3 (Solaris 10), ale
+pøekladaèem, který podporuje pouze SUSv2 (SUSv3 pøekladaè je \texttt{c99}).
+Pozor, ¾e defaultní chování va¹eho pøekladaèe mù¾e být klidnì právì to z
+\texttt{c89}.
+
+\begin{verbatim}
+$ cat standards.c 
+#define _XOPEN_SOURCE   600
+/* you must #include at least one header !!! */
+#include <stdio.h>
+int main(void)
+{
+        return (0);
+}
+$ c89 basic-utils/standards.c 
+"/usr/include/sys/feature_tests.h", line 336: #error: "Compiler or
+options invalid; UNIX 03 and POSIX.1-2001 applications require
+the use of c99"
+cc: acomp failed for standards.c
+\end{verbatim}
+\item zdroj maker pro standard tedy mù¾e být ji¾ na stranì
+\pageref{UNIXSTANDARDS} zmiòovaný hla\-viè\-ko\-vý soubor
+\texttt{feature\_tests.h} na Solarisu.
+\item v dokumentaci konkrétního kompilátoru je mo¾né najít, která dal¹í makra
+se pou¾ívají. Mno¾ství maker je definováno také v systémových hlavièkových
+souborech.
+\item POSIX.1 v sobì zahrnuje ANSI C; tedy C89, ne C99 (o C standardech více
+na stranì \pageref{C_LANGUAGE}).
+\item co se týèe maker k jednotlivým standardùm, velmi dobrá je kapitola 1.5 v
+[Rochkind]. Viz také \priklad{basic-tools/suvreq.c}.
+\begin{verbatim}
+int
+main(void)
+{
+#ifdef unix
+        printf("yeah\n");
+#else
+        printf("grr\n");
+#endif
+        return (0);
+}
+\end{verbatim}
+\item pøíklad na pou¾ití \texttt{\_\_LINE\_\_} viz
+\texttt{basic-tools/main\_\_LINE\_\_.c}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{link editor}{linker}
+
+\begin{slide}
+\sltitle{Link editor (linker)}
+\begin{itemize}
+\item Volání:\\
+\texttt{ld [\emph{options}] \emph{soubor} \dots}\\
+\texttt{cc [\emph{options}] \emph{soubor} \dots}
+\item Nejdùle¾itìj¹í pøepínaèe:\\
+\begin{tabular}{ll}
+\texttt{-o \emph{soubor}} & jméno výsledného souboru (default \texttt{a.out})\\
+\texttt{-l\emph{lib}} & linkuj s knihovnou \texttt{lib\emph{lib}.so} nebo
+\texttt{lib\emph{lib}.a}\\ 
+\texttt{-L\emph{path}} & cesta pro knihovny (\texttt{-l\emph{lib}})\\
+\texttt{-shared} & vytvoøit sdíle{}nou knihovnu\\
+\texttt{-non\_shared} & vytvoøit statický program
+\end{tabular}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item linker je program, který vezme typicky více objektù vygenerovaných
+pøe\-kla\-da\-èem a vytvoøí z nich binární program, knihovnu nebo dal¹í objekt
+vhodný pro dal¹í fázi linkování.
+\item pozor na to, ¾e na rùzných systémech se nìkteré pøepínaèe
+mohou li¹it, napøíklad \texttt{ld} na Solarisu nezná pøepínaèe
+\texttt{-shared} a \texttt{-non\_shared}, je nutné pou¾ít jiné.
+\item existuje pøepínaè \texttt{-R}, který umo¾òuje specifikovat
+cestu pro hledání knihoven za bìhu (runtime). Tato cesta se mù¾e
+li¹it od cesty specifikované pøepínaèem \texttt{-L}.
+\item u malých programù (v jednom souboru) lze provést pøeklad a
+linkování jedním pøíkazem \texttt{cc}. U vìt¹ích programù
+skládajících se z mnoha zdrojových souborù a knihoven se obvykle
+oddìluje pøeklad a linkování a celý proces je øízen utilitou
+\texttt{make} (strana \pageref{MAKE}).
+\end{itemize}
+
+
+% (jp) archiv jsem vyhodil, ja ho treba za ty roky nikdy nepouzil
+%
+%\begin{slide}
+%\sltitle{Práce s archivem (\texttt{ar})}
+%\begin{itemize}
+%\item manipulace s archivy souborù (napø. staticky linkované knihovny)
+%\item soubory ulo¾eny bez cesty
+%\item volání:\\\hspace{8em}
+%\texttt{ar [-dmpqrtx] [-abuv] [\emph{pos}] \emph{archive}
+%[\emph{file} \dots]}
+%\item operace:
+%    \begin{itemize2}
+%    \item \emsl{r}(eplace) -- pøepis souboru v archivu, pøepínaèe:
+%	\begin{itemize2}
+%	\item \emsl{a}(fter), \emsl{b}(ehind) -- umístìní za/pøed soubor
+%	\texttt{\emph{pos}}
+%	\item \emsl{u}(pdate) -- pøepis jen novìj¹ích
+%	\end{itemize2}
+%    \item \emsl{q}(uick) -- rychlé pøidání na konec (nekontroluje duplicitu)
+%    \item \emsl{m}(ove), \emsl{d}(elete) -- pøesun/smazání souboru v archivu 
+%    \item \emsl{p}(rint), \emsl{t}(able) -- výpis obsahu souboru/archivu 
+%    \item \emsl{x}(tract) -- výpis z archivu do normálního souboru 
+%    \end{itemize2}
+%\end{itemize}
+%\end{slide}
+%
+%Tímto pøíkazem se vytváøí statické knihovny objektových modulù. Dynamické
+%knihovny vytváøí linker pøi pou¾ití pøepínaèe \texttt{-shared}.
+
+%%%%%
+
+\pdfbookmark[1]{make}{make}
+
+\begin{slide}
+\sltitle{Øízení pøekladu a linkování (\texttt{make})}
+\renewcommand{\baselinestretch}{1}
+\begin{itemize}
+\item \emsl{zdrojové texty}\\
+\begin{minipage}[t]{3.3cm}
+main.c\\
+\setbox0=\hbox{\begin{minipage}[t]{3.1cm}
+\begin{verbatim}
+#include "util.h"
+main()
+{
+  msg();
+}
+\end{verbatim}
+\end{minipage}}
+\framebox{\box0}
+\end{minipage}\hfill
+\begin{minipage}[t]{2.2cm}
+util.h\\
+\setbox1=\hbox{\begin{minipage}[t]{2cm}
+\begin{verbatim}
+void msg();
+\end{verbatim}
+\end{minipage}}
+\framebox{\vphantom{\texttt{\#include"}}\box1}
+\end{minipage}\hfill
+\begin{minipage}[t]{3.3cm}
+util.c\\
+\setbox0=\hbox{\begin{minipage}[t]{3.2cm}
+\begin{verbatim}
+#include "util.h"
+msg()
+{
+  puts();
+}
+\end{verbatim}
+\end{minipage}}
+\framebox{\box0}
+\end{minipage}
+\end{itemize}
+\begin{minipage}[t]{3.7cm}
+\begin{itemize}
+\item \emsl{závislosti}\\\vskip-1ex
+\renewcommand{\arraystretch}{0.1}
+\setlength{\tabcolsep}{0.25ex}
+\begin{tabular}{lclcl}
+\texttt{main.c} &            &                 &            & \\
+                & $\searrow$ &                 &            & \\
+		&            & \texttt{main.o} &            & \\
+		& $\nearrow$ &                 & $\searrow$ & \\
+\texttt{util.h} &            &                 &            & \texttt{prog} \\
+                & $\searrow$ &                 & $\nearrow$ & \\
+		&            & \texttt{util.o} &            & \\
+		& $\nearrow$ &                 &            & \\
+\texttt{util.c} &            &                 &            & \\
+\end{tabular}
+\end{itemize}
+\end{minipage}\hfill
+\begin{minipage}[t]{6.5cm}
+\begin{itemize}
+\item \emsl{soubor} \texttt{Makefile}\\
+\setbox0=\hbox{\begin{minipage}[t]{5.9cm}
+\begin{verbatim}
+prog : main.o util.o
+        cc -o prog main.o util.o
+main.o : main.c util.h
+        cc -c main.c
+util.o : util.c util.h
+        cc -c util.c
+\end{verbatim}
+\end{minipage}}
+\framebox{\box0}
+\end{itemize}
+\end{minipage}
+\end{slide}
+
+\label{MAKE}.
+
+\begin{itemize}
+\item program je mo¾né také pøelo¾it a slinkovat jedním voláním kompilátoru,
+nebo definovat postup pøekladu a linkování pomocí shellového skriptu. Dùvodem
+pro pou¾ití \texttt{make} je to, ¾e vyhodnocuje závislosti mezi soubory a po
+zmìnì nìkterého zdrojového souboru pøekládá jenom to, co na nìm závisí. Èastý
+zpùsob pøekladu softwaru po aplikování zmìn zpùsobem ``\texttt{make clean; make
+all}'' je v situaci, kdy celý pøeklad trvá minuty (desítky minut, hodiny\dots),
+trochu nevhodný -- právì proto je dùle¾ité mít dobøe napsaný \texttt{Makefile}.
+\item øádek ``\verb#prog : main.o util.o#'' definuje, ¾e se má nejprve
+rekurzivnì zajistit existence a aktuálnost souborù \texttt{main.o} a
+\texttt{util.o}. Pak se zkontroluje, zda soubor (cíl) \texttt{prog} existuje a
+je aktuální (datum poslední modifikace souboru je mlad¹í ne¾ \texttt{main.o} a
+\texttt{util.o}). Pokud ano, nedìlá se nic. Kdy¾ ne, provede se pøíkaz na
+následujícím øádku.
+\item \texttt{make} se spou¹tí typicky s parametrem urèující pøí¹lu¹ný cíl
+(\emph{target}); pøi spu¹tìní bez parametrù se vezme první target.  To bývá
+\texttt{all}, co¾ vìt¹inou podle unixové konvence pøelo¾í v¹e, co se pøelo¾it
+má. Následuje pak tøeba spu¹tìní \texttt{make} s parametrem \texttt{install}
+apod.
+\item \texttt{make} je samozøejmì univerzální nástroj, pou¾itelný i jinde ne¾ u
+pøekladù zdrojových kódù
+\item pøíklad: \priklad{basic-utils/Makefile01}. Pozor na to, ¾e pro nestandardní
+jmé\-no vstup\-ní\-ho souboru je nutné pou¾ít pøepínaè \texttt{-f}:
+``\texttt{make -f Makefile01}''.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Syntaxe vstupního souboru (\texttt{make})}
+\begin{itemize}
+\item \makebox[4cm][l]{popis závislostí cíle:}
+\texttt{\emph{targets} : [\emph{files}]}
+\item \makebox[4cm][l]{provádìné pøíkazy:} \verb#<Tab>#\texttt{\emph{command}}
+\item \makebox[4cm][l]{komentáø:} \texttt{\#\emph{comment}}
+\item \makebox[4cm][l]{pokraèovací øádek:}
+\texttt{\emph{line-begin}}\verb#\#\\
+\makebox[4cm][l]{~} \texttt{\emph{line-continuation}}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{Pozor na to, ¾e øádek s pøíkazem zaèíná tabulátorem, nikoliv
+mezerami.} Ka¾dý pøíkazový øádek se provádí samostatným shellem, pokud je
+potøeba provést více øádkù pomocí jednoho shellu, musí se v¹echny a¾ na poslední
+ukonèit backslashem (shell je dostane jako jeden øádek). Viz pøíklad, ve kterém
+dva poslední \texttt{echo} pøíkazy jsou souèástí jednoho \texttt{if} pøíkazu,
+který je spu¹tìn samostatným shellem. Dále si v¹imnìte, ¾e pokud máte pøíkaz na
+více øádkù, musíte ka¾dý øádek ukonèit zpìtným lomítkem.
+
+\begin{verbatim}
+$ cat basic-utils/Makefile02
+all:
+        @echo $$$$
+        @echo $$$$
+        @if true; then \
+                echo $$$$; \
+                echo $$$$; \
+        fi
+$ make -f Makefile02
+5513
+5514
+5515
+5515
+\end{verbatim}
+
+\item co se týká pou¾ití zpìtného lomítka, tak to funguje jako oddìlovaè slov, a
+\texttt{make} místo nìj vlo¾í mezeru. Pøíklad: \priklad{basic-utils/Makefile07}.
+\item zdvojením \texttt{\$} se potlaèí speciální význam dolaru (viz
+následující slajd)
+\item znak \texttt{@} na zaèátku øádku potlaèí jeho výpis --
+\texttt{make} jinak standardnì vypisuje nejdøíve to, co bude
+vykonávat.
+\item vypsání v¹ech pøikazù které bude make provádìt bez toho aby je skuteènì
+provedl lze dosáhnout pou¾itím pøepínaèe \texttt{-n}.
+\item znak \texttt{-} na zaèátku øádku zpùsobí ignorování nenulové
+návratové hodnoty; jinak \texttt{make} v¾dy v takové situaci zahlásí
+chyby a okam¾itì skonèí. Pøíklad: \priklad{basic-utils/Makefile04}.
+\item 
+\begin{verbatim}
+test1:
+        false
+        echo "OK"
+
+test2:
+        -false
+        echo "OK"
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Makra (\texttt{make})}
+\begin{itemize}
+\item definice makra:\\
+\hspace*{5em}\texttt{name = string}
+\item pokraèování vkládá mezeru 
+\item nedefinovaná makra jsou prázdná 
+\item nezále¾í na poøadí definic rùzných maker
+\item definice na pøíkazové øádce: \\
+\hspace*{5em}\texttt{make \emph{target} \emph{name}=\emph{string}}
+\item vyvolání makra: \\
+\hspace*{5em}\texttt{\$\emph{name}} (pouze jednoznakové
+\texttt{\emph{name}}), \\
+\hspace*{5em}\texttt{\$\{\emph{name}\}} nebo \texttt{\$(\emph{name})}
+\item systémové promìnné jsou pøístupné jako makra
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item kdy¾ je stejné makro definováno vícekrát, platí jeho poslední definice,
+viz pøíklad \priklad{basic-utils/Makefile03}.
+\item makra není mo¾né definovat rekurzivnì, viz
+\priklad{basic-utils/Makefile05}:
+
+\begin{alltt}
+\$ cat basic-utils/Makefile05
+M=value1
+M=\$(M) value2
+all:
+        echo \$(M)
+\$ make -f Makefile05
+Variable M is recursive.
+\end{alltt}
+\item èasto se pou¾ívají rùzné roz¹íøené verze \texttt{make} (napø. GNU, BSD),
+které umí, podmínìné sekce v \texttt{Makefile}, redefinice pro\-mìn\-ných, apod.
+\item napsat \texttt{Makefile} který bude fungovat najednou pro rùzné verze
+\texttt{make} nemusí být jednoduché, proto existují projekty jako je napø. GNU
+automake. Pro jednoduchý podmíneèný pøeklad v závislosti na systému a kde se
+dají oèekávat rùzné verze pøíkazu make, je mo¾né pou¾ít napøíklad následující
+kód, který mi fungoval na v¹ech v nìm zmínìných systémech (znak ` je zpìtný
+apostrof, a ' je normální apostrof):
+
+\begin{verbatim}
+CFLAGS=`x=\`uname\`; \
+        if [ $${x} = FreeBSD ]; then \
+          echo '-Wall'; \
+        elif [ $${x} = SunOS ]; then \
+          echo '-v'; \
+        elif [ $${x} = Linux ]; then \
+          echo '-Wall -g'; \
+        fi`
+
+all:
+        @echo "$(CFLAGS)"
+\end{verbatim}
+
+\item v ostatních situacích je vhodné, pøípadnì nezbytné pou¾ít programy typu
+\texttt{autoconf} nebo \texttt{automake}. Nìkteré \texttt{make} implementace
+mají pøímo direktivy pro podmínìné zpracování vstupního souboru, napøíklad make
+na BSD. Pøíklad: \priklad{basic-utils/Makefile08.bsd}.
+\item pøepínaèem \texttt{-e} mù¾eme \texttt{make} donutit, aby ignoroval
+nastavení promìnných ve vstupním souboru v pøípadì, ¾e je definována promìnná
+prostøedí stejného jména. Normálnì \texttt{make} pøebírá aktuální nastavení
+promìnných prostøedí jen v pøípadì, ¾e dané promìnné nejsou nastavené ve
+vstupním souboru. Pøíklad: \priklad{basic-utils/Makefile06}.
+\item \texttt{make} je velmi silný nástroj, staèí se podívat do systémových
+\texttt{Makefile} souborù jakéhokoli un{}ix-like systému (najdìte si na
+Wikipedii, co to znamená ``un{}ix-like'', pokud to nevíte). Typickou spoleènou
+vlastností je to, ¾e neexistuje dokumentace, jak je daný makefile framework
+postaven.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{dynamický linker}{ldso}
+
+\begin{slide}
+\sltitle{Dynamický linker (loader)}
+
+\begin{itemize}
+\item pøeklad vy¾aduje v¹echny potøebné dynamické knihovny pro kontrolu
+dosa¾itelnosti pou¾itých symbolù
+\item \emsl{sestavení kompletního programu v pamìti se ale provede
+a¾ pøi spu¹tìní}. To je úkol pro \emsl{dynamický linker}
+(\emph{run-time linker}, \emph{loader})
+\item seznam dynamických knihoven zjistí ze sekce \texttt{.dynamic}
+\item systém má nastaveno nìkolik cest, kde se automaticky tyto knihovny hledají
+\item v sekci \texttt{.dynamic} je mo¾né dal¹í cesty ke knihovnám pøidat pomocí
+tagù \texttt{RUNPATH}/\texttt{RPATH}
+\item nalezené knihovny se pøipojí do pamì»ového procesu pomocí volání
+\funnm{mmap}() (bude pozdìji)
+\end{itemize}
+\end{slide}
+
+\label{RUNTIMELINKER}
+
+\begin{itemize}
+\item proces spu¹tìní dynamicky slinkovaného programu probíhá takto:
+
+\begin{itemize}
+\item kernel ve volání \texttt{exec} namapuje program do pamìti a zjistí, jaký
+dynamický linker se má pou¾ít (viz dále)
+\item kernel namapuje linker do pamì»ového prostoru spou¹tìného programu a pak
+linkeru pøedá kontrolu. Linker je program sám o sobì -- na Solarisu je ho mo¾né
+normálnì spustit (má tedy funkci \texttt{main}) a jako parametr mu dát jméno
+programu. Mo¾nost spou¹tìt dynamický linker z pøíkazového øádku je ale hlavnì
+pro experimentovaní s linkerem pøi jeho vývoji.
+\item linker z hlavièky programu zjistí, jaké dynamické knihovny program
+pou¾ívá, namapuje je do pamìti a zavolá jejich inicializaèní funkce, pokud
+existují. Mapují se v¹echny nalezené závislosti které nejsou nastavené jako
+\emph{lazy} (strana \pageref{DLOPEN}), rekurzívnì prohledáváním do ¹íøky. V
+tomto poøadí se pak také objekty prohledávají pøi hledání jednotlivých symbolù.
+\item linker programu pøedá øízení (tj. zavolá funkci \texttt{main})
+\item proces mù¾e i za bìhu dále vyu¾ívat dynamický linker pomocí volání
+\texttt{dlopen} a spol.; k tomu se dostaneme na stranì \pageref{DLOPEN}
+\end{itemize}
+
+\item je potøeba si uvìdomit, ¾e dynamický linker zde nepracuje jako samostatný
+proces pøesto¾e má svoji vlastní \texttt{main} funkci, jeho kód se pou¾ívá v
+rámci pamì»ového prostoru procesu; \emsl{program, linker a knihovny dohromady
+tvoøí jeden proces}.
+
+\item \emsl{následující pøíkazy a pøíklady se týkají Solarisu}. Pokud to nebude
+fungovat na jiných systémech, tak mají ekvivaletní nástroje s podobnou
+funkcionalitou.
+
+\begin{itemize}
+\item seznam sekcí se zjistí pomocí \texttt{elfdump -c} (GNU má pøíkazy
+\texttt{objdump} a \texttt{readelf}). O programových sekcích bude více na stranì
+\pageref{ELF}.
+\item to, jaký dynamický linker se pou¾ije, kernel zjistí ze sekce
+\texttt{.interp}, viz ''\texttt{elf\-dump -i}'' a ``\texttt{ld -I}''. To
+znamená, ¾e si mù¾ete napsat vlastní linker a pomocí \texttt{-I} pro \texttt{ld}
+ho pak nastavit jako dynamický linker pro vá¹ program.
+\item dynamická sekce se vypí¹e pomocí \texttt{elfdump -d}, dynamické knihovny
+jsou o\-zna\-èe\-né tagem \texttt{NEEDED}
+\item závislosti na dynamických knihovnách je mo¾né pohodlnì zjistit pomocí
+pøí\-ka\-zu \texttt{ldd} (Solaris, Linux, BSD), který zjistí konkrétní cesty
+ke knihovnám. Tento
+pøíkaz øe¹í zá\-vis\-los\-ti rekurzívnì a uvidíte tedy i nepøímé závislosti -
+tj. takové knihovny, které jsou pou¾ité knihovnami, které pøíslu¹ný program
+pou¾ívá pøímo. Zjistit co je pøesnì závislé na èem je mo¾né pomocí volby
+\texttt{-v}. Na OS X je ekvivalentem \texttt{ldd} pøíkaz \texttt{otool -L}.
+\item jaké knihovny byly pøi spu¹tìní nakonec pou¾ity mù¾e být jiné ne¾ co uká¾e
+pøíkaz \texttt{ldd}, a to tøeba díky mechanismu \texttt{LD\_PRELOAD}. Na
+Solarisu proto existuje pøíkaz \texttt{pldd}, který pomocí èísla procesu uká¾e
+závislosti konkrétního procesu. Pøíklad na \texttt{LD\_PRELOAD}: pou¾ijte ji¾
+zmínìný \texttt{Ma\-ke\-file01}, a pøelo¾te \priklad{basic-utils/preload.c}
+takto:
+``\texttt{cc -shared -o lib\-pre\-load.so preload.c}''. Pak spus»te
+program, který zachytí
+systémové volání \texttt{close}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
+\item vìt¹inu zde uvedených informací naleznete v manuálové stránce pro
+dynamický linker v Solarisu, \texttt{ld.so.1(1)}, a více pak v \emph{Linkers
+and Libraries Guide} na \texttt{docs.oracle.com}. Na FreeBSD se dynamický
+linker nazývá \texttt{ld-elf.so.1}, v linuxových distribucích vìt¹inou
+\texttt{ld-linux.so.1}, na IRIXu \texttt{rld} atd.
+\item dynamický linker se typicky dá konfigurovat pomocí nastavení
+pro\-mìn\-ných, napøíklad si zkuste na Solarisu spustit toto:
+\begin{verbatim}
+LD_LIBRARY_PATH=/tmp LD_DEBUG=libs,detail date
+\end{verbatim}
+a pro zji¹tìní v¹ech mo¾ností jak debugovat dynamický linker pou¾ijte:
+\begin{verbatim}
+LD_DEBUG=help date
+\end{verbatim}
+\item pøíklad na to, kdy je potøeba, aby linker hledal knihovny i jinde ne¾ v
+defaultních adresáøích (adresáøe specifikované promìnnou
+\texttt{LD\_LIBRARY\_PA\-TH} se prohledávají jako první):
+\begin{verbatim}
+$ cp /lib/libc.so.1 /tmp
+$ LD_LIBRARY_PATH=/tmp sleep 100 &
+[1] 104547
+$ pldd 104547
+104547: sleep 100
+/tmp/libc.so.1
+/usr/lib/locale/cs_CZ.ISO8859-2/cs_CZ.ISO8859-2.so.3
+\end{verbatim}
+\item Solaris má velmi zajímavý pøíkaz \texttt{elfedit(1)}, pomocí kterého
+mù¾ete editovat metadata ELF objektu, napøíklad pøepsat jméno závislé
+kni\-hov\-ny, zmìnit nastavení \texttt{RUNPATH} atd.
+\end{itemize}
+\item \label{EVIL_LDLIBPATH} Obecnì platí, ¾e pou¾ívat
+\texttt{LD\_LIBRARY\_PATH} k ovlivnìní bìhu dynamického linkeru pro nìco
+jiného ne¾ ladìní dynamických knihoven pøi vývoji nebo pøesunech knihoven
+mezi adresáøi není dobrý nápad. Na internetu lze najít mno¾ství èlánkù
+typu "why is \texttt{LD\_LIBRARY\_PATH} evil ?" apod., napø.
+\url{http://xahlee.org/UnixResource\_dir/\_/ldpath.html}.
+\par
+Tato promìnná je typicky zneu¾ívaná ve startovacích skriptech programù, aby
+pøedsunuly alternativní seznam adresáøù kde hledat dynamické knihovny na
+kterých program závisí. To vìt¹inou proto, ¾e byl program nesprávnì
+slinkován a dynamický linker by podle informací v ELFu nedokázal jinak
+knihovny najít. Typický nechtìný side effect je, ¾e program dále spustí
+jiný program, který pou¾ívá knihovnu stejného jména, ale "díky" tomu, ¾e
+se promìnné prostøedí dìdí, tak dynamický linker najde tuto knihovnu
+jako první v aresáøi specifikovaném pomocí \texttt{LD\_LIBRARY\_PATH}.
+Tato knihovna mù¾e být ale jiné verze, ne¾ ten druhý program oèekává, a
+pak snadno mù¾e dojít k nìèemu, co se vìt¹inou nazývá "nedefinované
+chování" (viz pøíklad u dal¹ího slide o ABI).
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{API/ABI}{APIABI}
+
+\begin{slide}
+\sltitle{API versus ABI}
+
+API -- Application Programming Interface
+
+\begin{itemize}
+\item rozhraní pou¾ité pouze ve zdrojovém kódu
+\item rozhraní \emsl{zdrojáku} vùèi systému, knihovnì èi vlastnímu kódu, tj.
+napø. \texttt{exit(1)}, \texttt{printf("hello\bs{}n")} nebo
+\texttt{my\_function(1, 2)}
+\item \dots{}aby se stejný \emsl{zdrojový kód} mohl pøelo¾it na v¹ech
+systémech podporující dané API
+\end{itemize}
+
+ABI -- Application Binary Interface
+
+\begin{itemize}
+\item low-level rozhraní \emsl{aplikace} vùèi systému, knihovnì èi jiné èásti
+sama sebe
+\item \dots{}aby se \emsl{objektový modul} mohl pou¾ít v¹ude tam, kde
+je podporováno stejné ABI
+\end{itemize}
+\end{slide}
+
+\label{API_ABI}
+
+\begin{itemize}
+\item Pøíkladem API je tøeba API definované normou POSIX.1.
+\item ABI definuje konvenci volání (to jak program pøedá parametry funkci
+a jak od ní pøevezme návratovou hodnotu), jaká jsou èísla systémových volání,
+jak se systémové volání provede èi formát objektového modulu
+a pøijímaných argumentù, viz pøíklad dole.
+\item API knihovny pak definuje mimo jiné mno¾inu volání která jsou knihovnou
+definována, jejich parametry a typy tìchto parametrù.
+\item následná ukázka je pøíklad na to, kdy vývojáø zmìní velikost argumentù v
+bajtech (tj. zmìní ABI knihovny), a nahradí novou verzí tu starou. V¹imnìte
+si, ¾e dynamický linker toto nezjistí; nemá toti¾ jak, øídí se podle jména
+knihovny v dynamické sekci programu, a to se nezmìnilo. Uvedená zmìna je sice
+i zmìna v API a problém by se odstranil, kdybychom \texttt{main.c} znovu
+pøelo¾ili se zmìnìným øádkem deklarace funkce \texttt{add}. To je ale èasto
+problém (pøe\-klá\-dej\-te celý systém jen kvùli tomu), proto je tak dùle¾ité
+dodr¾ovat zpìtnou kompatibilitu v ABI u knihoven.
+
+Výsledek následujícího pøekladu knihovny, programu a jeho spu¹tìní je jak
+bychom oèekávali (pou¾it \texttt{cc} ze SunStudio, pro \texttt{gcc} pou¾ijte
+místo \texttt{-G} volbu \texttt{-shared}; novìj¹í \texttt{gcc} navíc neznají
+\texttt{-R} a je místo toho nutné pou¾ít \texttt{-Xlinker -R .}:
+
+\begin{verbatim}
+$ cat main.c 
+int my_add(int a, int b);
+
+int
+main(void)
+{
+        printf("%d\n", my_add(1, 2));
+        return (0);
+}
+
+$ cat add.c
+int
+my_add(int a, int b)
+{
+        return (a + b);
+}
+
+$ cc -G -o libadd.so add.c
+$ cc -L. -ladd -R. main.c 
+$ ./a.out 
+3
+\end{verbatim}
+
+Nyní ale pøi¹la dal¹í verze knihovny se stejným jménem, a ve funkci
+\texttt{my\_add}
+nastala zmìna v typu argumentù, kde místo 4-bajtového integeru se pou¾ije
+64-bitový celoèíselný typ. Program ale o nièem neví, nechá se spustit a vrátí
+chybnou hodnotu:
+
+\begin{verbatim}
+$ cat add2.c
+int64_t
+my_add(int64_t a, int64_t b)
+{
+        return (a + b);
+}
+
+$ cc -G -o libadd.so add2.c 
+$ ./a.out 
+-1077941135
+\end{verbatim}
+
+\item \label{ABI_MAIN} pøíklad: \priklad{lib-abi/abi-main.c} (komentáø v
+souboru napoví jak pou¾ít os\-tat\-ní soubory ve stejném adresáøi)
+
+
+\item zde pak pøichází ke slovu verzování knihoven, tj. je nutné ``nìco''
+zmìnit tak, aby po instalaci nové knihovny ne¹lo program spustit bez jeho
+rekompilace.
+\item \label{OPENSSL} binární nekompatibilita je napøíklad problém u OpenSSL.
+Vìtve 0.9.x a 0.9.y nejsou ABI kompatibilní. Konkrétnì verze 0.9.7 a 0.9.8,
+v roce 2009 stále obì pou¾ívané. Verze rozli¹ené písmeny, tj. napøíklad 0.9.8a a
+0.9.8g, jsou ABI kompatibilní. Nìkteré systémy stále pou¾ívají pouze 0.9.7
+(FreeBSD 6.x, Solaris 10), jiné jen 0.9.8 (Solaris 11 Express), dal¹í integrují 
+obì vìtve (rùzné Linuxové distribuce). Problém je, máte-li napøíklad program pro
+Solaris~10 pou¾ívající \texttt{libcrypto.so} knihovnu, který chcete pou¾ívat i
+na Solaris 11 Express (to je jinak díky zpìtné binární kompatibilitì striktnì
+dodr¾ované mezi "major" verzemi Solarisu mo¾né - napø. program který bì¾el
+na Solarisu 2.6 z roku 1997 mù¾e bì¾et na Solarisu 10 z roku 2009 bez nutnosti
+rekompilace - to se týká systému a knihoven s ním dodávaných).
+Jediné správné re¹ení je zkompilovat pro nový systém, pøípadnì manuálnì
+zkopírovat potøebné verze knihoven, co¾ ale zdaleka není ideální -- program
+nebude fungovat s novì nainstalovaným systémem, ale nikdo najednou neví,
+proè to funguje na stejném systému vedle, a kdy¾ se to zjistí tak je opìt
+potøeba manuální zásah, a pochybuji o tom, ¾e autor ``øe¹ení'' bude instalovat
+opravené verze pøi výskytu bezpeènostních chyb. Nekompatibilita 0.9.x verzí je
+dùvodem, proè je v dynamické sekci knihovny i její celé èíslo (bez písmen, ta
+jak ji¾ víme nejsou pro ABI kompatibilitu u OpenSSL dùle¾itá), a díky tomu je
+pak toto èíslo uvedeno i v ka¾dém programu proti knihovnì slinkovanému:
+\begin{verbatim}
+$ elfdump -d /usr/sfw/lib/libcrypto.so.0.9.8 | grep SONAME
+   [7]  SONAME            0x1               libcrypto.so.0.9.8
+
+$ elfdump -d /usr/bin/ssh | grep NEEDED
+   [1]  NEEDED            0x3c99            libsocket.so.1
+   [3]  NEEDED            0x3cb1            libnsl.so.1
+   [5]  NEEDED            0x3cc6            libz.so.1
+   [7]  NEEDED            0x3d12            libcrypto.so.0.9.8
+   [9]  NEEDED            0x3cd9            libgss.so.1
+  [10]  NEEDED            0x3cfe            libc.so.1
+\end{verbatim}
+\begin{itemize}
+\item pøíèinou zpìtné nekompatibility OpenSSL verzí je to, ¾e z historických
+dùvodù jsou nìkteré pou¾ívané struktury v hlavièkových souborech. Tyto struktury
+je ale nìkdy nutné roz¹íøit, napøíklad pøi vývoji nové funkcionality. Tím
+nastane situace, ¾e program pøelo¾ený s verzí 0.9.7 by pøedal novìj¹í knihovnì
+``men¹í'' strukturu, respektive nová knihovna by pøistupovala ve staré struktuøe
+na polo¾ky, které neexistují -- a tedy by pøistupovala k pamìti, která programu
+nebyla pøidìlena. To mù¾e zpùsobit pád programu (pøístup na nenamapovanou
+stránku), mù¾e to fungovat dále (v dané pamìti je to, co se tam typicky oèekává,
+napøíklad nula), nebo se to zaène chovat ``podivnì'' (v pamìti bylo nìco, co v
+dané situaci oèekávané nebylo). Problém v OpenSSL je, ¾e nyní ji¾ není technicky
+jednoduché z tìchto struktur udìlat interní a navenek pracovat jen s
+transparentními referencemi objektovým pøístupem, co¾ by umo¾nilo dìlat
+libovolné zmìny ve strukturách, ani¾ by to program ovlivnilo.
+\item bì¾nì vidìné øe¹ení zpùsobené neznalostí vìci je vytvoøit symbolický link,
+napøíklad na Solarisu 11 udìlat 0.9.7 symlink na existující knihovnu verze
+0.9.8. Èastý výsledek je pak pád programu a údiv autora symlinku. Nìkdy to
+naopak funguje, proto¾e program náhodou nepou¾ívá pøíslu¹né struktury, a to je
+jasným dùkazem pro aktéra, ¾e øe¹ení musí být správné. Mù¾e se ale stát, ¾e
+program struktury nepou¾ívá pøi konkrétním provedeném testu, ale zaène dìlat
+problémy a¾ pøi ¾ivém nasazení. Tady je jediná rada -- pokud si opravdu nejste
+jisti ¾e víte, co dìláte a nejste si jistí svoji detailní znalostí kódu programu
+i knihoven, vyhnìte se tomu. Nebo riskujte, ale ji¾ víte jak to mù¾e skonèit.
+\item zdánlivì jednoduché øe¹ení dodávat více verzí OpenSSL s jedním sys\-té\-mem
+pøiná¹í zase jiné problémy -- obtí¾nìj¹í vývoj systému, obtí¾nìj¹í správu
+systému (pøi výskytu bezpeènostní chyby je èasto nutné patchovat v¹echny
+instalované verze), problémy s nepøímými závislostmi obsahující více verzí dané
+knihovny apod.
+\item upgrade verze OpenSSL v existujícím systému je také vìc, které je dobré se
+vyhnout, respektive toto tì¾ko vyøe¹íte vydáním patche pro existující systémy --
+uva¾te ¾e zákazník pou¾ívá své nebo jím koupené programy, které závisí na
+existující verzi. A tu byste mu najednou upgradovali na verzi vy¹¹í, ABI
+nekompatibilní.
+\item typickým pøíkladem, kdy se pou¾ívá transparentní typ jako reference, co¾
+umo¾òuje dal¹í roz¹iøování pod ní le¾ící struktury bez rizika vý¹e uvedených
+problémù, je typ POSIX vláken. Struktura typu \texttt{pthread\_t} (strana
+\pageref{PTHREAD_T}) je interní zále¾itostí knihovny. Typicky je to integer, ale
+to by programátora nemìlo vùbec zajímat. Samozøejmì souborový deskriptor èi
+èíslo procesu jsou podobné pøípady, ale na pøíkladu vláken je to lépe vidìt.
+\end{itemize}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Debugger \texttt{dbx}}
+\begin{itemize}
+\item Volání:\\
+\texttt{dbx [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
+\item Nejbì¾nìj¹í pøíkazy:\\
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{ll}
+\texttt{run [\emph{arglist}]} & start programu\\
+\texttt{where} & vypi¹ zásobník\\
+\texttt{print \emph{expr}} & vypi¹ výraz\\
+\texttt{set \emph{var} = \emph{expr}} & zmìò hodnotu promìnné\\
+\texttt{cont} & pokraèování bìhu programu\\
+\texttt{next}, \texttt{step} & proveï øádku (bez/s vnoøením do funkce)\\
+\texttt{stop \emph{condition}} & nastavení breakpointu\\
+\texttt{trace \emph{condition}} & nastavení tracepointu\\
+\texttt{command \emph{n}} & akce na breakpointu (pøíkazy následují)\\
+\texttt{help [\emph{name}]} & nápovìda\\
+\texttt{quit} & ukonèení debuggeru
+\end{tabular}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item základní øádkový symbolický debugger, aby bylo mo¾né ho plnì vyu¾ít, musí
+být program pøelo¾en s ladicími informacemi (\texttt{cc -g}). Ladìný program se
+startuje z debuggeru pøíkazem \texttt{run}, nebo se debugger pøipojí k ji¾
+bì¾ícímu procesu. Pomocí \texttt{dbx} lze analyzovat i havarovaný program, který
+vygeneroval soubor \texttt{core}.
+\item je mo¾né ho najít napø. na Solarisu, av¹ak na Linuxu a FreeBSD defaultnì
+není.
+\item pro debugging se zdrojovými kódy nestaèí pou¾ít volbu \texttt{-g}, je
+zároveò nutné mít i zdrojáky a objektové moduly tam, kde byly pøi pøekladu. To
+je typicky bì¾ná situace, proto¾e ladíte na stroji, kde zároveò i vyvíjíte.
+Pokud tomu tak není, je nutné si zdrojáky a objektové moduly zajistit, pokud k
+nim vede jiná cesta, lze pou¾ít dbx pøíkaz \texttt{pathmap}.
+\item \texttt{gdb}-kompatibilní mód se spustí pøes \texttt{gdb on}. Pokud vás
+zajímá, jaký má \texttt{dbx} ekvivalentní pøíkaz ke konkrétnímu \texttt{gdb}
+pøíkazu, pomù¾e vám \texttt{help FAQ}; hned první otázka je ``A.1  Gdb does
+$<$something$>$; how do I do it in dbx?''
+\item pokud nepou¾ijete pøepínaè -g, bude vám dbx na Solarisu stále
+platný, proto¾e zobrazí argumenty funkcí. U BSD systémù a linuxových distribucí
+-g pou¾ít musíte, jinak vám debuggery moc nepomohou. Kdy je to na Solarisu
+platné i bez -g je v vidìt v pøíkladu \priklad{debug/dbx.c}. Pøi kompilaci
+s gcc a pou¾ití gdb neuká¾e pøíkaz \texttt{where} parametry funkce
+\texttt{crash()} zatímco se Solaris Studio kompilerem a debuggerem dbx se
+parametry funkce vypí¹í, tak¾e je vidìt hodnota která se pøiøazovala.
+\item pøíklad: \priklad{debug/coredump.c}. Po pøelo¾ení a spu¹tìní program
+spadne a zanechá core dump.
+
+\begin{verbatim}
+$ cc coredump.c
+$ ./a.out 
+Segmentation Fault (core dumped)
+$ dbx ./a.out core
+Reading a.out
+core file header read successfully
+Reading ld.so.1
+Reading libc.so.1
+program terminated by signal SEGV (no mapping at the fault address)
+0x08050a05: bad_memory_access+0x0015:   movb     %al,0x00000000(%edx)
+(dbx) where                                                                  
+=>[1] bad_memory_access(0x8047ae8, 0x8047a44, ...
+  [2] main(0x1, 0x8047a50, 0x8047a58, 0x8047a0c), at 0x8050a1b 
+\end{verbatim}
+
+Vidíme, ve které funkci to spadlo a je mo¾né se vypsat zásobník. Nevidíme ale
+pøesnì øádku kódu, kde nastal problém. Pro to je nutné pøelo¾it program s
+ladícími symboly, tj. ``\texttt{cc -g coredump.c}''. Zájemce o více informací o
+debugging pod unixem odkazuji na navazující pøedná¹ku ``Programování v UNIXu
+II.'' (NSWI138).
+
+\begin{verbatim}
+$ cc -g coredump.c
+$ dbx ./a.out core
+Reading a.out
+core file header read successfully
+Reading ld.so.1
+Reading libc.so.1
+program terminated by signal SEGV (no mapping at the fault address)
+Current function is bad_memory_access
+    8           x[0] = '\0';
+(dbx) 
+\end{verbatim}
+
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{GNU debugger \texttt{gdb}}
+\begin{itemize}
+\item Volání:\\
+\texttt{gdb [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
+\item Nejbì¾nìj¹í pøíkazy:\\
+\renewcommand{\arraystretch}{0.9}
+\begin{tabular}{ll}
+\texttt{run [\emph{arglist}]} & start programu\\
+\texttt{bt} & vypi¹ zásobník\\
+\texttt{print \emph{expr}} & vypi¹ výraz\\
+\texttt{set \emph{var} = \emph{expr}} & zmìò hodnotu promìnné\\
+\texttt{cont} & pokraèování bìhu programu\\
+\texttt{next}, \texttt{step} & proveï øádku (bez/s vnoøením do funkce)\\
+\texttt{break \emph{condition}} & nastavení breakpointu\\
+\texttt{help [\emph{name}]} & nápovìda\\
+\texttt{quit} & ukonèení debuggeru
+\end{tabular}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item GNU obdoba \texttt{dbx}. Mód kompatibilní s \texttt{dbx} spustíte pøes
+\texttt{-dbx}.
+\item na rùzných platformách existují i debuggery s grafickým
+rozhraním, napø. \texttt{workshop} (Solaris), \texttt{cvd} (IRIX),
+\texttt{xxgdb} (GNU), \texttt{ddd} (GNU). Èasto fungují jako
+nadstavby nad \texttt{dbx}, \texttt{gdb}.
+
+\item \begin{verbatim}
+#include <stdio.h>
+int main(void) {
+  printf("hello, world\n");
+  return (0);
+}
+$ cc -g main.c 
+$ gdb -q a.out
+(gdb) break main
+Breakpoint 1 at 0x8048548: file main.c, line 4.
+(gdb) run
+Starting program: /share/home/jp/src/gdb/a.out 
+
+Breakpoint 1, main () at main.c:4
+4         printf("hello, world\n");
+(gdb) next
+hello, world
+5         return (0);
+(gdb) c
+Continuing.
+Program exited normally.
+(gdb) q
+\end{verbatim}
+\item debuggery jsou výbornými pomocníky pokud vá¹ program konèí na chyby typu
+``segmentation error'' -- tj. kdy¾ zkusíte nekorektnì pøistoupit do pamìti,
+napøíklad tam kde nemáte co dìlat. Kdy¾ pøi pøekladu pou¾ijete option
+\texttt{-g}, uká¾e vám pak debugger pøesnì èíslo øádku, kde nastal problém.
+Konkrétní pøíklad (proè se vlastnì tento program chová jak se chová??? Hint:
+zkuste pøelo¾it na Solarisu pøekladaèem \texttt{cc} a spustit):
+\begin{verbatim}
+$ cat -n main.c
+     1  int
+     2  main(void)
+     3  {
+     4          char *c = "hey world";
+     5          c[0] = '\0';
+     6          return (0);
+     7  }
+}
+$ gcc -g main.c
+$ ./a.out
+Bus error (core dumped)
+$ gdb a.out a.out.core
+...
+Core was generated by `a.out'.
+Program terminated with signal 10, Bus error.
+...
+#0  0x080484e6 in main () at main.c:5
+5               c[0] = '\0';
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+\pdfbookmark[0]{základní pojmy a konvence UNIXu a jeho API}{pojmy}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item \emsl{základní pojmy a konvence UNIXu a jeho API}
+\item pøístupová práva, periferní zaøízení, systém souborù
+\item manipulace s procesy, spou¹tìní programù
+\item signály
+\item synchronizace a komunikace procesù
+\item sí»ová komunikace
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+%%%%%
+
+\pdfbookmark[1]{standardní hlavièkové soubory}{stdhdrs}
+
+\begin{slide}
+\sltitle{Standardní hlavièkové soubory (ANSI~C)}
+\renewcommand{\arraystretch}{1}
+\begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
+\texttt{stdlib.h} & základní makra a funkce \\
+\texttt{errno.h} & o¹etøení chyb \\
+\texttt{stdio.h} & vstup a výstup \\
+\texttt{ctype.h} & práce se znaky \\
+\texttt{string.h} & práce s øetìzci \\
+\texttt{time.h} & práce s datem a èasem \\
+\texttt{math.h} & matematické funkce \\
+\texttt{setjmp.h} & dlouhé skoky \\
+\texttt{assert.h} & ladicí funkce \\
+\texttt{stdarg.h} & práce s promìnným poètem parametrù \\
+\texttt{limits.h} & implementaènì závislé konstanty \\
+\texttt{signal.h} & o¹etøení signálù
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item hlavièkový soubor (\emph{header file}) je soubor s deklaracemi funkcí
+(\emph{forward declaration}), pro\-mìn\-ných a maker. Z pohledu preprocesoru
+je to obyèejný soubor napsaný v jazyce C.
+\item \emsl{tyto hlavièkové soubory nejsou specifické pro UNIX. Jsou souèástí
+standardu ANSI~C, který jak ji¾ víme (strana \pageref{C_LANGUAGE}), je zahrnut v
+POSIX.1. Je ale dùle¾ité si uvìdomit, ¾e tyto hlavièkové soubory musí podporovat
+ka¾dý systém, který podporuje ANSI~C, a» ji¾ podporuje POSIX.1 nebo ne.}
+\item pøíslu¹ný hlavièkový soubor pro konkrétní funkci najdete v manuálové
+stránce dané funkce, toto je zaèátek manuálové stránky na Solarisu pro
+\texttt{memcpy}:
+\begin{verbatim}
+Standard C Library Functions                         memory(3C)
+
+NAME
+   memory, memccpy, memchr, memcmp, memcpy, memmove,  memset  -
+   memory operations
+
+SYNOPSIS
+   #include <string.h>
+...
+...
+\end{verbatim}
+\item jednotlivá makra obsa¾ená v tìchto souborech vìt¹inou nejsou
+vysvìt\-le\-na, význam jednotlivých maker je ale mo¾né si vyhledat v
+pøíslu¹ných specifikacích, které jsou on-line. Na nìkterých systémech
+(Solaris) mají jednotlivé hlavièkové soubory svoji vlastní manuálovou stránku
+(\texttt{man stdlib.h}).
+\item makro \texttt{assert} je mo¾né z bìhem kompilace odstranit pomocí makra
+\texttt{NDEBUG}. Pøíklad: \priklad{assert/assert.c}.
+
+\begin{verbatim}
+cat assert.c 
+#include <assert.h>
+
+int
+main(void)
+{
+        assert(1 == 0);
+        return (13);
+}
+$ cc assert.c 
+$ ./a.out 
+Assertion failed: 1 == 0, file assert.c, line 6
+Abort (core dumped)
+$ cc -DNDEBUG assert.c 
+$ ./a.out 
+$ echo $?
+13
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Standardní hlavièkové soubory (2)}
+\begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
+\texttt{unistd.h} & symbolické konstanty, typy a základní funkce \\
+\texttt{sys/types.h} & datové typy \\
+\texttt{fcntl.h} & øídící operace pro soubory \\
+\texttt{sys/stat.h} & informace o souborech \\
+\texttt{dirent.h} & procházení adresáøù \\
+\texttt{sys/wait.h} & èekání na synovské procesy \\
+\texttt{sys/mman.h} & mapování pamìti \\
+\texttt{curses.h} & ovládání terminálu \\
+\texttt{regex.h} & práce s regulárními výrazy\\
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item tyto headery u¾ patøí do UNIXu.
+\item zajímavé mù¾e být podívat se do \texttt{sys/types.h}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Standardní hlavièkové soubory (3)}
+\begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
+\texttt{semaphore.h} & semafory (POSIX) \\
+\texttt{pthread.h} & vlákna (POSIX threads) \\
+\texttt{sys/socket.h} & sí»ová komunikace \\
+\texttt{arpa/inet.h} & manipulace se sí»ovými adresami\\
+\texttt{sys/ipc.h} & spoleèné deklarace pro System~V IPC \\
+\texttt{sys/shm.h} & sdíle{}ná pamì» (System~V) \\
+\texttt{sys/msg.h} & fronty zpráv (System~V)\\
+\texttt{sys/sem.h} & semafory (System~V) \\
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item dokonèení nejdùle¾itìj¹ích UNIXových headerù. Existují samozøejmì
+je¹\-tì dal\-¹í.
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Konvence pøedávání parametrù a environmentových promìnných
+
+\pdfbookmark[1]{argv, argc}{args}
+
+\begin{slide}
+\sltitle{Funkce \texttt{main()}}
+\renewcommand{\baselinestretch}{0.4}
+\begin{itemize}
+\setlength{\itemsep}{-0.5ex}
+\setlength{\topsep}{1\itemsep}
+\item pøi spu¹tìní programu je pøedáno øízení funkci \texttt{main()}.
+\item \texttt{int \funnm{main} (int \emph{argc}, char *\emph{argv}[]);}
+    \begin{itemize}
+    \item \texttt{argc} \dots poèet argumentù pøíkazové øádky
+    \item \texttt{argv} \dots pole argumentù
+	\begin{itemize2}
+	\item podle konvence je \texttt{argv[0]} jméno programu (bez cesty)
+	\item poslední prvek je \texttt{argv[argc] == NULL}
+	\end{itemize2}
+    \item návrat z \texttt{main()} nebo volání \texttt{exit()} ukonèí program
+    \item standardní návratové hodnoty \verb#EXIT_SUCCESS# (0) a
+    \verb#EXIT_FAILURE# (1)
+    \end{itemize}
+\end{itemize}
+
+\begin{center}
+\input{img/tex/main.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item první parametr (typu \texttt{int}) udává poèet argumentù na pøíkazovém
+øádku (vèet\-nì argumentu 0 -- jména programu) a druhý parametr (typu
+\texttt{char**}) je pole ukazatelù na tyto øetìzce. Za posledním øetìzcem je
+je¹tì ukonèovací \texttt{NULL} pointer -- pozor na to, ¾e to je nìco jiného ne¾
+prázdný øetìzec.
+\item \label{SHELL_ARGV0} \texttt{argv[0]} nìkdy bývá dùle¾itým zdrojem pøidané
+informace. Na Solarisu jsou napøíklad pøíkazy \texttt{cp}, \texttt{mv} a
+\texttt{ln} nalinkované na stejný soubor. Hodnota \texttt{argv[0]} pak urèuje,
+jakou funkci vlastnì proces má. Jiný pøíklad -- pokud má shell první znak z
+\texttt{argv[0]} nastaven na ``-'', znamená to, ¾e se má chovat jako login shell
+(podívejte se tøeba do manuálové stránky pro \texttt{bash} na sekci INVOCATION,
+pokud nevíte, co to je login shell). Ve výpisu procesù pak uvidíte ``-bash''.
+Toto není souèást UNIX specifikace pro \texttt{sh}, ale pou¾íval to ji¾ Bourne
+shell na UNIXu V7 (1979) a ostatní shelly to pøevzaly.
+\item pøi spu¹tìní programu pøedá kód dynamického linkeru øízení funkci
+\texttt{main}, viz strana \pageref{RUNTIMELINKER}. Staticky slinkovanému
+programu se øízení pøedá pøímo. Ne\-pøí\-tom\-nost \texttt{main} v programu
+zpùsobí chybu pøi pøekladu na úrovni linkeru. Této funkci se pøedá jméno
+spu¹tìného programu, argumenty z pøíkazové øádky a pøípadnì i pro\-mìn\-né
+prostøedí. Ukonèení této funkce znamená konec programu a návratová hodnota se
+pou¾ije jako kód ukonèení programu pro OS. Jinou mo¾ností ukonèení programu je
+pou¾ití funkce \texttt{exit} nebo \verb#_exit#, kterou lze pou¾ít
+kdykoliv, nejen ve funkci \texttt{main}. V C lze pou¾ívat obì metody
+ukonèení programu.
+\item pøedání promìnných prostøedí tøetím parametrem typu \texttt{char**}
+není souèástí normativní èásti C standardu, pouze informativní. Pøekladaèe to
+ale typicky podporují. Varianta \texttt{main} s pro\-mìn\-ný\-mi prostøedí
+pak vypadá takto:\\ \texttt{int \funnm{main}(int \emph{argc}, char
+*\emph{argv}[], char *\emph{envp}[]);}
+\item návratový typ funkce \texttt{main} by mìl být v¾dy \texttt{int}; pøekladaè
+si jinak bude stì¾ovat. \emsl{Z této hodnoty se ale pou¾ije pouze nejni¾¹ích 8
+bitù}, a je to nezáporné èíslo. Pozor na to, ¾e na rozdíl od konvence jazyka C
+návratová hodnota 0 má v shellu význam true (úspìch) a nenula význam false
+(neúspìch). Typická konstrukce v shellu vypadá takto:
+\begin{verbatim}
+if ! prog; then
+        echo "failure"
+else
+        echo "success"
+fi
+\end{verbatim}
+Pøíklad: \priklad{main/return-256.c}.
+\item \label{RETURN255} nepou¾ívejte proto ve funkci \texttt{main}
+\texttt{return (-1)} a nikde pak ani
+\texttt{exit(-1)}, z toho vznikne návratová hodnota \texttt{255} a kód je
+matoucí. Je vùbec velmi vhodné pou¾ívat pouze \texttt{0} a \texttt{1}, pokud
+není
+zá\-sad\-ní dùvod pro jiné hodnoty, tøeba ten ¾e jich potøebujete více -- mù¾ete
+se podívat napøíklad na manuálovou stránku pro \texttt{passwd} na Solarisu,
+sekce \texttt{EXIT STATUS}. Pøíklad: \priklad{main/return-negative-1.c}.
+
+
+\item rozdíl mezi funkcemi \texttt{exit} a \verb#_exit# je v tom, ¾e
+\texttt{exit} pøed ukonèením programu je¹tì vyprázdní (pomocí knihovní
+funkce \texttt{fflush}) a zavøe streamy a volá funkce
+zaregistrované pomocí \texttt{atexit}. V závislosti na systému to mohou být i
+dal¹í akce.
+
+Pro zajímavost, napøíklad ve FreeBSD je \texttt{\_exit} systémové
+volání a \texttt{exit} knihovní funkce, ale na Solarisu jsou obì systémovými
+voláními. Pøíklad: \priklad{exit/exit.c}
+\item \label{MAIN_C} pøíklad: \priklad{main/print-argv.c}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Promìnné prostøedí}
+\begin{itemize}
+\item seznam v¹ech promìnných prostøedí (\emph{environment
+variables}) se pøedává jako promìnná\\ \texttt{extern char
+**\funnm{environ};}
+\item je to pole ukazatelù (ukonèené NULL) na øetìzce ve tvaru:\\
+\texttt{\emph{promìnná}=\emph{hodnota}}
+\end{itemize}
+\begin{center}
+\input{img/tex/environ.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item shell pøedává spu¹tìnému programu ty promìnné, které jsou oznaèeny jako
+exportované (Bourne-like shellech pøíkazem \texttt{export \emph{variable}}). Po
+zmìnì obsahu ji¾ jednou exportované promìnné samozøejmì není potøeba promìnnou
+znovu exportovat. Pøíkaz \texttt{env} vám vypí¹e aktuální promìnné
+prostøedí.
+Abyste pøidali promìnnou do prostøedí spou¹tìného programu staèí provést
+pøiøazení na pøíkazové øádce, ani¾ byste museli mìnit prostøedí va¹eho
+shellu:
+\begin{verbatim}
+$ date
+Sun Oct  7 13:13:58 PDT 2007
+$ LC_TIME=fr date
+dimanche  7 octobre 2007 13 h 14 PDT
+\end{verbatim}
+
+nedivte se, pokud to na va¹em systému takto fungovat nebude, v tom pøípadì
+nemáte instalovaný balík s francouzskou lokalizací (co¾ je pravdìpodobné).
+\item pøi nahrazení aktuálního obrazu procesu obrazem jiným se pøedává, pokud
+se neøekne jinak, synovským procesùm celé pole \texttt{environ} automaticky.
+Je mo¾né ve volání pøíslu¹né varianty funkce \texttt{exec} pøedat pole jiné.
+\item jaké promìnné prostøedí konkrétní pøíkaz pou¾ívá (a jak je pou¾ívá) by
+mìlo být v manuálové stránce. Typicky v sekci nazvané \emph{ENVIRONMENT} nebo
+\emph{ENVIRONMENT VARIABLES}
+\item \texttt{man} napøíklad pou¾ívá \texttt{PAGER}, \texttt{vipw} pak
+promìnnou \texttt{EDITOR} apod.
+\item pokud je \texttt{envp} tøetím parametrem funkce \texttt{main}, tak je to
+stejná hodnota co je v ukazateli \texttt{environ}.
+\item pøíklad: \priklad{main/print-env.c} (vèetnì pou¾ití
+\texttt{env} pøíkazu zpùsobem, který vyèistí zdìdìné promìnné prostøedí).
+\begin{verbatim}
+$ cc print-env.c
+$ env - XXX=yyy aaa=ABC ./a.out
+aaa=ABC
+XXX=yyy
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{getenv, putenv, setenv}{envfuncs}
+
+\begin{slide}
+\sltitle{Manipulace s promìnnými prostøedí}
+\begin{itemize}
+\item je mo¾né pøímo mìnit promìnnou \texttt{environ}, SUSv3 to ale nedoporuèuje
+\item \texttt{char *\funnm{getenv} (const char *\emph{name});}
+    \begin{itemize}
+    \item vrátí hodnotu promìnné name
+    \end{itemize}
+\item \texttt{int \funnm{putenv} (char *\emph{string});} 
+    \begin{itemize}
+    \item vlo¾í string ve tvaru \texttt{\emph{jméno}=\emph{hodnota}} do
+    prostøedí (pøidá novou nebo modifikuje existující promìnnou)
+    \end{itemize}
+\item zmìny se pøená¹ejí do synovských procesù
+\item zmìny v prostøedí syna samozøejmì prostøedí otce neovlivní
+\item existují i funkce \funnm{setenv}() a \funnm{unsetenv}()
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item u \texttt{putenv} se vlo¾ený øetìzec stane souèástí prostøedí (jeho
+pozdìj¹í zmìna tak zmìní prostøedí) a nesmíte proto pou¾ívat retìzce v
+automatických pro\-mìn\-ných, toto øe¹í \texttt{setenv}, který hodnotu promìnné
+zkopíruje. Viz pøíklad \priklad{main/putenv.c}.
+\item dùle¾ité je zapamatovat si, ¾e synovský proces zdìdí v okam¾iku svého
+vzniku od rodièe v¹echny promìnné prostøedí, ale jakákoliv manipulace s nimi v
+synovi je lokální a do otce se nepøená¹í. Ka¾dý proces má svou kopii
+pro\-mìn\-ných, proto ani následná zmìna prostøedí otce nezmìní promìnné
+ji¾ existujícího potomka.
+\item dal¹í rozdíl mezi \texttt{putenv} a \texttt{setenv} je ten, ¾e v
+\texttt{setenv} mohu definovat, zda existující promìnnou chci nebo nechci
+pøepsat. \texttt{putenv} v¾dy pøepisuje.
+\item
+\begin{verbatim}
+int
+main(void)
+{
+        printf("%s\n", getenv("USER"));
+        return (0);
+}
+$ ./a.out 
+jp
+\end{verbatim}
+\item jeliko¾ promìnná \texttt{environ} je obyèejné pole ukazatelù na øetìzce,
+není nebì¾né narazit na kód, který s tímto polem pracuje pøímo. Pozor v¹ak na
+to, ¾e v takovém pøípadì pak ji¾ nesmíte pou¾ívat zde uvedené funkce, jinak se
+mù¾ete dostat do problémù s jejich konkrétní implementací. A hlavnì, nový kód
+takto nepi¹te, proto¾e norma SUSv3 pøímou práci s tímto polem nedoporuèuje.
+\item pøíklad: \priklad{main/getenv.c}
+\item pozor na to, ¾e je rozdíl mezi nastavením hodnoty promìnné na
+prázdný string a odmazáním promìnné ze seznamu promìnných (pomocí
+\texttt{unsetenv}).
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Zpracování argumentù programu}
+\begin{itemize}
+\item obvyklý zápis v shellu: \verb#program -pøepínaèe argumenty#
+\item pøepínaèe tvaru \texttt{-x} nebo \texttt{-x \emph{hodnota}}, kde
+\texttt{x} je jedno písmeno nebo èíslice, \texttt{\emph{hodnota}} je libovolný
+øetìzec
+\item nìkolik pøepínaèù lze slouèit dohromady: \texttt{ls -lRa}
+\item argument '\texttt{--}' nebo první argument nezaèínající '\texttt{-}'
+ukonèuje pøepínaèe, následující argumenty nejsou pova¾ovány za pøepínaèe, i
+kdy¾ zaèínají znakem '\texttt{-}'.
+\item tento tvar argumentù po¾aduje norma a lze je zpracovávat automaticky
+funkcí \texttt{getopt}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item argumenty lze samozøejmì zpracovávat vlastní funkcí, ale standardní
+funkce je pohodlnìj¹í.
+\item argumenty se typicky mohou opakovat, ale to má smysl jen v nìkterých
+situacích
+\item poøadí pøepínaèù mù¾e být dùle¾ité a je na aplikaci, aby toto
+specifikovala
+\item UNIX norma definuje pomocí 13 pravidel velmi pøesnì, jak by mìly vypadat
+názvy pøíkazù a formát pøepínaèù. Napøíklad jméno pøíkazu by mìlo být pouze
+malými písmeny, dlouhé 2--9 znakù, z pøenositelné znakové sady. Pøepínaèe bez
+argumentù by mìlo být mo¾né dát do skupiny za jedním znakem '--'. Atd.
+\item pou¾ívat èíslice jako pøepínaèe je zastaralé; je to nìkde v normì
+SUSv3, i kdy¾ já to v ní nena¹el.
+\item pozor na Linux a jeho (ponìkud zvlá¹tní a nestandardní) permutování
+argumentù
+\item pøepínaè \texttt{-W} by mìl být rezervovaný pro vendor options, tj. pro
+nepøenositelná roz¹íøení
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{getopt}{getopt}
+
+\begin{slide}
+\setlength{\baselineskip}{0.8\baselineskip}
+\sltitle{Zpracování pøepínaèù: \texttt{getopt()}}
+\begin{tabbing}
+\texttt{int \funnm{getopt}(}\=\texttt{int \emph{argc},
+char *const \emph{argv}[],}\\
+\>\texttt{const char *\emph{optstring});}\\
+\texttt{extern char *\emph{optarg};}\\
+\texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};} 
+\end{tabbing}
+\begin{itemize}
+\item funkce dostane parametry z pøíkazového øádku, pøi ka¾dém
+volání zpracuje a vrátí dal¹í pøepínaè. Pokud má pøepínaè hodnotu,
+vrátí ji v \texttt{optarg}. 
+\item kdy¾ jsou vyèerpány v¹echny pøepínaèe, vrátí -1 a v
+\texttt{optind} je èíslo prvního nezpracovaného argumentu. 
+\item mo¾né pøepínaèe jsou zadány v \texttt{optstring}, kdy¾ za
+znakem pøepínaèe následuje '\texttt{:}', má pøepínaè povinnou
+hodnotu. 
+\item pøi chybì (neznámý pøepínaè, chybí hodnota) vrátí
+'\texttt{?}', ulo¾í znak pøepínaèe do \texttt{optopt} a kdy¾
+\texttt{opterr} nebylo nastaveno na nulu, vypí¹e chybové hlá¹ení.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item obvykle se nejprve pomocí \texttt{getopt} naètou pøepínaèe a pak se
+vlastními pro\-støed\-ky zpracují ostatní argumenty; èasto jsou to jména
+souborù.
+\item je konvencí, ¾e volby v parametru \texttt{optstring} jsou setøídìné.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad pou¾ití \texttt{getopt()}}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{alltt}
+struct \{
+    int a, b; char c[128]; 
+\} opts; 
+int opt; char *arg1; 
+
+while((opt = \emprg{getopt}(argc, argv, "abc:")) != -1) 
+    switch(opt) \{ 
+        case 'a': opts.a = 1; break; 
+        case 'b': opts.b = 1; break; 
+        case 'c': strcpy(opts.c, \emprg{optarg}); break; 
+        case '?': fprintf(stderr, 
+            "usage: %s [-ab] [-c Carg] arg1 arg2 ...\bs{}n", 
+            basename(argv[0])); break; 
+    \} 
+arg1 = argv[\emprg{optind}];
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item dobrým zvykem je pøi detekování neznámého pøepínaèe nebo ¹patného
+zá\-pi\-su parametrù programu vypsat struènou nápovìdu, pøípadnì s odkazem na
+podrobnìj¹í dokumentaci, a ukonèit program s chybou, tj. s nenulovou
+ná\-vra\-to\-vou hodnotou.
+\item pøíklad také ukazuje nebezpeèné pou¾ití funkce \texttt{strcpy}
+\item z pou¾ití funkce \texttt{getopt} je vidìt, ¾e je stavová. Zpracovat dal¹í
+pole argumentù, pøípadnì zaèít opìt od zaèátku, je mo¾né nastavením externí
+pro\-mìn\-né \texttt{optreset} na 1.
+\item standardní \texttt{getopt} zachová poøadí pøepínaèù pøi zpracování
+\item pøi pou¾ití nedefinovaného pøepínaèe funkce vypí¹e chybu; to lze potlaèit
+na\-sta\-ve\-ním \texttt{opterr} na 0.
+\item \label{GETOPT} pøíklad: shellový skript \priklad{getopt/getopts.sh}
+pøepsaný do jazyka C pomocí \texttt{getopt} funkce, \priklad{getopt/getopt.c}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{getopt\_long}{getoptlong}
+
+\begin{slide}
+\sltitle{Dlouhý tvar pøepínaèù}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item poprvé se objevilo v GNU knihovnì \texttt{libiberty}: 
+\begin{verbatim}
+      --jméno nebo --jméno=hodnota 
+\end{verbatim}
+\item argumenty se permutují tak, aby pøepínaèe byly na zaèátku, napø.
+\verb#ls * -l# je toté¾ jako \verb#ls -l *#, standardní chování lze docílit
+nastavením promìnné \verb#POSIXLY_CORRECT#.
+\item zpracovávají se funkcí \texttt{\funnm{getopt\_long}()}, která pou¾ívá
+pole struktur popisujících jednotlivé pøepínaèe: 
+{\tt
+\begin{tabbing}
+stru\=ct \funnm{option} \{\\
+\>const char *name; \textrm{/* jméno pøepínaèe */} \\
+\>int has\_arg; \textrm{/* hodnota: ano, ne, \emsl{volitelnì} */} \\
+\>int *flag; \textrm{/*~}\=\textrm{kdy¾ je \texttt{NULL}, funkce vrací
+\texttt{val}, jinak vrací 0}\\\>\>\textrm{a dá \texttt{val} do \texttt{*flag}
+*/} \\
+\>int val; \textrm{/* návratová hodnota */} \\
+\};
+\end{tabbing}}
+\end{itemize}
+\end{slide}
+
+verze jak se objevila ve FreeBSD (funkce \textrm{getopt\_long} není
+standarizovaná), má následující vlastnosti:
+
+\begin{itemize}
+\item pokud v¹echny dlouhé pøepínaèe mají nastaveny krátkou variantu
+ve \texttt{val}, je chování \texttt{getopt\_long} kompatibilní s
+\texttt{getopt}
+\item je mo¾né zadávat argument k dlouhému pøepínaèi i s mezerou
+(na\-pøí\-klad \texttt{--color~green})
+\item pokud je nastaven \texttt{flag}, tak \texttt{getopt\_long}
+vrací 0, èím¾ se tyto dlouhé pøe\-pí\-na\-èe bez krátké varianty zpracují v
+jedné vìtvi pøíkazu \texttt{case}
+\item existuje i volání \texttt{getopt\_long\_only}, které povoluje
+i dlouhé pøepínaèe uvozené jednou uvozovkou (\texttt{-option})
+\item funkci \texttt{getopt\_long} je mo¾né pou¾ívat dvìmi zpùsoby.
+První zpùsob je, ¾e ka¾dý dlouhý pøepínaè má korespondující krátký
+-- takto lze jednodu¹e pøidat dlouhé pøepínaèe do existujícího
+programu a je \emsl{kompatibilní s getopt}. Druhý zpùsob umo¾òuje
+mít samostatné dlouhé pøepínaèe. V tom pøípadì funkce vrací v¾dy 0
+(nekompatibilita s \texttt{getopt}) a promìnná \texttt{*flag} se
+nastaví na \texttt{val}.
+\item na konkrétním pøíkladu na následující stránce je vidìt, jak to
+celé funguje
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Dlouhé pøepínaèe (pokraèování)}
+{\tt\begin{tabbing}
+int \funnm{getopt\_long}(\=int \emph{argc}, char * const \emph{argv}[],\\
+\>const char *\emph{optstring},\\
+\>const struct option *\emph{longopts},\\
+\>int *\emph{longindex}); 
+\end{tabbing}}
+\begin{itemize}
+\item \texttt{optstring} obsahuje jednopísmenné pøepínaèe,
+\texttt{longopts} obsahuje adresu pole struktur pro dlouhé pøepínaèe
+(poslední záznam pole obsahuje samé nuly) 
+\item pokud funkce narazí na dlouhý pøepínaè, vrací odpovídající
+\texttt{val} nebo nulu (pokud \texttt{flag} nebyl \texttt{NULL}),
+jinak je chování shodné s \texttt{getopt}.
+\item do \texttt{*longindex} (kdy¾ není \texttt{NULL}) dá navíc
+in{}dex nalezeného pøepínaèe v \texttt{longopts}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item toto je upravený pøíklad z manuálové stránky na FreeBSD:
+{\footnotesize
+\begin{verbatim}
+#include <stdio.h>
+#include <getopt.h>
+#include <fcntl.h>
+
+int ch, fd, daggerset, bflag = 0;
+
+static struct option longopts[] = {
+       { "buffy",      no_argument,            NULL,           'b' },
+       { "fluoride",   required_argument,      NULL,           'f' },
+       { "daggerset",  no_argument,            &daggerset,     1 },
+       { NULL,         0,                      NULL,           0 }};
+
+int main(int argc, char **argv)
+{
+  while ((ch = getopt_long(argc, argv, "bf:", longopts, NULL)) != -1)
+         switch (ch) {
+         case 'b':
+                 bflag = 1; break;
+         case 'f':
+                 if ((fd = open(optarg, O_RDONLY, 0)) == -1)
+                         printf("unable to open %s", optarg);
+                 break;
+         case 0:
+                 if (daggerset) {
+                         printf("Buffy will use her dagger to "
+                             "apply fluoride to dracula's teeth\n");
+                 }
+                 break;
+         default: printf("usage: ...\n");
+  }
+  argc -= optind; argv += optind;
+  return 0;
+}
+\end{verbatim}
+}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Struktura systému, systémová volání
+
+% (jp) tohle neni uplne klasicka struktura, je to jedna z moznosti.
+% Nevidim moc duvod tu ten slajd mit. OSy uz koneckoncu meli...
+
+%%%\begin{slide}
+%%%\sltitle{Klasická struktura operaèního systému}
+%%%\begin{center}
+%%%\input{klasicky_os.tex}
+%%%\end{center}
+%%%\end{slide}
+%%%
+%%%Hardware poèítaèe je "obalen" jednotlivými vrstvami operaèního
+%%%systému, kdy ka¾dá vrstva roz¹iøuje schopnosti vrstvy spodní.
+%%%Programové rozhraní operaèního systému (API) pøedstavuje pro
+%%%aplikace virtuální (logický) poèítaè, který skrývá detaily
+%%%hardwarové architektury, poskytuje slu¾by vy¹¹í úrovnì a v
+%%%neposlední øadì definuje pøístupová práva a navzájem chrání
+%%%jednotlivé bì¾ící aplikace.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Struktura klasického OS UNIX}
+\input{img/tex/struktura.pstex_t}
+\end{slide}
+
+\begin{itemize}
+\item toto schéma je pøevzato z [Bach86], viz literatura. Zdùrazòuje dva
+ústøední pojmy v modelu systému UNIX -- soubory a procesy. \emsl{V dne¹ní dobì
+to vypadá velmi odli¹nì, ale pro nás staèí tato základní pøedstava.}
+\item UNIX rozli¹uje dva re¾imy bìhu procesoru: \emph{u¾ivatelský re¾im} a
+\emph{re¾im jádra}. V u¾ivatelském re¾imu nejsou pøístupné privilegované
+instrukce (napø. mapování pamìti, I/O, maskování pøeru¹ení). Tyto dva re¾imy
+musí být podporovány na hardwarové úrovni (procesorem).
+\item procesy bì¾í obvykle v u¾ivatelském re¾imu, do re¾imu jádra pøechází buï
+instrukcí synchronního pøeru¹ení (trap) pro volání slu¾by jádra, nebo na
+základì asynchronních pøeru¹ení (hodiny, I/O). Dále se v~re¾imu jádra
+o\-¹e\-tøu\-jí výjimeèné stavy procesoru (výpadek stránky, naru¹ení ochrany
+pamìti, ne\-zná\-má instrukce apod.). Nìkteré speciální akce jsou zaji¹»ovány
+systémovými procesy, které bì¾í celou dobu v re¾imu jádra.
+\item klasické UNIXové jádro je tvoøeno monolitickým kódem. Pùvodnì bylo
+po\-tøe\-ba vygenerovat (tj. pøelo¾it ze zdrojových textù a slinkovat) jádro pøi
+zmìnì nìkterého parametru nebo pøidání ovladaèe zaøízení. V novìj¹ích
+implementacích je mo¾no nastavovat parametry jádra, nìkdy i za bìhu, pomocí
+systé\-mo\-vých utilit bez nutnosti rekompilace jádra. Moderní unixové systémy
+umo¾òují roz¹iøovat kód jádra za bìhu pomocí tzv. modulù jádra (\emph{loadable
+kernel modules}). Napøíklad systém FreeBSD 5.4-RELEASE má 392 takových modulù.
+\item existují dva zpùsoby práce s perifériemi: bloková (\emph{block devices})
+a znaková zaøízení (\emph{character, raw devices}). Data z blokových zaøízení
+(napø. disky) procházejí pøes vyrovnávací pamìti (\emph{buffers}) po blocích,
+znaková zaøízení (napø. terminály) umo¾òují pracovat s jednotlivými bajty a
+nepou¾ívají vyrovnávací pamì».
+\item \emsl{jádro není samostatný proces}, ale je èástí ka¾dého u¾ivatelského
+procesu. Kdy¾ jádro nìco vykonává, tak vlastnì proces, bì¾ící v re¾imu jádra,
+nì\-co provádí.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Procesy, vlákna, programy}
+\begin{itemize}
+\item \emsl{proces} je systémový objekt charakterizovaný svým
+kontextem, identifikovaný jednoznaèným èíslem (\emsl{process ID},
+\emsl{PID}); jinými slovy \uv{kód a data v pamìti} 
+\item \emsl{vlákno (thread)} je systémový objekt, který existuje uvnitø
+procesu a je charakterizován svým stavem. V¹echna vlákna jednoho procesu sdílí
+stejný pamì»ový prostor kromì registrù procesoru a zásobníku; \uv{linie
+výpoètu}, \uv{to, co bì¾í} 
+\item \emsl{program} ... soubor pøesnì definovaného formátu obsahující
+instrukce, data a slu¾ební informace nutné ke spu¹tìní; \uv{spustitelný soubor
+na disku}
+\end{itemize}
+
+\begin{itemize}
+\item[$\circ$] \emsl{pamì»} se pøidìluje \emsl{procesùm}. 
+\item[$\circ$] \emsl{procesory} se pøidìlují \emsl{vláknùm}.
+\item[$\circ$] vlákna jednoho procesu mohou bì¾et na rùzných procesorech.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{\emph{kontext}} je pamì»ový prostor procesu, obsah registrù a datové
+struktury jádra týkající se daného procesu
+\item jinak øeèeno -- kontext procesu je jeho stav. Kdy¾ systém
+vykonává proces, øíká se, ¾e bì¾í v kontextu procesu. Jádro (klasické)
+obsluhuje pøeru¹ení v kontextu pøeru¹eného procesu.
+\item vlákna se dostala do UNIXu a¾ pozdìji, pùvodnì v nìm existovaly pouze
+procesy, které mìly z dne¹ního pohledu pouze jedno vlákno. Mo¾nost pou¾ít v
+procesu více vláken byla zavedena, proto¾e se ukázalo, ¾e je vhodné mít více
+paralelních linií výpoètu nad sdíle{}nými daty.
+\item pamì»ové prostory procesù jsou navzájem izolované, ale procesy spolu
+mohou komunikovat. Pozdìji se dozvíme, ¾e mohou i èásteènì sdílet pamì».
+\item procesy jsou entity na úrovni jádra, ale vlákna mohou být èásteènì nebo
+zcela implementována knihovními funkcemi. V pøípadì implementace pomocí
+knihovních fukncí to znamená, ¾e vlákna nemusí jádro vùbec podporovat. S vlákny
+je spojena men¹í re¾ie ne¾ s~procesy.
+\item systémový proces, který bì¾í na pozadí obvykle po celou dobu bìhu
+systému a zaji¹»uje nìkteré systémové slu¾by (\texttt{inetd}, \texttt{cron},
+\texttt{sendmail}\dots) se nazývá \emph{démon} (angl. \emph{daemon}). Systém
+BSD tedy nemá ve znaku èerta, ale démona.
+\end{itemize}
+
+%%%%%
+
+
+\begin{slide}
+\sltitle{Jádro, re¾imy, pøeru¹ení (klasický UNIX)}
+\begin{itemize}
+\item procesy typicky bì¾í v u¾ivatelském re¾imu
+\item systémové volání zpùsobí pøepnutí do re¾imu jádra
+\item proces má pro ka¾dý re¾im samostatný zásobník
+\item jádro je èástí ka¾dého u¾ivatelského procesu, není to samostný proces
+(procesy)
+\item pøepnutí na jiný proces se nazývá \emph{pøepnutí kontextu}
+\item obsluha pøeru¹ení se provádí v kontextu pøeru¹eného procesu
+\item klasické jádro je nepreemptivní
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emsl{jádro není oddìl{}ená mno¾ina procesù, bì¾ících paralelnì s
+u\-¾i\-va\-tel\-ský\-mi procesy, ale je èástí ka¾dého u¾ivatelského procesu.}
+\item pøechod mezi u¾ivatelským re¾imem a re¾imem jádra není pøepnutí kontextu
+-- proces bì¾í poøád v tom samém
+\item pøeru¹ený proces nemusel pøeru¹ení vùbec zpùsobit
+\item v re¾imu jádra mù¾e proces pøistupovat i k adresám jádra, která z
+u\-¾i\-va\-tel\-ské\-ho re¾imu pøístupná nejsou; takté¾ mù¾e pøistupovat k
+instrukcím (napø. instrukce manipulující se stavovým registrem), jejich¾
+vykonání v u¾ivatelském re¾imu vede k chybì
+\item pøeru¹ovací rutina se nemù¾e zablokovat, proto¾e tím by zablokovala
+proces; proces se toti¾ mù¾e zablokovat jen ze své vlastní vùle. Moderní unixy
+dnes pou¾ívají interrupt vlákna, v jejich¾ kontextu se \emsl{mohou} drivery
+zablokovat.
+\item to, ¾e klasické unixové jádro je nepreemptivní znamená, ¾e \emsl{jeden
+proces nemù¾e zablokovat jiný proces}
+\item pøi obsluze pøeru¹ení se mù¾e stát, ¾e nastane dal¹í pøeru¹ení. Pokud je
+jeho priorita vìt¹í, je procesorem pøijmuto. Posloupnost pøijmutých pøeru¹ení
+je uchována v \emph{zásobníku kontextových vrstev}.
+\item \emsl{u moderních kernelù je situace èasto velmi rozdílná -- obsluha
+pøe\-ru\-¹e\-ní, preemptivnost kernelu atd.; k nìkterým vìcem se mo¾ná
+dostaneme pozdìji bìhem semestru}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Volání slu¾eb a komunikace mezi procesy}
+\begin{itemize}
+\item UNIX\vspace{1ex}
+
+\input{img/tex/syscall_unx.tex}
+\item distribuovaný OS\vspace{1ex}
+
+\input{img/tex/syscall_dist.tex}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item pokud unixový proces vy¾aduje provedení systémové slu¾by, pomocí
+systé\-mo\-vé\-ho volání pøedá øízení jádru. Jádro je kus kódu sdíle{}ný v¹emi
+procesy (ov¹em pøístupný jen pro ty, které jsou právì v re¾imu jádra). Jádro
+tedy není samostatný privilegovaný proces, ale v¾dy bì¾í v rámci nìkterého
+procesu (toho, který po¾ádal jádro o slu¾bu, nebo toho, který bì¾el v okam¾iku
+pøíchodu pøeru¹ení).
+\item komunikace mezi procesy v UNIXu je øe¹ena pomocí systémových volání, je
+tedy zprostøedkovaná jádrem.
+\item aby to nebylo tak jednoduché, mohou existovat systémové procesy
+(o\-zna\-èo\-va\-né jako \emph{kernel threads}), které bì¾í celou dobu v
+re¾imu jádra. Naprostá vìt¹ina systémových procesù v¹ak bì¾í v u¾ivatelském
+re¾imu a li¹í se jen tím, ¾e mají vìt¹í pøístupová práva. Plánovaè procesù
+pøepíná mezi procesy a tím umo¾òuje bìh více procesù souèasnì i na jednom
+procesoru. Na multiprocesorových poèítaèích pak funguje skuteèný paralelismus
+procesù a vláken (dokonce se proces mù¾e pøi pøeplánování dostat i na jiný
+procesor).
+\item v distribuovaném operaèním systému má jádro obvykle formu mikrojádra,
+tj. zaji¹»uje pouze nejzákladnìj¹í slu¾by øízení procesoru, pøidìlování pamìti
+a komunikace mezi procesy. Vy¹¹í systémové slu¾by, které jsou v UNIXu souèástí
+jádra (napø. pøístup k systému souborù) jsou realizovány speciálními procesy
+(servery) bì¾ícími v u¾ivatelském re¾imu procesoru. Jádro pøedá po¾adavek
+u¾ivatelského procesu pøíslu¹nému serveru, který mù¾e bì¾et i na jiném uzlu
+sítì.
+\item dostupných mikrokernelù je v dne¹ní dobì mnoho. Mù¾ete zkusit napøíklad
+Minix (u{}nix-like výukový systém), pøípadnì systém HURD, který bì¾í nad
+mikrojádrem Mach.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Systémová volání, funkce}
+\begin{itemize}
+\item v UNIXu se rozli¹ují \emsl{systémová volání} a \emsl{knihovní
+funkce}.  Toto rozli¹ení dodr¾ují i manuálové stránky: sekce
+\emsl{2} obsahuje systémová volání (\emph{syscalls}), sekce \emsl{3}
+knihovní funkce (\emph{library functions}). 
+    \begin{itemize}
+    \item knihovní funkce se vykonávají v u¾ivatelském re¾imu,
+    stejnì jako ostatní kód programu. 
+    \item systémová volání mají také tvar volání funkce. Pøíslu¹ná funkce ale
+    pouze zpracuje argumenty volání a pøedá øízení jádru pomocí instrukce
+    synchronního pøeru¹ení. Po návratu z jádra funkce upraví výsledek a pøedá ho
+    volajícímu. 
+    \end{itemize}
+\item standardy tyto kategorie nerozli¹ují -- z hlediska programátora je jedno,
+zda urèitou funkci provede jádro nebo knihovna.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item zjednodu¹enì lze øíci, ¾e systémové volání je funkce, která
+jen upraví své argumenty do vhodné podoby, pøepne re¾im procesoru a
+skuteènou práci nechá na jádru. Nakonec zase upraví výsledek.
+\emsl{Knihovní funkce mù¾e a nemusí volat jádro, ale v¾dy sama dìlá
+nìjakou netriviální èinnost v u¾ivatelském re¾imu.}
+\item v assembleru je mo¾né zavolat volání jádra pøímo
+\item API jádra je definované na úrovni volání funkcí standardní
+knihovny, nikoliv na úrovni pøeru¹ení a datových struktur
+pou¾ívaných tìmito funkcemi pro pøedání øízení jádru. Mechanismus
+pøepnutí mezi u¾ivatelským re¾imem a re¾imem jádra se toti¾ mù¾e
+li¹it nejen v závislosti na hardwarové platformì, ale i mezi rùznými
+verzemi systému na stejném hardwaru. 
+\end{itemize}
+%%%%%
+
+\pdfbookmark[1]{semantika návratových hodnot syscallù}{syscallretvals}
+
+\begin{slide}
+\sltitle{Návratové hodnoty systémových volání}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item celoèíselná návratová hodnota (\texttt{int}, \texttt{pid\_t},
+\texttt{off\_t}, apod.)
+    \begin{itemize}
+    \item \texttt{>= 0} \dots{} operace úspì¹nì provedena 
+    \item \texttt{== -1} \dots{} chyba 
+    \end{itemize}
+\item návratová hodnota typu ukazatel 
+    \begin{itemize}
+    \item \texttt{!= NULL} \dots{} operace úspì¹nì provedena 
+    \item \texttt{== NULL} \dots{} chyba 
+    \end{itemize}
+\item po neúspì¹ném systémovém volání je kód chyby v globální
+promìnné \texttt{extern int \funnm{errno};}
+\item úspì¹né volání nemìní hodnotu v \texttt{errno}! Je tedy tøeba
+nejprve otestovat návratovou hodnotu a pak teprve \texttt{errno}. 
+\item chybové hlá¹ení podle hodnoty v \texttt{errno} vypí¹e funkce\\
+\texttt{void \funnm{perror}(const char *\emph{s});}
+\item textový popis chyby s daným èíslem vrátí funkce\\
+\texttt{char *\funnm{strerror}(int \emph{errnum});}
+\end{itemize}
+\end{slide}
+
+%%%%%
+
+\begin{itemize}
+\item \label{ERRNO} v Solarisu je hodnota \texttt{errno} ve
+skuteènosti knihovnou \texttt{libc} definovaná jako dereferencovaný
+pointer na integer (specifický pro daný userland thread) a hodnota se
+nastavuje ihned po výstupu z instrukce pro systémové volání. Napø. na i386
+architektuøe je hodnota \texttt{errno} po návratu z kernelu (po dokonèení
+instrukce \texttt{sysenter}) ulo¾ena v registru \texttt{eax} (pøed voláním
+v ní bylo èíslo syscallu). Je to tedy knihovna \texttt{libc} kdo je
+zodpovìdný za to, ¾e program uvidí správnou hodnotu \texttt{errno}.
+
+
+\item funkce pro práci s vlákny \texttt{pthread\_*} nenastavují
+\texttt{errno}, ale vrací buï nulu (úspìch) nebo pøímo kód chyby.
+\item pro nìkterá volání mù¾e mít smysl i návratová hodnota
+\texttt{-1}. Pak je tøeba nejprve nastavit \texttt{errno~=~0} a po
+návratu zkontrolovat, zda se \texttt{errno} zmìnilo. Napø. funkce
+\texttt{strtol} vrací pøi chybì 0, co¾ je platná hodnota i pro
+správný výsledek (a $-1$ je samozøejmì platný výsledek také).
+\item je tedy v¾dy nutné si pøeèíst manuálovou stránku pro pøí¹lu¹né
+volání nebo knihovní funkci
+\item pozn.: úspì¹nost funkcí ze \texttt{stdio.h} je tøeba testovat pomocí\\
+\texttt{int \funnm{ferror}(FILE *\emph{stream})}, proto¾e jinak nelze rozli¹it
+mezi chybou a koncem streamu. Vzhledem k tomu, ¾e tyto funkce nepou¾íváme (kromì
+\texttt{printf} a \texttt{fprintf} na \texttt{stdout}, resp. \texttt{stderr}),
+nemìli byste ji potøebovat.
+\end{itemize}
+
+\begin{slide}
+\sltitle{Skupina funkcí z \texttt{err(3)}}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item pomocné funkce pro výpis chybových hlá¹ení a pøípadné ukonèení programu
+\item místo \texttt{perror()} a \texttt{exit()} vám staèí jedna funkce
+\item
+\texttt{void \funnm{err}(int \emph{status}, const char *\emph{fmt}, ...);}
+\begin{itemize}
+\item vypí¹e jméno programu, formátovaný øetìzec, a chybu podle aktuální hodnoty
+\texttt{errno}
+\item ukonèí program s návratovou hodnotou ze \texttt{\emph{status}}
+\end{itemize}
+\item
+\texttt{void \funnm{warn}(const char *\emph{fmt}, ...);}
+\begin{itemize}
+\item stejné jako \funnm{err}(), ale program neukonèí
+\end{itemize}
+\item existují dal¹í podobné funkce, viz manuálová stránka
+\item funkce pocházejí ze 4.4BSD
+\end{itemize}
+\end{slide}
+
+%%%%%
+
+\begin{itemize}
+\label{ERR}
+\item vìt¹í programy podobné funkce èasto nepou¾ívají, napøíklad proto, ¾e
+stejnì potøebují provést rùzné ukonèovací práce pøed skonèením programu, tak¾e
+mají podobné funkce vlastní. Pro jiné programy jsou ale tyto funkce ideální,
+proto¾e mají rozumný výstup a ¹etøí øádky va¹eho kódu.
+\item tyto funkce nemusí být v¹ude, napøíklad nejsou v \texttt{libc.so} pro
+Solaris 10 (ale jsou v Solarisu 11). Jsou na BSD systémech a v linuxových
+distribucích. Tyto funkce nejsou souèástí SUS, tak¾e ani na certifikovaných
+UNIX systémech se nelze spolehnout na jejich pøítomnost. Øe¹ením je kontrolovat
+jejich existenci v pøedkompilaèním skriptu a pøípadnì mít jejich verzi souèástí
+zdrojových kódù programu pro pøípad ¾e nebudou na cílovém systému nalezeny.
+\item pøíklad (viz také \priklad{err/err.c}):
+
+\begin{verbatim}
+#include <errno.h>
+#include <err.h>
+
+int
+main(void)
+{
+        errno = 13;
+        err(3, "ggr %s", "GRR");
+        printf("after err()\n");
+        return (0);
+}
+
+$ ./a.out 
+a.out: ggr GRR: Permission denied
+$ echo $?
+3
+\end{verbatim}
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[0]{pøístupová práva, periferní zaøízení, systém souborù}{soubory}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item základní pojmy a konvence UNIXu a jeho API
+\item \emsl{pøístupová práva, periferní zaøízení, systém souborù}
+\item manipulace s procesy, spou¹tìní programù
+\item signály
+\item synchronizace a komunikace procesù
+\item sí»ová komunikace
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+%%%%%
+
+% pøístupová práva
+\begin{slide}
+\sltitle{Users and groups}
+\begin{center}
+\framebox{\texttt{beran:x:1205:106:Martin Beran:/home/beran:/bin/bash}}
+\end{center}
+\vspace{2ex}
+
+\emsl{The fields, in order from left to right:} user name, 
+hashed password (today in \texttt{/etc/shadow} or elsewhere), user ID (aka UID);
+primary group ID (aka GID), full name, home directory, login shell
+
+Note that a superuser (root) has always UID 0.
+
+\vspace{2ex}
+\begin{center}
+\framebox{\texttt{sisal:*:106:forst,beran}}
+\end{center}
+\vspace{2ex}
+
+\emsl{The fields, in order from left to right:} group name, group password (not
+used today), group ID (GID), list of group members
+\end{slide}
+
+\begin{itemize}
+\item informace o u¾ivatelích v souborech \texttt{/etc/passwd}, a
+\texttt{/etc/group} jsou zpracovávány rùznými systémovými programy, napø.
+\texttt{login} (pøihlá¹ení do sys\-té\-mu na základì u¾ivatelského jména a
+hesla) nebo \texttt{su} (zmìna identity). \emsl{Jádro o tìchto souborech nic
+neví, pou¾ívá pouze numerickou identifikaci u¾ivatele a skupiny.}
+\item dnes ji¾ hesla nejsou z bezpeènostních dùvodù pøímo v
+\texttt{/etc/passwd}, ale napøíklad v \texttt{/etc/shadow}, který bì¾nému
+u¾ivateli pøístupný není, pouze u¾ivatel \texttt{root} má právo pro ètení
+a zápis. Tedy pouze privilegované programy jako \texttt{login} nebo
+\texttt{sshd} mohou z tohoto souboru èíst nebo zapisovat (program
+\texttt{passwd} bì¾í pod u¾ivatelem \texttt{root} díky \emph{setuid} bitu
+nastaveném na souboru programu, viz poznámky na stranì \pageref{SUID_BIT}).
+Takto jsou hesla separovaná od veøejnì pøístupných informací, navíc
+soubor který hesla obsahuje, je ukládá v zaha¹ované/za¹ifrované formì,
+tak¾e nejsou pøímo èitelná.
+Na BSD systémech (napø. FreeBSD, Mac OS X) se místo \texttt{/etc/shadow}
+pou¾ívá soubor \texttt{/etc/master.passwd}.
+\item Soubor \texttt{/etc/shadow} je podobnì strukturovaný jako
+\texttt{/etc/passwd}. Jeden záznam obsahuje vìt¹inou následující polo¾ky
+(Solaris): u¾ivatelské jméno, zaha¹ované heslo (spolu s indikátorem ¾e 
+daný úèet je zablokovaný), poslední modifikace hesla,
+minimum dní po¾adovaných mezi zmìnou hesla, maximum dní po které je heslo
+platné, poèet dní po kterých je u¾ivatel varován o expiraci hesla, poèet
+povolených dní neaktivity u¾ivatele, absolutní èas expirace u¾ivatele,
+poèet neúspì¹ých pokusù o nalogování tohoto u¾ivatele.
+\item Hesla v \texttt{/etc/shadow} jsou ulo¾ena takovým zpùsobem, aby
+pokud se povede nìkomu soubor získat, mìl ztí¾enou práci pøi odhadování
+hesel. Pùvodní (cleartext) heslo se pro¾ene jednosmìrnou kryptografickou
+funkcí (která je navíc parametrizovatelná, èím¾ se výpoèetní a prostorová
+slo¾itost pro útok hrubou silou je¹tì zvý¹í)
+a ulo¾í se do \texttt{/etc/shadow} v této formì. Ovìøování hesla pak
+funguje tak ¾e, se na cleartext heslo aplikuje daná funkce s danými
+parametry a výsledek se porovná s polem hesla v \texttt{/etc/shadow}.
+Pokud jsou stejné, probìhla autentizace úspì¹nì. Pùvodnì navr¾ená funkce
+pøestala s rozvojem procesorù staèit, tak¾e se dnes pou¾ívají funkce MD5,
+SHA1, Blowfish a dal¹í. Polo¾ka hesla v \texttt{/etc/shadow} je pak vnitønì
+strukturovaná pomocí speciálních znakù, tak¾e programy ovìøující heslo ví,
+jakou funkci a s jakými parametry pou¾ít.
+Vìt¹ina systémù umo¾òuje globální konfiguraci pou¾itých funkcí a jejich
+parametrù.
+
+
+\item existují i jiné systémy, které (nejen) pro autentizaci
+\texttt{/etc/passwd} nemusí vùbec pou¾ívat, napøíklad NIS (Network Information
+Service) nebo LDAP (Lightweight Directory Access Protocol).
+\item skupina u¾ivatele uvedená v \texttt{/etc/passwd} se nazývá
+\emsl{primární}. Tuto skupinovou identifikaci dostanou napø. soubory vytvoøené
+procesy u¾ivatele. Dal¹í skupiny, ve kterých je u¾ivatel uveden v souboru
+\texttt{/etc/group}, jsou doplòkové (\emph{supplementary}) a roz¹iøují
+pøístupová práva u¾ivatele: skupinový pøístup je povolen ke v¹em objektùm,
+jejich¾ skupinový vlastník je roven buï primární, nebo jedné z doplòkových
+skupin.
+\item pùvodnì mìl v UNIXu ka¾dý u¾ivatel v¾dy aktivní pouze jednu skupinovou
+identitu. Po nalogování byl ve své primární skupinì, pro získání práv jiné
+skupiny bylo tøeba se do ní pøepnout pøíkazem \texttt{newgrp} (skupinová
+obdoba \texttt{su}, øídí se obsahem souboru \texttt{/etc/group}), který
+spustil nový shell.
+\item v novìj¹ích UNIXech není tøeba pro pøístup k souborùm mìnit primární
+skupinovou identitu procesu, pokud u¾ivatel patøí do potøebné skupiny. Zmìna
+identity je nutná, pouze kdy¾ chceme vytváøet soubory s jinou skupinovou
+identitou, ne¾ je primární skupina u¾ivatele. Lokálnì pro urèitý adresáø toho
+lze dosáhnout nastavením skupinového vlastníka adresáøe na po¾adovanou skupinu
+a nastavením bitu SGID v pøístupových právech adresáøe -- to platí pro systémy
+zalo¾ené na System~V. U BSD staèí zmìnit po¾adovanou skupinu u adresáøe.
+Pøíklad vytvoøení takového adresáøe na Solarisu (pøíkaz \texttt{chown}
+musí být proveden pod u¾ivatelem \texttt{root}):
+
+\begin{verbatim}
+# mkdir mydir
+# chown :lidi mydir
+# ls -ald mydir
+drwxr-xr-x   2 root     lidi           4 Nov  2 20:01 mydir
+# cd mydir/
+mydir # touch foo
+mydir # ls -ald foo
+-rw-r--r--   1 root     root           0 Nov  2 20:01 foo
+mydir # chmod g+s .
+mydir # ls -ald .
+drwxr-sr-x   2 root     lidi           4 Nov  2 20:01 .
+mydir # touch bar
+mydir # ls -ald bar
+-rw-r--r--   1 root     lidi           0 Nov  2 20:01 bar
+mydir # 
+\end{verbatim}
+
+\item druhá polo¾ka v øádcích \texttt{/etc/group} obsahuje zakódované
+skupinové heslo pou¾ívané pøíkazem \texttt{newgrp}, to se ji¾ dnes nepou¾ívá.
+Napøíklad na FreeBSD je pøíkaz \texttt{newgrp} pøístupný u¾ jen superu¾ivateli
+(kvùli volání \texttt{setgroups}).
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{name service switch}{NSS}
+
+\begin{slide}
+\sltitle{Name service switch}
+\begin{itemize}
+\item today's systems are not confined to only using
+\texttt{/etc/passwd} and \texttt{/etc/groups}
+\item such systems have \emph{databases} (passwd, groups, protocols, \dots)
+\item database data come from \emph{sources} (files, DNS, NIS, LDAP, \dots)
+\item file \texttt{nsswitch.conf} defines what databases use what sources
+\item library functions must support this, obviously
+\item it is possible to combine some sources, eg. users may be first be searched
+in \texttt{/etc/passwd}, then in LDAP
+\item came first with Solaris, other systems took over the idea
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item systémy mají typicky manuálovou stránku \texttt{nsswitch.conf(4)}, kde lze
+nalézt podrobnosti v závislosti na konkrétním operaèním systému, vèetnì API,
+pomocí kterého se pracuje s jednotlivými databázemi. Napøíklad, s databází
+\texttt{passwd} pracují standardní volání \texttt{getpwnam(3)},
+\texttt{getpwent(3)} a dal¹í - není proto potøeba zpracovávat tyto soubory
+(databáze) sami.
+\item zde je èást skuteèného souboru \texttt{nsswitch.conf} ze stroje
+\texttt{u-us}:
+
+\begin{verbatim}
+passwd:     files ldap
+group:      files ldap
+
+# You must also set up the /etc/resolv.conf file for DNS name
+# server lookup.  See resolv.conf(4).
+hosts:      files dns
+
+# Note that IPv4 addresses are searched for in all of the
+# ipnodes databases before searching the hosts databases.
+ipnodes:   files dns
+
+networks:   files
+protocols:  files
+rpc:        files
+ethers:     files
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
+
+\label{GETPW_FUNC}
+\begin{slide}
+\sltitle{Obtain user/group information}
+\begin{itemize}
+\item \texttt{struct passwd *\funnm{getpwnam}(const char *name)}
+
+return structure describing user found in password database or NULL.
+
+\item \texttt{struct passwd *\funnm{getpwuid}(uid\_t uid)}
+
+ditto; perform search according to UID.
+
+\item \texttt{void \funnm{setpwent}(void)}
+\item \texttt{void \funnm{endpwent}(void)}
+\item \texttt{struct passwd *\funnm{getpwent}(void)}
+
+these functions traverse password database. \funnm{setpwent} rewinds to the
+beginning of the password database, \funnm{getpwent} gets the current entry,
+\funnm{endpwent} closes the password database and free allocated resources.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item tyto funkce fungují nezávisle na tom jak z jaké databáze byly
+získány informace o daném u¾ivateli.
+\item v¹echny tyto funkce jsou souèástí POSIX 1003.1-2008 (sekce XSH)
+\item \funnm{setpwent} je tøeba zavolat pøed prvním voláním \funnm{getpwent}
+\item analogicky exitují funkce \funnm{getgrnam} a \funnm{getgrent} které
+získávají informace o skupinách.
+\item pro prohledávání a výpis databazí lze pou¾ít program
+\texttt{getent}. Napø. k nalezení záznamu u¾ivatele a skupiny
+\texttt{root}:
+
+\begin{verbatim}
+$ getent passwd root
+root:x:0:0:Super-User:/root:/sbin/sh
+$ getent group root
+root::0:
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{Access rights evaluation algorithm}{accessrights}
+
+\begin{slide}
+\sltitle{Access rights testing}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item user is identified with (\emsl{UID}) number and group numbers
+for groups he belongs to (\emsl{primary GID}, \emsl{supplementary GIDs}).
+\item this identification is inherited by each process
+\item file $F$ has owner ($UID_F$) and group owner ($GID_F$). 
+\item algorithm for evaluation of access rights for process:
+$P(UID_P,GID_P,SUPG)$ and file $F(UID_F,GID_F)$:
+\begin{tabular}{ll}
+If & then $P$rocess has w.r.t. $F$ile \\ 
+\hline
+\texttt{if($UID_P$ == 0)} & \dots{} all rights \\
+\texttt{else if($UID_P$ == $UID_F$)} & \dots{} owner rights \\
+\texttt{else if($GID_P$ == $GID_F$ ||} &\\
+\texttt{~~~~~~~~$GID_F \in SUPG$)} & \dots{} group rights \\
+\texttt{else} & \dots{} rights of others
+\end{tabular}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item procesy superu¾ivatele \texttt{root} mohou mìnit svoji u¾ivatelskou a
+skupinovou identitu. Toho vyu¾ívá napø. proces \texttt{login}, který bì¾í jako
+\texttt{root} a po zkontrolování jména a hesla spustí shell s u¾ivatelskou
+identitou (pomocí volání \texttt{setuid} -- viz dal¹í slajdy).
+\item z algoritmu plyne, ¾e pro \texttt{root}a není relevantní nastavení práv
+(má v¾dy neomezený pøístup). Pokud se shoduje u¾ivatel, nepou¾ijí se nikdy práva
+skupiny nebo ostatních, i kdy¾ povolují více ne¾ u¾ivatelská práva. Podobnì
+práva ostatních se nepou¾ijí, jestli¾e se shoduje skupinová identita. \emsl{Tedy
+pokud má mùj soubor nastaveny práva \texttt{---rwxrwx}, nemohu ho èíst,
+zapisovat ani spustit, dokud nastavení práv nezmìním.}
+\item èím dál víc systémù se odklání od klasického modelu, kdy mnoho procesù
+bì¾elo pod u¾ivatelem s UID 0 a pøi bezpeènostní chybì v takové aplikaci èasto
+útoèník získal vládu nad celým systémem a zavádìjí modely jako je \emph{least
+privilege model} v Solarisu nebo \emph{privilege separation} a \emph{systrace}
+v OpenBSD.
+\item \label{FILEDELETE} opakování z prvního roèníku -- aby u¾ivatel mohl smazat
+soubor, musí mít právo zápisu do daného \emsl{adresáøe}, proto¾e to je ten
+``soubor'', co se mìní. \emsl{Práva k mazanému souboru nejsou podstatná}; to ¾e
+vás shell upozorní, ¾e ma¾ete soubor, ke kterému nemáte právo zápisu, je pouze
+vìc toho shellu. Je to logické -- pokud si nastavíte soubor jako read-only,
+shell usuzuje, ¾e ho asi normálnì mazat nechcete. Viz pøíklad pod tímto
+odstavcem. \emsl{Unixové systémy nemají delete-like operaci na soubor}, smazání
+souboru nastane automaticky tehdy, kdy¾ na soubor není ¾ádný odkaz z adresáøové
+struktury, a nikdo soubor ji¾ nemá otevøený.
+
+\begin{verbatim}
+$ whoami
+janp
+$ ls -ld janp-dir
+drwx------   2 janp  staff  512 Mar 23 12:12 janp-dir/
+$ ls -l janp-dir
+total 0
+-rw-r--r--   1 root  root     0 Mar 23 12:11 root_wuz_here.txt
+$ rm janp-dir/root_wuz_here.txt 
+rm: janp-dir/root_wuz_here.txt: override protection 644 (yes/no)? yes
+$ ls janp-dir/root_wuz_here.txt 
+janp-dir/root_wuz_here.txt: No such file or directory
+\end{verbatim}
+\item pokud ale \texttt{root} vytvoøí v adresáøi \texttt{janp-dir} svùj
+podadresáø a tam vlo¾í svùj soubor, u¾ivatel \texttt{janp} u¾ nemù¾e
+adresáø \texttt{janp-dir} a jeho obsah smazat, proto¾e:
+\begin{itemize}
+\item podadresáø nelze smazat proto¾e není prázdný
+\item a daný soubor nelze smazat z toho dùvodu, ¾e \texttt{janp} není vlastníkem
+podadresáøe.
+\end{itemize}
+\item Pokud odeberu adresáøi read bit, není mo¾né èíst jeho obsah, tedy
+provádìt výpis souborù v nìm obsa¾ených. Pokud ale znám jméno souboru v
+adresáøi a execute bit je nastaven, mohu soubor pøeèíst:
+\begin{verbatim}
+$ mkdir foo
+$ ls -ald foo
+drwxr-xr-x  2 vladimirkotal  staff  68 Nov  5 14:37 foo
+$ touch foo/bar
+$ file foo/bar
+foo/bar: empty
+$ ls foo
+bar
+$ chmod u-r foo
+$ ls foo
+ls: foo: Permission denied
+$ file foo/bar
+foo/bar: empty
+\end{verbatim}
+\item existuje situace, kdy ani právo zápisu (a execute) pro adresáø nestaèí. To
+se pou¾ívá u \texttt{tmp} adresáøù, do kterých mù¾e ka¾dý psát, ale není ¾ádoucí
+situace, kdy by si u¾ivatelé navzájem mazali soubory. K tomu se pou¾ívá tzv.
+\emph{sticky bit} (01000). Systémy mají vet¹inou manuálovou stránku
+\texttt{sticky}, kde je funkce sticky bitu popsaná. Na výpisu \texttt{ls} je
+oznaèovaný jako \texttt{\emsl{t}}:
+
+\begin{verbatim}
+$ ls -ld /tmp
+drwxrwxrwt   7 root     root         515 Mar 23 12:22 /tmp
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{ruid, euid, suid}{resugid}
+
+\begin{slide}
+\sltitle{Real and effective UID/GID}
+\begin{itemize}
+\item for each process the following IDs are distinguished:
+    \begin{itemize}
+    \item \emsl{real UID} (RUID) -- real owner of the process
+    \item \emsl{effective UID} (EUID) -- user, whose rights are used by the
+process
+    \item \emsl{saved UID} -- original effective UID
+    \end{itemize}
+\item similarly each process has real, effective and saved GID.
+\item usually \texttt{RUID==EUID \&\& RGID==EGID}.
+\item \emsl{right vesting} \dots{} execution of a program with
+SUID (\emsl{set user ID}) bit set changes EUID and saved UID of the process
+to the UID of the program owner, RUID stays the same.
+\item similarly SGID bit changes EGID of the process. 
+\item \emsl{access rights checking always consults EUID, EGID a
+supplementary GIDs}
+\end{itemize}
+\end{slide}
+
+\label{ROOT_SETUID}
+
+\begin{itemize}
+\item \label{SUID_BIT} bity SUID a SGID se pou¾ívají u programù, které potøebují vìt¹í
+pøístupová práva, ne¾ má u¾ivatel, jen¾ je spou¹tí. Pøíkladem je program
+\texttt{passwd}, který musí aktualizovat soubory \texttt{/etc/passwd} a
+\texttt{/etc/shadow}, kde ten první ne\-mù\-¾e bì¾ný u¾ivatel mìnit a druhý z
+nich ani èíst. Dal¹í pøíklad je program \texttt{su}. Ten musí mít právo
+libovolnì zmìnit u¾ivatelskou a skupinovou identitu, co¾ je privilegium
+procesù s UID 0.
+
+
+\item SUID a SGID programy by mìly být peèlivì naprogramovány, aby dovolily
+pouze ty operace, pro které jsou urèeny, a neumo¾nily zneu¾ít jejich
+privilegia pro neoprávnìné akce (napø. spu¹tìní rootovského shellu). Zku¹enost
+ukazuje, ¾e tyto programy jsou jednou z nejèastìj¹ích pøíèin bezpeènostních
+problémù UNIXových systémù.
+\item základním pravidlem pro SUID programy je: \emsl{nepi¹te je} pokud to
+není opravdu nezbytné. Je to typické místo pro generování bezpeènostních chyb
+proto¾e dobøe, tj. bezpeènì, napsat slo¾itìj¹í SUID program není jednoduché.
+\item \emsl{toto jsou pravidla pro zmìny:}
+\begin{itemize}
+\item be¾ný u¾ivatel nemù¾e zmìnit své RUID nebo uschované SUID (vyjímka je
+pøi volání \texttt{exec}, viz strana \pageref{EXEC})
+\item proces mù¾e v¾dy zmìnit své EUID na to z RUID nebo z uschovaného UID.
+Toto zaruèuje, ¾e v SUID programu je mo¾né libovolnì mìnit EUID mezi tím
+pùvodním kterým proces získal práva vlastníka a mezi UID skuteèného u¾ivatele
+který daný proces spustil.
+\item \emsl{root mù¾e v¹echno}, a kdy¾ zmìní RUID, tak se zároveò zmìní i
+uchované UID -- nemìlo by smysl mìnit jen jedno z nich kdy¾ kterékoli mù¾ete
+pou¾ít pro nastavení EUID.
+\end{itemize}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{getuid, getgid, geteuid, getegid, getgroups}{getuid}
+
+\begin{slide}
+\sltitle{Process owner identification}
+\begin{itemize}
+\item \texttt{uid\_t \funnm{getuid}(void)}
+
+returns real user ID of the calling process.
+\item \texttt{uid\_t \funnm{geteuid}(void)}
+
+returns effective user ID of the calling process.
+\item \texttt{gid\_t \funnm{getgid}(void)}
+
+returns real group ID of the calling process.
+\item \texttt{gid\_t \funnm{getegid}(void)}
+
+returns effective group ID of the calling process.
+\item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
+
+-- \texttt{glist} returns at most \texttt{gidsz} supplementary group
+IDs of the calling process and returns number of all GIDs of the process.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item pro reálné UID je volání \texttt{getuid}, volání \texttt{getruid}
+neexistuje
+\item \texttt{getgroups}: kdy¾ \texttt{gidsz~==~0}, jen vrátí poèet
+skupin.  Kdy¾ \texttt{0 < gidsz < \#skupin}, vrátí \texttt{-1}.
+\item v UNIXu je mnoho typù jako \verb#uid_t#, \verb#gid_t#,
+\verb#size_t#, apod. Vesmìs jsou to celoèíselné typy, èasto je
+najdete v \texttt{/usr/inc{}lude/sys/types.h}
+\item Solaris má pøíkaz \texttt{pcred}, který jednodu¹e zobrazí informace o
+identifikaci procesu:
+\begin{verbatim}
+$ pcred 5464
+5464:   e/r/suid=1993  e/r/sgid=110
+        groups: 33541 41331 110
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{setuid, setgid, setgroups}{ownerchange}
+
+\begin{slide}
+\sltitle{Process owner change}
+\begin{itemize}
+\item \texttt{int \funnm{setuid}(uid\_t \emph{uid});}
+    \begin{itemize}
+    \item in process with EUID~==~0 sets RUID, EUID and saved-SUID to
+    \texttt{uid}
+    \item for other processes it sets just EUID, and \texttt{uid} must be
+    either equal to RUID or saved UID
+    \end{itemize}
+\item \texttt{int \funnm{setgid}(gid\_t \emph{gid});} \\
+similar to \texttt{setuid}, for group-IDs of the process.
+\item \texttt{int \funnm{setgroups}(int \emph{ngroups},
+gid\_t *\emph{gidset})} \\
+sets the supplementary group IDs for the calling process. Can only be used
+by superuser process.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item o nastavení UID pro proces s EUID 0 viz také poznámky na stranì
+\pageref{ROOT_SETUID}.
+\item co vý¹e uvedené tedy znamená: proces s efektivními právy superu¾ivatele
+mù¾e libovolnì mìnit identitu. Ostatní procesory mohou pouze støídat svá
+reálná a efektivní práva.
+\item program \emph{login} vyu¾ívá volání \texttt{setuid}
+\item pokud chce process s UID~==~0 zmìnit svou identitu, musí
+nejprve volat \texttt{setgid} a \texttt{setgroups}. Teprve pak
+lze zavolat \texttt{setuid}. Pøi opaèném poøadí volání by proces
+po provedení \texttt{setuid} u¾ nemìl práva na \texttt{setgid} a
+\texttt{setgroups}.
+\item \texttt{setgroups} není uvedeno v UNIX~98 ani UNIX~03.
+\item RUID/EUID jsou ulo¾ené v záznamu tabulky procesù pro pøíslu¹ný proces a
+zároveò v tzv. \emph{u-area} (viz napøíklad [Bach]). EUID v tabulce procesù se
+nazývá ji¾ zmínìné uschované UID, neboli \emph{saved UID}.  Jak ji¾ bylo
+øeèeno, uschované UID se pou¾ívá pro kontrolu, kdy¾ se proces chce vrátit k
+EUID, se kterým byl spu¹tìn (po té, co doèasnì nastavil své EUID na UID
+u¾ivatele, který proces spustil, tj. na RUID).
+\item pokud tedy jako root vytvoøíte SUID program a v nìm zavoláte
+\texttt{setuid} pro jakéholi UID mimo 0, ji¾ se v programu k EUID==0 nemù¾ete
+vrátit (je to logické -- pøedstavte si situaci, kdy se u¾ivatel loguje do
+systému). V tom pøípadì byste museli pou¾ít volání \texttt{seteuid}, které
+nastavuje pouze EUID.
+\item pøíklad: \priklad{setuid/screate-file.c}
+\end{itemize}
+
+
+% ï
+% »
+% ò
+% kód
+\endinput

@@ -1,0 +1,323 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% vyrazene veci z predchozich prednasek
+
+changequote([[[, ]]])
+
+\begin{slide}
+\centerslidestrue
+\begin{center}
+\title{\LARGE Rùzné vìci vyøazené z leto¹ní pøedná¹ky}
+\maketitle
+
+\end{center}
+\end{slide}
+
+
+\begin{slide}
+\sltitle{Lock-soubory na NFS}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item pokud je lock-soubor ulo¾en na vzdáleném svazku pøipojeném
+pomocí NFS, nemusí se kombinace \texttt{O\_CREAT|O\_EXCL} chovat
+korektnì. Øe¹ení: 
+\end{itemize}
+\begin{alltt}
+void \funnm{lock}(char *lockfile) 
+\{ 
+    sprintf(fname, "%s%d", lockfile, getpid()); 
+    fd = \emprg{open}(fname, O\_RDWR|O\_CREAT, 0600); close(fd); 
+    for(;;) \{ 
+        \emprg{link}(fname, lockfile);
+        \emprg{stat}(fname, &buf); 
+        if(\emprg{buf.st\_nlink} == 2) break; 
+    \} 
+    \emprg{unlink}(fname); 
+\}
+\end{alltt}
+\end{slide}
+
+vytvoøíme soubor s unikátním jménem a zkusíme ho nalinkovat na jméno
+\texttt{lockfile}. Pokud se to nepovede, lock-soubor u¾ existuje.
+Ale na NFS není jistý ani výsledek volání \texttt{link()}, proto
+je¹tì otestujeme (pomocí \texttt{stat()}), zda se poèet odkazù na
+unikátní soubor zvìt¹il na hodnotu 2.
+
+%%%%%
+
+\begin{slide}
+\sltitle{System V IPC a sdílená pamì» (1)}
+\texttt{int \funnm{shmget}(key\_t \emph{key}, size\_t \emph{size},
+int \emph{shmflg});}
+\begin{itemize}
+\item vrátí identifikátor segmentu sdílené pamìti o velikosti
+\texttt{size} bajtù spojeného s klíèem \texttt{key}
+(\texttt{IPC\_PRIVATE} \dots{} pøi ka¾dém pou¾ití nový segment). V
+\texttt{shmflg} je kombinace pøístupových práv a konstant
+\texttt{IPC\_CREAT}, \texttt{IPC\_EXCL} se stejným významem jako u
+semaforù. 
+\end{itemize}
+\texttt{void *\funnm{shmat}(int \emph{shmid}, const void *\emph{shmaddr},
+int \emph{shmflg});}
+\begin{itemize}
+\item pøipojí segment do adresového prostoru procesu na adresu
+\texttt{shmaddr} (\texttt{NULL} \dots{} adresu pøidìlí systém),
+vrátí adresu. 
+\item \texttt{shmflg} mù¾e obsahovat 
+    \begin{itemize}
+    \item \texttt{SHM\_RDONLY} \dots{} pøipojit jen pro ètení 
+    \item \texttt{SHM\_RND} \dots{} zaokrouhlit adresu pøipojení
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item v¹echny procesy, které mají segment sdílené pamìti pøipojený,
+vidí provádìné zápisy do pamìti okam¾itì. Proto mohou vznikat døíve
+uvedené problémy a pøístup do sdílené pamìti je nutno vhodnì
+synchronizovat.
+\item v¹echny procesy vidí stejný obsah sdílené pamìti, ale ka¾dý ji
+mù¾e mít namapovanou na jiné adrese.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{System V IPC a sdílená pamì» (2)}
+\texttt{int \funnm{shmdt}(const void *\emph{shmaddr});}
+\begin{itemize}
+\item odpojí segment sdílené pamìti z adresového prostoru procesu. 
+\end{itemize}
+\texttt{int \funnm{shmctl}(int \emph{shmid}, int \emph{cmd},
+struct shmid\_ds *\emph{buf});}
+\begin{itemize}
+\item operace se segmentem pamìti podle \texttt{cmd}: 
+    \begin{itemize}
+    \item \texttt{IPC\_STAT} \dots{} v \texttt{buf} vrátí velikost
+    segmentu, poèet pøipojení, pøístupová práva, PID procesu, který
+    segment vytvoøil a procesu, který ho naposled pøipojil/odpojil,
+    èasy posledního \texttt{shmat()}, \texttt{shmdt()} a
+    \texttt{shmctl()}
+    \item \texttt{IPC\_SET} \dots{} nastavení pøístupových práv 
+    \item \texttt{IPC\_RMID} \dots{} zru¹ení segmentu
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+odpojení segmentu nemìní obsah segmentu ani ho neru¹í, i kdy¾ ho
+odpojí poslední proces.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Semafory a sdílená pamì»: producent}
+\setbox0=\hbox{\kern -1em %
+\emprg{$\left\{\vphantom{\setbox0=\hbox{x}\dp0=2\baselineskip%
+\ht0=\dp0\box0}\right.$}}\dp0=0pt\ht0=0pt\wd0=0pt
+\setbox1=\hbox{%
+\emprg{$\left.\vphantom{\setbox0=\hbox{x}\dp0=2\baselineskip%
+\ht0=\dp0\box0}\right\}$}}\dp1=0pt\ht1=0pt\wd1=0pt
+\begin{alltt}
+key\_t key = 1234; struct sembuf sops;
+shm\_id = \emprg{shmget}(key, sizeof(struct shmem), IPC\_CREAT|0600);
+pshmem = (struct shmem *) \emprg{shmat}(shm\_id, NULL, 0);
+sem\_id = \emprg{semget}(key, 2, IPC\_CREAT|0600);
+sem\_arg=0; \emprg{semctl}(sem\_id, 0, SETVAL, sem\_arg);
+sem\_arg=1; \emprg{semctl}(sem\_id, 1, SETVAL, sem\_arg);
+for(;;) \{
+    sops.sem\_num=1; sops.sem\_op=-1; sops.sem\_flg=0;
+    \emprg{semop}(sem\_id,&sops,1);
+    \box0sz = pshmem->sz = read(0, pshmem->buf, BUFSZ);      \box1
+    sops.sem\_num = 0; sops.sem\_op = 1; sops.sem\_flg = 0;
+    \emprg{semop}(sem\_id, &sops, 1);
+    if(sz <= 0) break;
+\}
+\end{alltt}
+\end{slide}
+
+zde se sdílená pamì» pou¾ívá jako buffer pro pøedávání dat z procesu
+producenta (kde jsou naèítána ze standardního vstupu) do procesu
+konzumenta (který je zapisuje na standardní výstup). K synchronizaci
+operací se sdílenou pamìtí jsou pou¾ity dva semafory s~významy
+\uv{pamì» plná, lze èíst} (inicializován na hodnotu 0) a \uv{pamì»
+volná, lze zapisovat} (inicializován na hodnotu 1). Hodnota semaforu
+je v¾dy zvý¹ena jiným procesem, ne¾ který ji sní¾il. Tím si procesy
+navzájem signalizují zápis a pøeètení obsahu pamìti.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Semafory a sdílená pamì»: konzument}
+\setbox0=\hbox{\kern -1em \raisebox{-0.5\baselineskip}{%
+\emprg{$\left\{\vphantom{\setbox0=\hbox{x}\dp0=2.7\baselineskip%
+\ht0=\dp0\box0}\right.$}}}\dp0=0pt\ht0=0pt\wd0=0pt
+\setbox1=\hbox{ \raisebox{-0.5\baselineskip}{%
+\emprg{$\left.\vphantom{\setbox0=\hbox{x}\dp0=2.7\baselineskip%
+\ht0=\dp0\box0}\right\}$}}}\dp1=0pt\ht1=0pt\wd1=0pt
+\begin{alltt}
+key\_t key = 1234; struct sembuf sops;
+sem\_id = \emprg{semget}(key, 2, 0); shm\_id = \emprg{shmget}(key, 0, 0);
+pshmem = (struct shmem *) \emprg{shmat}(shm\_id, NULL, 0);
+for(;;) \{
+    sops.sem\_num = 0; sops.sem\_op = -1; sops.sem\_flg = 0;
+    \emprg{semop}(sem\_id, &sops, 1);
+    \box0if(pshmem->sz == 0) break;                          \box1
+    write(1, pshmem->buf, pshmem->sz);
+    sops.sem\_num = 1; sops.sem\_op = 1; sops.sem\_flg = 0;
+    \emprg{semop}(sem\_id, &sops, 1);
+\}
+\emprg{shmdt}(pshmem); \emprg{shmctl}(shm\_id, IPC\_RMID, NULL);
+\emprg{semctl}(sem\_id, 0, IPC\_RMID);
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item v¹imnìte si, ¾e konzument pou¾ívá semafory opaènì ne¾
+producent.
+\item hodnota \texttt{pshmem->sz~==~0} je pou¾ita jako indikátor
+ukonèení pøená¹ených dat.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Fronty zpráv (1)}
+\texttt{int \funnm{msgget}(key\_t \emph{key}, int \emph{msgflg});}
+\begin{itemize}
+\item vrátí identifikátor fronty zpráv spojené s klíèem \texttt{key}
+(\texttt{IPC\_PRIVATE} \dots{} pøi ka¾dém pou¾ití nová fronta
+zpráv). V \texttt{msgflg} je kombinace pøístupových práv a konstant
+\texttt{IPC\_CREAT}, \texttt{IPC\_EXCL} se stejným významem jako u
+semaforù. 
+\end{itemize}
+\texttt{int \funnm{msgctl}(int \emph{msqid}, int \emph{cmd},
+struct msqid\_ds *\emph{buf});}
+\begin{itemize}
+\item Operace s frontou podle \texttt{cmd}: 
+    \begin{itemize}
+    \item \texttt{IPC\_STAT} \dots{} v \texttt{buf} vrátí aktuální poèet zpráv,
+    max. velikost fronty, pøístupová práva, PID a èasy posledního
+    \texttt{msgsnd()} a \texttt{msgrcv()}
+    \item \texttt{IPC\_SET} \dots{} nastavení pøístupových práv a max.
+    velikosti fronty
+    \item \texttt{IPC\_RMID} \dots{} zru¹ení segmentu
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+fronta zpráv funguje jako mailbox. Ka¾dý proces (který má pøístupová
+práva) do ní mù¾e vlo¾it zprávu, kterou pak mù¾e vyzvednout
+libovolný proces.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Fronty zpráv (2)}
+\begin{minipage}{\slidewidth}
+\vspace{-1\baselineskip}\texttt{\begin{tabbing}
+int \funnm{msgsnd}(\=int \emph{msqid}, const void *\emph{msgp},
+size\_t \emph{msgsz},\\\> int \emph{msgflg});
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item po¹le zprávu \texttt{msgp} o velikosti \texttt{msgsz} do
+fronty \texttt{msqid}. 
+\item zpráva má libovolný obsah, ale na zaèátku musí být typ zprávy,
+tj.  polo¾ka typu \texttt{long int} s kladnou hodnotou. 
+\item typ zprávy se nezapoèítává do velikosti zadané v parametru 
+\texttt{msgsz}.
+\item maximální velikost zprávy je limitována systémem. 
+\item pokud je fronta plná, funkce èeká, a¾ bude ve frontì místo na
+zprávu.  Pøíznak \texttt{IPC\_NOWAIT} zpùsobí, ¾e se neèeká, ale
+volání se vrátí s chybou.
+\end{itemize}
+\end{slide}
+
+Typy zpráv se pou¾ívají pro rozli¹ení zpráv pøíjemcem.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Fronty zpráv (3)}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
+ssize\_t \funnm{msgrcv}(\=int \emph{msqid}, void *\emph{msgp},
+size\_t \emph{msgsz},\\\> long int \emph{msgtyp}, int \emph{msgflg});
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item z fronty \texttt{msqid} je pøeètena zpráva do bufferu
+\texttt{msgp}.  Vrací velikost zprávy. Pro pøíli¹ dlouhé zprávy se
+do \texttt{msgp} ulo¾í jen prvních \texttt{msgsz} bajtù, pokud je v
+  \texttt{msgflg} pøíznak \texttt{MSG\_NOERROR}. Jinak vrátí chybu. 
+\item typ zprávy se nezapoèítává do velikosti zprávy.
+\item z fronty se vybere první zpráva zadaného typu: 
+    \begin{itemize}
+    \item \texttt{msgtyp == 0} \dots{} libovolný typ 
+    \item \texttt{msgtyp > 0} \dots{} typ \texttt{msgtyp}
+    \item \texttt{msgtyp < 0} \dots{} typ \texttt{<= abs(msgtyp)}
+    \end{itemize}
+\item jestli¾e zpráva po¾adovaného typu není k dispozici, proces
+èeká. Pøi nastavení \texttt{IPC\_NOWAIT} v \texttt{msgflg} místo
+èekání vrátí chybu.
+\end{itemize}
+\end{slide}
+
+zprávy jsou z fronty vybírány v poøadí, v jakém do ní byly poslány.
+Zprávy od jednoho odesílatele budou pøíjemcem obdr¾eny ve stejném
+poøadí, v jakém byly poslány. Zprávy od více odesílatelù se mohou ve
+frontì promíchat.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Fronty zpráv: producent}
+\begin{alltt}
+int sz,id;
+key\_t key=1234;
+struct \{
+    long int mtype;
+    char buf[BUFSZ];
+\} msg;
+id = \emprg{msgget}(key, IPC\_CREAT|0600);
+msg.mtype=1;
+while( (sz = read(0, msg.buf, BUFSZ)) > 0) 
+    \emprg{msgsnd}(id, &msg, sz, 0);
+msg.mtype=2;
+\emprg{msgsnd}(id, &msg, 0, 0);
+\end{alltt}
+\end{slide}
+
+tento pøíklad øe¹í pomocí fronty zpráv stejný problém producenta a
+konzumenta, jaký jsme ji¾ øe¹ili pomocí sdílené pamìti a semaforù.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Fronty zpráv: konzument}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{alltt}
+int sz;
+key\_t key=1234;
+struct \{
+    long int mtype;
+    char buf[BUFSZ]; 
+\} msg;
+id = \emprg{msgget}(key, 0);
+for(;;) \{
+    sz = \emprg{msgrcv}(id, &msg, BUFSZ, 0, 0);
+    if(msg.mtype == 1)
+        write(1,msg.buf,sz);
+    else \{ /* msg.mtype == 2 */
+        \emprg{msgctl}(id, IPC\_RMID, NULL);
+        break;
+    \}
+\}
+\end{alltt}
+\end{slide}
+
+podle typu zprávy konzument rozli¹uje normální zprávy obsahující
+data a zprávu oznamující ukonèení pøenosu dat.
+
+%%%%%
+
+\endinput

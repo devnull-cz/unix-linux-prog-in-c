@@ -1,0 +1,507 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Rùzné
+
+changequote([[[, ]]])
+
+\begin{slide}
+\sltitle{Práce s øetìzci}
+\begin{itemize}
+\item Chyby pøi zpracování øetìzcù jsou èastou pøíèinou bezpeènostích dìr typu
+\emsl{buffer overflow}: program dostane dlouhý øetìzec a bez kontroly délky ho
+ulo¾í do pamìti. Øetìzec pøeteèe z oblasti, která je pro nìj vymezena, do
+sousedního úseku pamìti (mù¾e obsahovat napø. návratovou adresu na zásobníku)
+a pøepí¹e ho. Tím jsou po¹kozena data programu nebo lze dokonce spustit kód
+obsa¾ený v~øetìzci. Útokem na privilegovaný proces je mo¾né získat práva
+superu¾ivatele a to i po síti, pokud se jedná o sí»ový server. 
+\item Základní ochrana: pøed ulo¾ením do pamìti kontrolovat délku øetìzcù (dat
+obecnì), pou¾ívat funkce \texttt{strncat()}, \texttt{strncpy()}, 
+\texttt{snprintf()}, \texttt{fgets()}, apod. 
+\item Øetìzec délky $n$ potøebuje na ulo¾ení $n+1$ bajtù!
+\end{itemize}
+\end{slide}
+
+\texttt{strncpy(s1, s2, n)} \dots{} kdy¾ není \texttt{'\bs0'} mezi prvními
+\texttt{n} znaky v \texttt{s2}, není výsledek ukonèen nulou.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Formátové chyby}
+\begin{itemize}
+\item Nìkteré funkce, napø. \texttt{printf()}, \texttt{sprintf()},
+\texttt{syslog()}, dostávají jako první parametr formátový øetìzec a za ním
+volitelnì promìnný poèet parametrù, které se interpretují podle obsahu
+formátového øetìzce. 
+\item Jestli¾e místo \verb#printf("%s", string)# pou¾ijeme
+\texttt{printf(string)} a øetìzec \texttt{string} není obsa¾en pøímo v
+programu, ale získán od u¾ivatele, mù¾e u¾ivatel vhodnými formátovacími
+direktivami nejen vypsat obsah zásobníku, ale pomocí direktivy \texttt{\%n}
+dokonce libovolnì zmìnit obsah pamìti procesu a vynutit spu¹tìní vlastního
+strojového kódu. 
+\item Výsledkem je havárie programu nebo dokonce získání práv u¾ivatele root,
+pokud je takto napaden napø. nìjaký SUID program.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Podobný problém nastává napø. v interface pro SQL databáze. Jestli¾e
+program generuje SQL dotaz a do nìho vkládá øetìzec získaný od u¾ivatele,
+mohou uvozovky uvnitø vkládaného øetìzce zcela zmìnit smysl dotazu.
+\item Podobnì jako buffer overflow, také tyto chyby vznikají nesprávným
+programováním.
+\item Programátor by se nikdy nemìl spoléhat na to, ¾e u¾ivatel se bude v¾dy
+chovat tak, jak pøedpokládá. Programy by proto mìly kontrolovat, jaký vstup
+dostávají a nepøedpokládat, ¾e bude poka¾dé ve správném formátu.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Národní prostøedí (1)}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item UNIX obsahuje mechanismus \emsl{locale}. Tím lze definovat národní
+zvyklosti v kategoriích: 
+    \begin{itemize}
+    \item \texttt{LANG} \dots{} definuje následující kategorie, pro které
+    nejsou nastavené specifické promìnné \texttt{LC\_*}
+    \item \texttt{LC\_CTYPE} \dots{} znaková sada 
+    \item \texttt{LC\_COLLATE} \dots{} uspoøádání znakù a øetìzcù 
+    \item \texttt{LC\_MESSAGES} \dots{} katalog zpráv vypisovaných programy 
+    \item \texttt{LC\_TIME} \dots{} formát data a èasu 
+    \item \texttt{LC\_NUMERIC} \dots{} formát èísel 
+    \item \texttt{LC\_MONETARY} \dots{} formát penì¾ních èástek 
+    \item \texttt{LC\_ALL} \dots{} v¹echny kategorie (pøednost pøed
+    \texttt{LC\_*} a \texttt{LANG})
+    \end{itemize}
+\item Definièní soubory napø. \texttt{/usr/lib/locale/jméno/kategorie}
+\item Jména \texttt{POSIX} a \texttt{C} v¾dy existují a definují implicitní
+locale. 
+\item Pro èe¹tinu se pou¾ívají jména \texttt{cs} nebo \verb#cs_CZ#.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Celé jméno locale má tvar
+\uv{\texttt{\emph{jazyk}\_\emph{ZEMÌ}.\emph{CHARSET}}}, napø.
+\uv{\texttt{cs\_CZ.ISO8859-2}}.
+\item Pro správnou funkci národního prostøedí je nutné mít také správné fonty a
+klávesnici generující národní znaky.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Národní prostøedí (2)}
+\texttt{char *\funnm{setlocale}(int \emph{category},
+const char *\emph{locale});}
+\begin{itemize}
+\item Nastaví locale pro danou kategorii. Vrací locale nebo \texttt{NULL},
+pokud zadané locale nelze nastavit. 
+\item Jestli¾e je \texttt{locale~==~""}, pou¾ije pøíslu¹nou promìnnou
+prostøedí (\texttt{LC\_CTYPE}, \texttt{LC\_COLLATE}, \texttt{LC\_MESSAGES},
+\texttt{LC\_TIME}, \texttt{LC\_NUMERIC}, \texttt{LC\_MONETARY} nebo
+\texttt{LC\_ALL}). Promìnná \texttt{LC\_ALL} má pøednost pøed v¹emi ostatními.
+Kdy¾ nìkterá promìnná není definována, pou¾ije místo ní hodnotu promìnné
+\texttt{LANG}. Kdy¾ je \texttt{locale~==~NULL}, funkce pouze vrátí aktuální
+locale. 
+\end{itemize}
+\texttt{int \funnm{strcoll}(const char *\emph{s1}, const char *\emph{s2});}
+\begin{itemize}
+\item Porovnání øetìzcù s pou¾itím aktuálního \texttt{LC\_COLLATE}.
+\end{itemize}
+\end{slide}
+
+Program, který chce vyu¾ívat národní nastavení, musí pou¾ít funkci
+\texttt{setlocale()}.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Terminály}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item Vstup z terminálu mù¾e pracovat v jednom ze dvou základních re¾imù: 
+    \begin{itemize}
+    \item \emsl{raw} \dots{} napsané znaky jsou okam¾itì pøedávány aplikaci 
+    \item \emsl{cooked} \dots{} aplikace dostává text po øádcích, jádro
+    zaji¹»uje zpracování speciálních znakù (napø. poslání signálu pøi stisku
+    \texttt{Ctrl-C}) 
+    \end{itemize}
+\item Pøi výstupu na terminál lze øídicími sekvencemi znakù (\emsl{escape
+sequences}) ovládat funkce jako posun kurzoru. Knihovna \emsl{curses}
+poskytuje tyto funkce bez nutnosti pou¾ívat konkrétní sekvence, vyu¾ívá
+databázi typù terminálù \emsl{terminfo} (napø.
+v~\texttt{/usr/share/lib/terminfo/}). 
+\item Vlastnosti terminálù (rychlost, echo, speciální znaky, apod.) se
+nastavují a testují pøíkazem \texttt{stty} nebo systémovými voláními
+\texttt{tcsetattr()} a \texttt{tcgetattr()}.
+\end{itemize}
+\end{slide}
+
+\emph{Terminály} jsou buï \emph{fyzická zaøízení}, obvykle pøipojená pøes
+sériový port, \emph{virtuální terminály} (napø. virtuální konzole v Linuxu),
+nebo \emph{pseudoterminály} (spojení dvou procesù s~pou¾itím speciálních
+souborù zaøízení, kde si jeden proces myslí, ¾e pou¾ívá terminál, a druhý
+emuluje chování terminálu).
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pseudoterminály}
+\begin{itemize}
+\item Jádro simuluje terminálové rozhraní pro programy jako \texttt{xterm}
+nebo \texttt{telnet} pomocí pseudoterminálù (dvojice zaøízení \emsl{master} a
+\emsl{slave}, data zapsaná na stranì master lze èíst na stranì slave a
+naopak).
+\end{itemize}
+\begin{center}
+\input{pseudoterm.tex}
+\end{center}
+\end{slide}
+
+Proces bì¾ící na stranì slave funguje stejnì, jako kdyby komunikoval se
+skuteèným terminálem.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Knihovna curses}
+\begin{itemize}
+\item Implementace øízení terminálu nezávisle na konkrétním typu terminálu.
+Výstup do oken na terminálu, pohyb kurzoru, nastavení barev, apod. 
+\item Inicializace:\\
+\texttt{\funnm{initscr}(); \funnm{cbreak}(); \funnm{noecho}();\\
+\funnm{intrflush}(stdscr, FALSE); \funnm{keypad}(stdscr, TRUE);}
+\item Posun kurzoru: \texttt{int \funnm{move}(int \emph{y},int \emph{x});} 
+\item Výstup na zadanou pozici:\\
+\texttt{int \funnm{mvprintw}(int \emph{y}, int \emph{x}, char *\emph{fmt},
+...);}
+\item Vykreslení zmìn: \texttt{\funnm{refresh}();}
+\item Naètení znaku: \texttt{int \funnm{getch}(void);}
+\item Konec curses, obnovení nastavení terminálu: \texttt{\funnm{endwin}();}
+\end{itemize}
+\end{slide}
+
+Zde je uveden jen náznak toho, co curses umí, tato knihovna obsahuje pøes 300
+funkcí.
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Window System}
+\begin{itemize}
+\item standardní UNIXové grafické u¾ivatelské rozhraní 
+\item \emsl{distribuovaný systém} -- aplikace mohou bì¾et na jiném poèítaèi
+ne¾ kde sedí u¾ivatel, na jedné obrazovce mohou být okna aplikací z~rùzných
+poèítaèù 
+\item vytvoøen na \emsl{MIT} od roku 1984 
+\item verze X11 v roce 1987 
+\item poslední verze je \emsl{X11 Release 6.6}
+\item dal¹í vývoj zaji¹»uje konsorcium \emsl{X.Org}
+\item dodáván výrobci UNIXových systémù jako souèást operaèního systému 
+\item volnì ¹iøitelná implementace \emsl{XFree86}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Od zaèátku navr¾ené jako distribuovaný systém s mo¾ností spolupráce
+poèítaèù s rùzným hardwarem a odli¹nými operaèními systémy.
+\end{itemize}
+\emph{Reklama:} Více o X (hlavnì z pohledu programátora) se dozvíte na
+pøedná¹ce \emph{Programování pro X Window System} v letním semestru.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Struktura X}
+\begin{center}
+\input{xwin.tex}
+\end{center}
+\end{slide}
+
+X server je to, u èeho sedí u¾ivatel, klient je jeho aplikace, která mù¾e
+bì¾et na vzdáleném a mnohem silnìj¹ím poèítaèi. To není ¹patné pojmenování,
+proto¾e server obecnì není \uv{to, co bì¾í na stranì u¾ivatele} a server
+\uv{to, k
+èemu u¾ivatel pøistupuje prostøednictvím klienta}. Je nutné si uvìdomit, ¾e
+klient je proces, který vy¾aduje nìjaké slu¾by (zde zobrazování svého výstupu
+a zasílání zpráv o reakcích u¾ivatele), a server je proces poskytující tyto
+slu¾by.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Komponenty X}
+\begin{itemize}
+\item \emsl{X server} \dots{} proces, který zaji¹»uje výstup na obrazovku a
+vstup z~klávesnice, my¹i, popø. dal¹ích vstupních zaøízení (napø. tablet) 
+    \begin{itemize}
+    \item Na jednom poèítaèi mù¾e být více X serverù (\emsl{display}), ka¾dý
+    mù¾e mít nìkolik obrazovek (\emsl{screen}). 
+    \end{itemize}
+\item \emsl{X klient} \dots{} aplikace, která pou¾ívá X pro své GUI 
+\item \emsl{X protokol} \dots{} sí»ový protokol pro komunikaci mezi X~serverem
+a X~klientem 
+\item \emsl{Xlib} \dots{} API knihovna, pøekládá volání funkcí~X na zprávy
+X~protokolu 
+    \begin{itemize}
+    \item funkce na úrovni základní manipulace s okny, kreslení a pøijímání
+    událostí od klávesnice a my¹i 
+    \item server informuje aplikaci pomocí událostí o akcích u¾ivatele
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Server typicky bì¾í na pracovní stanici s grafickým displejem nebo na
+speciálním X~terminálu.
+\item Pokud je klient i server na jednom poèítaèi, jsou to stále samostatné
+procesy, ale pro urychlení mohou komunikovat pøes sdílenou pamì» místo po
+síti.
+\item Xlib neposkytuje GUI, ale jen funkce pro jeho vytvoøení. Lze tedy øíci
+\uv{nakresli obdélník, do nìj text a èekej, a¾ u¾ivatel klikne my¹í}, ale ne
+\uv{vytvoø tlaèítko, které pøi stisku vygeneruje událost XYZ}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Komponenty X (2)}
+\begin{itemize}
+\item \emsl{toolkity (X Toolkit, Motif, GTK+, Qt)} \dots{} poskytují prvky
+u¾ivatelského rozhraní (tlaèítka, menu, scrollbary, atd.) 
+\item \emsl{window manager} \dots{} kreslí rámeèky oken, øídí manipulace s
+okny (posouvání, zvìt¹ování, zavírání...) 
+    \begin{itemize}
+    \item samostatná aplikace, u¾ivatel si mù¾e zvolit window manager, který
+    mu nejvíce vyhovuje (twm, mwm, olwm, fvwm95, Enlightenment...) 
+    \end{itemize}
+\item \emsl{terminálový emulátor (xterm)} \dots{} pomocí pseudoterminálù
+emuluje terminál pro aplikace s textovým vstupem a výstupem (pøedev¹ím shell) 
+\item Existují i celá integrovaná grafická prostøedí, jako CDE, KDE nebo Gnome.
+\end{itemize}
+\end{slide}
+
+Tím, ¾e základní funkce pro interakci s u¾ivatelem, vlastní GUI a window
+manager jsou navzájem oddìlené, se dosahuje velké flexibility.
+
+%%%%%
+
+\begin{slide}
+\sltitle{Spu¹tìní aplikace X}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item Buï pomocí menu v prostøedí X, nebo ze shellu 
+\item Promìnná prostøedí \texttt{DISPLAY} urèuje, s kterým X serverem bude
+aplikace pracovat 
+    \begin{itemize}
+    \item \texttt{DISPLAY=:0.0} \dots{} lokální X server na stejném poèítaèi,
+    kde bì¾í aplikace 
+    \item \texttt{DISPLAY=omega.ms.mff.cuni.cz:1.0} \dots{} display èíslo 1,
+    obrazovka è. 0 na poèítaèi \texttt{omega.ms.mff.cuni.cz}
+    \item obecnì \texttt{DISPLAY=[\emph{host}]:\emph{display}[.\emph{screen}]}
+    \end{itemize}
+\item Aplikace, která se pøipojí k X serveru má pøístup ke v¹emu, co se na X
+serveru dìje, mù¾e manipulovat i s okny ostatních aplikací. Proto je potøeba
+omezit pøístup k serveru: 
+    \begin{itemize}
+    \item \texttt{xhost} \dots{} povolení pøístupu pouze z nìkterých poèítaèù 
+    \item \texttt{xauth} \dots{} povolení pouze pro aplikace, které znají klíè
+    (MIT-MAGIC-COOKIE)
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Jedna aplikace mù¾e souèasnì spolupracovat s nìkolika X servery.
+\item Pokud na jednom poèítaèi spou¹tí klientské procesy více u¾ivatelù, je
+bezpeènìj¹í pou¾ívat MIT-MAGIC-COOKIE.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Start X Window}
+\begin{itemize}
+\item Z textové systémové konzole (ze shellu) se X spustí obvykle pøíkazem
+\texttt{startx}.
+\end{itemize}
+\vspace{1ex}
+\begin{center}
+\input{startx.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item \texttt{startx} je skript, lze ho pøizpùsobit podle potøeby. Zobrazené
+schéma odpovídá standardnímu chování \texttt{startx}, kdy se nejdøíve hledají
+startovací skripty v u¾ivatelském a pak v systémovém adresáøi.
+\item Program \texttt{xinit} provede vlastní spu¹tìní serveru a klientù. Kdy¾
+skonèí proces \texttt{client} (obvykle skript, který spustí jednotlivé klienty
+na pozadí a nakonec provede \texttt{exec} na window manager), skonèí server i
+\texttt{xinit}.
+\item X server lze spustit i samostatnì a pak spou¹tìt klienty.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Display Manager (\texttt{xdm})}
+\begin{itemize}
+\item Démon \texttt{xdm} dovoluje logování na grafických stanicích i na X
+terminálech pøímo do X, bez nutnosti loginu na textovém terminálu a
+následného spu¹tìní \texttt{xinit}.
+\end{itemize}
+\begin{center}
+\input{xdm.pstex_t}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item Skript \texttt{Xsession} (a z nìho spou¹tìné programy) se spou¹tí s
+právy u¾ivatele, který se loguje, v¹e ostatní bì¾í s právy roota.
+\item Po ukonèení \texttt{Xreset} je X server buï resetován, nebo ukonèen a
+znovu nastartován.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Konfigurace \texttt{xdm}}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item Konfiguraèní soubory v adresáøi \texttt{/usr/lib/X11/xdm}
+    \begin{itemize}
+    \item \texttt{xdm-config} \dots{} hlavní konfiguraèní soubor 
+    \item \texttt{Xservers} \dots{} seznam (obvykle lokálních) serverù, které
+    mají být poøád øízeny tímto \texttt{xdm}. Dále \texttt{xdm} øídí servery,
+    které o to po¾ádají pomocí protokolu \texttt{XDMCP (X Display Manager
+    Control Protocol)} 
+    \item \texttt{Xaccess} \dots{} nastavuje protokol XDMCP 
+    \item \texttt{Xsetup} \dots{} inicializace serveru 
+    \item \texttt{Xstartup} \dots{} akce po zadání u¾ivatelského jména a hesla 
+    \item \texttt{Xsession} \dots{} u¾ivatelská inicializace, spou¹tí window
+    manager a aplikace, po skonèení je u¾ivatel odlogován 
+    \item \texttt{Xreset} \dots{} akce provádìné pøi odlogování u¾ivatele 
+    \end{itemize}
+\item Chybová hlá¹ení z \texttt{Xsetup}, \texttt{Xstartup}, \texttt{Xsession}
+a \texttt{Xreset} se zapisují do \texttt{/usr/lib/X11/xdm/xdm-errors}.
+\end{itemize}
+\end{slide}
+
+Display manager je obvykle nakonfigurován tak, ¾e zaji¹»uje spou¹tìní
+lokálního X serveru (popø. nìkolika X serverù) a navíc poskytuje mo¾nost
+nalogování do systému prostøednictvím X serverù, které se s ním spojí pomocí
+protokolu XDMCP.
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Resources}
+\setlength{\baselineskip}{0.9\baselineskip}
+\begin{itemize}
+\item Textový zápis konfiguraèních hodnot aplikací ve tvaru:\\
+\texttt{aplikace[.podobjekt...].atribut: hodnota}
+    \begin{itemize}
+    \item \texttt{'!'} \dots{} uvozuje komentáøový øádek 
+    \item \texttt{'\bs'} \dots{} na konci øádku znamená pokraèování hodnoty na
+    dal¹ím øádku 
+    \item \texttt{'*'} \dots{} zastupuje libovolný poèet úrovní hierarchie 
+    \item \texttt{'?'} \dots{} zastupuje jednu úroveò hierarchie 
+    \item \texttt{'\bs n'} \dots{} znak konce øádku v hodnotì 
+    \item \texttt{'\bs nnn'} \dots{} oktalový zápis znaku 
+    \item \texttt{'\bs{} '}, \texttt{'\bs{}\emph{tab}'} zápis mezery nebo
+    tabulátoru na zaèátku hodnoty (obyèejné mezery a tabulátory jsou na
+    zaèátku zápisu hodnoty ignorovány) 
+    \end{itemize}
+\item Ka¾dou úroveò hierarchie lze zadat jako instanci (obvykle zaèíná malým
+písmenem) nebo tøídu (velké písmeno na zaèátku).
+\end{itemize}
+\end{slide}
+
+\begin{description}
+\item[aplikace] -- jméno programu nebo jeho instance (lze nastavit pøepínaèem
+\texttt{-name})
+\item[podobjekty] -- úrovnì hierarchie konfigurovatelných hodnot aplikace, v
+X Toolkitu odpovídají jednotlivým prvkùm rozhraní (\emph{widgets}).
+\item[atribut] -- jméno konfigurovatelného parametru
+\item[hodnota] -- hodnota parametru, kdy¾ je øádek ukonèen \verb#'\'#,
+pokraèuje na dal¹ím øádku
+\end{description}
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Resources (pøíklad)}
+\begin{tabular}{lll}
+\texttt{xterm.vt100.scrollBar:} & \texttt{True} & instance \\
+\texttt{XTerm.VT100.ScrollBar:} & \texttt{True} & tøída \\
+\texttt{xterm.?.scrollBar:} & \texttt{True} & vynechání úrovnì \\
+\texttt{*scrollBar:} & \texttt{True} & vynechání více úrovní \\
+\texttt{xtNoScroll*scrollBar:} & \texttt{False} & pou¾ije se, kdy¾ se
+\texttt{xterm} spustí\\
+& & s pøepínaèem \texttt{-name~xtNoScroll}
+\end{tabular}
+\end{slide}
+
+Resource soubory mohou být dosti rozsáhlé a lze jimi èasto konfigurovat vzhled
+aplikace (barvy, nápisy na tlaèítkách, jména polo¾ek menu) i její chování
+(napø. významy kláves).
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Resources -- vyhodnocování}
+\begin{itemize}
+\item Pøednost má nejvíce specifikovaná hodnota. 
+\item Tìsná vazba \texttt{'.'} (\emsl{tight binding}) má pøednost pøed volnou
+vazbou \texttt{'*'} (\emsl{loose binding}). 
+\item Instance má pøednost pøed tøídou. 
+\item Instance a tøída mají pøednost pøed \texttt{'?'}. 
+\item Levé komponenty mají vìt¹í váhu ne¾ pravé. Napø.
+\texttt{xterm*background} má pøednost pøed \texttt{*window.bakground}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Lze nadefinovat obecnou default hodnotu, kterou je mo¾né pro konkrétní
+pøípady pøedefinovat.
+\item Aplikace v¾dy specifikuje pøesnì plné jméno resource polo¾ky a v
+resource databázi se hledá co nejlépe vyhovující polo¾ka. Tento pøístup je
+pøesnì opaèný ne¾ jak se obvykle pracuje s databázemi, kdy se zadává neúplný
+vzor a hledá se polo¾ka, která odpovídá vzoru. Zde se zadává polo¾ka a hledá
+se nejspecifiètìj¹í vzor.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{X Resources -- pou¾ití v aplikaci}
+\begin{enumerate}
+\item Resources specifické pro aplikaci tøídy \texttt{\emph{Class}} v souboru
+\texttt{/usr/lib/X11/app-defaults/\emph{Class}}. 
+\item Obsah resource databáze v X serveru vytvoøené pomocí pøíkazu
+\texttt{xrdb}. 
+\item Obsah souboru definovaného promìnnou prostøedí \texttt{XENVIRONMENT}. 
+\item Hodnoty zadané na pøíkazovém øádku pøepínaèem \texttt{-xrm}. 
+\end{enumerate}
+\begin{itemize}
+\item Startovací skripty \texttt{xinitrc} (pro \texttt{startx}) a
+\texttt{Xsession} (pro \texttt{xdm}) obvykle zajistí naètení resources do
+X~serveru pomocí \texttt{xrdb} ze souboru \texttt{\~{}/.Xresources}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Poøadí prohledávání resources zaji¹»uje, ¾e u¾ivatel mù¾e podle své
+potøeby zmìnit standardní nastavení instalovaná správcem a platná pro celý
+systém.
+\item Resource databáze v X serveru dovoluje upravit vzhled a chování aplikace
+podle mo¾ností X serveru (napø. jiné nastavení barev pro èernobílou a barevnou
+obrazovku).
+\end{itemize}
+
+%%%%%
+
+\endinput

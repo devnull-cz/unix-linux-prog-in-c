@@ -1,0 +1,605 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[0]{signály}{signaly}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item základní pojmy a konvence UNIXu a jeho API
+\item pøístupová práva, periferní zaøízení, systém souborù
+\item process manipulation, program execution
+\item \emsl{signály}
+\item synchronizace a komunikace procesù
+\item sí»ová komunikace
+\item vlákna, synchronizace vláken
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Signály
+
+changequote([[[, ]]])
+
+\begin{slide}
+\sltitle{Signály}
+\begin{itemize}
+\item informují proces o výskytu urèité události
+\item na u¾ivatelské úrovni zpøístupòují mechanizmy pøeru¹ení
+\item kategorie signálù: 
+    \begin{itemize}
+    \item \emsl{chybové události} generované bì¾ícím procesem, napø.
+    pokus o pøístup mimo pøidìlenou oblast pamìti (\texttt{SIGSEGV})
+    \item \emsl{asynchronní události} vznikající mimo proces, napø.
+    signál od jiného procesu, vypr¹ení nastaveného èasu
+    (\texttt{SIGALRM}), odpojení terminálu (\texttt{SIGHUP}), stisk
+    \texttt{Ctrl-C} (\texttt{SIGINT})
+    \end{itemize}
+\item nejjednodu¹¹í mechanizmus pro komunikaci mezi procesy -- nesou
+pouze informaci o tom, ¾e nastala nìjaká událost.
+\item vìt¹inou se zpracovávají asynchronnì -- pøíchod signálu  pøeru¹í bìh
+procesu a vyvolá se obslu¾ná funkce, tzv. \emph{handler signálu}
+\end{itemize}
+\end{slide}
+
+\label{SIGNALS}
+
+\begin{itemize}
+\item se signálem není svázána ¾ádná jiná informace ne¾ èíslo signálu, pokud se
+nepou¾ije POSIX-1003.1b roz¹íøení (real-time), viz strana
+\pageref{REALTIMEEXTENSIONS}.
+\item po návratu z handleru (pokud k nìmu dojde) proces pokraèuje od
+mís\-ta pøeru¹ení.
+\item historicky signály vznikly jako mechanizmus pro \uv{násilné}
+ukonèení procesu. Z toho vyplynul i název funkce \texttt{kill} pro
+poslání signálu.
+\item Signály lze zpacovávat i synchronnì, viz \texttt{sigwait} na
+str. \pageref{SIGWAIT}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{kill}{kill}
+
+\begin{slide}
+\sltitle{Poslání signálu}
+\texttt{int \funnm{kill}(pid\_t \emph{pid}, int \emph{sig});}
+\begin{itemize}
+\item po¹le signál s èíslem \texttt{sig} procesu (nebo skupinì
+procesù) podle hodnoty \texttt{pid}: 
+    \begin{itemize}
+    \item \texttt{> 0} \dots{} procesu s èíslem pid
+    \item \texttt{== 0} \dots{} v¹em procesùm ve stejné skupinì 
+    \item \texttt{== -1} \dots{} v¹em procesùm, kromì systémových 
+    \item \texttt{< -1} \dots{} procesùm ve skupinì \texttt{abs(pid)} 
+    \end{itemize}
+\item \texttt{sig == 0} znamená, ¾e se pouze zkontroluje oprávnìní
+poslat signál, ale ¾ádný signál se nepo¹le. 
+\item právo procesu poslat signál jinému procesu závisí na UID obou
+procesù.
+\end{itemize}
+\end{slide}
+
+\label{KILLSYSCALL}
+
+\begin{itemize}
+\item proces s EUID~==~0 mù¾e poslat signál libovolnému procesu.
+\item ostatní procesy:
+    \begin{itemize}
+    \item Linux, Solaris: RUID nebo EUID procesu, který poslal signál, se musí
+    shodovat s reálným UID nebo saved set-user-ID cílového procesu.
+    \item FreeBSD: musí se shodovat EUID obou procesù.
+    \item IRIX: RUID nebo EUID procesu, který poslal signál, se musí shodovat
+    s reálným nebo efektivním UID nebo saved set-user-ID cílového procesu.
+    \end{itemize}
+\item pøíklad (obsahuje i zachycení signálu, viz dal¹í slajdy)
+\priklad{signals/kill.c}
+\item nulový signál lze pou¾ít i pro jednoduchou kontrolu existence procesu
+s daným pid, viz \priklad{signals/check-existence.c}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{o¹etøení signálu}{sighandle}
+
+\begin{slide}
+\sltitle{O¹etøení signálù}
+\begin{itemize}
+\item pokud proces neøekne jinak, provede se v závislosti na konkrétním
+signálu implicitní akce, tj. buï:
+    \begin{itemize}
+    \item ukonèení procesu (\emsl{exit}) 
+    \item ukonèení procesu plus coredump (\emsl{core})
+    \item ignorování signálu (\emsl{ignore})
+    \item pozastavení procesu (\emsl{stop})
+    \item pokraèování pozastaveného procesu (\emsl{continue}) 
+    \end{itemize}
+\item proces také mù¾e nastavit ignorování signálu 
+\item nebo signál o¹etøení u¾ivatelsky definovanou funkcí (\emsl{handler}), po
+návratu z~handleru proces pokraèuje od místa pøeru¹ení 
+\end{itemize}
+
+signály \texttt{SIGKILL} a \texttt{SIGSTOP} v¾dy vyvolají implicitní
+akci (zru¹ení, resp. pozastavení).
+\end{slide}
+
+\begin{itemize}
+\item vytvoøení core dumpu znamená ulo¾ení kompletního obsahu pamìti procesu
+do souboru, typicky se jménem \texttt{core}
+\item vìt¹ina signálù implicitnì ukonèí proces, nìkteré navíc vytvoøí ji¾
+zmiòovaný core dump, který je mo¾né následnì pou¾ít pro ladicí úèely.
+\item dùvod toho, proè pøi \texttt{exec} se v¹echny nastavené handlery signálù
+nahradí implicitní obsluhou (strana \pageref{EXEC}) je jasný -- kód pøíslu¹ných
+oblu¾ných funkcí po volání \texttt{exec} pøestane existovat.
+\item Èísla signálù a jejich jméno lze zjistit pøepínaèe \texttt{-l} pøíkazu
+\texttt{kill}. Bez dal¹ího argumentu vypí¹e seznam v¹ech signálù vèetnì èísla,
+pøi pou¾ití èíselného argumentu vypí¹e název signálu:
+\begin{verbatim}
+$ kill -l SIGPIPE
+13
+\end{verbatim}
+\item Implicitní nastavení akcí pro jednotlivé signály je vìt¹inou popsáno v
+manuálové stránce \emph{signal} resp. \emph{signal.h}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pøehled signálù}{siglist}
+
+\begin{slide}
+\sltitle{Pøehled signálù (1)}
+
+signály je mo¾né logicky rozdìlit do nìkolika skupin\dots
+
+\emsl{detekované chyby:}
+
+\begin{tabular}{ll}
+\texttt{SIGBUS} & pøístup k nedef. èásti pamì»ového objektu (core) \\
+\texttt{SIGFPE} & chyba aritmetiky v pohyblivé èárce (core) \\
+\texttt{SIGILL} & nepovolená instrukce (core) \\
+\texttt{SIGPIPE} & zápis do roury, kterou nikdo neète (exit) \\
+\texttt{SIGSEGV} & pou¾ití nepovolené adresy v pamìti (core) \\
+\texttt{SIGSYS} & chybné systémové volání (core) \\
+\texttt{SIGXCPU} & pøekroèení èasového limitu CPU (core) \\
+\texttt{SIGXFSZ} & pøekroèení limitu velikosti souboru (core)\\
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item Generování tìchto signálù vychází z chyb programu.
+\item Pro signály \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL} a
+\texttt{SIGSEGV} není normou pøesnì definována pøíèina, ale obvykle jsou to
+chyby detekované hardwarem. Pøíklady \priklad{signals/sigsegv.c},
+\priklad{signals/div-by-zero.c}.
+\item \label{SPECIALSIGNALS} \emsl{Pro tyto ètyøi signály také platí tato
+speciální pravidla} (podrobnosti viz kapitola \emph{2.4 Signal Concepts} v normì
+SUSv3):
+\begin{itemize}
+\item Pokud byly nastavené jako ignorované voláním \texttt{sigaction}, je
+chování programu po té, co je mu takový signál poslán, normou nedefinováno.
+\item Návratová hodnota handleru není definována.
+\item Následek situace, kdy jeden z tìchto signálu je maskován v okam¾iku jeho
+vygenerovaní je nedefinovaný.
+\end{itemize}
+\item Jinými slovy -- pokud je hardwarem detekovaná chyba reálná (signál není
+poslán pøes \texttt{kill} a podobnými funkcemi), vá¹ program se pøes tuto chybu
+nemusí vùbec dostat. Není bezpeèné chybu ignorovat, pokraèovat v bìhu po návratu
+z handleru nebo oddálit øe¹ení pomocí zamaskování. Zachytit tyto signály lze, o
+tom, ¾e by to bylo jinak, norma nemluví. Pokud tedy máte pro tyto signály
+handler, \emsl{je potøeba poøe¹it danou situaci jak uznáte za vhodné a pak
+ukonèit program}. Mù¾ete to vyzkou¹et na pøíkladu
+\priklad{signals/catch-SIGSEGV.c}. Dal¹í informace vèetnì jiného pøíkladu na
+vyzkou¹ení je mo¾né nalézt na stranì \pageref{THREADS_SIGWAIT}.
+\item Poznámka: pokud je nìco normou nedefinováno (\emph{undefined}), obecnì to
+znamená, ¾e se neoèekává, ¾e by programátor potøeboval znát pøesné chování v
+takové situaci. Pokud je to potøeba, pravdìpodobnì je ve va¹em programu nìco
+¹patnì. Jako v¾dy, urèite by se na¹ly vyjímky potvrzující pravidlo.
+\end{itemize}
+
+\begin{slide}
+\sltitle{Pøehled signálù (2)}
+
+\emsl{generované u¾ivatelem nebo aplikací:}
+
+\begin{tabular}{ll}
+\texttt{SIGABRT} & ukonèení procesu (core) \\
+\texttt{SIGHUP} & odpojení terminálu (exit) \\
+\texttt{SIGINT} & stisk speciální klávesy \texttt{Ctrl-C} (exit) \\
+\texttt{SIGKILL} & zru¹ení procesu (exit, \emsl{nelze o¹etøit ani ignorovat})\\
+\texttt{SIGQUIT} & stisk speciální klávesy \texttt{Ctrl-\bs} (core) \\
+\texttt{SIGTERM} & zru¹ení procesu (exit) \\
+\texttt{SIGUSR1} & u¾ivatelsky definovaný signál 1 (exit) \\
+\texttt{SIGUSR2} & u¾ivatelsky definovaný signál 2 (exit) \\
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item signál \texttt{SIGHUP} se èasto pou¾ívá jako zpùsob, jak oznámit bì¾ícímu
+démonu, ¾e se zmìnil jeho konfiguraèní soubor a má si ho proto znovu naèíst.
+\item \texttt{SIGINT} a \texttt{SIGQUIT} jsou obvykle generovány z terminálu
+(\texttt{Ctrl-C} a \texttt{Ctrl-\bs}) a lze je pøedefinovat pøíkazem
+\texttt{stty} nebo pomocí funkce \texttt{tcsetattr}.
+Pro to aby se mohl vygenerovat core file je zapotøebí mít to povolené v
+systémové konfiguraci a limitech, v shellu se toho dosáhne pøíkazem
+\texttt{ulimit}.
+\item \label{SIGKILL} vzhledem k tomu, ¾e \texttt{SIGKILL} nelze zachytit, jej
+pou¾ívejte jen v nutných pøí\-padech; typickým pøípadem je to, ¾e bì¾ící proces
+ji¾ nelze ukonèit jiným signálem. Mnoho aplikací, hlavnì démonù, spoléhá na to,
+¾e vynucené u\-kon\-èe\-ní signálem je pøes \texttt{SIGTERM}. Tento signál si
+zachytí a provede ukonèovací operace -- napøíklad ulo¾ení aktuální databáze na
+disk, smazání doèasných souborù apod. Pou¾ívat rovnou \texttt{SIGKILL} proto, ¾e
+proces to ``v¾dycky zabije'', je neznalost vìci, která se vám mù¾e dost vymstít.
+\item ukázka na \texttt{SIGQUIT} na Solarisu:
+
+\begin{verbatim}
+$ sleep 10
+^\Quit (core dumped)
+$ mdb core
+Loading modules: [ libc.so.1 ld.so.1 ]
+> $c
+libc.so.1`__nanosleep+0x15(8047900, 8047908)
+libc.so.1`sleep+0x35(a)
+main+0xbc(2, 8047970, 804797c)
+_start+0x7a(2, 8047a74, 8047a7a, 0, 8047a7d, 8047b91)
+>
+\end{verbatim}
+\item \texttt{SIGTERM} je defaultní signál pro pøíkaz \texttt{kill(1)}
+\item \texttt{SIGUSR1} a \texttt{SIGUSR2} nejsou pou¾ity ¾ádným systémovým
+voláním a jsou plnì k dispozici u¾ivateli
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøehled signálù (3)}
+
+\emsl{job control:}
+
+\begin{tabular}{ll}
+\texttt{SIGCHLD} & zmìna stavu synovského procesu (ignore)\\
+\texttt{SIGCONT} & pokraèování pozastaveného procesu (continue) \\
+\texttt{SIGSTOP} & pozastavení (stop, \emsl{nelze o¹etøit ani ignorovat}) \\
+\texttt{SIGTSTP} & pozastavení z terminálu \texttt{Ctrl-Z} (stop) \\
+\texttt{SIGTTIN} & ètení z terminálu procesem na pozadí (stop) \\
+\texttt{SIGTTOU} & zápis na terminál procesem na pozadí (stop) \\
+\end{tabular}
+
+\begin{itemize}
+\item souèástí nepovinného POSIX roz¹íøení, existují pouze kdy¾ v
+\texttt{<unistd.h>} je definováno makro \texttt{\_POSIX\_JOB\_CONTROL}
+\end{itemize}
+
+\end{slide}
+
+\begin{itemize}
+\item platí, ¾e nikdy není povoleno více procesùm najednou èíst z
+kontrolního terminálu, ale více procesù najednou mù¾e na terminál
+zapisovat.
+\item pozastavení skupiny procesù spustìné z terminálu (èasto pøes
+\texttt{Ctrl-Z}) se pro\-vádí signálem \texttt{SIGTSTP}, ne \texttt{SIGSTOP};
+aplikace tedy tento signál mù¾e zachytit. \label{SIGTSTP}
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøehled signálù (4)}
+
+\emsl{èasovaèe:}
+
+\begin{tabular}{ll}
+\texttt{SIGALRM} & plánované èasové pøeru¹ení (exit) \\
+\texttt{SIGPROF} & vypr¹ení profilujícího èasovaèe (exit) \\
+\texttt{SIGVTALRM} & vypr¹ení virtuálního èasovaèe (exit) \\
+\end{tabular}
+
+\emsl{rùzné:}
+
+\begin{tabular}{ll}
+\texttt{SIGPOLL} & testovatelná událost (exit) \\
+\texttt{SIGTRAP} & ladicí pøeru¹ení (core) \\
+\texttt{SIGURG} & urgentní událost na soketu (ignore) \\
+
+\end{tabular}
+\end{slide}
+
+\begin{itemize}
+\item \texttt{SIGALRM} a související funkce \texttt{alarm} se pou¾ívají pro
+odmìøování èasových intervalù v u¾ivatelském procesu (napø. pøi implementaci
+timeoutù).
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{sigaction}{sigaction}
+
+\begin{slide}
+\sltitle{Nastavení obsluhy signálù}
+\begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
+int \funnm{sigaction}(\=int \emph{sig},
+const struct sigaction *\emph{act},\\\> struct sigaction *\emph{oact});
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item nastaví obsluhu signálu \texttt{sig} podle \texttt{act} a
+vrátí pøedchozí nastavení v~\texttt{oact}. 
+\item obsah struktury \texttt{sigaction}: 
+    \begin{itemize}
+    \item \texttt{void (*\emph{sa\_handler})(int)} \dots{} \texttt{SIG\_DFL},
+    \texttt{SIG\_IGN}, nebo adresa handleru 
+    \item \texttt{sigset\_t \emph{sa\_mask}} \dots{} signály blokované v
+    handleru, navíc je blokován signál \texttt{sig}
+    \item \texttt{int \emph{sa\_flags}} \dots{} \texttt{SA\_RESETHAND} (pøi
+    vstupu do handleru nastavit \texttt{SIG\_DFL}), \texttt{SA\_RESTART}
+    (restartovat pøeru¹ená systémová volání), \texttt{SA\_NODEFER} (neblokovat
+    signál \texttt{sig} bìhem obsluhy)
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item kdy¾ je \texttt{act == NULL}, pouze se zjistí nastavení obsluhy, nemìní
+se. Jestli¾e nás pøedchozí nastavení nezajímá, lze pou¾ít \texttt{oact ==
+NULL}.
+\item pokud není nastaveno \texttt{SA\_RESTART}, systémová volání aktivní v
+bodì pøíchodu signálu skonèí s chybou \texttt{EINTR}.  Restartování nemusí
+fungovat pro v¹echna systémová volání, napø. na FreeBSD je \texttt{select}
+pøeru¹en signálem v¾dy, i kdy¾ je nastaveno \texttt{SA\_RESTART} (pozn: nemusí
+být pravda u souèasných verzí, nezkou¹el jsem to na nich).
+\item pozor na problém vzájemného vylouèení mezi procesem a handlerem, popø.
+mezi handlery pro rùzné signály. Jestli¾e je nastaveno \texttt{SA\_NODEFER},
+mìl by být handler reentrantní.
+\item \label{ASYNCSIGNALSAFE} \emsl{v handleru signálu by se mìly pou¾ívat pouze
+funkce, které jsou pro takové pou¾ití bezpeèné.} Musí buï být reentrantní, nebo
+je nutné zajistit, aby nepøi¹el signál v nevhodnou dobu (napø. uvnitø funkce
+pøijde signál, v jeho¾ handleru se volá stejná funkce). Minimální skupina
+funkcí, které musí být tzv. \emsl{\emph{async-signal-safe}}, je vyjmenována v
+SUSv3 v sekci \emph{System Interfaces: General Information $\Rightarrow$ Signal
+Concepts $\Rightarrow$ Signal Actions (2.4.3)}. Jednotlivé systémy mohou
+samozøejmì definovat i dal¹í takové funkce. Zda funkce je nebo není bezpeènì
+pou¾itelná v handleru by mìlo být jasné z manuálové stránky; na Solarisu je tato
+informace v¾dy v sekci \emph{ATTRIBUTES}.
+\item proè mù¾e nastat problém, kdy¾ pou¾ijete v handleru signálu jinou funkci
+ne¾ async-signal-safe? Je to jednoduché -- pøedstavte si, ¾e kdy¾ program
+vykonává funkci, která není async-signal-safe, pøijde signál a v handleru se
+vyvolá funkce stejná. Pokud funkce není pro takové pou¾ití napsaná, tak mù¾e
+dojít napøíklad k nekonzistenci statických dat ve funkci pou¾itých, pøípadnì k
+uváznutí (dead lock) apod. Právì kvùli tomu, ¾e v handlerech lze bezpeènì pou¾ít
+jen podmno¾inu existujících volání, se v handleru èasto pouze nastaví globální
+promìnná oznaèující pøíchod pøíslu¹ného signálu a ta se následnì testuje,
+napøíklad v cyklu serveru, který vyøizuje po¾adavky nebo programu který
+zpracovává události. Zpomalení obsluhy signálu je minimální, proto¾e funkce
+která èeká na dal¹í po¾adavek je typicky pøeru¹itelná signálem a v takovém
+pøípadì ihned vrací \texttt{EINTR}. Následuje kontrola globální(ch)
+promìnné(ých) na to, zda byl pøijmut nìjaký signál.
+Viz pøíklad \priklad{signals/event-loop.c}.
+\item funkce \texttt{sigaction} je obecnìj¹í ne¾ star¹í funkce
+\texttt{signal} a \texttt{sigset}, kte\-ré zde ani nezmiòuji. Doporuèuji
+pou¾ívat pouze \texttt{sigaction}. Pou¾ití \texttt{signal} není napøíklad
+správné s vlákny, viz specifikace: ``Use of this function is unspecified in a
+multi-threaded process.''
+\item \label{SIGNAL_VS_SIGACTION} Pozor na to, ¾e chování funkce
+\texttt{signal()} se mù¾e li¹it podle systému. Na\-pøík\-lad na FreeBSD zùstává
+handler stále nastaven, na Solarisu je z dùvodu zachování zpìtné kompatibility
+handler pøed jeho vyvoláním resetován na \texttt{SIG\_DFL}. Funkce pøíznaku
+\texttt{SA\_RESETHAND} je právì to, aby bylo mo¾né simulovat pùvodní chování
+funkce \texttt{signal()}, které bývá implementováno pomocí systémového volání
+\texttt{sigaction()}. Pøíklad na rozdíl mezi funkcemi \texttt{signal()} a
+\texttt{sig\-action()}: \priklad{signal/signal-vs-sigaction.c}.
+\item (nebudete nejspí¹ potøebovat) pro výskok z handleru signálu jinam ne¾ na
+místo vzniku signálu se dají pou¾ít funkce \texttt{sigsetjmp} a
+\texttt{siglongjmp}. Pozor na to, ¾e v tomto pøípadì si musíme být jisti, ¾e v
+okam¾iku pøíchodu signálu není program uvnitø ne-reentrantní funkce. Výskokem z
+handleru do hlavního programu není vykonávání takové funkce ukonèeno a mohou
+nastat stejné problémy jako pøi volání ne-reentrantní funkce pøímo z handleru.
+\item \label{REALTIMEEXTENSIONS} pokud systém podporuje èást POSIX.1b zvanou
+\emph{Realtime Signals Extension} (RTS), je mo¾né pøí\-zna\-kem
+\texttt{SA\_SIGINFO} toto roz\-¹í\-øe\-ní pou¾ít. V tom pøípadì se pou¾ije jiná
+polo¾ka struktury \texttt{sigaction} pro ukazatel na handler, a tou je
+\texttt{sa\_sigaction}. Tento handler má ji¾ 3 parametry a je mo¾né zjistit
+napøíklad to, který proces signál poslal, pod jakým u¾ivatelem proces bì¾el a
+mnoho dal¹ích informací. Zájemce odkazuji na manuálovou stránku
+\texttt{signal.h(3HEAD)} na Solarisu, specifikaci tohoto hlavièkového souboru
+pøímo v SUSv3 nebo na knihu [POSIX.4], strana \pageref{REF_PROGRAMMING}. Dal¹í
+informace jsou také na stranách \pageref{POSIX} a \pageref{SIGWAITINFO}.
+Pøíklady: \priklad{sig\-nals/siginfo.c}, \priklad{sig\-nals/sigqueue.c}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: èasovì omezený vstup}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{alltt}
+void handler(int sig)
+\{ write(2," !!! TIMEOUT !!! \bs{}n", 17); \}
+
+int main(void) 
+\{
+    char buf[1024]; struct sigaction act; int sz;
+    act.sa\_handler = handler;
+    \emprg{sigemptyset}(&act.sa\_mask);
+    act.sa\_flags = 0;
+    \emprg{sigaction}(SIGALRM, &act, NULL);
+    \emprg{alarm}(5);
+    sz = read(0, buf, 1024);
+    alarm(0);
+    if (sz > 0)
+        write(1, buf, sz);
+    return (0);
+\}
+\end{alltt}
+\end{slide}
+
+\label{SIGALRM}
+
+\begin{itemize}
+\item lze pou¾ívat i èasovaèe s jemnìj¹ím rozli¹ením ne¾ 1 s.
+Nastavují a testují se funkcemi \texttt{setitimer} a
+\texttt{getitimer}. Pøi vypr¹ení posílají signály procesu, který
+èasovaèe nastavil podle prvního argumentu \emph{which}:
+\begin{itemize}
+\item \texttt{ITIMER\_REAL} \dots{} mìøí reálný èas, posílá \texttt{SIGALRM}
+\item \texttt{ITIMER\_VIRTUAL} \dots{} mìøí virtuální èas (pouze èas, kdy proces
+bì¾í), posílá \texttt{SIGVTALRM}
+\item \texttt{ITIMER\_PROF} \dots{} mìøí virtuální èas a èas, kdy systém bì¾í
+na konto procesu, posílá \texttt{SIGPROF}
+\end{itemize}
+\item pozn: v¹imìte si, ¾e aèkoliv by to svádìlo pou¾ít pro tisk hlá¹ky v
+pøíkladu funkci \texttt{fprintf} apod., nemusel by to být dobrý nápad, proto¾e
+nemusí být bezpeèná pro pou¾ití v handleru signálu, viz strana
+\pageref{ASYNCSIGNALSAFE}.
+\item pøíklad: \priklad{signals/alarm.c}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{sigprocmask, sigpending}{sigblock}
+
+\begin{slide}
+\sltitle{Blokování signálù}
+\begin{itemize}
+\item blokované signály budou procesu doruèeny a zpracovány a¾ po
+odblokování. 
+\end{itemize}
+\begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
+int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
+\>sigset\_t *\emph{oset});
+\end{tabbing}}
+\end{minipage}
+\begin{itemize}
+\item nastaví masku blokovaných signálù a vrátí starou masku. 
+\item \emph{how} -- \texttt{SIG\_BLOCK} pro pøidání signálù co se mají
+blokovat, pro odebrání \texttt{SIG\_UNBLOCK}, pro
+kompletní zmìnu masky \texttt{SIG\_SETMASK}
+\item pro manipulaci s maskou signálù slou¾í funkce:
+\texttt{sigaddset()}, \texttt{sigdelset()}, \texttt{sigemptyset()},
+\texttt{sigfillset()}, \texttt{sigismember()}
+\end{itemize}
+\texttt{int \funnm{sigpending}(sigset\_t *\emph{set});}
+\begin{itemize}
+\item vrátí èekající zablokované signály.
+\end{itemize}
+\end{slide}
+
+\label{SIGPROCMASK}
+
+\begin{itemize}
+\item Je rozdíl mezi ignorováním a blokováním signálu. Ignorovaný signál jádro
+zahodí a proces ho nedostane, blokovaný signál proces dostane po jeho
+odblokování.
+\item Závisí na implementaci, zda pøi vícenásobném doruèení stejného signálu
+procesu, který má tento signál zablokovaný, bude signál po odblokování o¹etøen
+jednou nebo vícekrát.
+\item V pøípadì roz¹íøení signálù z POSIX.4 (strana
+\pageref{REALTIMEEXTENSIONS}), tj. pou¾ití pøíznaku \texttt{SA\_SIGINFO}, jsou
+signály doruèované pøes frontu a tedy se ¾ádný násobný výs\-kyt stejného signálu
+neztratí.
+\item Argument \texttt{oset} pro získání pùvodní masky mù¾e být \texttt{NULL},
+stejnì jako mù¾e být nastavený na \texttt{NULL} i parametr druhý, tj.
+\texttt{set}. Ve speciálním pøípadì, kdy jsou oba parametry nulové, funkce
+\texttt{sigprocmask} nedìlá nic.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: blokování signálù}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{alltt}
+sigset\_t sigs, osigs; struct sigaction sa;
+sigfillset(&sigs); \emprg{sigprocmask}(SIG\_BLOCK, &sigs, &osigs);
+switch(cpid = fork()) \{
+    case -1: /* Chyba */
+        \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
+        ...
+    case 0: /* Synovský proces */
+        sa.sa\_handler = h\_cld; sigemptyset(&sa.sa\_mask);
+        sa.sa\_flags = 0;
+        \emprg{sigaction}(SIGINT, &sa, NULL);
+        \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
+        ...
+    default: /* Rodièovský proces */
+        \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
+        ...
+\}
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item \label{SIGNALBLOCKINGEXAMPLE} pøíklad ukazuje situaci, kdy proces vytváøí
+potomky pomocí \texttt{fork} a je potøeba, aby potomci mìli jiný handler
+signálù ne¾ rodièovský proces. Funguje to proto, ¾e volání \texttt{fork} nemìní
+masky signálù, viz strana
+\pageref{FORK}.
+\item pro jednoduchost v pøíkladu blokuji v¹echny signály, i kdy¾ na stranách
+\pageref{SPECIALSIGNALS} a \pageref{THREADS_SIGWAIT} je vysvìtleno, proè to není
+správné pou¾ití maskování.
+\item blokování je vhodné pou¾ít tam, kde o¹etøení pøeru¹ení uprostøed
+posloupnosti operací by bylo pøíli¹ slo¾ité, nebo kde korektní o¹etøení není
+jinak mo¾né. V uvedeném pøíkladì by bez blokování signálù mohl synovský proces
+dostat signál døív, ne¾ stihne zmìnit handler.
+\item dal¹í pøíklad je proces, který pøi vypr¹ení timeoutu pøeru¹í provádìnou
+posloupnost operací voláním \texttt{siglongjmp} zevnitø handleru signálu. Je
+po\-tøe\-ba zablokovat signál \texttt{SIGALRM} bìhem provádìní atomických
+podposloupností (tj. takových, které se musí provést buï celé, nebo vùbec ne).
+\end{itemize}
+
+%%%%%
+
+\label{SIGWAIT}
+\pdfbookmark[1]{pause, sigsuspend, sigwait}{sigwait}
+
+\begin{slide}
+\sltitle{Èekání na signál}
+\texttt{int \funnm{pause}(void);}
+\begin{itemize}
+\item pozastaví volající proces do pøíchodu (neblokovaného) signálu
+\end{itemize}
+\texttt{int \funnm{sigsuspend}(const sigset\_t *\emph{sigmask});}
+\begin{itemize}
+\item jako \texttt{pause()}, ale navíc po dobu èekání masku
+blokovaných signálù zmìní na \texttt{sigmask}
+\end{itemize}
+\texttt{int \funnm{sigwait}(const sigset\_t *\emph{set}, int *\emph{sig});}
+\begin{itemize}
+\item èeká na pøíchod signálu z mno¾iny \texttt{set} (tyto signály
+musí být pøedtím zablokované), èíslo signálu vrátí v \texttt{sig}. Vrací 0 nebo
+èíslo chyby.
+\item nevolá se handler signálu (to ale není v normì jednoznaènì
+definováno)
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Neblokovaný signál v \texttt{pause} a \texttt{sigsuspend} vyvolá handler a
+po jeho skonèení program opustí signál zachycující funkci a pokraèuje dále.
+Pokud má ale signál proces ukonèit (napø. nemaskovaný \texttt{SIGTERM} bez
+handleru), stane se tak.
+\item Pomocí tìchto funkcí a blokování signálù se implementuje synchronní
+obsluha signálù. Proces nejprve zablokuje signály, které ho zajímají, a pak na
+nì ve vhod\-ných chvílích buï èeká, nebo jen testuje (pomocí
+\texttt{sigpending}), zda signál pøi¹el, a pokud ne, pokraèuje dál.
+\item \label{SIGWAIT} Funkce \texttt{sigwait} byla pøidána s POSIX-1003.1c
+roz¹íøením (vlákna) a je to ``jediný'' správný zpùsob, jak obsluhovat
+asynchronní signály v multi-vláknové aplikaci. To ¾e byla pøidána s vlákny je
+potvrzeno i tím, ¾e v pøípadì problémù vrací pøímo èíslo chyby.
+\item \label{SIGWAITINFO} Existují i pøíbuzné
+podobnì se jmenující funkce \texttt{sigwaitinfo} a \texttt{sigtimedwait},
+definované s roz¹íøením POSIX-1003.1\emsl{b} (real-time). Fungují na podobném
+principu, ale na rozdíl od \texttt{sigwait} pracují s \texttt{errno} a je z nich
+mo¾né získat více informací díky struktuøe \texttt{siginfo\_t}, viz strana
+\pageref{REALTIMEEXTENSIONS}. Je tedy mo¾né je pou¾ít místo \texttt{sigwait}.
+\item Pøíklad (signál se pou¾ije pro synchronizaci dvou procesù komunikujících
+pøes sdílenou pamì»): \priklad{signals/sigwait.c}
+\item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
+pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Více
+se doètete na stranách \pageref{SPECIALSIGNALS} a \pageref{THREADS_SIGWAIT}. 
+\end{itemize}
+
+\endinput

@@ -1,0 +1,1480 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pdfbookmark[0]{vlákna, synchronizace vláken}{vlakna}
+\begin{slide}
+\sltitle{Obsah}
+\begin{itemize}
+\item úvod, vývoj UNIXu a C, programátorské nástroje
+\item základní pojmy a konvence UNIXu a jeho API
+\item pøístupová práva, periferní zaøízení, systém souborù
+\item process manipulation, program execution
+\item signály
+\item synchronizace a komunikace procesù
+\item sí»ová komunikace
+\item \emsl{vlákna, synchronizace vláken}
+\item ??? - bude definováno pozdìji, podle toho kolik zbyde èasu
+%\item závìreèná v¹ehochu» podle toho, kolik zbude èasu (bezpeènost,
+%locales, pseudoterminály, X Window) 
+\end{itemize}
+\end{slide}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Vlákna (threads)
+
+changequote([[[, ]]])
+
+\begin{slide}
+\sltitle{Vlákna}
+\begin{itemize}
+\item vlákno (\emph{thread}) = linie výpoètu (\emph{thread of execution})
+\item vlákna umo¾òují mít více linií výpoètu v rámci jednoho procesu
+\item klasický unixový model: jednovláknové procesy
+\item vlákna nejsou vhodná pro v¹echny aplikace
+\item výhody vláken:
+  \begin{itemize}
+  \item zrychlení aplikace, typicky na víceprocesorech (vlákna
+  jednoho procesu mohou bì¾et souèasnì na rùzných procesorech)
+  \item modulární programování
+  \end{itemize}
+\item nevýhody vláken:
+  \begin{itemize}
+  \item není jednoduché korektnì napsat slo¾itìj¹í kód s vlákny
+  \item obtí¾nìj¹í debugging
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Pro aplikace, kde ka¾dý krok závisí na kroku pøedcházejícím, nemají vlákna
+pøíli¹ velký smysl.
+\item Debuggery typicky mají podporu vláken, ale debugging zmìní timing, tak¾e
+to co v reálu dìlá problém se pøi debuggingu vùbec nemusí projevit. Toto
+vìt¹inou není problémem u klasických 1-vláknových procesù.
+\item Jak bylo uvedeno na slajdech s doporuèenou literaturou, k vláknùm existuje
+výborná kniha [Butenhof]. On-line pak je tøeba dostupná obsáhlá kniha
+\emsl{Multithreaded Programming Guide} na \url{http://docs.oracle.com}.
+\item \label{PRIVILEGE_SEPARATION} Dal¹í situací, kdy je potøeba zùstat u
+pou¾ití procesù, je pokud je nutné vy\-tvo\-øe\-ným procesùm mìnit reálné a
+efektivní UID. To je tøeba pøípad OpenSSH, kde se pro ka¾dé spojení vytvoøí dva
+server procesy. Jeden proces bì¾í s maximálními privilegii, typicky jako root, a
+poskytuje slu¾by neprivilegovanému procesu bì¾ícím pod pøihlá¹eným u¾ivatelem.
+Takovou slu¾bou je tøeba alokace presudo terminálu, co¾ pod bì¾ným u¾ivatelem
+nelze provést. Idea je taková, ¾e vìt¹ina kódu privilegia roota nepotøebuje,
+èím¾ se výraznì zmen¹í mno¾ství kódu, kde by chyba vedla k získání privilegií
+roota. Tento zpùsob se nazývá \emph{privilege separation} a není mo¾né ho
+dosáhnout pomocí vláken tak, ¾e by rùzná vlákna bì¾ela pod rùznými u¾ivateli,
+proto¾e v¹echna vlákna sdílejí stejný adresový prostor, a ka¾dé ho tak mù¾e
+mìnit.
+\end{itemize}
+
+\begin{slide}
+\sltitle{Implementace vláken}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{description}
+\item[library-thread model]~\\\vspace{-2.5ex}
+    \begin{itemize}
+    \item vlákna jsou implementována v knihovnách, jádro je nevidí.
+    \item run-time knihovna plánuje vlákna na procesy a jádro
+    plánuje procesy na procesory. 
+    \item[$\oplus$] men¹í re¾ie pøepínání kontextu 
+    \item[$\ominus$] nemù¾e bì¾et více vláken stejného procesu
+    najednou. 
+    \end{itemize}
+\item [kernel-thread model]~\\\vspace{-2.5ex}
+    \begin{itemize}
+    \item vlákna jsou implementována pøímo jádrem.
+    \item[$\oplus$] více vláken jednoho procesu mù¾e bì¾et najednou
+    na rùzných procesorech.
+    \item[$\ominus$] plánování threadù pou¾ívá systémová volání
+    místo knihovních funkcí, tím více zatì¾uje systém. 
+    \end{itemize}
+\item[hybridní modely]~\\\vspace{-2.5ex}
+    \begin{itemize}
+    \item vlákna se multiplexují na nìkolik jádrem plánovaných
+    entit.
+    \end{itemize}
+\end{description}
+\end{slide}
+
+\begin{itemize}
+\item pùvodnì UNIX s vlákny nepracoval a první implementace byly èistì knihovní,
+bez úèasti jádra. Dnes se pou¾ívá spí¹e implementace vláken v jádru nebo smí¹ený
+model.
+\item \emsl{zatímco pøi práci s více procesy je nutné vyvinout jisté úsilí proto,
+aby dané procesy mohly data sdílet, u vláken je naopak nutné øe¹it situaci, jak
+pøirozené sdíl{}ení dat uhlídat.}
+\item vlákna implementována pouze v knihovnì mohou být preemptivní i
+nepreemptivní. Pro preemptivnost je mo¾né pou¾ít èasovaèe a signály. Pokud
+\emph{multithreading} (= pou¾ití vláken v aplikaci) není pou¾it pro zvý¹ení
+výkonu aplikace, typicky není problém s pou¾itím nepreemptivních vláken.
+Støídání vláken se automaticky dosáhne pou¾íváním blokujících systémových
+volání.
+\item \label{SETJMP} pokud se volání v library-thread modelu zablokuje,
+zablokuje se celý proces, tj. ¾ádné vlákno nemù¾e bì¾et. To vyplývá z toho, ¾e
+jádro v tomto modelu o pojmu vlákno nic neví. Knihovní funkce jsou proto
+pøepsány tak, ¾e místo blokujících volání se pou¾ijí neblokující, aktuální
+kontext se ulo¾í a následnì pøepne na jiné vlákno pomocí volání \texttt{setjmp}
+a \texttt{longjmp}. Pøíklad: \priklad{pthreads/setjmp.c}.
+\end{itemize}
+
+\begin{slide}
+\sltitle{POSIX vlákna (pthreads)}
+
+\begin{itemize}
+\item definované roz¹íøením POSIX.1c
+\item volání týkající se vláken zaèínají prefixem \texttt{pthread\_}
+\item tyto funkce vrací 0 (OK) nebo pøímo èíslo chyby 
+\begin{itemize}
+\item \dots{}a nenastavují \texttt{errno}!
+\item nelze s nimi proto pou¾ít funkce \texttt{perror} nebo \texttt{err}
+\end{itemize}
+\item POSIX.1c definuje i dal¹í funkce, napøíklad nové verze k tìm, které nebylo
+mo¾né upravit pro pou¾ití ve vláknech bez zmìny API, napø \texttt{readdir\_r},
+\texttt{strtok\_r}, atd.
+\begin{itemize}
+\item \texttt{\_r} znamená \emph{reentrant}, tedy ¾e funkci mù¾e volat
+více vláken najednou bez vedlej¹ích efektù
+\end{itemize}
+\end{itemize}
+
+\end{slide}
+
+\label{POSIXTHREADS}
+
+\begin{itemize}
+\item Obecné informace o POSIXu jsou na stranì \pageref{POSIX}.
+\item Existují i dal\-¹í implementace vláken podporující rozdílná API, napø.
+sys\-té\-mo\-vé volání \texttt{sproc()} v IRIXu, Cthreads, Solaris threads,
+\dots
+\item API pro POSIX vlákna jsou na rùzných systémech k dispozici v rùzných
+knihovnách. Napø. na Linuxu je nutné programy pou¾ívající POSIX threads
+API linkovat s \texttt{-lpthread}, na Solarisu jsou funkce souèástí
+\texttt{libc}.
+\item Implementace POSIX threads je vìt¹inou postavena nad nativní
+implementací threadù na daném systému, napø. na Solarisu nad funkcemi
+s prefixem \texttt{thr\_}.
+\item O reentrantních funkcích ve spojení s vlákny více na stranì
+\pageref{THREADSAFE}
+\item Co se týká o¹etøení návratových hodnot \texttt{pthread\_} funkcí, tak
+vzhledem k tomu, ¾e nenastavují \texttt{errno}, není následující kód napsán
+korektnì:
+
+\begin{verbatim}
+if (pthread_create(&thr, NULL, thrfn, NULL) != 0)
+        err(1, "pthread_create");
+\end{verbatim}
+
+proto¾e program vám pøi chybì vypí¹e nìco jako:
+
+\begin{itemize}
+\item ``\texttt{a.out: pthread\_create: Error 0}'' na Solarisu
+\item ``\texttt{a.out: pthread\_create: Success}'' na Linuxových distribucích
+\item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' na FreeBSD
+\item nebo nìco jiného, podle systému, který zrovna pou¾íváte
+\end{itemize}
+
+Trochu matoucí mi pøijde pøístup Linuxu, proto¾e na první pohled není jasné, co
+se vlastnì stalo a ¾e \texttt{errno} bylo nulové. Nicménì, správnì napsaný kód
+je napøíklad tento:
+
+\begin{verbatim}
+int e;
+if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
+        errx(1, "pthread_create: %s", strerror(e));
+\end{verbatim}
+
+V¹imnìte si nutnosti pou¾ít \texttt{err\emsl{x}} funkci, ne \texttt{err},
+proto¾e ta internì pracuje s \texttt{errno}. Pozor na to, ¾e promìnná
+\texttt{errno} by vùbec nemusela být nulová, pokud by ji nastavila jiná funkce
+volaná pøed \texttt{pthread\_create}, co¾ by mohlo u¾ivatele nebo programátora
+zmást je¹tì více.
+\item \label{ERRNO_IN_THREADS} Ostatní funkce, které \texttt{errno} nastavují,
+fungují stejnì i s vlákny, tj. ka¾dé vlákno má svojí \texttt{errno}. Pozor je
+ale tøeba dát na to, ¾e rùzné systémy se chovají rùznì. Na Linuxu je
+\texttt{errno} automaticky thread-safe proto¾e tam musíte specifikovat vláknovou
+knihovnu, na Solarisu ale musíte u Sun Studia pou¾ít pøepínaè
+\texttt{-mt} nebo \texttt{-D\_REENTRANT}, viz
+manuálová stránka \texttt{threads(5)}. Pokud tak neudìláte, nebude
+\texttt{errno} nastaveno korektnì. Podívejte se na definici \texttt{errno} v
+\texttt{/usr/include/errno.h} a pochopíte, jak to funguje. Dal¹í rozdíl je ten,
+¾e Solaris má vlákna pøímo v \texttt{libc}, u ostatních systémù musíte vìt¹inout
+specifikovat vláknovou knihovnu. U \texttt{gcc} staèí na jakémkoli systému
+pou¾ít pøepínaè \texttt{-pthreads}, potøebnou knihovnu si pøekladaè u¾ najde
+sám, a zároveò nastaví \texttt{errno} jako thread-safe. Stejnì jako u
+\texttt{cc} je ale na Solarisu mo¾né pou¾ít jen \texttt{-D\_REENTRANT}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_create}{thrcreate}
+
+\begin{slide}
+\label{PTHREAD_T}
+\sltitle{Vytvoøení vlákna}
+\funml{int \funnm{pthread\_create}(\=pthread\_t *\emph{thread},
+\\\>const pthread\_attr\_t *\emph{attr},
+\\\>void *(*\emph{start\_fun})(void*), void *\emph{arg});}
+\begin{itemize}
+\item vytvoøí nové vlákno, do \texttt{thread} ulo¾í jeho ID.
+\item podle \texttt{attr} nastaví jeho atributy, napø. velikost zá\-sob\-ní\-ku
+èi plánovací politiku. \texttt{NULL} znamená pou¾ít implicitní atributy.
+\item ve vytvoøeném vláknu spustí funkci \texttt{start\_fun}() s
+argumentem \texttt{arg}. Po návratu z této funkce se zru¹í vlákno. 
+\item s objekty \texttt{pthread\_attr\_t} lze manipulovat funkcemi
+\texttt{pthread\_attr\_init()}, \texttt{pthread\_attr\_destroy()},
+\texttt{pthread\_attr\_setstackaddr()}, atd\dots{}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Pozor na konstrukce typu:
+\begin{alltt}
+for (i = 0; i < N; i++)
+    pthread\_create(&tid, attr, start\_routine, &i);
+\end{alltt}
+
+Na první pohled takto pøedáme ka¾dému vláknu jeho in{}dex. Jen¾e plánovaè mù¾e
+zpùsobit to, ¾e ne¾ si novì spu¹tìné vlákno staèí pøeèíst hodnotu \texttt{i},
+pøíkaz \texttt{for} provede dal¹í iteraci a hodnota se zmìní. Obecnì vlákno mù¾e
+dostat místo správné hodnoty \texttt{i} libovolnou vìt¹í.
+\item \label{WRONG_USE_OF_ARG} Pøíklady:
+\priklad{pthreads/wrong-use-of-arg.c}, \priklad{pthreads/correct-use-of-arg.c}.
+
+\item Co je mo¾né pou¾ít, pokud potøebujeme pøedat pouze jednu hodnotu
+(\textbf{podle C standardu je to ale implementaènì závislé a tedy
+ne\-pøe\-no\-si\-tel\-né}):
+
+\begin{alltt}
+assert(sizeof (void *) >= sizeof (int));
+for (i = 0; i < N; i++)
+    pthread\_create(&tid, attr, start\_routine, (void *)(intptr\_t)i);
+\end{alltt}
+
+\dots a ve funkci \texttt{void *start\_routine(void *arg)} pak
+pøetypovat ukazatel zpátky na integer a máme potøebný identifikátor
+vlákna:
+
+\begin{alltt}
+printf("thread \%d started\bs{}n", (int)arg);
+\end{alltt}
+
+\label{INT_AS_ARG} Pøíklad: \priklad{pthreads/int-as-arg.c}
+\item Pokud potøebujeme pøedat více bajtù ne¾ je velikost ukazatele, tak u¾
+opravdu musíme pøedat ukazatel na pamì» s pøíslu¹nými pøedávanými daty nebo
+pou¾ít globální promìnné; pøístup k nim je pak ale samozøejmì nutné
+synchronizovat.
+
+\item \label{PTHREAD_CREATE_CYCLE} \texttt{pthread\_t} je "prùhledný" typ,
+do kterého program nevidí
+a ani by nemìl, jeho implementace se mù¾e li¹it systém od systému; nicménì
+vìt¹inou jde o celoèíselný typ, který se pou¾ívá k mapování na nativní thready
+na daném systému. Pøi vytváøení nìkolika threadù v cyklu je tedy nutné pøedat
+funkci \texttt{pthread\_create} poka¾dé adresu jiné promìnné
+\texttt{pthread\_t}, jinak u¾ nepùjde s tìmito vlákny nadále manipulovat
+z hlavního vlákna, napø. èekat na jejich dokonèení (aèkoliv bì¾et budou
+normálnì), jejich identifikace se ztratí. Toto je øe¹itelné napø. pøes
+pole \texttt{pthread\_t} nebo dynamickou alokací.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_self, pthread\_key\_create}{pthreadkey}
+\label{THREAD_ATTRS}
+
+\begin{slide}
+\sltitle{Soukromé atributy vláken}
+\begin{itemize}
+\item èítaè instrukcí 
+\item zásobník (automatické promìnné) 
+\item thread ID, dostupné funkcí\\
+\texttt{pthread\_t \funnm{pthread\_self}(void);}
+\item plánovací priorita a politika 
+\item hodnota \texttt{errno}
+\item klíèované hodnoty -- dvojice
+\texttt{(pthread\_key\_t \emph{key}, void *\emph{ptr})} 
+    \begin{itemize}
+    \item klíè vytvoøený voláním \texttt{pthread\_key\_create()} je
+    viditelný ve v¹ech vláknech procesu. 
+    \item v ka¾dém vláknu mù¾e být s klíèem asociována jiná hodnota
+    voláním \texttt{pthread\_setspecific()}.
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Ka¾dé vlákno má zásobník pevné velikosti, \emsl{který se automaticky
+ne\-zvìt\-¹u\-je.} Bývá to kolem 64-512 KB, tak¾e pokud si ve funkci alokujete
+pole o velikosti 256KB a pou¾ijete ho, je dost mo¾né, ¾e skonèíte s core
+dumpem. Pokud chcete zásobník vìt¹í ne¾ je systémový default, musíte pou¾ít
+argument \emph{attr} pøi vytvoøení vlákna.
+Pøíklad: \priklad{pthreads/pthread-stack-overflow.c}
+\item O soukromých klíèovaných atributech vlákna více na stranì
+\pageref{THREAD_SPECIFIC_DATA}.
+\item Ka¾dé vlákno má je¹tì vlastní signálovou masku, k tomu se také dostaneme,
+viz strana \pageref{PTHREADSIGMASK}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_exit, pthread\_join, pthread\_detach}{pthreadexit}
+
+\begin{slide}
+\sltitle{Ukonèení vlákna}
+\texttt{void \funnm{pthread\_exit}(void *\emph{val\_ptr});}
+\begin{itemize}
+\item ukonèí volající vlákno, je to obdoba \texttt{exit} pro proces
+\end{itemize}
+\texttt{int \funnm{pthread\_join}(pthread\_t \emph{thr},
+void **\emph{val\_ptr});}
+\begin{itemize}
+\item poèká na ukonèení vlákna \texttt{thr} a ve
+\texttt{val\_ptr} vrátí hodnotu ukazatele z \texttt{pthread\_exit} nebo
+návratovou hodnotu vláknové funkce. Pokud vlákno skonèilo døíve, funkce hned vrací
+pøíslu¹nì nastavené \texttt{val\_ptr}.
+\item obdoba èekání na synovský proces pomocí \texttt{wait}
+\end{itemize}
+\texttt{int \funnm{pthread\_detach}(pthread\_t \emph{thr});}
+\begin{itemize}
+\item nastaví okam¾ité uvolnìní pamìti po ukonèení vlákna, na vlákno
+nelze pou¾ít \texttt{pthread\_join}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Pokud se nepou¾ije \texttt{pthread\_exit}, vyvolá se tato funkce pøi
+skonèení vlákna implicitnì, s hodnotou pou¾itou pro \texttt{return}
+\item Norma specifikuje, ¾e stav zásobníku ukonèovaného vlákna není definovaný,
+a proto by se v \texttt{pthread\_exit} nemìly pou¾ívat odkazy na lokální
+promìnné ukonèovaného vlákna pro parametr \texttt{\emph{val\_ptr}}
+\item Pokud nemáme v úmyslu po skonèení vlákna volat \texttt{pthread\_join}, je
+tøeba zavolat \texttt{pthread\_detach}. Jinak po ukonèeném vláknu zùstanou v
+pamìti data nutná pro zji¹tìní jeho výsledku pomocí \texttt{pthread\_join}. To
+je podobná situace, jako kdy¾ rodièovský proces nepou¾ívá \texttt{wait} a v
+systému se hromadí zombie. Ve funkci pro takové vlákno je mo¾né jednodu¹e pou¾ít
+toto:
+\begin{alltt}
+pthread\_detach(pthread\_self());
+\end{alltt}
+\item Jiná mo¾nost jak nastavit, ¾e se na vlákna nemusí èekat, je zavolat funkci
+\texttt{p\-thr\-ead\_attr\_setdetachstate} s hodnotou
+\texttt{PTHREAD\_CREATE\_DETACHED} nad strukturou atributù a tu pak pou¾ít ve
+voláních \texttt{pthread\_create}. Pøíklad: \priklad{pthreads/set-detachstate.c}
+\item Nastavením \texttt{NULL} do argumentu \emph{\texttt{val\_ptr}} systému
+sdìlujeme, ¾e nás ná\-vra\-to\-vá hodnota ukonèeného vlákna nezajímá.
+\item Èekat na ukonèení vlákna mù¾e libovolné jiné vlákno, nejen to,
+které ho spustilo.
+\item Doporuèuji v¾dy kontrolovat návratovou hodnotu \texttt{pthread\_join}, tím
+si budete jisti, ¾e èekáte správnì, pøi pou¾ití ¹patného ID vlákna funkce hned
+vrá\-tí, co¾ vá¹ program nutnì nemusí negativnì ovlivnit co se týká funkènosti,
+ale mù¾ete pak narazit na limit poètu vláken nebo vyplýtvat pamì».
+\item Na rozdíl od procesù \emsl{nelze èekat na ukonèení kteréhokoli vlákna}. Je
+to z toho dùvodu, ¾e vlákna nemají vztah rodiè--potomek, a proto to nebylo
+pova¾ováno za potøebné. Pro zajímavost, Solaris vlákna toto umo¾ní (jako ID
+vlákna ve funkci \texttt{thr\_join} se pou¾ije 0). Pokud byste tuto funkènost
+potøebovali s POSIXovými vlákny, je jednoduché nastavit vlákna jako
+\emph{detached}, pou¾ít podmínkové promìnné, a pøedávat potøebné informace pøes
+globální promìnnou pod ochranou zámku, který je s podmínkovou promìnnou svázán.
+Více viz strana \pageref{CONDITION_VARIABLES}.
+\item \label{PTHREAD_JOIN} Pøíklady: \priklad{pthreads/pthread-join.c},
+\priklad{pthreads/pthread-detach-join.c}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_once}{pthreadonce}
+
+\begin{slide}
+\sltitle{Inicializace}
+\funml{int \funnm{pthread\_once}(\=pthread\_once\_t *\emph{once\_control},
+\\\>void (*\emph{init\_routine})(void));}
+\begin{itemize}
+\item V parametru \texttt{once\_control} se pøedává ukazatel na
+staticky inicializovanou promìnnou\\ \texttt{pthread\_once\_t
+\emph{once\_control} = PTHREAD\_ONCE\_INIT;}
+\item První vlákno, které zavolá \texttt{pthread\_once()}, provede
+inicializaèní funkci \texttt{init\_routine()}. Ostatní vlákna u¾
+tuto funkci neprovádìjí, navíc, pokud inicializaèní funkce je¹tì
+neskonèila, zablokují se a èekají na její dokonèení. 
+\item Lze pou¾ít napø. na dynamickou inicializaci globálních dat
+v~knihovnách, jejich¾ kód mù¾e zavolat více vláken souèasnì, ale je
+tøeba zajistit, ¾e inicializace probìhne jen jednou. 
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item V programu samotném tuto funkci asi potøebovat nebudete. Místo pou¾ití
+\texttt{pthread\_once} staèí danou inicializaèní funkci zavolat pøed tím, ne¾
+vytvoøíte vlákna...
+\item Není definováno, co se má stát, pokud je \texttt{once\_control}
+automatická pro\-mìn\-ná nebo nemá po¾adovanou hodnotu.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_cancel, pthread\_setcancelstate, pthread\_setcanceltype}{pthreadcancel}
+
+\begin{slide}
+\sltitle{Zru¹ení vlákna}
+\setlength{\baselineskip}{0.9\baselineskip}
+\texttt{int \funnm{pthread\_cancel}(pthread\_t \emph{thread});}
+\begin{itemize}
+\item po¾ádá o zru¹ení vlákna \texttt{thread}. Závisí na nastavení 
+\end{itemize}
+\texttt{int \funnm{pthread\_setcancelstate}(int \emph{state},
+int *\emph{old});}
+\begin{itemize}
+\item nastaví nový stav a vrátí starý:
+    \begin{itemize}
+    \item \texttt{PTHREAD\_CANCEL\_ENABLE} \dots{} povoleno zru¹it 
+    \item \texttt{PTHREAD\_CANCEL\_DISABLE} \dots{} nelze zru¹it, ¾ádost bude
+    èekat na povolení 
+    \end{itemize}
+\end{itemize}
+\texttt{int \funnm{pthread\_setcanceltype}(int \emph{type}, int *\emph{old});}
+\begin{itemize}
+\item \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} \dots{} okam¾ité zru¹ení 
+\item \texttt{PTHREAD\_CANCEL\_DEFERRED} \dots{} ¾ádost èeká na vstup do
+urèitých funkcí (napø. \texttt{open()}, \texttt{read()}, \texttt{wait()}),
+nebo na volání
+\end{itemize}
+\texttt{void \funnm{pthread\_testcancel}(void);}
+\end{slide}
+
+\begin{itemize}
+\item Vlákna je mo¾né zvenku \uv{násilnì} ru¹it (obdoba ukonèení procesu pomocí
+signálu) buï okam¾itì, nebo jen v urèitých voláních (tzv. \emph{cancellation
+points}). To znamená, ¾e v takovém pøípadì je mo¾né vlákno zru¹it v èase, kdy je
+vlákno vykonává danou funkci. Pokud vlákno zrovna takovou funkci nevykonává,
+informace o zru¹ení se ``doruèí'' bìhem vykonání první takové funkce od té doby.
+\item Funkce \verb#pthread_cancel# se podobá zru¹ení procesu signálem poslaným
+vo\-lá\-ním \texttt{kill}.
+\item Pøi zru¹ení vlákna se zavolají úklidové handlery, viz strana
+\pageref{PTHREAD_CLEANUP}. Pokud se rozhodnete ru¹ení vláken pou¾ívat,
+\emsl{buïte velmi opatrní}. Napøíklad, pokud budete ru¹it vlákno, které má
+zamknutý mutex, musíte mutex odemknout v úklidových handlerech.
+\item Funkce \verb#pthread_setcancelstate# a \verb#pthread_setcanceltype# jsou
+obdobou zakázání a povolení zru¹ení procesu signálem pomocí manipulace s maskou
+blokovaných signálù (\texttt{sigprocmask}).
+\item \label{PTHREAD_CANCEL} Pøíklad: \priklad{pthreads/pthread-cancel.c}
+\item Pøi ru¹ení vlákna mù¾e nastat mnoho mo¾ností. Solaris má tøeba samostatnou
+manuálnovou stránku \texttt{cancellation(5)}, která se tomu vìnuje. FreeBSD
+definuje \emph{cancellation points} v manuálové stránce
+\texttt{pthread\_setcanceltype(3)}.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Pøíklad: vlákna}
+{\catcode95=12\catcode38=12
+\begin{center}
+\input{img/tex/threads.pstex_t}
+\end{center}}
+\end{slide}
+
+\begin{itemize}
+\item Toto je triviální pøíklad, kdy proces (hlavní vlákno) vytvoøí dvì dal¹í
+vlákna a poèká na jejich ukonèení.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_key\_create, pthread\_key\_delete,
+pthread\_setspecific, pthread\_getspecific}{pthreadglobals}
+
+\begin{slide}
+\sltitle{Globální promìnné pro vlákno}
+\funml{int \funnm{pthread\_key\_create}(\=pthread\_key\_t *\emph{key},
+\\\>void (*\emph{destructor})(void *));}
+\begin{itemize}
+\item vytvoøí klíè, který lze asociovat s hodnotou typu
+\texttt{(void *)}.  Funkce \texttt{destructor()} se volají opakovanì
+pro v¹echny klíèe, jejich¾ hodnota není \texttt{NULL}, pøi ukonèení
+vlákna. 
+\end{itemize}
+\texttt{int \funnm{pthread\_key\_delete}(pthread\_key\_t \emph{key});}
+\begin{itemize}
+\item zru¹í klíè, nemìní asociovaná data. 
+\end{itemize}
+\funml{int \funnm{pthread\_setspecific}(\=pthread\_key\_t \emph{key},
+\\\>const void *\emph{value});}
+\begin{itemize}
+\item pøiøadí ukazatel \texttt{value} ke klíèi \texttt{key}.
+\end{itemize}
+\texttt{void *\funnm{pthread\_getspecific}(pthread\_key\_t \emph{key});}
+\begin{itemize}
+\item vrátí hodnotu ukazatele pøíslu¹ného ke klíèi \texttt{key}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \label{THREAD_SPECIFIC_DATA} Bì¾né globální promìnné (a také dynamicky
+alokovaná data) jsou spoleèné pro v¹echna vlákna. Klíèované hodnoty pøedstavují
+zpùsob, jak vytvoøit glo\-bál\-ní promìnné v rámci vláken. Uvìdomte si rozdíl
+proti lokální promìnné definované ve vláknové funkci - taková promìnná není
+vidìt v dal¹ích volaných funkcích ve stejném vláknì. Vyu¾itelnost soukromých
+atributù vláken se mù¾e zdát malá, ale obèas se to velmi dobøe hodí. Já to
+jednou pou¾il v existujícím kódu, kde jsem potøeboval nahradit práci s globálním
+spojovým seznamem na lokální seznamy specifické pro ka¾dé vlákno. Nejjednodu¹¹í,
+tj. nejménì zmìn v existujícím kódu bylo pøevést práci s globální promìnnou na
+práci se soukromým atributem vlákna.
+\item Pøi vytvoøení klíèe je s ním asociována hodnota \texttt{NULL}. Ukazatel na
+destruktor funkci není povinný, pokud není potøeba, pou¾ijte \texttt{NULL}.
+\item Pøi ukonèení nebo zru¹ení vlákna se volají destruktory (v nespecifikovaném
+poøadí) pro v¹echny klíèe s hodnotou rùznou od \texttt{NULL}.  Aktuální hodnota
+je destruktoru pøedána v parametru. Jestli¾e po skonèení v¹ech destruktorù
+zbývají klíèe s hodnotou rùznou od \texttt{NULL}, znovu se volají destruktory.
+Implementace mù¾e (ale nemusí) zastavit volání destruktorù po
+\texttt{PTHREAD\_DESTRUC\-TOR\_ITERATIONS} iteracích. Destruktor by tedy mìl
+nastavit hodnotu na \texttt{NULL}, jinak hrozí nekoneèný cyklus.
+\item Destruktor si musí sám zjistit klíè polo¾ky, ke které patøí, a zru¹it
+hodnotu voláním \texttt{pthread\_setspecific(key,~NULL)}.
+\item SUSv3 tento nesmyslný po¾adavek odstraòuje, proto¾e definuje, ¾e pøed
+vstupem do destruktoru je hodnota automaticky nastavená na \texttt{NULL};
+destruktor se následnì vyvolá s pøedchozí hodnotou klíèe.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_cleanup\_push, pthread\_cleanup\_pop}{pthreadcleanup}
+
+\begin{slide}
+\sltitle{Úklid pøi ukonèení/zru¹ení vlákna}
+\begin{itemize}
+\item vlákno má zásobník úklidových handlerù, které se volají pøi
+ukonèení nebo zru¹ení vlákna funkcemi \texttt{pthread\_exit} a
+\texttt{pthread\_cancel} (ale ne pøi \texttt{return}). Handlery se spou¹tí
+v opaèném poøadí ne¾ byly vkládány do zásobníku.
+\item po provedení handlerù se volají destruktory privátních klíèovaných dat
+vlákna (poøadí není specifikované)
+\end{itemize}
+\funml{void \funnm{pthread\_cleanup\_push}(\=void (*\emph{routine})(void *),
+\\\>void *\emph{arg});}
+\begin{itemize}
+\item vlo¾í handler do zásobníku. 
+\end{itemize}
+\texttt{void \funnm{pthread\_cleanup\_pop}(int \emph{execute});}
+\begin{itemize}
+\item vyjme naposledy vlo¾ený handler ze zásobníku. Provede ho,
+pokud je \texttt{execute} nenulové.
+\end{itemize}
+\end{slide}
+
+\label{PTHREAD_CLEANUP}
+
+\begin{itemize}
+\item Handlery se volají jako \texttt{routine(arg)}.
+\item Tyto handlery se dají pou¾ívat napø. na úklid lokálních dat funkcí (obdoba
+volání destruktorù pro automatické promìnné v C++).
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{\texttt{fork()} a vlákna (POSIX)}
+\prgchars
+\begin{itemize}
+\item je nutné definovat sémantiku volání \texttt{fork} v aplikacích
+pou¾ívajících vlákna. Norma definuje, ¾e:
+
+\begin{itemize}
+\item nový proces obsahuje pøesnou kopii volajícího vlákna,
+vèetnì pøípadných stavù mutexù a jiných zdrojù
+\item ostatní vlákna v synovském procesu neexistují
+\item pokud taková vlákna mìla naalokovanou pamì», zùstane tato
+pamì» naalokovaná (= ztracená)
+\item obdobnì to platí pro zamèený mutex ji¾ neexistujícího vlákna
+\end{itemize}
+\item vytvoøení nového procesu z multivláknové aplikace má smysl pro
+následné volání \texttt{exec} (tj. vèetnì volání \texttt{popen},
+\texttt{system} apod.)
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Pokud mìlo ji¾ neexistující vlákno zamèený mutex, tak je pøístup k
+pøí\-slu¹\-ným sdíl{}eným datùm ztracen, proto¾e zamèený mutex mù¾e odemknout
+pouze to vlákno, které ho zamknulo. Zde ale trochu pøedbíhám, mutexy jsou
+pøedstavené a¾ na stranì \pageref{MUTEXES}.
+\item Ostatní vlákna v novém procesu pøestanou existovat, nevolají se ¾ádné
+rutiny jako pøi volání \texttt{pthread\_exit}, \texttt{pthread\_cancel} nebo
+destruktory klíèovaných dat.
+\item \label{FORKALL} Pozor na to, ¾e chování \texttt{fork} také závisí na
+pou¾ité knihovnì a verzi systému, napøíklad na Solarisu pøed verzí 10 znamenalo
+\texttt{fork} v knihovnì \texttt{libthread} (jiná knihovna ne¾
+\texttt{libpthread}) to samé co \texttt{forkall}.
+\item Pøíklady: \priklad{pthreads/fork.c},
+\priklad{pthreads/fork-not-in-main.c},
+\priklad{pthreads/forkall.c}
+\item \label{ATFORK} Pomocí funkce \texttt{pthread\_atfork} je mo¾né nastavit
+handlery které se automaticky vykonají pøed pou¾itím \texttt{fork} v rodièi
+a po návratu z \texttt{fork} v rodièi a synovském procesu.  Toto volání se
+velmi hodí pro v¹echny multithreadové programy které volají \texttt{fork}
+a nepou¾ívají ho pouze jako jednoduchý wrapper pro \texttt{exec}.
+Po \texttt{fork} se toti¾ v synovském procesu nacházejí v¹echny promìnné
+ve stejném stavu jako byly v rodièi ve chvíli kdy se zavolal \texttt{fork}
+a tedy pokud mìlo nìjaké jiné vlákno (ne¾ které zavolalo \texttt{fork})
+napø. zamèený mutex (zamykání pomocí mutexù viz strana \pageref{MUTEXES})
+tak bude tento mutex zamèený i v synovském procesu. Pokud se pak vlákno ze
+synovského procesu tento mutex pokusí zamknout, dojde k deadlocku. Pokud
+se v \emph{pre-fork} handleru provede zamèení v¹ech mutexù a v obou (rodiè
+i syn) \emph{post-fork} handlerù odemèení v¹ech mutexù, tato situace
+nenastane. Tento mechanismus funguje díky tomu, ¾e \emph{pre-fork} handler
+se zavolá ve vláknu, které zavolalo fork, je¹tì pøedtím ne¾ se provede samotný
+fork syscall; ostatní vlákna mezitím dál bì¾í a mohou tedy uvolnit mutexy
+(jednodu¹e tak ¾e ka¾dé vlákno v rozumnì napsaném programu èasem opustí
+kritickou sekci),
+na které se èeká v handleru. Toto samozøejmì pøedpokládá, ¾e zamykání a
+odemykání v handlerech dodr¾uje zamykací pravidla ("protokol") stanovený
+pro celý program a nedojde tedy k deadlocku.
+\priklad{pthreads/atfork.c}
+Více napø. v [Butenhof].
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_sigmask}{pthreadsigmask}
+
+\begin{slide}
+\sltitle{Signály a vlákna}
+\prgchars
+\begin{itemize}
+\item signály mohou být generovány pro proces (voláním
+\texttt{kill}), nebo pro vlákno (chybové události, volání
+\texttt{pthread\_kill}). 
+\item nastavení obsluhy signálù je stejné pro v¹echna vlákna
+procesu, ale masku blokovaných signálù má ka¾dé vlákno vlastní,
+nastavuje se funkcí 
+\end{itemize}
+\funml{int \funnm{pthread\_sigmask}(\=int \emph{how},
+const sigset\_t *\emph{set},\\\> sigset\_t *\emph{oset});}
+\begin{itemize}
+\item signál urèený pro proces o¹etøí v¾dy právì jedno vlákno, které
+nemá tento signál zablokovaný. 
+\item lze vyhradit jedno vlákno pro synchronní pøíjem signálù pomocí volání
+\texttt{sigwait}. Ve v¹ech vláknech se signály zablokují.
+\end{itemize}
+\end{slide}
+
+\label{PTHREADSIGMASK}
+
+\begin{itemize}
+\item Jestli¾e je pro signál nastaveno ukonèení procesu, skonèí celý proces,
+nejen jedno vlákno.
+\item Vytvoøené vlákno dìdí nastavení signálové masky od vlákna, které ho
+vytvoøilo
+\item Analogicky k pou¾ití \texttt{sigwait} s procesy (stra\-na
+\pageref{SIGWAIT}) -- zablokujte pøíslu¹né signály ve v¹ech vlák\-nech, vèetnì
+vlákna, ve kterém chcete zpracovávávat signály pomocí \texttt{sigwait}.
+\emsl{Tento zpùsob zpracování signálù bývá èasto jediný opravdu doporuèovaný pro
+vlákna}, a navíc je i nejsnáze implementovatelný. Jak vyplývá z pøedchozí
+poznámky, staèí zamaskovat signály pouze jednou, a to v hlavním vláknì, proto¾e
+maska se pak podìdí pøi ka¾dém volání \texttt{pthread\_create}.
+\item V prostøedí vláken nepou¾ívejte \texttt{sigprocmask} (strana
+\pageref{SIGPROCMASK}), proto¾e chování tohoto volání není v takovém prostøedí
+normou specifikováno. Mù¾e to fungovat, a také nemusí.
+\item \label{THREADS_SIGWAIT} Pøíklad: \priklad{pthreads/sigwait.c}.
+\item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
+pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Tyto
+signály jsou ge\-ne\-ro\-va\-né pøímo pro vlákno, tak¾e pokud je zablokujete,
+vlákno urèené pro synchronní pøíjem signálù je nemusí ``vidìt'', jedinì pokud by
+ten signál zpù\-so\-bi\-lo samo, samozøejmì. Dal¹í vìc ale je, ¾e specifikací
+není definováno, zda blokování takových signálù tyto signály skuteènì zablokuje,
+jak ji¾ bylo zmínìno na stranì \pageref{SPECIALSIGNALS}. Nìkteré sys\-té\-my
+tyto signály normálnì doruèí, èím¾ proces ukonèí, viz pøesné znìní:
+
+\begin{quote}
+\emph{If any of the SIGFPE, SIGILL, SIGSEGV, or SIGBUS signals are generated
+while they are blocked, the result is undefined, unless the signal was generated
+by the kill() function, the sigqueue() function, or the raise() function.}
+\end{quote}
+
+Pøíklad: \priklad{pthreads/sigwait-with-sync-signals.c}. Tento pøíklad ukazuje,
+¾e na Solarisu 10, Solarisu 11, FreeBSD 7.2 a Linux distribuci, která se hlásí
+jako ``Gentoo Base System release 1.12.13'', je signál \texttt{SIGSEGV} doruèen
+a proces zabit bez ohledu na to, zda je maskován. Na¹el jsem ale i systém, který
+po zamaskování signál nedoruèí -- FreeBSD 6.0. Synchronní signály by ale mìlo
+být v¾dy mo¾né zachytit (pøed zavoláním \texttt{exit}), viz strana
+\pageref{SPECIALSIGNALS}, kde je i pøíklad.
+
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Synchronizace vláken obecnì}
+
+\begin{itemize}
+\item vìt¹ina programù pou¾ívajících vlákna mezi nimi sdílí data
+\item nebo vy¾aduje, aby rùzné akce byly provádìny v jistém poøadí
+\item \dots{}toto v¹e potøebuje \emsl{synchronizovat} aktivitu bì¾ících vláken
+\item jak bylo zmínìno u implementace vláken, u procesù je pro sdíl{}ení dat
+nutné vynalo¾it jisté úsilí, u vláken naopak musíme investovat do toho,
+abychom pøirozené sdíl{}ení dat uhlídali
+\item my se vzhledem k vláknùm budeme zabývat:
+\begin{itemize}
+\item mutexy
+\item podmínkovými promìnnými
+\item read-write zámky
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\label{THREADSYNCHRONIZATION}
+
+\begin{itemize}
+\item pro pøipomenutí, synchronizací procesù jsme se ji¾ zabývali na
+stranách \pageref{SYNCHRONIZATION} a¾ \pageref{SYNCHRONIZATIONEND}.
+\item pomocí mutexù a podmínkových promìnných je mo¾né postavit jakýkoli jiný
+synchronizaèní model.
+\item na tom jakým zpùsobem budou fungovat synchronizaèní primitiva se
+velkou èástí podílí scheduler, který napø. rozhoduje které z vláken
+èekajících na odemèení bude po odemèení probuzeno. S tím souvisí klasické
+problémy, napø. \emph{thundering horde} (na odemèení èeká velké mno¾ství
+vláken) nebo \emph{priority inversion} (vlákno, které dr¾í zámek, má men¹í
+prioritu ne¾ vlákno, které èeká na tento zámek).
+\end{itemize}
+
+%%%%%
+%%%%%
+
+\pdfbookmark[1]{pthread\_mutex\_init, pthread\_mutex\_destroy}{pthreadinit}
+
+\begin{slide}
+\sltitle{Synchronizace vláken: mutexy (1)}
+
+\begin{itemize}
+\item nejjednodu¹¹í zpùsob zaji¹tìní synchronizovaného pøístupu ke
+sdíl{}eným datùm mezi vlákny je pou¾itím mutexu
+\item inicializace staticky definovaného mutexu:
+\end{itemize}
+
+\texttt{pthread\_mutex\_t mutex = PTHREAD\_MUTEX\_INITIALIZER;}
+
+\begin{itemize}
+\item inicializace dynamicky alokovaného mutexu \texttt{mx} s atributy
+\texttt{attr} (nastavují se pomocí \texttt{pthread\_mutexattr\_...}; a je-li
+místo \texttt{attr} pou¾it \texttt{NULL}, vezmou se defaultní atributy)
+\end{itemize}
+
+\funml{int \funnm{pthread\_mutex\_init}(\=pthread\_mutex\_t *\emph{mx},
+\\\>const pthread\_mutexattr\_t *\emph{attr});}
+
+\begin{itemize}
+\item po skonèení pou¾ívání mutexu je mo¾né ho zru¹it:
+\end{itemize}
+
+\texttt{int \funnm{pthread\_mutex\_destroy}(pthread\_mutex\_t *\emph{mx});}
+\end{slide}
+
+\label{MUTEXES}
+
+\begin{itemize}
+\item Mutex = \emph{mutual exclusion} (vzájemné vylouèení)
+\item Je to speciální forma Dijkstrových semaforù -- rozdíl mezi mutexy a
+binárními semafory je ten, ¾e \emsl{mutex má majitele a zamèený mutex musí
+odemknout pouze to vlákno, které ho zamknulo.} To u semaforù neplatí. Pozor na
+to, ¾e abyste zjistili, ¾e napøíklad zkou¹íte odemknout mutex, který dané vlákno
+nezamknulo, je nutné jednak testovat návratovou hodnotu volání
+\texttt{p\-thread\_mutex\_lock}, a také je nutné ovìøit, ¾e máte nastavenou
+kontrolu zamykání; viz dále.
+\item Mutexy jsou urèené pouze ke krátkodobému dr¾ení a mìly by fungovat rychle.
+Slou¾í pro implementaci kritických sekcí (definice je na stranì
+\pageref{CRITICALSECTION}), podobnì jako lock-soubory nebo semafory (pou¾ité
+jako zámky).
+\item Kontrola zamykání u mutexù -- defaultnì je typ mutexu
+\texttt{PTHREAD\_MUTEX\_DEF\-AULT}. V tomto nastavení nejsou normou definovány
+výsledky zamknutí ji¾ zamknu\-té\-ho mutexu, odemknutí mutexu zamknutého jiným
+vláknem ani odemknutí o\-demknu\-té\-ho mutexu. Implementace si namapují toto
+makro na normou definované \texttt{PTHREAD\_MUTEX\_NORMAL} nebo
+\texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK}. Mù¾e se vám proto v závislosti na
+konkrétní implementaci stát, ¾e pokud v defaultní konfiguraci zamknete ji¾
+jednou zamknutý mutex, nastane deadlock (normal), a nebo také ne (errorcheck). V
+tom druhém pøípadì dostanete návratovou hodnotu o chybì a pokud ji netestujete,
+budete se mylnì domnívat, ¾e jste mutex zamknuli. U normal není výsledek zbylých
+dvou situací definován, u errorcheck se vám vrátí chyba. ``Nedefinováno'' u
+normal znamená, ¾e vlákno odemykající mutex, který nezamknulo, ho klidnì mù¾e
+odemknout, nebo také ne -- v¹e závisí na konkrétní implementaci.
+``Nedefinováno'' ale také znamená, ¾e skuteèný výsledek takovýchto situací by
+vás nemìl zajímat, proto¾e byste se jim v¾dy mìli vyhnout. Více informací viz
+norma nebo manuálová stránka k \texttt{pth\-read\_mutex\-attr\_set\-ty\-pe}.
+Mnì osobnì pøijde testování mutexových funkcí jako nadbyteèné a trochu
+znepøehledòující kód, ale mù¾e být dobrý nápad je pou¾ívat pøi vývoji kódu, a
+pøed odevzdáním finální verze pak testy odstranit. Solaris a Linux defaultnì
+pou¾ívají nastavení normal, FreeBSD pou¾ívá errorcheck. \label{NOTMYLOCK}
+Pøíklad: \priklad{mutexes/not-my-lock.c}.
+\item dal¹í typ je \texttt{PTHREAD\_MUTEX\_RECURSIVE} které dr¾í poèet zamèení
+daným threadem. Ostatní thready dostanou pøístup jedinì tehdy kdy¾ poèet
+dosáhne 0. Tento typ mutexu nelze sdílet mezi procesy.
+\item K èemu jsou dobré rekurzivní mutexy ? Napø. máme-li knihovní funkci
+A:foo(), která získá mutex a zavolá B:bar() která ale mù¾e zavolat A:bar(),
+která se pokusí získat ten samý mutex. Bez rekurzivních zámkù by do¹lo k
+deadlocku. S rekurzivními mutexy je to ok pokud tyto volání provádí ten samý
+thread (jiný thread by se zablokoval), pokud si tedy A:foo() a A:bar() jsou
+vìdomy, ¾e ten samý thread u¾ mù¾e být v kritické sekci.
+\item \label{MUTEXTAB} Chování v jednotlivých pøípadech podle typu mutexù
+shrnuje tabulka:\\
+\\
+\raisetab{
+\begin{tabular}[t]{r|c|c|c|}
+% \cline{2-4}
+&\texttt{NORMAL}&\texttt{ERRORCHECK}&\texttt{RECURSIVE}\\
+% \cline{2-4}
+detekuje deadlock&N&Y&N/A\\
+vícenásobné zamykání&deadlock&error&success\\
+odemèení jiným vláknem&undefined&error&error\\
+odemykání odemèeného&undefined&error&error\\
+lze sdílet mezi procesy&Y&Y&N
+% \cline{2-4}
+\end{tabular}}
+\item Inicializace statického mutexu pomocí zmínìného makra nastaví pro mutex
+jeho defaultní atributy. Je mo¾né pou¾ít inicializaèní funkci i pro staticky
+alokované mutexy. Pokud je mutex alokován dynamicky, je v¾dy nutné pou¾ít
+\texttt{pthread\_mutex\_init} funkci, a» ji¾ budeme pou¾ívat defaultní atributy
+nebo ne.
+
+
+\item Dynamické mutexy mù¾eme potøebovat napøíklad v situaci, kdy dynamicky
+alokujeme datovou strukturu, její¾ souèástí je i mutex, který sdíl{}ená data
+struktury chrání. I zde, pøed zavoláním funkce \texttt{free} na datovou
+strukturu, je potøeba pou¾ít volání pro zru¹ení mutexu, proto¾e mutex sám mù¾e
+mít napøíklad alokovanou nìjakou pamì». Výsledek zru¹ení zamknutého mutexu není
+normou definován.
+\item Kopírovat mutexy není normou definováno -- výsledek takové operace závisí
+na implementaci. Je mo¾né samozøejmì zkopírovat ukazatel na mutex a s tímto
+ukazatelem pak dále pracovat.
+\item Zru¹ení mutexu znamená jeho deinicializaci.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_mutex\_lock, pthread\_mutex\_unlock,%
+pthread\_mutex\_trylock}{pthreadmutexfncs}
+
+\begin{slide}
+\sltitle{Mutexy (2)}
+
+\begin{itemize}
+\item pro zamèení a odemèení mutexu pou¾ijeme volání:
+\end{itemize}
+
+\texttt{int \funnm{pthread\_mutex\_lock}(pthread\_mutex\_t *\emph{mx});}
+\linebreak
+a
+\linebreak
+\texttt{int \funnm{pthread\_mutex\_unlock}(pthread\_mutex\_t *\emph{mx});}
+
+\begin{itemize}
+\item pokud je mutex ji¾ zamèený, pokus o zamknutí vyústí v zablokování vlákna.
+Je mo¾né pou¾ít i volání:
+\end{itemize}
+
+\texttt{int \funnm{pthread\_mutex\_trylock}(pthread\_mutex\_t *\emph{mx});}
+
+\begin{itemize}
+\item[\dots] které se pokusí zamknout mutex, a pokud to nelze
+provést, skonèí s chybou
+\end{itemize}
+\end{slide}
+
+\label{MUTEXES2}
+
+\begin{itemize}
+\item zamknout mutex, pokud ho dané vlákno ji¾ zamèené má, není korektní. Nìkdy
+mù¾e dojít i k self dead-locku, viz pøedchozí strana. Pokud potøebujete
+odemknout mutex, který zamknulo jiné vlákno, pou¾ijte místo toho binární
+semafor; opìt viz pøedchozí strana.
+\item pøi vytváøení aplikace, kde je efektivita klíèovým faktorem, je nutné
+rozmyslet, jak, kde a kolik mutexù pou¾ívat. Z knihovny, která nebyla napsaná
+pro pou¾ití v aplikacích pou¾ívající vlákna, je mo¾né udìlat thread-safe (viz
+také strana \pageref{THREADSAFE}) knihovnu tak, ¾e pøed zavoláním jakékoli
+funkce knihovny zamknu jeden, tzv. ``giant'' mutex a po skonèení funkce ho
+odemknu. Mám tedy pouze jeden mutex, ale vlákna pou¾ívající tuto knihovnu èasto
+spí pøi èekání na pøístup do knihovny. Na druhou stranu, pokud zamykám pøístup
+ke konkrétním, malým sekcím, mohu potøebovat mnoho mutexù a znaèné mno¾ství èasu
+tak mohu strávit ve funkcích, které mutexy implementují. Je proto vhodné podle
+situace zvolit rozumný kompromis. Také nezapomeòte, ¾e je mo¾né explicitnì
+nastavit, zda chcete error checking u mutexù nebo ne. Mù¾e být dobré øe¹ení
+kontrolu zamykání/odemykání vypnout tehdy, kdy¾ u¾ máte v¹e otestované a vìøíte,
+¾e error checking kód dále nepotøebujete.
+\item \label{MUTEX_RACE} pøíklady: \priklad{mutexes/race.c} a
+\priklad{mutexes/race-fixed.c}
+\item mutexy je mo¾né nastavit i pro fungovaní mezi vlákny rùzných procesù.
+Funguje to tak, ¾e funkce implementující mutexy vyu¾ijí sdílenou pamì», její¾
+odkaz se nastaví jako jeden z atributù mutexu. Více viz manuálová stránka pro
+\texttt{pthread\_mutexattr\_setpshared}.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Podmínkové promìnné (1)}
+\begin{itemize}
+\item mutexy slou¾í pro synchronizaci pøístupu ke sdíl{}eným datùm
+\item podmínkové promìnné pak k pøedání informací o tìchto sdíl{}ených
+datech -- napøíklad ¾e se hodnota dat zmìnila
+\item \dots{}a umo¾ní tak vlákna podle potøeby uspávat a probouzet
+\item z toho plyne, ¾e \emsl{ka¾dá podmínková promìnná je v¾dy
+asociována s právì jedním mutexem}
+\item jeden mutex ale mù¾e být asociován s více podmínkovými promìnnými
+\item spoleènì pomocí mutexù a podmínkových promìnných je mo¾né
+vytváøet dal¹í synchronizaèní primitiva -- semafory, bariéry, \dots
+\end{itemize}
+\end{slide}
+
+\label{CONDITION_VARIABLES}
+
+\begin{itemize}
+\item jinými slovy -- podmínkové promìnné se pou¾ívají v situaci, kdy vlákno
+potøebuje otestovat stav \emsl{sdíl{}ených} dat (napø. poèet zpráv ve frontì), a
+dobrovolnì se uspat, kdy¾ hledaného stavu nebylo dosa¾eno. Spící vlákno je pak
+probuzeno jiným vláknem, které zmìnilo stav dat tak, ¾e nastala situace, na
+kterou první vlákno èeká (tøeba vlo¾ením prvku do fronty). Druhé vlákno vzbudí
+první vlákno zavoláním k tomu urèené funkce. Pokud ¾ádné vlákno v dané chvíli
+nespí, probouzecí funkce nemá ¾ádný efekt -- nic se nikde neulo¾í, prostì jako
+by se to nikdy nestalo.
+\item není to tak, ¾e pøi deklaraci podmínkové promìnné, co¾ je pro programátora
+zcela transparentní typ, s ní asociujete podmínku napø. ``\emph{\texttt{n} je
+vìt¹í ne¾ 7}''. Pod\-mín\-ko\-vou promìnnou toti¾ mù¾ete pøirovnat k praporu
+nìjaké barvy, a pokud jej zvednete, znamená to, ¾e ta vlákna, která èekají a¾
+touto vlajkou nìkdo zamává nad hlavou, jsou o této situaci informována (=
+vzbuzena) a mohou se podle toho zaøídit. Nìkterá vlákna tak mohou èekat na to,
+a¾ \texttt{n} bude vìt¹í ne¾ 7, jiná mohou èekat pouze na to, a¾ se \texttt{n}
+jakkoli zmìní. Je pouze na programátorovi, zda pro ka¾dou konkrétní situaci
+pou¾ije jednu podmínkovou promìnnou, nebo jednu pro v¹echny situace dohromady.
+Pro druhou situaci platí, ¾e vlákna èekající na \texttt{n == 7} pak musí v¾dy
+\texttt{n} otestovat, proto¾e ví, ¾e je vzbuzeno pøi kazdé zmìnì èítaèe
+\texttt{n}. Pokud není èítaè roven sedmi, znovu se dobrovolnì uspí. Jak je v¹ak
+uvedeno dále, \emsl{test je nutné po probuzení provést v¾dy}, i kdy¾ pro nìj
+pou¾íváte samostatnou podmínkovou promìnnou -- mù¾e se stát, ¾e systém z rùzných
+implementaèních dùvodù vzbudí vlákno uspané nad podmínkovou promìnnou, ani¾ by
+to zpùsobilo jiné vlákno a tedy ani¾ by stav na který vlákno èeká opravdu
+nastal.
+\end{itemize}
+
+%%%%%
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_cond\_init, pthread\_cond\_destroy,%
+pthread\_cond\_wait}{pthreadcondvarfncs}
+
+\begin{slide}
+\sltitle{Podmínkové promìnné (2)}
+\prgchars
+\funml{int \funnm{pthread\_cond\_init}(\=pthread\_cond\_t *\emph{cond},
+\\\>const pthread\_condattr\_t *\emph{attr});}
+\begin{itemize}
+\item Inicializuje podmínkovou promìnnou \texttt{cond} s atributy \texttt{attr}
+(nastavují je funkce \texttt{pthread\_condattr\_...()}), \texttt{NULL} =
+default.
+\end{itemize}
+\texttt{int \funnm{pthread\_cond\_destroy}(pthread\_cond\_t *\emph{cond});}
+\begin{itemize}
+\item zru¹í podmínkovou promìnnou.
+\end{itemize}
+\funml{int \funnm{pthread\_cond\_wait}(\=pthread\_cond\_t *\emph{cond},
+\\\>pthread\_mutex\_t *\emph{mutex});}
+\begin{itemize}
+\item èeká na podmínkové promìnné dokud jiné vlákno nezavolá
+\funnm{pthread\_cond\_signal()} nebo \funnm{pthread\_cond\_broadcast()}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item je nutné, aby po té, co vlákno zamkne mutex a døíve, ne¾ vlákno zavolá
+\texttt{pthread\_cond\_wait}, otestovat podmínku. Pokud tuhle operaci vlákno
+neprovede, mohlo by se uspat na neurèitou dobu, proto¾e hlá¹ka o splnìní
+podmínky od jiného vlákna by pro¹la ``bez pov¹imnutí''. Jinak øeèeno, nesmím se
+uspat pøi èekání na situaci, která u¾ mezitím nastala. Nefunguje to jako
+signály, které pro vás systém dr¾í, pokud je máte napøíklad zablokované. Co je
+dùle¾ité je to, ¾e ten test provádíte pod ochranou mutexu, tedy si opravdu
+mù¾ete být jistí daným stavem vìcí pøi zavolání \texttt{pthread\_cond\_wait}.
+\item to, ¾e podmínkové promìnné opravdu fungují je zpùsobeno tím, ¾e pøi vstupu
+do kritické sekce vlákno zamkne mutex a \emsl{funkce \texttt{pthread\_cond\_wait}
+pøed uspáním vlákna mutex odemkne}. Pøed ná\-vra\-tem z této funkce se pak mutex
+opìt zamkne. Mù¾e se tedy stát, ¾e vlákno je probuzeno z èekání nad podmínkovou
+promìnnou, ale nìjaký èas se pak je¹tì uspí pøi pokusu o zamknutí mutexu.
+Nehledejte v tom nic slo¾itého, jde pouze o klasické vzájemné vylouèení procesù
+nad kritickou sekcí.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_cond\_signal, pthread\_cond\_broadcast,
+pthread\_cond\_timedwait}{pthreadcondunblfncs}
+
+\begin{slide}
+\sltitle{Podmínkové promìnné (3)}
+\prgchars
+\texttt{int \funnm{pthread\_cond\_signal}(pthread\_cond\_t *\emph{cond});}
+\begin{itemize}
+\item probudí jeden proces èekající na podmínkové promìnné
+\texttt{cond}.
+\end{itemize}
+\texttt{int \funnm{pthread\_cond\_broadcast}(pthread\_cond\_t *\emph{cond});}
+\begin{itemize}
+\item probudí v¹echny procesy èekající na podmínkové promìnné
+\texttt{cond}.
+\end{itemize}
+\funml{int \funnm{pthread\_cond\_timedwait}(\=pthread\_cond\_t *\emph{cond}, 
+\\\>pthread\_mutex\_t *\emph{mutex},\\\> const struct timespec *\emph{atime});}
+\begin{itemize}
+\item èeká na \texttt{pthread\_cond\_signal()} nebo
+\texttt{pthread\_cond\_broadcast()}, ale maximálnì do doby ne¾ systémový
+èas dosáhne hodnoty dané \texttt{atime}.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item jak ji¾ bylo øeèeno, jedna podmínková promìnná mù¾e být pou¾ita pro
+hlá\-¹e\-ní nìkolika rozdílných situací najednou -- napøíklad pøi vlo¾ení prvku do
+fron\-ty i pøi jeho vyjmutí. Z toho dùvodu je nutné po probuzení otestovat
+podmínku, na kterou se èeká. Dal¹í vìc, která z toho vychází je ta, ¾e v takovém
+pøípadì musíte pou¾ít broadcast. Staèí si pøedstavit následující situaci --
+èekáte na podmínku ``zmìnil se stav fronty'', na které èekají ètenáøi i
+zapisovatelé (pøedpokládejme, ¾e jednu frontu pou¾ívá více ètenáøù i více
+zapisovatelù). Pokud po vlo¾ení zprávy pouze vypustíte jednu signalizaci, tak se
+mù¾e stát, ¾e tato signalizace probudí jiného zapisovatele, který ale samozøejmì
+èeká na situaci, kdy ètenáø z fronty zprávu odebere. Tím se stane, ¾e ve frontì
+zùstane zpráva, která mù¾e být vytlaèena a¾ dal¹í signalizací.
+\item vlákno mù¾e být probuzeno jiným vláknem i v pøípadì, ¾e je podmínková
+promìnná svázána pouze s jednou konkrétní událostí, která v¹ak po probuzení
+vlákna ji¾ neplatí. Pøedstavte si, ¾e tìsnì po té, kdy jiné vlákno zahlásí
+splnìní podmínky, mù¾e dal¹í vlákno zamknout mutex a nìjakou akcí, napø.
+vyjmutím prvku z fronty, zru¹it platnost podmínky ``ve frontì je zpráva''. To
+vlákno, které je probuzeno, tak najde frontu prázdnou. Dal¹í dùvod pro to, ¾e
+podmínkové promìnné je nutné \emsl{v¾dy} testovat v cyklu.
+\item v øídkých pøípadech je mo¾né, ¾e se vlákno probudí a podmínka není platná
+i díky konkrétní implementaci. Z toho opìt vyplývá nutnost pou¾ití cyklu.
+\item v parametru \texttt{abstime} funkce \texttt{pthread\_cond\_timedwait} se
+pøedává absolutní èas, tj. timeout vypr¹í, kdy¾ systémový èas dosáhne hodnoty
+vìt¹í nebo rovné \texttt{abstime}. Pro absolutní èas bylo rozhodnuto proto, aby
+programátor nemusel pøi pøípadných probuzeních, kdy následnì zjistí, ¾e daná
+podmínka neplatí, pøepoèítávat èasový rozdíl.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\label{CONDVAR_USE}
+\sltitle{Pou¾ití podmínkových promìnných}
+\begin{alltt}
+pthread\_cond\_t cond; pthread\_mutex\_t mutex;
+...
+\emprg{pthread\_mutex\_lock}(&mutex);
+while (!podminka(data))
+    \emblue{pthread\_cond\_wait}(&cond, &mutex);
+process\_data(data, ...);
+\emprg{pthread\_mutex\_unlock}(&mutex);
+...
+\emprg{pthread\_mutex\_lock}(&mutex);
+produce\_data(data, ...);
+\emblue{pthread\_cond\_signal}(&cond);
+\emprg{pthread\_mutex\_unlock}(&mutex);
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\prgchars
+\item První kus kódu èeká na zmìnu podmínky. Pokud k ní dojde, data zmìnila
+a tedy mohou být zpracována. Druhý kus kódu (spu¹tìný v jiném vláknì) data
+pøipravuje ke zpracování. Jakmile jsou pøipravena, zasignalizuje konzumentovi.
+\item pro zopakování -- ke ka¾dé podmínkové promìnné je potøeba mít je¹tì mutex.
+\item funkce \texttt{pthread\_cond\_wait} atomicky odemkne mutex a uspí
+vlákno. Kdy¾ je vlákno probuzeno, nejprve se znovu zamkne mutex (tj. toto
+zamknutí se provede v rámci pøíslu¹né implementace podmínkových promìnných!) a
+teprve pak se volání \texttt{pthread\_cond\_wait} vrátí.
+\item kdy¾ signalizujeme, ¾e se nìco zmìnilo, neznamená to je¹tì, ¾e po zmìnì
+bude platit podmínka. Navíc, jak bylo nìkolikrát zdùraznìno,
+\texttt{pthread\_cond\_wait} mù¾e vrátit, i kdy¾ ¾ádné jiné vlákno nezavolalo
+\texttt{pthread\_cond\_signal} ani \texttt{pthread\_cond\_broadcast}. Dal¹í
+dùvod proè je potøeba znovu otestovat pod\-mín\-ku a pøípadnì obnovit èekání.
+\item Odemknutí zámku následuje v pøíkladu na slajdu a¾ po signalizaci podmínky,
+ale není to nutné.  Mù¾ete signalizovat a¾ po odemknutí a v takovém pøípadì to
+mù¾e být v závislosti na konkrétním systému i efektivnìj¹í, proto¾e probuzené
+vlákno se hned neuspí na zámku, který jinak je¹tì dr¾íte, pokud signalizujete v
+rámci kritické sekce.
+\item \label{QUEUESIMULATION} pøíklad: \priklad{cond-variables/queue-simulation.c}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_rwlock\_init, pthread\_rwlock\_rdlock,%
+pthread\_rwlock\_tryrdlock}{pthreadrwlockfncs}
+
+\begin{slide}
+\sltitle{Read-write zámky (1)}
+\prgchars
+\funml{int \funnm{pthread\_rwlock\_init}(\=pthread\_rwlock\_t *\emph{l},
+\\\>const pthread\_rwlockattr\_t *\emph{attr}); }
+\begin{itemize}
+\item vytvoøí zámek s atributy podle \texttt{attr} (nastavují se funkcemi
+\texttt{pthread\_rwlockattr\_...()}, \emph{NULL} = default)
+\end{itemize}
+\texttt{int \funnm{pthread\_rwlock\_destroy}(pthread\_rwlock\_t *\emph{l});}
+\begin{itemize}
+\item zru¹í zámek
+\end{itemize}
+\texttt{int \funnm{pthread\_rwlock\_rdlock}(pthread\_rwlock\_t *\emph{l});}\\
+\texttt{int \funnm{pthread\_rwlock\_tryrdlock}(pthread\_rwlock\_t *\emph{rwlock});}
+\begin{itemize}
+\item zamkne zámek pro ètení (více vláken mù¾e dr¾et zámek pro
+ètení), pokud má nìkdo zámek pro zápis, uspí volající vlákno
+(\texttt{rdlock()}) resp. vrátí chybu (\texttt{tryrdlock()}).
+\end{itemize}
+\end{slide}
+
+\label{RWLOCKS}
+
+\begin{itemize}
+\item není souèástí POSIXových vláken z POSIX.1c, ale POSIX.1j roz¹íøení,
+naz\-va\-né ``advanced realtime extensions''.
+\item najednou mù¾e mít zámek buï nìkolik vláken zamèeno pro ètení nebo
+maximálnì jedno vlákno zamèeno pro zápis (a nikdo pro ètení).
+\item read-write zámky jsou semanticky podobné zamykání souborù pomocí
+funkce \texttt{fcntl}.
+\item Je bì¾né, ¾e implementace preferuje vlákna, která chtìjí zapisovat
+pøed vlákny, která chtìjí èíst. Napø. pokud je zámek vlastnìný zapisovatelem
+a nìjaké dal¹í vlákno zavolá \funnm{pthread\_rwlock\_rdlock} a existuje aspoò
+jedno vlákno èekající v \funnm{pthread\_rwlock\_wrlock}, dá ètenáø pøednost
+zapisovateli.
+\item Existuje maximální poèet zamèení pro ètení daný implementací (velikostí
+typu reprezentujícího poèet zamèení), po dosa¾ení maxima vrací
+\funnm{pthread\_rwlock\_rdlock} hodnotu \texttt{EAGAIN}.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_rwlock\_wrlock, pthread\_rwlock\_trywrlock,%
+pthread\_rwlock\_unlock}{pthreadrwlockfncsw}
+
+\begin{slide}
+\sltitle{Read-write zámky (2)}
+\prgchars
+\texttt{int \funnm{pthread\_rwlock\_wrlock}(pthread\_rwlock\_t *\emph{rwlock});}
+\begin{itemize}
+\item zamkne zámek pro zápis; pokud má nìkdo zámek pro ètení nebo
+zápis, èeká. 
+\end{itemize}
+\texttt{int \funnm{pthread\_rwlock\_trywrlock}(pthread\_rwlock\_t *\emph{rwlock});}
+\begin{itemize}
+\item jako \texttt{pthread\_rwlock\_wrlock()}, ale kdy¾ nemù¾e
+zamknout, vrátí chybu. 
+\end{itemize}
+\texttt{int \funnm{pthread\_rwlock\_unlock}(pthread\_rwlock\_t *\emph{rwlock});}
+\begin{itemize}
+\item odemkne zámek
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \emph{zvlá¹tnost}: pokud vlákno èekající na zámek dostane signál, po
+návratu z handleru se v¾dy pokraèuje v èekání, tj. nenastane chyba
+\texttt{EINTR}. Takto se chovají i mutexy a podmínkové promìnné.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{atomic\_add}{atomicadd}
+
+\begin{slide}
+\sltitle{Atomické aritmetické operace}
+\begin{itemize}
+\item pro architektury, kde operace sèítání není atomická
+\item výraznì rychlej¹í ne¾ jiné mechanismy pro získání exkluzivního pøístupu
+díky pou¾ití instrukcí na dané platformì zaji¹»ujících atomicitu.
+\item nìkteré systémy dodávají funkce pro atomické operace,
+(napø. \texttt{atomic\_add(3c)} v Solarisu), obecnì je lep¹í pou¾ít
+podporu v C11 standardu pøes \emph{stdatomic.h}.
+\item sada volání pro rùzné typy a operace, napø. sèítání:
+\end{itemize}
+\begin{verbatim}
+    #include <stdatomic.h>
+
+    atomic_int acnt;
+    atomic_fetch_add(&acnt, 1);
+\end{verbatim}
+\end{slide}
+
+\begin{itemize}
+\item \label{ATOMIC_ADD} Pøíklad \priklad{race/atomic-add.c} demonstruje
+problém se soubìhem pøi sèítání a jeho mo¾ná øe¹ení. Program spustí dvì
+vlákna, ka¾dé vlákno pracuje se stejnou globální promìnnou \emsl{x}, do
+které v cyklu postupnì pøiète èísla od jedné do velikosti parametru
+\emsl{arg}, který program dostane na pøíkazové øádce. Vlákna bì¾í paralelnì,
+ka¾dé z nich provádí toto:
+
+\begin{verbatim}
+for (i = 1; i < arg; ++i)
+        x = x + i;
+\end{verbatim}
+
+Poté se sèítání pro kontrolu provede v hlavním vláknu, a dvojnásobek (mìli
+jsme dva thready) se porovná s hodnotou globální promìnné \emsl{x}. Pokud
+nejsou výsledky stejné, do¹lo k soubìhu (pøeteèení promìnné mù¾eme v této
+situaci zcela ignorovat).
+\par
+Výsledky a èasy bìhu se markantnì li¹í pro situace, kdy program pou¾il
+obyèejné sèítání, funkci pro atomickou aritmetiku a zamykání pomocí
+mutexù. Je vidìt nìkolikanásobný rozdíl v dobì bìhu mezi pou¾itím
+funkce pro atomickou aritmetiku a mutexù, zejména na procesorech hardwarovou
+podporou paralelismu.
+\item Podobnì existují dal¹í atomické rutiny pro odeèítání, bitové operace
+AND a OR, pro pøiøazení hodnoty atd.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_barrier\_init, pthread\_barrier\_wait,%
+pthread\_barrier\_destroy}{bariera}
+
+\begin{slide}
+\sltitle{Bariéra}
+\begin{itemize}
+\item bariéra (\emph{barrier}) je zpùsob, jak udr¾et èleny skupiny pohromadì
+\item v¹echna vlákna èekají na bariéøe, dokud ji nedosáhne poslední vlákno; pak
+mohou pokraèovat
+\item typické pou¾ití je paralelní zpracování dat
+\end{itemize}
+\texttt{int \funnm{pthread\_barrier\_init}(pthread\_barrier\_t *\emph{barrier},
+\emph{attr}, unsigned \emph{count});}
+\begin{itemize}
+\item inicializuje bariéru pro \emph{count} vstupù do ní
+\end{itemize}
+\texttt{int \funnm{pthread\_barrier\_wait}(pthread\_barrier\_t *\emph{barrier});}
+\begin{itemize}
+\item zablokuje se dokud není zavolána \emph{count}-krát
+\end{itemize}
+\texttt{int \funnm{pthread\_barrier\_destroy}(pthread\_barrier\_t *\emph{barrier});}
+\begin{itemize}
+\item zru¹í bariéru
+\end{itemize}
+\end{slide}
+
+\label{BARRIER}
+
+\begin{itemize}
+\item API pro bariéry je definované od SUSv3, podívejte se napøíklad na
+\texttt{pthread\_\-barrier\_init}, je mo¾né je ale jednodu¹e vytvoøit pomocí
+mutexù a pod\-mín\-ko\-vých promìnných.
+\item Pozor na to, ¾e bariéry jsou nepovinnou èástí POSIXu (patøí do
+Advanced realtime threads) a tedy i systém certifikovaný na SUS je nemusí
+implementovat, co¾ je pøípad Mac OS X (10.10).
+\item bariéru mù¾ete vyu¾ít napø. v situaci, kdy mezi jednotlivými fázemi
+zpracování je potøeba provést jistou inicializaci, vlákna pøed ní tedy na sebe
+v¾dy musí poèkat, proto¾e inicializace dal¹í fáze mù¾e zaèít a¾ tehdy, kdy
+skonèí fáze pøedchozí. Pøíklad \priklad{pthreads/pthread-barrier.c} ukazuje
+pou¾ití ba\-ri\-éry pro nìkolik fází zpracování dat.
+\item podmínka pro bariéru je napøíklad hodnota èítaèe rovnající se nule. Ka¾dé
+vlákno, které dosáhne bariéry, sní¾í èítaè, který je na zaèátku inicializován na
+poèet vláken. Pokud vlákno po dekrementování èítaèe zjistí, ¾e je¹tì není roven
+nule, uspí se na podmínkové promìnné.  Pokud dané vlákno je tím vláknem, které
+sní¾í èítaè na nulu, místo zavolání \texttt{pthread\_cond\_wait} po¹le
+broadcast, který následnì probudí v¹echna vlákna spící na bariéøe
+(\texttt{pthread\_cond\_signal} zde nestaèí, chcete probudit v¹echna vlákna, ne
+jen jedno!). Pøed spu¹tìním dal¹í fáze zpracování se èítaè reinicializuje na
+pùvodní hodnotu. I zde je nutné øe¹it rùzné problémy, napøíklad není mo¾né jen
+tak reinicializovat èítaè poté, co bariéry dosáhne poslední vlákno, proto¾e jak
+ji¾ víme, vlákna po probuzení z \texttt{pthread\_cond\_wait} musí v¾dy
+otestovat, zda èítaè je opravdu nulový a pokud není, opìt se uspí. Tak¾e by se
+vám mohlo stát, ¾e by se probudila jen nìkterá vlákna, nebo taky ¾ádná. Je nutné
+zresetovat èítaè a¾ po probuzení posledního vlákna. Jak byste to øe¹ili?
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{sem\_init, sem\_post, sem\_wait}{semafory}
+
+\begin{slide}
+\sltitle{Semafory}
+\begin{itemize}
+\item semafory pochází z POSIX-1003.1b (real-time extensions)
+\item jména funkcí nezaèínají \emsl{pthread\_}, ale \emsl{sem\_}
+(\texttt{sem\_init}, \texttt{sem\_post}, \texttt{sem\_wait}, \dots)
+\item je mo¾né je pou¾ít s vlákny
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item funkce pro semafory se dr¾í klasické UNIXové sémantiky -- pøi
+chybì vracejí -1 a nastaví \texttt{errno}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Typické pou¾ití vláken}
+
+\begin{itemize}
+\item \emsl{pipeline}
+\begin{itemize}
+\item ka¾dé z vláken provádí svoji operaci nad daty, která se
+postupnì pøedávají mezi vlákny
+\item ka¾dé vlákno typicky provádí jinou operaci
+\item[\dots] zpracování obrázku, kde ka¾dé vlákno provede jiný filtr
+\end{itemize}
+
+\item \emsl{work crew}
+\begin{itemize}
+\item vlákna provádìjí stejnou operaci, ale nad jinými daty
+\item[\dots] zpracování obrázku dekompozicí -- ka¾dé vlákno
+zpracovává jinou èást obrázku, výsledkem je spojení zpracovaných dat
+ze v¹ech vláken; zde se hodí øe¹ení s bariérou
+\end{itemize}
+
+\item \emsl{client -- server}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item dané rozdìl{}ení je jen orientaèní, pou¾ití vláken je samozøejmì
+neomezené, toto jsou asi ty tøi nejèastìj¹í pou¾ití
+\item V pøípadì modelu klient -- server zpracovává ka¾dé vlákno jeden
+po¾adavek od jednoho klienta.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{thread-safe a reentrantní funkce}{thrsafe}
+
+\begin{slide}
+\sltitle{Thread-safe versus reentrantní}
+
+\begin{itemize}
+\item \emph{thead-safe} znamená, ¾e kód mù¾e být volán z více vláken
+najednou bez destruktivních následkù
+\begin{itemize}
+\item do funkce, která nebyla navr¾ena jako thread-safe, je mo¾né
+pøidat jeden zámek -- na zaèátku funkce se zamkne, na konci odemkne
+\item tento zpùsob ale samozøejmì není pøíli¹ efektivní
+\end{itemize}
+\item slovem \emph{reentrantní} se typicky myslí, ¾e daná funkce byla navr¾ena s
+pøihlédnutím na existenci vláken
+\begin{itemize}
+\item \dots{}tedy ¾e funkce pracuje efektivnì i ve vícevláknovém
+prostøedí
+\item taková funkce by se mìla vyvarovat pou¾ití statických dat a pokud mo¾no i
+prostøedkù pro synchronizaci vláken, proto¾e bìh aplikace zpomalují
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\label{THREADSAFE}
+
+\begin{itemize}
+\item z vý¹e uvedeného vyplývá, ¾e thread-safe je slab¹í vlastnost ne¾
+reentrantní. Napsat thread-safe funkci lze s pou¾itím synchronizaèních
+primitiv; pøepsání existující funkci tak, aby byla reentrantní
+vy¾aduje mnohem více invence.
+\item reentrantní funkce jsou také jediné funkce bezpeènì pou¾itelné v
+signal handlerech.
+\item v dne¹ní dobì thread-safe vìt¹inou znamená reentrantní, tj. funkce jsou
+pøe\-psá\-ny tak, aby pracovaly efektivnì i s vlákny, je ale dobré vìdìt, ¾e
+nìkdy to mù¾e vyjadøovat rozdíl.
+\item o zamykání knihoven viz také strana \pageref{MUTEXES2}.
+\item existuje mno¾ství funkcí, které mohou být thread-safe, ale nikoliv
+reentrant, napø. \texttt{gethostbyname}. Bì¾nì tato funkce pou¾ívá
+statickou promìnnou, která se znovu pou¾ije pøi ka¾dém volání, tak¾e je
+pro pou¾ití v multithreadovém prostøedí nevhodné - není thread-safe.
+Nicménì, na FreeBSD 6.0 je tato funkce implementovaná tak, ¾e pou¾ívá
+implicitnì thread-local storage pro ulo¾ení výstupních dat a
+tím pádem je thread safe. To ji je¹tì ale neèiní úplnì bezpeènou k
+pou¾ití (nemluvì o tom, ¾e program , který se spoléhá na takové chování
+není portabilní), viz pøíklad \priklad{reentrant/gethostbyname.c}. O nìco
+lep¹í je pou¾ít reentrantní verzi této funkce \texttt{gethostbyname\_r}
+(pokud je na daném systému k dispozici), u které lze specifikovat adresu,
+kam má ukládat svùj výstup, èím¾ se stává reentrantní. Daleko nejlep¹í
+øe¹ení je pou¾ít standardní funkci \texttt{getaddrinfo} (viz strana
+\pageref{GETADDRINFO}), která je sama o sobì reentrantní.
+
+
+\item pøíklad: \priklad{reentrant/inet\_ntoa.c} - tady je vidìt, ¾e ani
+takto napsaná funkce vám nepomù¾e pokud je volaná dvakrát v rámci
+jednoho volání \texttt{printf}. Poka¾dé vrací pointer se stejnou adresou
+(v jednom threadu), kterou si \texttt{printf} pouze poznamená a pøi
+finálním tisku tedy vypí¹e reprezentaci poslední adresy, se kterou byla
+\texttt{inet\_ntoa} volána. Na Solarisu je to vidìt pomocí:
+\begin{verbatim}
+truss -t\!all -u libnsl::inet_ntoa ./a.out
+\end{verbatim}
+\item Na Solarisu obsahují manuálové stránky knihovních funkcí polo¾ku
+\texttt{MT-level} v sekci \texttt{ATTRIBUTES}, která udává zda je mo¾né
+funkci pou¾ít v multithreadovém prostøedí a pøípadnì s jakými omezeními.
+Tyto úrovnì jsou popsány v manuálové stránce attributes(5).
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{pthread\_set\_name\_np, pthread\_main\_np}{threadnpapis}
+
+\begin{slide}
+\sltitle{Nepøenositelná volání}
+
+\begin{itemize}
+\item nepøenositelná volání konèí øetìzcem \texttt{\_np} (\emph{non-portable}) a
+jednotlivé systémy si takto definují vlastní volání
+
+\item FreeBSD
+\begin{itemize}
+\item \funnm{pthread\_set\_name\_np}\texttt{(pthread\_t tid, const char *name)}
+\item[$\rightarrow$] umo¾òuje pojmenovat vlákno
+\end{itemize}
+
+\item Solaris
+\begin{itemize}
+\item \funnm{pthread\_cond\_reltimedwait\_np}\texttt{(\dots)}
+\item[$\rightarrow$] jako timedwait, ale èasový timeout je relativní
+\end{itemize}
+
+\item OpenBSD
+\begin{itemize}
+\item \texttt{int} \funnm{pthread\_main\_np}\texttt{(void)}
+\item[$\rightarrow$] umo¾òuje zjistit, zda volající vlákno je hlavní
+(= \texttt{main()})
+\end{itemize}
+
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Tyto informace jsou pro zajímavost, abyste vìdìli, ¾e se s podobnými vìcmi
+mù¾ete setkat. Nepøenositelná volání by se mìla pou¾ívat spí¹e pro ladící úèely.
+Nikdy nevíte, kdo bude potøebovat vá¹ kód spustit na jiném systému, co¾ se stane
+typicky a neèekanì po té, co zrovna opustíte va¹i spoleènost a nemáte ji¾ èas to
+opravit.
+\item Zjistit, jaká nepøenositelná volání vá¹ systém poskytuje je jednoduché,
+tøeba pomocí \texttt{apropos \_np}, nebo o nìco hrubìji (aplikujte na svùj
+systém podle lokace manuálových stránek):
+\begin{verbatim}
+$ cd /usr/share/man
+$ find . -name '*_np\.*'
+./man3c/mq_reltimedreceive_np.3c
+./man3c/mq_reltimedsend_np.3c
+./man3c/posix_spawnattr_getsigignore_np.3c
+./man3c/posix_spawnattr_setsigignore_np.3c
+./man3c/pthread_cond_reltimedwait_np.3c
+./man3c/pthread_key_create_once_np.3c
+./man3c/pthread_mutex_reltimedlock_np.3c
+./man3c/pthread_rwlock_reltimedrdlock_np.3c
+./man3c/pthread_rwlock_reltimedwrlock_np.3c
+./man3c/sem_reltimedwait_np.3c
+\end{verbatim}
+\end{itemize}
+
+% ï
+% »
+% ò
+% kód
+
+\endinput
