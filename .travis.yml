@@ -1,0 +1,19 @@
+sudo: required
+dist: trusty
+before_install:
+- sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-fonts-recommended
+  texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended texlive-pstricks
+  texlive-lang-czechslovak
+script:
+- make
+deploy:
+  provider: releases
+  api_key:
+    secure: a/HxbY/iKDyIP2SSyXQElLq/quwZhoZt67c+TVa03MoJbfA/Jw8ehFKTjdQT5rKpdBTQoY12hGjWg8PeYEcE2XU6TlPXZeR+s1CNVVYqSuMrFhp/tW/PIW5Jqz7OkAawK42c/Zs20B2UUq3MWHCSU7Hi6swK+AteZFN2nxZ69LOvN8BAfLVnBS4IOeCpsDr4dH9j5OZYWTssSbVFklJkAvgg+r3LajkF8l2aN/r+L9h1D0ZTXEKXSFxf3zP/me8ivUduDmakfgCaINpO7oHq+ZvkFSI0BA+U+KyAOiKEaD9v08mvS76boTuIjgXNeh2AVaceHmQPhIWmJohXzky2x7EontvADS/TCmIhZ2JUmWfUJnYK2WCCcvF6Ve6vBEoth0Ep95NTeC71qSEYuZHmMJAgBz2UJIKW43qNhJqWyvCj+bwuj6SgRinxEsBbpqhB4PUPs5646CjW35Xf+ZilK1TCXK1RsWYEWTJtX5YMNKeNbZRKhTrcho2D3TtNdELnHtmIvzonzu+QEuVoywkE7lb8kB+vYlVMiyPPxljxK0KL5S7ms1cJgpF9gGeRQbA1Y+JmohnyCtRJYPSzqt8TarWNLibFcF5zSDDwNWoNuFMFVEY8MDLeCESSSlXby8R7Iw1C/Mvt3aCXfEWR2HVAt/pFXPEUP6zy2DU1Zg3hu90=
+  file:
+    - programovani-v-unixu.pdf
+    - programovani-v-unixu_slajdy.pdf
+  skip_cleanup: true
+  on:
+    repo: vladak/pdftest
+    tags: true
