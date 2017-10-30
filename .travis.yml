@@ -15,5 +15,5 @@ deploy:
     - programovani-v-unixu_slajdy.pdf
   skip_cleanup: true
   on:
-    repo: vladak/pdftest
+    repo: devnull-cz/unix-prog-in-c
     tags: true
