@@ -1,15 +1,12 @@
 #
-# Programovani v UNIXu
+# Unix programming in C
 #
 # (c) Martin Beran, Jan Pechanec, Vladimir Kotal
 #
-# - "make slides" vytvori slajdy pro prednasku
-# - "make notes" vytvori poznamkove materialy ve velikosti A4
-# - "make mynotes" vytvori poznamkove materialy vcetne poznamek pro
-#    prednasejiciho
+# - "make slides" creates lecture slides
+# - "make notes" creates slides with notes in the A4 format
 #
-# Pro spravne vytvoreni odkazu na stranky a PDF bookmarku je nutne spustit
-# make dvakrat.
+# For correct links and PDF bookmarks it is necessary to run make twice.
 #
 # Do not edit m4 files, those are automatically created during the document
 # generation.
