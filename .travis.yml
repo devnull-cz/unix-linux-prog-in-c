@@ -13,5 +13,6 @@ deploy:
   file:
     - programovani-v-unixu.pdf
     - programovani-v-unixu_slajdy.pdf
+  skip_cleanup: true
   on:
     repo: devnull-cz/unix-prog-in-c
