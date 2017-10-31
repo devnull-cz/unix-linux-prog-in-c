@@ -6,6 +6,7 @@ before_install:
   texlive-lang-czechslovak
 script:
 - make
+- make
 deploy:
   provider: releases
   api_key:
