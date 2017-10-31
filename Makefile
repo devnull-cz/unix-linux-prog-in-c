@@ -22,15 +22,15 @@ PUB_LOCATION=	$(HOST):$(PUB_DIR)
 HOST=		rax
 PUB_DIR=	/export/www/mff-uk/pvu/slides
 
-SLIDE=		programovani-v-unixu_slajdy.tex
-NOTE=		programovani-v-unixu.tex
+SLIDE=		unix-programming-in-c_slides-only.tex
+NOTE=		unix-programming-in-c.tex
 
 SLIDE_PDF=	$(SLIDE:tex=pdf)
 NOTE_PDF=	$(NOTE:tex=pdf)
 SLIDE_NEW=	$(SLIDE_PDF:pdf=pdf.new)
 NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
-TEX=		programovani-v-unixu_common.tex \
+TEX=		unix-programming-in-c.common.tex \
 		uvod.tex \
 		soubory.tex \
 		procesy.tex \

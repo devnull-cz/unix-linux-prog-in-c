@@ -12,16 +12,16 @@
 \begin{picture}(4705,2775)(33,-2008)
 \put(226,-1575){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}
 \begin{minipage}{4.5cm}switch(pid = fork()) \{\\
-\mbox{}\ \ \ \ case -1: /* Chyba */\\
-\mbox{}\ \ \ \ case\ \ 0: /* Dítì\ \ */\\
-\mbox{}\ \ \ \ \emprg{default: /* Rodiè */}\\
+\mbox{}\ \ \ case -1: /* Error */\\
+\mbox{}\ \ \ case\ \ 0: /* Child\ */\\
+\mbox{}\ \ \ \emprg{default: /* Parent */}\\
 \}\end{minipage}}%
 }}}
 \put(2701,-1575){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}%
 \begin{minipage}{4.5cm}switch(pid = fork()) \{\\
-\mbox{}\ \ \ \ case -1: /* Chyba */\\
-\mbox{}\ \ \ \ \emprg{case\ \ 0: /* Dítì\ \ */}\\
-\mbox{}\ \ \ \ default: /* Rodiè */\\
+\mbox{}\ \ \ case -1: /* Error */\\
+\mbox{}\ \ \ \emprg{case\ \ 0: /* Child\ */}\\
+\mbox{}\ \ \ default: /* Parent */\\
 \}\end{minipage}}%
 }}}
 \put(181,-1006){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}getpid()==1234, pid==2345}%
@@ -30,15 +30,15 @@
 }}}
 \put(2656,-1006){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}getpid()==2345, pid==0}%
 }}}
-\put(2791,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}dítì (nový proces)}%
+\put(2791,-691){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}child (new process)}%
 }}}
-\put(2071,-691){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}rodiè (pokraèuje)}%
+\put(2071,-691){\makebox(0,0)[rb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}parent (continues)}%
 }}}
 \put(1486,90){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{8.0}{\ttdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}
 \begin{minipage}{4.5cm}switch(\emprg{pid = fork()}) \{\\
-\mbox{}\ \ \ \ case -1: /* Chyba */\\
-\mbox{}\ \ \ \ case\ \ 0: /* Dítì\ \ */\\
-\mbox{}\ \ \ \ default: /* Rodiè */\\
+\mbox{}\ \ \ case -1: /* Error */\\
+\mbox{}\ \ \ case\ \ 0: /* Child\ */\\
+\mbox{}\ \ \ default: /* Parent */\\
 \}\end{minipage}}%
 }}}
 \end{picture}
