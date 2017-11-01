@@ -516,7 +516,7 @@ filesystém pøipojen
 %%%%%
 
 \begin{slide}
-\sltitle{Otevøené soubory z pohledu jádra I.}
+\sltitle{System view of open files I.}
 \begin{center}
 %\input{img/tex/open_files1.latex}
 \includegraphics[width=89mm]{img/eps/open_files1.eps}
@@ -551,7 +551,7 @@ procesu pomocí volání \texttt{fork}(), viz strana \pageref{FDSHARING}.
 %%%%%
 
 \begin{slide}
-\sltitle{Otevøené soubory z pohledu jádra II.}
+\sltitle{System view of open files II.}
 \begin{center}
 \input{img/tex/open_files.pstex_t}
 \end{center}
@@ -1573,7 +1573,8 @@ aby zajistily stejné èasy kopie a originálu (napø. \texttt{tar} nebo
     \end{itemize}
 \item in contrast to \texttt{stat()}, the result depends on the process's RUID
 and RGID
-\item \emsl{never use this call, it cannot be used in a safe way.  See below.}
+\item \emsl{never use this call, it cannot be used in a safe way.  See the notes
+below.}
 \end{itemize}
 \end{slide}
 

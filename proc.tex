@@ -583,48 +583,69 @@ copy-on-write mechanism.  See \priklad{fork/vfork.c} on how it works.
 \pdfbookmark[1]{exec}{exec}
 
 \begin{slide}
-\sltitle{Spu¹tìní programu: \texttt{exec}}
+\sltitle{Execute a program: \texttt{exec}}
 \texttt{extern char **\funnm{environ};\\
 int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
 \begin{itemize}
-\item spustí program definovaný celou cestou \texttt{path}, dal¹í argumenty se
-pak pøedají programu v parametrech \texttt{argc} a \texttt{argv} funkce
-\texttt{main}. Seznam argumentù je ukonèen pomocí \texttt{(char *)0}, tj.
-\texttt{NULL}. \texttt{arg0} by mìl obsahovat jméno programu (tj. ne celou
-cestu)
-\item úspì¹né volání \texttt{execl} se nikdy nevrátí, proto¾e spu¹tìný program
-zcela nahradí dosavadní adresový prostor procesu. 
-\item program dìdí promìnné prostøedí, tj. obsah \texttt{environ}. 
-\item handlery signálù se nahradí implicitní obsluhou
-\item zavøou se deskriptory souborù, které mají nastavený pøíznak
-\texttt{FD\_CLOEXEC} (implicitnì není nastaven).
+\item replaces the current process image with a new process image
+\item runs a program defined via \emph{path}
+\item arguments that follow, including \emph{arg0}, are given to the program via
+\texttt{argc} and \texttt{argv} of the new program's \texttt{main()}.
+\item the argument list must end with \texttt{(char *)0}, ie. \texttt{NULL}.
+\item \emph{arg0} should contain the program name (ie. not the full path).
 \end{itemize}
 \end{slide}
 
 \label{EXEC}
 
 \begin{itemize}
-\item o signálech více na stranì \pageref{SIGNALS}
-\item v \texttt{path} musí být celá (absolutní nebo relativní) cesta ke
-spustitelnému souboru. Obsah promìnné prostøedí \texttt{PATH} se pou¾ívá jen
-pøi voláních \texttt{execlp} a \texttt{execvp}, kdy¾ argument
-\texttt{path} neobsahuje znak \texttt{'/'}.
-\item nìkdy se pou¾ívá \texttt{argv[0]} rùzné od jména spustitelného souboru.
-Napø. \texttt{login} vlo¾í na zaèátek jména spou¹tìného shellu znak
-\texttt{'-'}. Shell podle toho pozná, ¾e má fungovat jako login-shell, tj.
-napøíklad naèíst \texttt{/etc/profile}.
-\item \texttt{exec} nepøedá kontrolu naètenému programu v pamìti pøímo, ale
-pøes dynamický linker (té¾ nazývaný \emph{loader}), poté co ho (= toho
-\emph{loader}a) namapuje do adresového prostoru procesu. Loader následnì
-namapuje potøebné dynamické objekty a teprve poté pøedá kontrolu aplikaci. Viz
-také strana \pageref{RUNTIMELINKER}. Pro jednoduché ovìøení staèí vytvoøit
-program obsahující pouze tøeba volání \texttt{open}. Tento program pak
-spus»te pomocí \texttt{truss(1)} takto: \texttt{truss ./a.out}. Uvidíte, která
-volání se pou¾ijí je¹tì pøedtím, ne¾ se zavolá \texttt{open}.
-\item \texttt{exec} nezmìní hodnoty RUID a RGID. A pokud je to program s
-nastaveným SUID bitem, tak se EUID a uschované UID nastaví na UID majitele
-spustitelného souboru.
-\item dne¹ní unixové systémy umí spou¹tìt i skripty, které zaèínají øádkem\\
+\item \emph{path} must be an absolute or relative path to the executable file.
+\texttt{PATH} is only used for \funnm{execlp} a \funnm{execvp} (see the one of
+the slides that follow), if \emph{path} does not contain \texttt{'/'}.
+\item All variants of these calls are commonly just called the \funnm{exec}
+call.  It goes without saying that one of the variants is used but usually it is
+not important for the sake of a discussion.
+\item sometimes \texttt{argv[0]} is different from the executable file name.
+For example, \texttt{login} command prefixes the shell file name with
+\texttt{'-'}, eg. \texttt{-bash}.  The shell then knows it is supposed to
+function as a login shell.  A shell logins reads \texttt{/etc/profile}, for
+example.
+\item \funnm{exec} does not transfer the control to the program in memory
+directly.  As desribed on page \pageref{RUNTIMELINKER}, the system (ie. the code
+of the \funnm{exec} call) first maps the dynamic linker, aka loader, to the
+process address space.  The loader then maps all dynamic libraries there as
+well, then finally calls the program \texttt{main()}.
+\item A simple excercise is to write a simple program calling \texttt{open()},
+for example.  Then run the program via \texttt{truss(1)} or \texttt{strace} like
+this: \texttt{truss ./a.out}. You will see what is being done before
+\texttt{open} is called at last.
+\end{itemize}
+
+\begin{slide}
+\sltitle{Execute a program: \texttt{exec} (continued)}
+\texttt{extern char **\funnm{environ};\\
+int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
+\begin{itemize}
+\item successful \funnm{execl} never returns as the new process (program) fully
+replaced the address space of the calling process.
+\begin{itemize}
+\item ...the original place to return to no longer exists
+\end{itemize}
+\item signal handlers are set to default
+\begin{itemize}
+\item ...as the original handler code no longer exists
+\end{itemize}
+\item file descriptors with flag \texttt{FD\_CLOEXEC} are closed
+\item the new process inherits \texttt{environ} from the calling process.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item More about signals on page \pageref{SIGNALS}
+\item \funnm{exec} does not change RUID and RGID.  And for security reasons, if
+the executed program has a SUID bit set, the program's EUID and saved EUID is
+set to the UID of the executable program owner.
+\item Today's system can also execute scripts that start with a line:\\
 \texttt{\#!/\emph{interpreter\_path}/\emph{interpreter\_name} \emph{[args]}}
 \end{itemize}
 
