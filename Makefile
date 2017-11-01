@@ -24,13 +24,13 @@ SLIDE_NEW=	$(SLIDE_PDF:pdf=pdf.new)
 NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
 TEX=		unix-programming-in-c.common.tex \
-		uvod.tex \
-		soubory.tex \
-		procesy.tex \
-		signaly.tex \
-		synchronizace.tex \
-		site.tex \
-		vlakna.tex \
+		intro.tex \
+		files.tex \
+		proc.tex \
+		signals.tex \
+		synchro.tex \
+		network.tex \
+		threads.tex \
 		changelog.tex
 
 SLIDES=		$(TEX) ${SLIDE}
@@ -55,4 +55,4 @@ notes:		$(NOTES)
 		mv $(NOTE:tex=m4.pdf) $(NOTE_PDF)
 
 clean:
-		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp
+		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp *.out
