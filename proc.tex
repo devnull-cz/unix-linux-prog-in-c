@@ -765,10 +765,10 @@ section header table\\
 \item The UNIX standard does not specify what executable file format systems
 should use.  While most of the UNIX and unix-like systems (eg. Linux distros)
 use ELF, there are other widely used systems that do not.  One example is
-Mac~OS~X (which is a certified UNIX system) uses the \emph{Mach-O} format, short
-for the \emph{Mach Object} file format.  Each Mach-O file is made up of one
-Mach-O header, followed by a series of load commands, followed by one or more
-segments, each of which contains between 0 and 255 sections.
+Mac~OS~X (which is a certified UNIX system) that uses the \emph{Mach-O} format,
+short for the \emph{Mach Object} file format.  Each Mach-O file is made up of
+one Mach-O header, followed by a series of load commands, followed by one or
+more segments, each of which contains between 0 and 255 sections.
 \item The \emph{ELF header} contains basic information about the file.  Try
 ``\texttt{readelf -h /bin/ls}'' on any Linux distro.
 \item On Solaris, the \texttt{elfdump} command allows listing sections of the
