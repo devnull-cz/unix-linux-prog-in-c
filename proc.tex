@@ -654,7 +654,7 @@ set to the UID of the executable program owner.
 \pdfbookmark[1]{execv, execle, execl, execve, execlp}{execvariants}
 
 \begin{slide}
-\sltitle{Variants of \texttt{exec}}
+\sltitle{Variants of the \texttt{exec} call}
 \setlength{\baselineskip}{0.8\baselineskip}
 \texttt{int \funnm{execv}(const char *\emph{path}, char *const \emph{argv}[]);} 
 \begin{itemize}
@@ -733,26 +733,27 @@ $ ./a.out
 \pdfbookmark[1]{ELF}{ELF}
 
 \begin{slide}
-\sltitle{Formát spustitelného souboru}
+\sltitle{Executable file format}
 \begin{itemize}
-\item \emsl{Common Object File Format (COFF)} -- star¹í System V 
-\item \emsl{Extensible Linking Format (ELF)} -- nový v SVR4 
-\item èasto se mluví o \emsl{a.out} formátu, proto¾e tak se jmenuje
-(pokud není pou¾it pøepínaè \texttt{-o}) výstup linkeru. 
-\item Formát ELF:\quad
+\item \emsl{a.out} format, in early UNIX versions
+\item \emsl{Common Object File Format (COFF)} -- AT\&T System V, superceeded
+\emsl{a.out}
+\item \emsl{Extensible Linking Format (ELF)} -- new in SVR4, replaced both older
+formats
+\item ELF format:\quad
 \raisetab{\begin{tabular}[t]{|c|}
 \hline
-hlavièka souboru\\
+ELF header\\
 \hline
-\quad \quad tabulka programových hlavièek \quad\quad \\
+\quad \quad program header table \quad\quad \\
 \hline
-sekce 1\\
+section 1\\
 \hline
 $\vdots$\\
 \hline
-sekce N\\
+section N\\
 \hline
-tabulka hlavièek sekcí\\
+section header table\\
 \hline
 \end{tabular}}
 \end{itemize}
@@ -761,51 +762,38 @@ tabulka hlavièek sekcí\\
 \label{ELF}
 
 \begin{itemize}
-\item Standard nestanovuje formát spustitelného souboru. I kdy¾ vìt¹ina
-unixových systémù pøe¹la na ELF, stále se najdou mainstreamové systémy
-pou¾ívající jiné formáty. Napø. Mac OS X (co¾ je certifikovaný UNIX)
-pou¾ívá tzv. \emph{Mach-O} formát. Stejnì jako ELF je strukturovaný,
-odli¹uje se napø. v tom, ¾e za hlavièkou následují tzv. \emph{load
-commands}, které se odkazují na sekce v dal¹í èásti. Za nimi
-následují samotné segmenty, které se skládají ze sekcí. Ka¾dý segment je
-úsek virtuální pamìti, kterou dynamický linker mapuje do adresového
-prostoru procesu. Ka¾dá sekce obsahuje kód nebo data daného typu.
-
-
-\item Hlavièka souboru (\emph{ELF header}) obsahuje základní informace o
-souboru.
-\item Na Solarisu je k dispozici program \texttt{elfdump} umo¾òující
-zobrazení prakticky v¹ech sekcí v ELF souboru a jejich obsahu v lidsky èitelné
-formì. V Linuxu lze pou¾ít program \texttt{readelf}, jeho funkcionalita je
-ov¹em proti \texttt{elfdump} omezena.
-\item Tabulka programových hlavièek (\emph{program header table}) je pøítomna
-pouze u souborù obsahujících spustitelné programy, zobrazí se pomocí
-``\texttt{elfdump -p}''. Obsahuje informaci o rozvr¾ení virtuální pamìti
-procesu.
-\item Sekce obsahují instrukce, data, tabulku symbolù, relokaèní data, apod.
-\item Tabulka hlavièek sekcí (\emph{section header table}) obsahuje slu¾ební
-informace pro linker, ``\texttt{elfdump -c}''.
-\item Není to tak dávno co nìkteré unixové systémy pøe¹ly na ELF. Napø.
-OpenBSD pøe¹lo z \emph{a.out} formátu (co¾ je dal¹í formát
-spustitelných souborù, viz a.out(5) man page na OpenBSD) na ELF ve verzi
-3.4 v roce 2003. Proti ELFu je a.out mnohem jednodu¹¹í a ménì obecný,
-hodí se tedy dobøe na zkoumání fundamentálních principù zavádìní
-spustitelných souborù do pamìti.
-Základem hlavièka (obsahující napø. informace o tom zda spustitelný soubor
-vy¾aduje slu¾by run time linkeru nebo zda obsahuje Position
-Independent Code) a pak dal¹ích nepovinných 6 sekcí (text, data, relokace
-v textovém segmentu, relokace v datovém segmentu, tabulka symbolù, tabulka
-stringù korespondujících s jednotlivými symboly).
-\item Dnes je naprosto bì¾né ¾e virtuální adresy spustitelného souboru,
-namapovaných knihoven, zásobníku a heapu jsou náhodné, mìní se pøi ka¾dém
-spu¹tìní procesu. Tato technika (\emph{Adress Space Layout Randomization})
-slou¾í k znesnadnìní útokù, které potøebují znát napø. adresy symbolù v
-knihovnì \texttt{libc} nebo zásobníku. Poprvé s touto ideou pøi¹el
-Linux, OpenBSD byl první systém který ji zaèal pou¾ívat pro v¹echny
-programy implicitnì. Rùzné sys\-té\-my aplikují tuto techniku s rùznými
-parametry a na rùzné èásti programu. O\-bec\-nì\-ji vzato lze vná¹et náhodnost
-do dal¹ích èástí systému (napø. ID procesù, iniciální sekvenèní èísla pro TCP
-apod.).
+\item The UNIX standard does not specify what executable file format systems
+should use.  While most of the UNIX and unix-like systems (eg. Linux distros)
+use ELF, there are other widely used systems that do not.  For example, Mac OS X
+(which is a certified UNIX system) uses the \emph{Mach-O} format, short for
+\emph{Mach Object} file format.  Each Mach-O file is made up of one Mach-O
+header, followed by a series of load commands, followed by one or more segments,
+each of which contains between 0 and 255 sections.
+\item The \emph{ELF header} contains basic information about the file.  Try
+``\texttt{readelf -h /bin/ls}'' on any Linux distro.
+\item On Solaris, the \texttt{elfdump} command allows listing sections of the
+ELF file in a human readable form.  On Linux distros, use \texttt{readelf}.
+\item The \emph{program header table} is only present in files that are
+executable.  For example, dynamic libraries are ELF files that are not
+executable.  It contains information on the virtual memory layout.  You can list
+the table via ``\texttt{elfdump~-p}'' or ``\texttt{readelf~-l}''.
+\item Sections contain code, data, symbol table, relocation data, etc.
+\item The \emph{section header table} contains information for the linker, see
+``\texttt{elfdump -c}'' or ``\texttt{readelf~-S}''.
+\item Some systems sticked to a format based on the original \emph{a.out} for a
+long time.  For example, OpenBSD moved from \emph{a.out} to ELF in 2003 when
+releasing version 3.4.
+\item Today it is common that systems randomly arrange the address space
+positions of key data areas of a process, including the base of the executable
+and the positions of the stack, heap and libraries.  This technique is called
+\emph{Address Space Layout Randomization} (ASLR) and its objective is to prevent
+an attacker from reliably jumping to, for example, a particular exploited
+function in memory.  First introduced as a Linux kernel patch.  OpenBSD was the
+first mainstream operating system to support ASLR by default, in version 3.4,
+released in 2003.  Different systems apply this technique with different
+parameters and on different parts of a program.  In general it is possible to
+introduce randomness into other parts of a system, for example process IDs,
+initial TCP sequence numbers, etc.
 \end{itemize}
 
 %%%%%
