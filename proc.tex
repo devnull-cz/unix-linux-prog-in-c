@@ -654,12 +654,12 @@ set to the UID of the executable program owner.
 \pdfbookmark[1]{execv, execle, execl, execve, execlp}{execvariants}
 
 \begin{slide}
-\sltitle{Varianty slu¾by \texttt{exec}}
+\sltitle{Variants of \texttt{exec}}
 \setlength{\baselineskip}{0.8\baselineskip}
 \texttt{int \funnm{execv}(const char *\emph{path}, char *const \emph{argv}[]);} 
 \begin{itemize}
-\item obdoba \texttt{execl()}, ale argumenty jsou v poli \texttt{argv},
-jeho¾ poslední prvek je \texttt{NULL}. 
+\item like \funnm{execl} but arguments are in the \emph{argv} array,
+the last iteam must be \texttt{NULL}
 \end{itemize}
 \begin{minipage}{\slidewidth}
 \vspace{-1ex}\texttt{\begin{tabbing}
@@ -668,8 +668,8 @@ int \funnm{execle}(\=const char *\emph{path}, const char *\emph{arg0},
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item obdoba \texttt{execl()}, ale místo \texttt{environ} se pou¾ije
-\texttt{envp}. 
+\item like \funnm{execl} but instead of the global variable \emph{environ}, 
+the \emph{envp} argument is used
 \end{itemize}
 \begin{minipage}{\slidewidth}
 \vspace{-1ex}\texttt{\begin{tabbing}
@@ -678,43 +678,43 @@ int \funnm{execve}(\=const char *\emph{path}, char *const \emph{argv}[],\\
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item obdoba \texttt{execv()}, ale místo \texttt{environ} se pou¾ije
-\texttt{envp}. 
+\item like \funnm{execv} but instead of \emph{environ}, \emph{envp} is used
 \end{itemize}
 \texttt{int \funnm{execlp}(const char *\emph{file}, const char *\emph{arg0},
 ...);\\
 int \funnm{execvp}(const char *\emph{file}, char *const \emph{argv}[]);}
 \begin{itemize}
-\item obdoby \texttt{execl()} a \texttt{execv()}, ale pro hledání
-spustitelného souboru se pou¾ije promìnná \texttt{PATH}.
+\item like \funnm{execl} and \funnm{execv} but \texttt{PATH} is also used
+for searching for the executable file
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emsl{l} = list (tj. lineární seznam argumentù), \emsl{v} = vector (tj.
-pole ukazatelù na øetìzce), \emsl{e} = environment (tj. pøedávají se promìnné
-prostøedí), \emsl{p} = PATH.
-\item kromì \texttt{execlp} a \texttt{execvp} je nutné jméno programu v¾dy
-zadávat celou cestu.
-\item v¹echny varianty kromì \texttt{execle} a \texttt{execve}
-pøedávají spou¹tìnému programu také své aktuální prostøedí, tj. obsah
-pole \texttt{environ}.
-\item z mnì neznámých historických dùvodù neexistuje volání s
-\emsl{p} a \emsl{e} dohromady.
-\item \label{EXEC_DATE} pøíklad: \priklad{exec/exec-date.c}
-\item \label{EXECL} následující pou¾ití volání \texttt{execl} je ¹patnì, proto¾e
-mu chybí povinný parametr pro \texttt{argv[0]}:
+\item \emsl{l} = list (ie. list of arguments), \emsl{v} = vector (ie.  an array
+of string pointers), \emsl{e}~=~environment (ie. environment variables are
+passed to the function via an argument), \emsl{p} = \texttt{PATH} is used.
+\item Aside from \funnm{execlp} and \funnm{execvp}, it is always needed to use
+the full path to the executable program, either an absolute or relative one.
+\item All variants aside from \funnm{execle} and \funnm{execve}
+are also passing to the program being executed the environment variables of the
+calling process, ie. the \texttt{environ} array.
+\item For some unknown historical reasons, there is no \funnm{execpe}.
+\item \label{EXEC_DATE} Example: \priklad{exec/exec-date.c}
+\item \label{EXECL} The following use of \funnm{execl} is incorrect as it is
+missing the mandatory argument for \texttt{argv[0]}:
 
 \begin{verbatim}
 	execl("/bin/ls", NULL);
 \end{verbatim}
 
-Na nìkterých systémech to má zajímavý efekt. Jeliko¾ je \texttt{NULL} brán jako
-oèekávaný \texttt{argv[0]}, dal¹í data na zásobníku jsou akceptována jako
-ukazatele na øetìzce, dokud se nenalezne dal¹í \texttt{NULL}. V na¹em pøípadì
-tak pøíkaz \texttt{ls} zkou¹í zobrazit informace o souborech, jako jejich¾ jména
-jsou pou¾ity øetìzce nastavení promìnných prostøedí z pole \texttt{environ}, o
-nich¾ ji¾ víme, ¾e se voláním \texttt{execl} spou¹tìnému programu pøedávají:
+On some systems, the above has very interesting consequences.  As \texttt{NULL}
+is taken as an expected \texttt{argv[0]}, the data on the stack are then
+accepted as the program arguments until the next \texttt{NULL} is found there.
+In the following example, run on some version of the FreeBSD system, \texttt{ls}
+is trying to list filenames that are environment variable names and values (the
+environment array contain strings \texttt{<varname>=<value>}), as those were on
+the stack because the environment was passed to the program being executed, as
+we already know.  The output was in my case:
 
 \begin{verbatim}
 $ ./a.out 
