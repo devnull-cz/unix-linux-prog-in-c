@@ -765,14 +765,14 @@ section header table\\
 \item The UNIX standard does not specify what executable file format systems
 should use.  While most of the UNIX and unix-like systems (eg. Linux distros)
 use ELF, there are other widely used systems that do not.  One example is
-Mac~OS~X (which is a certified UNIX system) that uses the \emph{Mach-O} format,
-short for the \emph{Mach Object} file format.  Each Mach-O file is made up of
-one Mach-O header, followed by a series of load commands, followed by one or
-more segments, each of which contains between 0 and 255 sections.
-\item The \emph{ELF header} contains basic information about the file.  Try
-``\texttt{readelf -h /bin/ls}'' on any Linux distro.
+Mac~OS~X (which is a certified UNIX system) that uses the \emph{Mach-O} file
+format, short for \emph{Mach Object}.  Each Mach-O file is made
+up of one Mach-O header, followed by a series of load commands, followed by one
+or more segments, each of which contains between 0 and 255 sections.
 \item On Solaris, the \texttt{elfdump} command allows listing sections of the
 ELF file in a human readable form.  On Linux distros, use \texttt{readelf}.
+\item The \emph{ELF header} contains basic information about the file.  Try
+``\texttt{readelf -h /bin/ls}'' on any Linux distro.
 \item The \emph{program header table} is only present in files that are
 executable.  For example, dynamic libraries are ELF files that are not
 executable.  It contains information on the virtual memory layout.  You can list
@@ -801,98 +801,99 @@ initial TCP sequence numbers, etc.
 \pdfbookmark[1]{exit, wait, waitpid}{procexit}
 
 \begin{slide}
-\sltitle{Ukonèení procesu}
+\sltitle{Program termination}
 \setlength{\baselineskip}{0.6\baselineskip}
 \texttt{void \funnm{exit}(int \emph{status});}
 \begin{itemize}
-\item ukonèí proces s návratovým kódem \texttt{status}.
-\item nikdy se nevrátí na instrukci následující za voláním.
+\item terminates a process with a return value \emph{status}.  Never returns.
 \end{itemize}
 \texttt{pid\_t \funnm{wait}(int *\emph{stat\_loc});}
 \begin{itemize}
-\item poèká, a¾ skonèí nìkterý synovský proces, vrátí jeho PID a do
-\verb#stat_loc# ulo¾í návratový kód, který lze dále testovat: 
+\item waits for a child process termination, returns its PID and puts
+termination information into \emph{stat\_loc} which can be tested as:
     \begin{itemize}
-    \item \texttt{WIFEXITED(stat\_val)} \dots{} proces volal
+    \item \texttt{WIFEXITED(stat\_loc)} \dots{} process called
     \texttt{exit()}
-    \item \texttt{WEXITSTATUS(stat\_val)} \dots{} argument
+    \item \texttt{WEXITSTATUS(stat\_loc)} \dots{} argument of
     \texttt{exit()}
-    \item \texttt{WIFSIGNALED(stat\_val)} \dots{} proces dostal
-    signál 
-    \item \texttt{WTERMSIG(stat\_val)} \dots{} èíslo signálu 
-    \item \texttt{WIFSTOPPED(stat\_val)} \dots{} proces
-    pozastaven 
-    \item \texttt{WSTOPSIG(stat\_val)} \dots{} èíslo signálu
+    \item \texttt{WIFSIGNALED(stat\_loc)} \dots{} process got a signal
+    \item \texttt{WTERMSIG(stat\_loc)} \dots{} signal number
+    \item \texttt{WIFSTOPPED(stat\_loc)} \dots{} process stopped
+    (\texttt{WUNTRACED} flag required, need \funnm{waitpid} below)
+    \item \texttt{WSTOPSIG(stat\_loc)} \dots{} stop signal number
     \end{itemize}
 \end{itemize}
 \texttt{pid\_t \funnm{waitpid}(pid\_t \emph{pid}, int *\emph{stat\_loc},
 int \emph{opts});}
 \begin{itemize}
-\item èekání na jeden proces.
+\item waits for a specific child process termination
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \texttt{status\_loc} roven \texttt{NULL} znaèí ignoraci statusu
-\item funkce \texttt{\_exit} funguje jako \texttt{exit} s tím, ¾e se neprovádí
-flush stdio streamù a nevolají se funkce nastavené pomocí \texttt{atexit}
-\item ve standardu je je¹tì \texttt{WIFCONTINUED(stat\_val)}, co¾ znaèí opìtné
-roz\-bìh\-nu\-tí procesu po jeho pøedchozím zastavení, je to ale souèást jistého
-roz¹íøení, které nemusí v¹echny systémy podporovat.
-\item poznámka -- pozastavit proces lze pomocí ,,\texttt{kill -STOP <PID>}'',
-rozbìhnout pak pøes ,,\texttt{kill -CONT <PID>}''.
-\item \texttt{opts} ve \texttt{waitpid} jsou OR-kombinace následujích
-pøíznakù:
+\item \emph{status\_loc} equal to \texttt{NULL} means to ignore the status
+information.
+\item Function \funnm{\_exit} works as \funnm{exit} but it does not flush stdio
+streams and functions registered with the \funnm{atexit} call are not called.
+\item There is also \texttt{WIFCONTINUED(stat\_loc)} which means a restarted
+process after having been stopped before.  However, it is part of an extension
+that not all systems support.
+\item You can stop a process using ``\texttt{kill -STOP <PID>}'',
+and restart it with ''\texttt{kill -CONT <PID>}''.
+\item \emph{opts} in \funnm{waitpid} are an OR combination of the following
+flags:
     \begin{itemize}
-    \item \texttt{WNOHANG} \dots{} neèeká, pokud není status
-    okam¾itì k dispozici
-    \item \texttt{WUNTRACED} \dots{} vrátí status i zastavených
-    procesù, které je¹tì nebyly testovány po jejich zastavení. \texttt{WSTOPPED}
-    mù¾e na nìkterých systémech být synonymem pro \texttt{WUNTRACED}, není ale
-    souèástí normy.
-    \item \texttt{WCONTINUED} \dots{} vrátí status i tìch procesù, které je¹tì
-    nebyly testovány od po\-kra\-èo\-vá\-ní procesu po zastavení. Bez tohoto
-    pøíznaku nejsou takové procesy reportovány. Souèástí stejného roz¹íøení jako
-    \texttt{WIFCONTINUED}.
-    \item pro \texttt{WUNTRACED} a \texttt{WCONTINUED} platí, ¾e v
-    pøenositelných aplikacích byste tyto pøíznaky mìli pou¾ívat jen kdy¾ je
-    v \texttt{<unistd.h>} definováno makro \texttt{\_POSIX\_JOB\_CONT\-ROL}.
+    \item \texttt{WNOHANG} \dots{} does not hang if there are no processes
+    that wish to report status
+    \item \texttt{WUNTRACED} \dots{} children of the current process that were
+    stopped due to a \texttt{SIGTTIN}, \texttt{SIGTTOU}, \texttt{SIGTSTP}, or
+    \texttt{SIGSTOP} signal also have their status reported.  Such processes are
+    reported only once per such a situation.
+    \item \texttt{WCONTINUED} \dots{} also report children of the current
+    process that were restarted after having been stopped (and not waited for
+    yet).  Part of the same extension as \texttt{WIFCONTINUED}.
+    \item For the \texttt{WUNTRACED} and \texttt{WCONTINUED} flags, you should
+    only use them in portable code if a macro \texttt{\_POSIX\_JOB\_CONT\-ROL}
+    is defined in \texttt{<unistd.h>}.
     \end{itemize}
-\item \texttt{pid} ve \texttt{waitpid}:
+\item \emph{pid} in \funnm{waitpid}:
     \begin{itemize}
-    \item \texttt{== -1} \dots{} libovolné dítì
-    \item \texttt{> 0} \dots{} jedno dítì
-    \item \texttt{== 0} \dots{} dítì ve stejné skupinì procesù jako volající
-    proces
-    \item \texttt{< -1} \dots{} dítì ve skupinì \texttt{abs(pid)}
+    \item \texttt{== -1} \dots{} wait for any child
+    \item \texttt{> 0} \dots{} wait for a specific child
+    \item \texttt{== 0} \dots{} wait for any child in the same process group as
+    the calling process
+    \item \texttt{< -1} \dots{} wait for any child in the process group of
+    \texttt{abs(pid)}
     \end{itemize}
-\item rodiè by mìl v¾dy na své dìti zavolat \texttt{wait} nebo
-\texttt{waitpid}, proto¾e jinak se v~systému hromadí \emph{zombie}
-(ukonèené procesy, které pouze èekají, a¾ si rodiè pøeète jejich
-návratovou hodnotu). Hromadìní tìchto zombie procesù v tabulce procesù kernelu
-mù¾e skonèit vyèerpáním ve¹keré volné pamìti, tak¾e pozor na to. Pokud takový
-rodiè sám skonèí, v¹echny jeho syny adoptuje process \texttt{init}, který se tak
-postará i o v¹echny zombie procesy.
-\item \label{WAITPID} pøíklad: \priklad{wait/wait.c}
+\item There are also \funnm{wait3} and \funnm{wait4} calls.
+\item A parent should always call one of the wait functions otherwise the system
+will accumulate \emph{zombies} -- terminated processes that occupy process table
+slots only to be waited for by their parents.  Zombies could eventually exhaust
+all the system memory.  Note that if the parent exits, its children are adopted
+by the \texttt{init} process that will call \funnm{wait} on such processes.
+However, you should always use wait for children even if you know the parent
+will exit soon.
+\item Actually, you could notify the system that the program will not wait for
+its children in which case such zombies will not accumulate.  More on that later
+when we do signals.
 \end{itemize}
-
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: spu¹tìní programu a èekání}
+\sltitle{Example: start a new process and wait}
 \begin{center}
 \input{img/tex/fork_wait.tex}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item toto je klasický zpùsob jak spustit nìjaký program a po jeho skonèení
-pokraèovat. Rodiè nemusí jen èekat na ukonèení potomka, ale mù¾e vykonávat dál
-svùj kód.
-\item pozor na to, ¾e aèkoli to na obrázku tak vypadá, návratová hodnota je
-pouze souèást toho, co dostanete z volání \texttt{wait}. Na její získání je
-potøeba pou¾ít makra z pøedchozího slajdu.
+\item This is a typical way to start a new process and continue after its
+termination.  The parent could also choose not to wait for the child termination
+right away but carry on with its life and wait for the child later.
+\item Note that you have to use macros from the previous slide to get the
+child's return value out of the status information.
+\item \label{WAITPID} Example: \priklad{wait/wait.c}
 \end{itemize}
 
 %%%%%
