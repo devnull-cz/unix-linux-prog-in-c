@@ -2457,7 +2457,7 @@ while((opt = \emprg{getopt}(argc, argv, "abc:")) != -1)
     switch(opt) \{ 
         case 'a': opts.a = 1; break; 
         case 'b': opts.b = 1; break; 
-        case 'c': strcpy(opts.c, \emprg{optarg}); break; 
+        case 'c': \sout{strcpy}(opts.c, \emprg{optarg}); break; 
         case '?': fprintf(stderr, 
             "usage: %s [-ab] [-c Carg] arg1 arg2 ...\bs{}n", 
             basename(argv[0])); break; 
