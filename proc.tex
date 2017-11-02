@@ -977,8 +977,8 @@ process writing the pipe finishes first, then the consumer reads the rest of the
 data, process it, and then finally exits.  Remember, the shell waits for the
 program it started, ie. the parent, and it does not care at all about children
 the running program spawned during its life.  If the pipe was created the other
-way around, the shell could print the prompt while the data from the still
-living child might still be flowing to the console.
+way around, the shell could print the prompt after the parent finished while the
+data from the child might still be flowing to the console.
 \item For example, the original \emph{Bourne shell} constructed a pipeline the
 way that the last process created a child as its producer, that producer itself
 created its child as its producer, and this continued until the whole pipeline
