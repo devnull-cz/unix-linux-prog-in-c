@@ -945,7 +945,7 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: roura mezi dvìma procesy}
+\sltitle{Example: a pipe between two processes}
 \begin{center}
 \input{img/tex/pipe.tex}
 \end{center}
@@ -954,43 +954,46 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 \label{FDSHARING}
 
 \begin{itemize}
-\item zavøení zápisového deskriptoru \texttt{pd[1]} (ozn.
-{\color[rgb]{1,0,0} $\triangleright$}) v procesu konzumenta je
-nutné, proto¾e jinak se na rouøe nikdy nedetekuje konec souboru.
-\item ètecí deskriptor v procesu producenta \texttt{pd[0]} je také
-vhodné zavírat (ozn. {\color[rgb]{1,0,0} $\triangleright$}), proto¾e
-kdy¾ konzument pøedèasnì skonèí, dostane producent signál
-\texttt{SIGPIPE}. Kbyby deskriptor v producentovi nebyl zavøen,
-producent se nedozví, ¾e konzument skonèil, a po naplnìní bufferu
-roury v jádru se zablokuje.
-\item pokud nemáme jistotu, ¾e pøed voláním \texttt{pipe} byl otevøen
-deskriptor \texttt{0}, musíme v producentovi pou¾ít \texttt{dup2(pd[1], 1)},
-proto¾e \texttt{dup(pd[1])} by mo\-hl vrátit deskriptor \texttt{0} místo
-po¾adovaného \texttt{1}. Také je tøeba testovat, zda nenastala situace
-\verb#pd[1] == 1#, abychom si nechtìnì nezavøeli rouru. Podobnì je tøeba
-otestovat \verb#pd[0] == 0# v konzumentovi.
-\item je lep¹í vytváøet rouru od syna k otci, proto¾e typicky nejdøív skonèí
-proces zapisující do roury, ètoucí proces pøeète zbylá data, zpracuje je, nìco
-vypí¹e a teprve pak skonèí. 
-
-Dùvodem je to, ¾e shell, který pøíslu¹nou kolonu pøíkazù spou¹tí, èeká na
-ukonèení otce a o jeho syny se nezajímá. Kdyby tedy smìøovala roura od otce k
-synovi, otec jako producent dat skonèí, shell vypí¹e prompt, ale pak je¹tì syn,
-který plní funkci konzumenta, mù¾e vypsat nìjaký výstup. Mo¾ným øe¹ením je
-èekání otce na skonèení syna, jen¾e to se nedá zajistit, pokud otec provede
-exec.
-\item pùvodní \emph{Bourne shell} staví rouru tak, ¾e poslední proces v rouøe
-vytvoøí pøedposlední jako svého syna, ten vytvoøí pøedchozí proces a tak se
-postupuje a¾ k zaèátku roury.
-\item v shellu \texttt{bash} jsou v¹echny procesy v rouøe pøímo potomky shellu
-(shell volá \texttt{fork} tolikrát, jak dlouhá je roura). Shell pøed vypsáním
-promptu èeká, a¾ v¹echny procesy roury skonèí.
+\item Closing the writing descriptor \texttt{pd[1]} (see
+{\color[rgb]{1,0,0} $\triangleright$}) in the consumer process is required
+as the EOF would not be detected otherwise.
+\item Closing the reading descriptor \texttt{pd[0]} in the consumer process is
+desired as well (see {\color[rgb]{1,0,0} $\triangleright$}) as if the
+consumer finishes prematurely the producent properly gets a \texttt{SIGPIPE}.
+If that file descriptor in the producer was not closed while the consumer died
+in the middle of processing the data, for example, the producer would not learn
+that the consumer was gone (as the producer would remain to be an existing
+reader itself), and would hang indefinitely on \funnm{write} after filling up
+the pipe.
+\item If we are not sure that the descriptor \texttt{0} was open before calling
+\funnm{pipe}, we have to call \texttt{dup2(pd[1], 1)} in the producer as
+otherwise \texttt{dup(pd[1])} could reuse the file descriptor \texttt{0} in
+place of expected \texttt{1}.  You might also need to check if \verb#pd[1] == 1#
+(ie. standard output was closed before calling \funnm{pipe}) as in that case we
+could actually close one end of the pipe.  Similarly, in the consumer you might
+need to check if \verb#pd[0] == 0#.
+\item It is better to create a pipe from a child to its parent as typically the
+process writing the pipe finishes first, then the consumer reads the rest of the
+data, process it, and then finally exits.  Remember, the shell waits for the
+program it started, ie. the parent, and it does not care about the program
+children at all.  If the pipe was created the other way around, the shell could
+print the prompt while the data from the still living child could might be
+still flowing on the console.
+\item For example, the original \emph{Bourne shell} constructed a pipeline the
+way that the last process created a child as its producer, that producer itself
+created its child as its producer, and this continued until the whole pipeline
+was formed.  Ie. the first command in the pipeline was created as the last
+process.
+\item However, in \texttt{bash}, all processes in a pipeline are direct children
+of the shell itself, ie. \texttt{bash} calls \funnm{fork} that many times as is
+the number of programs in the pipeline.  Before the prompt is printed, it waits
+for all processes to finish.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Sdíl{}ená pamì» -- úvod}
+\sltitle{Shared memory -- introduction}
 \begin{itemize}
 \item pajpy a soubory jako metody meziprocesové komunikace vy¾adují
 systémová volání
