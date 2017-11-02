@@ -975,10 +975,10 @@ need to check if \verb#pd[0] == 0#.
 \item It is better to create a pipe from a child to its parent as typically the
 process writing the pipe finishes first, then the consumer reads the rest of the
 data, process it, and then finally exits.  Remember, the shell waits for the
-program it started, ie. the parent, and it does not care about the program
-children at all.  If the pipe was created the other way around, the shell could
-print the prompt while the data from the still living child could might be
-still flowing on the console.
+program it started, ie. the parent, and it does not care at all about children
+the running program spawned during its life.  If the pipe was created the other
+way around, the shell could print the prompt while the data from the still
+living child could might be still flowing on the console.
 \item For example, the original \emph{Bourne shell} constructed a pipeline the
 way that the last process created a child as its producer, that producer itself
 created its child as its producer, and this continued until the whole pipeline
