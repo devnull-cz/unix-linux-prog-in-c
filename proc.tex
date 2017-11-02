@@ -903,49 +903,43 @@ child's return value out of the status information.
 \pdfbookmark[1]{pipe}{pipe}
 
 \begin{slide}
-\sltitle{Roura: \texttt{pipe()}}
+\sltitle{\texttt{pipe()}}
 \texttt{int \funnm{pipe}(int \emph{fildes}[2]);}
 \begin{itemize}
-\item vytvoøí rouru a dva deskriptory 
+\item creates an unnamed pipe and allocates a pair of file descriptors
     \begin{itemize}
-    \item \texttt{fildes[0]} \dots{} ètení z roury 
-    \item \texttt{fildes[1]} \dots{} zápis do roury 
+    \item \texttt{fildes[0]} \dots{} reading from a pipe
+    \item \texttt{fildes[1]} \dots{} writing to a pipe
     \end{itemize}
-\item roura zaji¹»uje synchronizaci ètení a zápisu: 
+\item the system makes sure that:
     \begin{itemize}
-    \item zapisující proces se zablokuje, kdy¾ je roura plná,
-    \item ètoucí proces se zablokuje, kdy¾ je roura prázdná.
+    \item producer blocks on writing if the pipe is full
+    \item consumer blocks on reading if the pipe is empty
     \end{itemize}
-\item ètoucí proces pøeète konec souboru (tj. \texttt{read()} vrátí
-\texttt{0}), pokud jsou uzavøeny v¹echny kopie \texttt{fildes[1]}. 
-\item pojmenovaná roura (vytvoøená voláním \texttt{mkfifo()})
-funguje stejnì, ale má pøidìl{}ené jméno v systému souborù a mohou ji
-tedy pou¾ívat libovolné procesy.
+\item consumer gets EOF (ie. \texttt{read()} returns
+\texttt{0}) only if all copies of \texttt{fildes[1]} are closed.
+\item named pipe (ie. fifo, see \funnm{mkfifo}) works the same way.  The
+difference is any process can use it.
 \end{itemize}
 \end{slide}
 
 \label{PIPE}
 
 \begin{itemize}
-\item nepojmenovanou rouru vytváøí jeden proces a mù¾e ji pøedat
-pouze svým potomkùm (pomocí deskriptorù zdìdìných pøi
-\texttt{fork}). Toto omezení se dá obejít pomocí pøedání
-otevøeného deskriptoru pøes u{}nix-domain socket.
-\item jestli¾e funkce \texttt{write} zapí¹e do roury nejvý¹e
-\texttt{PIPE\_BUF} (systémová konstanta) bajtù, je zaruèeno, ¾e
-zápis bude atomický, tj. tato data nebudou prolo¾ena daty
-zapisovanými souèasnì jinými procesy. 
-\item \label{TWO_WAY_PIPES} v normì SUSv3 není specifikováno, zda
-\texttt{fildes[0]} je také otevøený pro zápis a zda \texttt{fildes[1]} je té¾
-otevøený pro ètení. Pozor na to, ¾e napøíklad FreeBSD a Solaris mají roury
-obousmìrné, ale Linux (kdy¾ jsem se naposledy díval) ne. Je proto velmi vhodné
-poèítat pouze s jednosmìrnými rourami.
-\item \emsl{dùle¾ité:} pro ètení/zápis z/do roury platí stejné podmínky jako
-pro pojmenovanou rouru, jak jsou uvedeny na stranì \pageref{NAMEDPIPE}. To také
-znamená, ¾e jediný zpùsob, jak ètenáøovi roury ``poslat'' end-of-file je, ¾e
-v¹ichni za\-pi\-so\-va\-te\-lé musí zavøít pøíslu¹ný desk\-rip\-tor pro zápis,
-pøípadnì v¹echny takové deskriptory, mají-li jich více.
-\item pøíklady: \priklad{pipe/broken-pipe.c}, \priklad{pipe/main.c}
+\item An unnamed pipe is created by one process and can be passed to its
+children only via file descriptors inherited through \funnm{fork}.  That
+limitation can be worked around via passing an open file descriptor via a
+u{}nix-domain socket.
+\item If the function \funnm{write} writes at most \texttt{PIPE\_BUF} bytes to
+the pipe, it is guaranteed that the write will be atomic, ie. those bytes will
+not be interlaced with bytes written by other producers.
+\item \label{TWO_WAY_PIPES} The SUSv3 standard does not specify whether
+\texttt{fildes[0]} is also open for writing and if \texttt{fildes[1]} is also
+open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
+may not.  It is best to assume unidirectional pipes.
+\item \emsl{Important:} the same rules applied to reading and writing from/to
+named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
+\item Examples: \priklad{pipe/broken-pipe.c}, \priklad{pipe/main.c}
 \end{itemize}
 
 %%%%%
