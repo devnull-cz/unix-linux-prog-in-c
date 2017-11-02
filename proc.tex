@@ -521,7 +521,7 @@ Solarisu) to nemusí platit. Viz pøíklad \priklad{session/getppid.c}.
 \texttt{pid\_t \funnm{setsid}(void);}
 \begin{itemize}
 \item creates a new session if the calling process is not a process
-group leader.
+group leader
 \end{itemize}
 \end{slide}
 
@@ -590,9 +590,9 @@ int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
 \item replaces the current process image with a new process image
 \item runs a program defined via \emph{path}
 \item arguments that follow, including \emph{arg0}, are given to the program via
-\texttt{argc} and \texttt{argv} of the new program's \texttt{main()}.
-\item the argument list must end with \texttt{(char *)0}, ie. \texttt{NULL}.
-\item \emph{arg0} should contain the program name (ie. not the full path).
+\texttt{argc} and \texttt{argv} of its \texttt{main()}
+\item the argument list must end with \texttt{(char *)0}, ie. \texttt{NULL}
+\item \emph{arg0} should contain the program name (ie. not the full path)
 \end{itemize}
 \end{slide}
 
@@ -603,22 +603,22 @@ int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
 \texttt{PATH} is only used for \funnm{execlp} a \funnm{execvp} (see the one of
 the slides that follow), if \emph{path} does not contain \texttt{'/'}.
 \item All variants of these calls are commonly just called the \funnm{exec}
-call.  It goes without saying that one of the variants is used but usually it is
-not important for the sake of a discussion.
-\item sometimes \texttt{argv[0]} is different from the executable file name.
+call.  It goes without saying that one of the variants is used but usually that
+is not important for the sake of a discussion.
+\item Sometimes \texttt{argv[0]} is different from the executable file name.
 For example, \texttt{login} command prefixes the shell file name with
 \texttt{'-'}, eg. \texttt{-bash}.  The shell then knows it is supposed to
-function as a login shell.  A shell logins reads \texttt{/etc/profile}, for
+function as a login shell.  A login shell reads \texttt{/etc/profile}, for
 example.
 \item \funnm{exec} does not transfer the control to the program in memory
 directly.  As desribed on page \pageref{RUNTIMELINKER}, the system (ie. the code
 of the \funnm{exec} call) first maps the dynamic linker, aka loader, to the
 process address space.  The loader then maps all dynamic libraries there as
 well, then finally calls the program \texttt{main()}.
-\item A simple excercise is to write a simple program calling \texttt{open()},
-for example.  Then run the program via \texttt{truss(1)} or \texttt{strace} like
-this: \texttt{truss ./a.out}. You will see what is being done before
-\texttt{open} is called at last.
+\item A useful exercise is to write a simple program calling \texttt{open()},
+for example.  When done, run the program via \texttt{truss(1)} or
+\texttt{strace(1)} like this: \texttt{truss ./a.out}. You will see what is being
+done before \texttt{open} is called in the end.
 \end{itemize}
 
 \begin{slide}
@@ -627,7 +627,7 @@ this: \texttt{truss ./a.out}. You will see what is being done before
 int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
 \begin{itemize}
 \item successful \funnm{execl} never returns as the new process (program) fully
-replaced the address space of the calling process.
+replaced the address space of the calling process
 \begin{itemize}
 \item ...the original place to return to no longer exists
 \end{itemize}
@@ -636,16 +636,16 @@ replaced the address space of the calling process.
 \item ...as the original handler code no longer exists
 \end{itemize}
 \item file descriptors with flag \texttt{FD\_CLOEXEC} are closed
-\item the new process inherits \texttt{environ} from the calling process.
+\item the new process inherits \texttt{environ} from the calling process
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item More about signals on page \pageref{SIGNALS}
+\item More about signals on page \pageref{SIGNALS}.
 \item \funnm{exec} does not change RUID and RGID.  And for security reasons, if
-the executed program has a SUID bit set, the program's EUID and saved EUID is
+the executed program has a SUID bit set, the program's EUID and saved EUID are
 set to the UID of the executable program owner.
-\item Today's system can also execute scripts that start with a line:\\
+\item Today's systems can also execute scripts that start with a line:\\
 \texttt{\#!/\emph{interpreter\_path}/\emph{interpreter\_name} \emph{[args]}}
 \end{itemize}
 
@@ -714,7 +714,7 @@ In the following example, run on some version of the FreeBSD system, \texttt{ls}
 is trying to list filenames that are environment variable names and values (the
 environment array contain strings \texttt{<varname>=<value>}), as those were on
 the stack because the environment was passed to the program being executed, as
-we already know.  The output was in my case:
+we already know.  In my case, the output was:
 
 \begin{verbatim}
 $ ./a.out 
@@ -736,7 +736,7 @@ $ ./a.out
 \sltitle{Executable file format}
 \begin{itemize}
 \item \emsl{a.out} format, in early UNIX versions
-\item \emsl{Common Object File Format (COFF)} -- AT\&T System V, superceeded
+\item \emsl{Common Object File Format (COFF)} -- AT\&T System V, superseded
 \emsl{a.out}
 \item \emsl{Extensible Linking Format (ELF)} -- new in SVR4, replaced both older
 formats
@@ -929,7 +929,8 @@ difference is any process can use it.
 \item An unnamed pipe is created by one process and can be passed to its
 children only via file descriptors inherited through \funnm{fork}.  That
 limitation can be worked around via passing an open file descriptor via a
-u{}nix-domain socket.
+u{}nix-domain socket.  However, such a workaround is out of scope for this
+class.
 \item If the function \funnm{write} writes at most \texttt{PIPE\_BUF} bytes to
 the pipe, it is guaranteed that the write will be atomic, ie. those bytes will
 not be interlaced with bytes written by other producers.
