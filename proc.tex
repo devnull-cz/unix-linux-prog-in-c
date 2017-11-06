@@ -933,8 +933,8 @@ limitation can be worked around via passing an open file descriptor via a
 u{}nix-domain socket.  However, such a workaround is out of scope for this
 class.
 \item If the function \funnm{write} writes at most \texttt{PIPE\_BUF} bytes to
-the pipe, it is guaranteed that the write will be atomic, ie. those bytes will
-not be interlaced with bytes written by other producers.
+the pipe, it is guaranteed that the write will be atomic, ie. such bytes will
+not be intermingled with bytes written by other producers.
 \item \label{TWO_WAY_PIPES} The SUSv3 standard does not specify whether
 \texttt{fildes[0]} is also open for writing and if \texttt{fildes[1]} is also
 open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
@@ -997,37 +997,31 @@ for all processes to finish.
 \begin{slide}
 \sltitle{Shared memory -- introduction}
 \begin{itemize}
-\item pajpy a soubory jako metody meziprocesové komunikace vy¾adují
-systémová volání
-\item výhoda: procesy nemohou po¹kodit adresový prostor jiného
-procesu
-\item nevýhoda: velká re¾ie pro systémová volání, typicky
-\funnm{read}, \funnm{write}
-\item sdíl{}ená pamì» je namapování èásti pamìti do adresového
-prostoru více procesù
-\item odstranìní nevýhody, ztráta dosavadní výhody
-\item synchronizace pøístupu do sdíl{}ené pamìti
+\item using pipes and files to communicate between processes requires system
+calls
 \begin{itemize}
-  \item System V semafory
-  \item POSIX semafory bez nutnosti systémového volání v bì¾ném
-  pøípadì
+\item pros: processes cannot corrupt one another's address space
+\item const: significant syscall overhead (typically \funnm{read},
+\funnm{write})
+\end{itemize}
+\item \emph{shared memory} means to map a part of memory into an address space
+of multiple processes
+\item syscall overhead is gone but processes may become dangerous to one another
+\item memory access synchronization is needed
+\begin{itemize}
+  \item System V semaphores
+  \item POSIX semaphores
 \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item mapování souborù do pamìti je jednou z implementací sdíl{}ené
-pamìti. Pro popis úseku sdíl{}ené pamìti pou¾ívá soubor.
-\item takto implementovaná sdíl{}ená pamì» je tedy pravidelnì
-zapisována na disk
-\item pro sdíl{}ení bez re¾ie zápisu zmìnìných dat na disk je mo¾né pou¾ít
-\emph{memory based} filesystém, napøíklad \emph{tmpfs} (Solaris, NetBSD -- zde
-byl \emph{tmpfs} napsán v roce 2005 jako souèást \emph{Summer of Code}
-sponzorovaného firmou Google, FreeBSD má podobnou vlastnost pod názvem
-\emph{memory disk}).  Jako tzv. \emph{backing store} pro pamì»ové stránky
-patøící tìmto filesystémùm je obecnì mo¾né pou¾ít swap oblast na disku.
-\item pro synchronizaci pøístupu do sdíle{}né pamìti se vìt¹inou pou¾ívají
-semafory.
+\item Memory file mapping is one of the implementations of shared memory.  A
+filename is used to describe the shared piece of memory.
+\item A memory mapped file is regularly written to disk.
+\item Memory based disks and filesystem are provided by today's system.  They
+primarily rely on main memory for data storage, thus avoiding overhead of
+physical storage reads and writes.
 \end{itemize}
 
 %%%%%
@@ -1035,26 +1029,25 @@ semafory.
 \pdfbookmark[1]{mmap}{mmap}
 
 \begin{slide}
-\sltitle{Mapování souborù do pamìti (1)}
+\sltitle{Mapping files to memory (1)}
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 void *\funnm{mmap}(\=void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{prot}, int \emph{flags},\\\> int \emph{fildes}, off\_t \emph{off});
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item do pamì»ového prostoru procesu od adresy \texttt{addr}
-(\texttt{0} \dots{}adresu pøidìlí jádro) namapuje úsek délky
-\texttt{l{}en} zaèínající na pozici \texttt{off} souboru
-reprezentovaného deskriptorem \texttt{fildes}. 
-\item vrací adresu namapovaného úseku nebo \texttt{MAP\_FAILED}. 
-\item v \texttt{prot} je OR-kombinace \texttt{PROT\_READ} (lze
-èíst), \texttt{PROT\_WRITE} (lze zapisovat), \texttt{PROT\_EXEC}
-(lze spou¹tìt), nebo \texttt{PROT\_NONE} (nelze k~datùm
-pøistupovat). 
-\item ve \texttt{flags} je OR-kombinace \texttt{MAP\_PRIVATE} (zmìny
-jsou privátní pro proces, neukládají se do souboru),
-\texttt{MAP\_SHARED} (zmìny se ukládají do souboru),
-\texttt{MAP\_FIXED} (jádro nezmìní addr).
+
+\item A file section of \emph{l{}en} bytes, starting at position \texttt{off} in
+a file represented by a file descriptor \texttt{fildes}, mapped to the process
+space starting at address \emph{addr} (\texttt{0} \dots{}kernel assigns the
+address).
+\item Returns the address of the mapped section, or \texttt{MAP\_FAILED}. 
+\item In \emph{prot}, there is an OR combination of \texttt{PROT\_READ} (read
+allowed), \texttt{PROT\_WRITE} (write allowed), \texttt{PROT\_EXEC} (execution
+allowed), or \texttt{PROT\_NONE} (no access allowed).
+\item In \emph{flags} there is an OR combination of \texttt{MAP\_PRIVATE}
+(changes private to the process, not saved to the file), and
+\texttt{MAP\_SHARED} (modifications are saved to the file)
 \end{itemize}
 \end{slide}
 
@@ -1064,7 +1057,11 @@ jsou privátní pro proces, neukládají se do souboru),
 \setlength{\itemsep}{0.8\itemsep}
 \item Pøíklady: \priklad{mmap/reverse.c}, \priklad{mmap/map-nocore.c}
 \item v pøíznacích musí být pøítomen \emsl{právì jeden} z \texttt{MAP\_PRIVATE}
-a \texttt{MAP\_SHARED}
+a \texttt{MAP\_SHARED}.  There is also \texttt{MAP\_FIXED}, with which the
+kernel tries to map the section at \emph{addr} even if it means to unmap and
+already existing mapping.  Without \texttt{MAP\_FIXED}, the kernel will try to
+use \emph{addr} but if there is an existing mapping, it will try to find another
+address to use (and returns it).
 \item mapování souborù do pamìti je alternativou ke zpracování souborù pomocí
 \texttt{read}, \texttt{write}, \texttt{lseek}.  Po namapování lze se
 souborem pracovat jako s datovou strukturou v pamìti. Soubor se nekopíruje celý
