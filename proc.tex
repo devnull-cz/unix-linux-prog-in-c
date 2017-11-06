@@ -698,7 +698,8 @@ the full path to the executable program, either an absolute or relative one.
 \item All variants aside from \funnm{execle} and \funnm{execve}
 are also passing to the program being executed the environment variables of the
 calling process, ie. the \texttt{environ} array.
-\item For some unknown historical reasons, there is no \funnm{execpe}.
+\item For some unknown historical reasons, there is no ``p'' with ``e'' together
+in the standard.  However, GNU provides \funnm{execvpe} as an extension.
 \item \label{EXEC_DATE} Example: \priklad{exec/exec-date.c}
 \item \label{EXECL} The following use of \funnm{execl} is incorrect as it is
 missing the mandatory argument for \texttt{argv[0]}:
