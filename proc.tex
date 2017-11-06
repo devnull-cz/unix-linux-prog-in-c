@@ -593,6 +593,10 @@ int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
 \texttt{argc} and \texttt{argv} of its \texttt{main()}
 \item the argument list must end with \texttt{(char *)0}, ie. \texttt{NULL}
 \item \emph{arg0} should contain the program name (ie. not the full path)
+\item \emsl{open file descriptors are unaffected by \funnm{exec}}
+\begin{itemize}
+\item \dots{}aside from file descriptors with flag \texttt{FD\_CLOEXEC}
+\end{itemize}
 \end{itemize}
 \end{slide}
 
@@ -635,7 +639,6 @@ replaced the address space of the calling process
 \begin{itemize}
 \item ...as the original handler code no longer exists
 \end{itemize}
-\item file descriptors with flag \texttt{FD\_CLOEXEC} are closed
 \item the new process inherits \texttt{environ} from the calling process
 \end{itemize}
 \end{slide}
@@ -941,7 +944,7 @@ open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
 may not.  It is best to assume unidirectional pipes.
 \item \emsl{Important:} the same rules applied to reading and writing from/to
 named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
-\item Examples: \priklad{pipe/broken-pipe.c}, \priklad{pipe/pipe-and-fork.c}
+\item Example: \priklad{pipe/broken-pipe.c}
 \end{itemize}
 
 %%%%%
@@ -956,6 +959,10 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 \label{FDSHARING}
 
 \begin{itemize}
+\item Remember, open file descriptors are unaffected by \funnm{exec}
+aside from file descriptors with flagged as \texttt{FD\_CLOEXEC} -- those are
+closed in the \emsl{successful} \funnm{exec} call.
+\item Example: \priklad{pipe/pipe-and-fork.c}
 \item Closing the writing descriptor \texttt{pd[1]} (see
 {\color[rgb]{1,0,0} $\triangleright$}) in the consumer process is required
 as the EOF would not be detected otherwise.
