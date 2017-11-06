@@ -975,7 +975,7 @@ could actually close one end of the pipe.  Similarly, in the consumer you might
 need to check if \verb#pd[0] == 0#.
 \item It is better to create a pipe from a child to its parent as typically the
 process writing the pipe finishes first, then the consumer reads the rest of the
-data, process it, and then finally exits.  Remember, the shell waits for the
+data, processes it, and then finally exits.  Remember, the shell waits for the
 program it started, ie. the parent, and it does not care at all about children
 the running program spawned during its life.  If the pipe was created the other
 way around, the shell could print the prompt after the parent finished while the
