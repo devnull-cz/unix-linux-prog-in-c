@@ -419,14 +419,14 @@ prioritou ni¾¹í.
 \begin{itemize}
 \item every process belongs to a \emph{process group}
 \item each group can have a leading process, so called \emph{group leader}
-\item every process can have a \emph{controlling terminal} (usualy it is login
-terminal)
-\item special file \texttt{/dev/tty} is associated with controlling terminal
+\item every process can have a \emph{controlling terminal} (usually it is a
+login terminal)
+\item special file \texttt{/dev/tty} is associated with a controlling terminal
 of each process
-\item each terminál is associated with process group, this group
-is called (\emph{controlling group})
-\item job control (\emph{job control}) is mechanism, how to stop and wakeup
-process groups and control their access to terminals.
+\item each terminal is associated with a process group called a
+(\emph{controlling group})
+\item \emph{job control} is a mechanism for suspending, resuming, and
+terminating process groups and control their access to terminals
 \item \emph{session} is a collection of process groups created for the purpose
 of job control
 \end{itemize}
