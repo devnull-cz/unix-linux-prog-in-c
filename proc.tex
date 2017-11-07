@@ -959,9 +959,9 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 \label{FDSHARING}
 
 \begin{itemize}
-\item Remember, open file descriptors are unaffected by \funnm{exec}
-aside from file descriptors with flagged as \texttt{FD\_CLOEXEC} -- those are
-closed in the \emsl{successful} \funnm{exec} call.
+\item Remember, open file descriptors are unaffected by \funnm{exec} aside from
+file descriptors with the \texttt{FD\_CLOEXEC} flag -- those are closed in the
+\emsl{successful} \funnm{exec} call.
 \item Example: \priklad{pipe/pipe-and-fork.c}
 \item Closing the writing descriptor \texttt{pd[1]} (see
 {\color[rgb]{1,0,0} $\triangleright$}) in the consumer process is required
