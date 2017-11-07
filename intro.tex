@@ -850,9 +850,8 @@ pøeformátuje jakýkoli C zdrojový text do po¾adovaného výstupu.
 \begin{slide}
 \sltitle{C style}
 \begin{itemize}
-\item vìc zdánlivì podøadná, pøitom extrémnì dùle¾itá -- úprava zdrojových
-kódù programu
-\item mnoho zpùsobù jak ano:
+\item C style of the source code files is extremely important
+\item there are quite a few ways how to do it:
 
 \begin{verbatim}
 int
@@ -870,10 +869,15 @@ main(void)
 \end{slide}
 
 \begin{itemize}
-\item u C stylu je nejdùle¾itìj¹í to, aby byl konzistentní. Pokud skupina
-programátorù pracuje na jednom projektu, není zas a¾ tak dùle¾ité, na jakém
-stylu se dohodnou (pokud je alespoò trochu rozumný), ale aby se dohodli.
-Jednotný a dobøe zvolený styl ¹etøí èas a brání zbyteèným chybám.
+\item One of the most important thing of a C style (well, any style) is
+consistency.  And often it is not that important what an exact C style a group
+of coders is going to pick as it is that one specific style is chosen and then
+religiously followed by all in the group.  A good and followed cstyle leads to
+less number of bugs in the code.
+\item A pre-push hook that runs a C style check script and refuses to accept any
+changesets not following the chosen C style is a working solution to avoid C
+style violations.
+\item \url{http://mff.devnull.cz/cstyle.html}
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -881,7 +885,7 @@ Jednotný a dobøe zvolený styl ¹etøí èas a brání zbyteèným chybám.
 \begin{slide}
 \sltitle{C style (cont.)}
 \begin{itemize}
-\item mnoho zpùsobù jak \emsl{NE} (tzv. assembler styl):
+\item many ways how \emsl{NOT} to do it (so called assembler style):
 
 \begin{verbatim}
 int main(void) {
@@ -891,7 +895,7 @@ return (0);
 }
 \end{verbatim}
 
-\item nebo (schizofrenní styl):
+\item or a schizophrenic style:
 \begin{verbatim}
 int main(void) {
         int i = 0; char c;
@@ -905,28 +909,9 @@ return (0);
 \end{slide}
 
 \begin{itemize}
-\item pamatujte na to, ¾e dobrý styl zdrojových kódù je i vizitkou programátora.
-Kdy¾ se v rámci pøijímacích pohovorù odevzdávají i ukázkové kódy, tak hlavní
-dùvod pøekvapivì není ten, aby se zjistilo, ¾e vám daný program funguje. Úprava
-samotného zdrojového textu je jedním z kriterií, proto¾e to pøenesenì mù¾e
-svìdèit i o dal¹ích skuteènostech -- nìkdo napø. bude odhadovat, ¾e pokud pí¹ete
-neèistý a neupravený kód, tak jste mo¾ná je¹tì nepracovali na nìèem opravdu
-slo¾itém èi nìèem zahrnujícím spolupráci s více programátory, proto¾e v tom
-pøípadì je rozumnì èistý kód jednou z podmínek úspìchu a jednou ze zku¹eností,
-které z takové spolupráce vycházejí. Toto je samozøejmì zèásti subjektivní
-názor, ale èistým kódem nic nezkazíte, minimálnì nekazíte oèi svým cvièícím.
-\item informace o C stylu pou¾ívaném pro zdrojové kódy Solarisu,
-vèetnì skriptu, který vám zdrojáky zkontroluje a upozorní na
-pøípadné nedostatky, je mo¾né nalézt na
-\url{http://mff.devnull.cz/pvu/common/cstyle.html}. Pokud budete do\-dr\-¾o\-vat
-tento styl pøi psaní zkou¹kových pøíkladù, u¹etøíte mi tím práci pøi
-vyhodnocování.
-Obecnì je dobré, abyste si zkusili, co je to psát kód podle nìjakého
-konkrétního stylu, a ten pro daný ,,projekt'' dodr¾et.
-\item bohu¾el ani vý¹e uvedený skript není v¹emocný. Je zalo¾ený na kontrole
-pomocí regulárních výrazù, tak¾e tøeba ten assembler styl ze slajdu projde bez
-chyby, proto¾e bez skuteèné analýzy kódu není mo¾né (?) kontrolovat správné
-odsazování. V¹e ostatní je na nìm, dle \texttt{cstyle} skriptu, korektní.
+\item A good C style of of the source code you write represents you.  You will
+be judged by other people by the way your source code looks.  Always try to
+write beautiful code.
 \end{itemize}
 
 %%%%%
