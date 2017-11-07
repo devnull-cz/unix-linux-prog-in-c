@@ -67,17 +67,17 @@ we appreciate if you let us know.
 \end{slide}
 
 \begin{itemize}
-\item Budeme se zabývat hlavnì principy UNIXu a programováním pro UNIX
-pouze v~jazyce C.
-\item \emsl{Pøedná¹ka je pøevá¾nì o systémových voláních, tj. rozhraním mezi
-u¾ivatelským prostorem a jádrem}.
-\item Pøi popisu API se budeme dr¾et normy \emph{Single UNIX Specification,
-version~4} (SUSv4). Systémy, které tuto specifikaci podporují, mohou pou¾ívat
-oznaèení UNIX~V7. Pøedchozí verzi SUSv3 splòují poslední verze systémù
-Solaris, AIX, HP-UX a Mac~OS~X na rùzných architekturách
+\item This lecture is mostly about Unix principles and Unix programming in the~C
+language.
+\item \emsl{The lecture is mostly about system calls, ie. an interface between a
+user space and system kernel.}
+\item For the API, we will follow \emph{Single UNIX Specification, version~4}
+(SUSv4). Systems that submit to the Open Group for certification and pass
+conformance tests are termed to be compliant with a UNIX standard UNIX~V7.
+Versions of Solaris, AIX, HP-UX a Mac~OS~X on various architectures are
+compliant with the the previous version SUSv3
 (\url{http://www.opengroup.org/openbrand/register/xy.htm}).
-\item Pro konkrétní pøíklady budu pou¾ívat vìt¹inou systémy FreeBSD
-a Linux.
+\item The specific source code examples are usually tested on Mac~OS and Linux.
 \end{itemize}
 
 %%%%%
@@ -124,8 +124,10 @@ Praha 1993
 
 \end{slide}
 
-\emsl{We rather recommend Unix books in English}.  This list of books in Czech
-is very probably outdated.
+\begin{itemize}
+\item We recommend Unix books in English.  What is more, the list of books in
+Czech is very probably outdated.
+\end{itemize}
 
 \begin{enumerate}
 \item Unix basics.
@@ -134,7 +136,6 @@ is very probably outdated.
 \item There is probably a newer version.
 \item This is a great book on the C language.
 \end{enumerate}
-
 
 %%%%%
 
@@ -156,7 +157,9 @@ edition, 2006.
 \end{enumerate}
 \end{slide}
 
-These books are about Unix internals, not about Unix system programming.
+\begin{itemize}
+\item These books are about Unix internals, not about Unix system programming.
+\end{itemize}
 
 \begin{enumerate}
 \item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
