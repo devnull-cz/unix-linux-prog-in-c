@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Exam rules for Unix programming in C</title>
+  <meta charset="ascii">
+  <script type='text/javascript'>
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h2>Exams</h2>
+
+<h3>Prerequisites</h3>
+
+<p>You don't need the credit from labs in order to attempt the exam.
+If you did not attend the labs, be sure to check that your Unix lab account
+works (try to sign in using SSH). Same for your own laptop.
+</p>
+
+<h3>Dates</h3>
+
+<p>
+The dates of exams will be in the information system.
+<b>
+Be sure to check any updates in the information system in the News section
+the day before the exam.
+</b>
+There will be sufficient number of dates.
+</p>
+
+<h3>Tools</h3>
+
+<p>
+You should be able to make your program work with using terminal,
+compiler toolchain (<tt>gcc</tt>,
+<tt>make</tt>, <tt>ld</tt>, ...) and editor <tt>vim</tt> (<tt>vi</tt>).
+If an IDE of choice happens not to be working is not an excuse.
+Feel free to use your laptop.
+</p>
+
+<h3><a name="rules">Rules</a></h3>
+
+<table bgcolor="#cd5c5c" cellpadding="2">
+<tr><td>
+<p>
+You need to sign up for the exam in the Information system. If you cannot make
+it once signed up, <b>it is necessary to cancel the sign up until 22:00
+the day before the exam</b> (the systsem does not allow it after that)
+<b>If you fail to show up it will be considered as a failed attempt</b>.
+You can sign up anytime.
+</p>
+</table>
+
+<p>
+There is a practical and oral examination. The duration of the practical part 
+is around 2.5 hours. The goal is to produce short fully working program using
+Unix API.
+It is permitted to use any books or materials (slides and notes from the lecture,
+examples, books, man pages, web including search engines etc.)
+It is not allowed to interact with anyone else.
+</p>
+
+<p>Oral examination has 2 parts:
+
+<ol>
+<li><b>review of the program.</b> Do not forget to use <tt>-Wall</tt>,
+C style and check return values of ,,important'' syscalls (e.g. <tt>open</tt>).
+Checking return values such as those for mutex lock/unlock is not necessary.
+In other words if you know what you are doing, you can omit some checks.
+</li>
+
+<li><b>theory</b> (2 questions + additional question if in doubt).
+No tools allowed.
+</li>
+</ol>
+
+<p>
+(<a href="./questions-theory.html">Theory questions</a>),
+<a href="./sample_exams.html">sample tasks</a>
+from previous years.
+</p>
+
+<h3>Evaluation</h3>
+
+<p>
+If the program does not work according to the instructions, it means failed
+attempt. Otherwise the quality of the implementation sets the evaluation
+of the first part of the exam.
+</p>
+
+<p>
+Pet peeves (failing to heed these means worsened evaluation)
+</p>
+
+<ul>
+<li>IPv4/IPv6 agnosticity (program must transparently work in both address
+faimilies, should not have hardcoded structures or functions specific
+for an address family)</li>
+<li>safe signal handlers (either use async-signal-safe functions or
+control variables with appropriate declaration)</li>
+<li>check return values with appropriate reaction</li>
+<li>no active waiting (no spinning where not absolutely necessary)</li>
+<li>resource leaks (memory, file descriptors, in-kernel resources -
+mainly for SVR4 IPC)</li>
+</ul>
+
+<p>
+The evaluation of the oral exam is based on answers for 2 questions.
+If the resulting evaluation is worse than C, it means failed attempt.
+</p>
+
+<p>
+The overall evaluation is composed from the evaluation of the program
+and oral exam.
+<b>both need to be max C.</b> If there is any doubt, the oral examination
+will decide.
+</p>
+
+<p><hr>
+Last change:
+<script>
+write_last_mod ();
+</script>
+
+</body>
+</html>

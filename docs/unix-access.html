@@ -1,0 +1,44 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Unix access</title>
+  <meta charset="utf-8">
+  <script type='text/javascript'>
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>Access to Unix machines at MFF UK</h1>
+
+<p>You can remotely use some Linux machines in the labs of Mal&aacute;
+Strana.  Those are <code>u-pl1.ms.mff.cuni.cz</code> to
+<code>u-pl15</code>.
+
+<p>If you want anything else, just use a virtual machine, for example <a
+href="http://www.virtualbox.org/">VirtualBox</a>, <a
+href="http://bellard.org/qemu/">QEMU</a>, or <a
+href="http://www.vmware.com/">VMWare</a>.
+
+<p>To access Unix machines from a Windows installation, you can use a
+widely used SSH client <a
+href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">PuTTY</a>.
+
+<p><hr>
+Lasted changed:
+<script>
+write_last_mod ();
+</script>
+
+</body>
+</html>

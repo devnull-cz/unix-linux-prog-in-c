@@ -1,0 +1,258 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>UNIX programming (NSWI015)</title>
+  <script type='text/javascript'>
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>Exam theory questions</h1>
+
+<h2>Development tools</h2>
+
+<ol>
+<li>
+Describe principles of compiler and link editor for C language.
+</li>
+
+<li>
+Explain the principles of <tt>make</tt> utility and write sample <tt>Makefile</tt>
+for compilation and linking of a program in C.
+</li>
+
+<li>
+What are the advantages and disadvantages ofr using dynamic libraries ?
+Write a sequence of commands for producing dynamic library and program which will
+depend on it (ideally on both Linux and Solaris).
+</li>
+
+<li>
+What is affected by <tt>LD_PRELOAD</tt> and <tt>LD_LIBRARY_PATH</tt> environment variables ?
+Why it is not good idea to use <tt>LD_LIBRARY_PATH</tt> environment variable for anything
+else other than debugging purposes ?
+</li>
+</ol>
+
+<h2>Kernel and UNIX C API</h2>
+
+<ol>
+<li>
+Explain the meaning of <tt>main()</tt> parameters and the <tt>environ</tt> variable.
+How are the command line arguments processed with <tt>getopt()</tt> ?
+</li>
+
+<li>
+Explain the meaning of terms like <i>process</i>, <i>thread</i>, <i>program</i>.
+What is the difference between process and thread ?
+</li>
+
+<li>
+Explain the terms <i>library function</i> and <i>system call</i>.
+Describe the convention/semantics of return values of library calls and
+system calls.
+</li>
+
+<li>
+What do the contents of files <tt>/etc/passwd</tt> and <tt>/etc/group</tt> look like ?
+When and how are the data stored in these files used in the UNIX system ?
+</li>
+
+<li>
+How is the identification of owner and group used for permissions testing ?
+What is the difference between real and effective owner of a process ?
+</li>
+</ol>
+
+<h2>File systems</h2>
+
+<ol>
+<li>
+What objects in UNIX are accessible via file system interface ?
+What is the difference between character and block device ?
+</li>
+
+<li>
+Describe structure of S5 volume and its extensions (ufs).
+</li>
+
+<li>
+Explain the principle of navigating the directory structure, i.e. how does kernel
+find data blocks of given file using its path ?
+Explain the difference between <i>hardlink</i> and <i>symlink</i>>.
+</li>
+
+<li>
+What are access rights for files ? What is set UID ?
+</li>
+
+<li>
+How do processes access open files ? What is the difference between descriptor and
+opening of a file ?
+</li>
+
+<li>
+What is <i>virtual file system</i> ? What is it for and what are its principles ?
+</li>
+
+<li>
+What is the difference between disk paritition and volume ?
+What does the process of creation, consistency check, mount and unmount of a volume look like ?
+</li>
+</ol>
+
+<h2>Processes and pipes</h2>
+
+<ol>
+<li>
+Describe address space of a process in user mode and kernel mode.
+</li>
+
+<li>
+Draw and describe state diagram of a process.
+</li>
+
+<li>
+Describe basics of mechanism of process planning. What priority classes ?
+</li>
+
+<li>
+Describe the mechanism of maping files into memory. Describe how a process
+can access variables and functions in shared library during runtime.
+How are these 2 things related together ?
+</li>
+</ol>
+
+<h2>Signals</h2>
+
+<ol>
+<li>
+What are signals ? How can be signal generated for a process ?
+What is the difference between sending signal to process and to a thread.
+</li>
+
+<li>
+What are the options for handling a signal ? How is it (blocking, handling) set up for
+process and for threads ?
+</li>
+
+<li>
+What are the rules for writing signal handlers ? How can one cope with restrictions
+for their implementation ?
+</li>
+</ol>
+
+<h2>Threads</h2>
+
+<ol>
+<li>
+What is a theead and how does it differ from a process ? What attributes are
+common for process and which are private for a thread ? How can one create
+global variable for a thread ?
+</li>
+
+<li>
+Describe the process for creating and destroying a thread ? How do the desctructors
+of keyed values and exit handlers work ?
+</li>
+
+<li>
+List synchronization primitives for threads. Describe the way of using
+condition variables, reasons for using them in certain way (w.r.t. order of locking)
+and what could happen if this was not abided.
+</li>
+
+<li>
+What are the ways of solving synchronization arithmetic operation (adding and subtraction)
+between threads and list their advantages and disadvantages.
+</li>
+
+<li>
+What happens if one thread calls <tt>fork()</tt> ? What problem this could lead to
+and how to solve it ?
+</li>
+</ol>
+
+<h2>Synchronization and locking</h2>
+
+<ol>
+<li>
+Explain locking conflict when accessing shared data ? What is a deadlock ?
+Describe locking of files by using <tt>fcntl()</tt>.
+</li>
+
+<li>
+Explain locking by using <i>lock files</i>.
+</li>
+</ol>
+
+<h2>IPC</h2>
+
+<ol>
+<li>
+Describe semaphores implemented in UNIX System V IPC. What commands can be
+used to list their state ?
+</li>
+</ol>
+
+<h2>Networking</h2>
+
+<ol>
+<li>
+Describe workings of server and client (in terms of sequence of system calls)
+for connected network services.
+</li>
+
+<li>
+Describe workings of server and client (in terms of sequence of system calls)
+for datagram network services.
+</li>
+
+<li>
+What is a socket ? What are the variants of addressing sockets (within single system
+and over the network). What functions can be used for conversion from numeric
+and string representation (and vice versa) of protocols, ports and IP addresses ?
+Why do the functions for converting from local and network byte order have to be used ?
+</li>
+
+<li>
+Describe standard functions for conversion from hostname to address and back,
+their use for client and server. What advantages do they have compared to
+non-standard functins ?
+</li>
+
+<li>
+Describe possibilities of sequential and parallel handling of clients of TCP server.
+</li>
+
+<li>
+How does <tt>inetd</tt> work ? How does parallel handling of UDP clients look like ?
+</li>
+
+<li>
+What are the ways of expecting/handling data from multiple descriptors ?
+How are the functions used when implementing network server which handles multiple clients
+from one process without the use of threads. What are the differences between
+functions which make this possible ?
+</li>
+</ol>
+
+<p><hr>
+Last change:
+<script>
+write_last_mod ();
+</script>
+
+</body>
+</html>

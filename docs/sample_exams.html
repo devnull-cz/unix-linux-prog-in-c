@@ -1,0 +1,132 @@
+<head>
+  <title>Unix programming in C - sample exam tasks</title>
+  <script type='text/javascript'>
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<h1>Sample exam tasks</h1>
+
+<h2>TCP server and client with signal handling (medium difficulty)</h2>
+
+<p>
+Produce 2 programs, client and server. They will be passing data over TCP
+socket. They will be running on the same system.
+The client will accept command line argument saying signal number
+and optionally a port and connects to the server (use localhost implicitly).
+It will send its PID and signal number.
+</p>
+
+<p>
+Server will send said signal to the PID, write a message to stdout.
+The client has to handle the signal, write a message to stdout and exits.
+Server is single threader, after reading the data and sending singal
+it will enter sleep again via <tt>accept()</tt>.
+</p>
+
+<p>Variant: use UDP</p>
+
+<h2>Thread pool (easy)</h2>
+
+<p>
+Main thread will create number of threads as specified on command line.
+Each thread simulates some work via <tt>sleep()</tt> for random time,
+1 to 10 seconds. After that it signals to the main thread it is about to exit.
+Main thread will immediately create new thread.
+</p>
+
+<p>
+The goal is to keep around the same number of threads. Each thread
+has its own number that will be written to stdout after the thread starts
+running and before its exit.
+</p>
+
+<p>
+Use mutexes for synchronization and condition variables for signalling.
+</p>
+
+<h2>Shell command simulation (medium difficulty)</h2>
+
+<p>
+Copy <tt>/etc/services</tt> to current working directory using
+<tt>open</tt>, <tt>read</tt>, <tt>write</tt>, <tt>close</tt>.
+Then simulate command
+<tt>cat&nbsp;services&nbsp;|&nbsp;grep&nbsp;tcp&nbsp;|&nbsp;wc -l</tt>.
+</p>
+
+<p>
+This has to be done so that each of the 3 commands is done using its
+own exec from its own process.
+Connect the processes with pipes and wait in the main process for the
+other processes to finish.
+Main process does not use exec and therefore it is necessary to call
+<tt>fork</tt> 3 times. Command <tt>wc</tt> does not have to pass the data
+to the main process, it is sufficient to write them out to the terminal.
+</p>
+
+<h2>inetd (difficult)</h2>
+
+<p>
+Write simple inetd server for TCP services. Configuration is stored
+in text file that looks like this:
+</p>
+
+<pre>
+2222
+/bin/cat
+3331
+/bin/sed
+3332
+...
+...
+...
+</pre>
+
+<p>
+Server listens on all ports. Uses <tt>select</tt> or <tt>poll</tt>.
+New connections leads to new process, its file descriptors 0, 1 and 2
+are redirected to the new process and calls <tt>exec()</tt> for given
+program. These processes are then running independently.
+</p>
+
+<p>
+For simplicity you can assume that the programs do not have other
+parameters.
+After each accept deal with zombies, if any.
+</p>
+
+<p>
+The processing of the configuration file has to be done using
+<tt>open</tt>, <tt>read</tt>, <tt>close</tt>.
+
+<p>
+To check the functionality use Netcat. In case of
+<tt>/bin/cat</tt> it is sufficient to connect to given port
+and send some characters - they should be echoed back unchanged.
+</p>
+
+<pre>
+$ nc localhost 2222
+foo
+foo
+</pre>
+
+<p><hr>
+Last change:
+<script>
+write_last_mod ();
+</script>
+
+</body>
+</html>
