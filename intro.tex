@@ -523,56 +523,6 @@ $ od -tx2 test
 \end{verbatim}
 \end{itemize}
 
-%%%%%
-
-\begin{slide}
-\sltitle{Deklarace a definice funkce}
-\begin{itemize}
-\item K\&R
-    \begin{itemize2}
-    \item deklarace
-    \begin{verbatim}
-    návratový_typ indentifikátor();
-    \end{verbatim}
-    \vskip -2\baselineskip~
-    \item definice
-    \begin{verbatim}
-    návratový_typ indentifikátor(par [,par...])
-    typ par;...
-    { /* tìlo funkce */ }
-    \end{verbatim}
-    \vskip -2\baselineskip~
-    \end{itemize2}
-\item ANSI
-    \begin{itemize2}
-    \item deklarace
-    \begin{verbatim}
-    návratový_typ indentifikátor(typ par [,typ par...]);
-    \end{verbatim}
-    \vskip -2\baselineskip~
-    \item definice
-    \begin{verbatim}
-    návratový_typ indentifikátor(typ par [,typ par...])
-    { /* tìlo funkce */ }
-    \end{verbatim}
-    \vskip -2\baselineskip~
-    \end{itemize2}
-\end{itemize}
-\end{slide}
-
-\begin{itemize}
-\item pou¾ívejte pouze novìj¹í (ANSI) typ deklarací a v¾dy deklarujte
-prototypy funkcí, tj. inkludujte hlavièkové soubory. Výjimkou mù¾e asi jen to,
-pokud budete pracovat s kódem, který byl napsaný podle K\&R.
-\item rùznými zápisy deklarací se dostáváme rovnou i k rùzným stylùm
-psaní zdrojových textù. Nìkteré systémy to pøíli¹ neøe¹í (Linux),
-jiné systémy mají velmi striktní pravidla pro psaní zdrojových textù
-(napø. Solaris, viz on-line \emph{C Style and Coding Standards for
-SunOS}: \url{http://mff.devnull.cz/pvu/common/cstyle.ms.pdf}).
-Snad ka¾dý UNIXový systém má program indent(1), který vám pomocí pøepínaèù
-pøeformátuje jakýkoli C zdrojový text do po¾adovaného výstupu.
-\end{itemize}
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \pdfbookmark[1]{C style}{cstyle}
