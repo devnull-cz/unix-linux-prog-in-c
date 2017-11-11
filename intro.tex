@@ -51,6 +51,8 @@ specified otherwise in the files.
 we appreciate if you let us know.
 \end{itemize}
 
+\pagebreak
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Úvod
 
@@ -103,105 +105,10 @@ compliant with the the previous version SUSv3
 \end{itemize}
 \end{slide}
 
-%%%%%
-
-\pdfbookmark[1]{literatura}{literatura}
-
-%%%%%
+\pdfbookmark[1]{Current Unix and Unix-like Systems}{currentunix}
 
 \begin{slide}
-\sltitle{Unix system priciples and design}
-
-\begin{enumerate}
-\item Uresh Vahalia: \emsl{UNIX Internals: The New Frontiers}.
- Prentice Hall; 1st edition, 1995
-\item Bach, Maurice J.: \emsl{The Design of the UNIX Operating System}.
-Prentice Hall, 1986
-\item McKusick, M. K., Neville-Neil, G. V.: \emsl{The Design and
-Implementation of the FreeBSD Operating System}. Addison-Wesley, 2004
-%\item Goodheart, B.; Cox, J.: \emsl{The Magic Garden Explained: the
-%Internals of UNIX System~V Release 4}. Prentice Hall, 1994
-\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; 2nd
-edition, 2006.
-\item \emsl{Linux Documentation Project}. \url{http://tldp.org/}
-\end{enumerate}
-\end{slide}
-
-\begin{itemize}
-\item These books are about Unix internals, not about Unix system programming.
-\end{itemize}
-
-\begin{enumerate}
-\item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
-and Mach systems.  The 2nd edition scheduled for 2005 never happened,
-unfortunately.
-\item UNIX classic book. On UNIX System~V Rel.~2, and partially 3 as well.
-While outdated, it is one of the best books ever written on Unix.  In 1993 a
-Czech translation was released as \emsl{Principy opera\v{c}n\'{\i}ho syst\'{e}mu
-UNIX}, SAS.
-\item Structures, functions, and algorithms of the FreeBSD 5.2 kernel; it is
-based on another Unix classis book \emsl{The Design and Implementation of the
-4.4 BSD Operating System} by the same author.
-\item The best book on the Solaris operating system.  The system version in the
-book is Solaris~10.
-\item Linux documentation project home page.
-\end{enumerate}
-
-%%%%%
-
-\begin{slide}
-\sltitle{Books on Unix programming}
-\begin{enumerate}
-\item Stevens, W. R., Rago, S. A.: \emsl{Advanced Programming in UNIX(r)
-Environment}. Addison-Wesley, 2nd edition, 2005.
-\item Rochkind, M. J.: \emsl{Advanced UNIX Programming},
-Addison-Wesley; 2nd edition, 2004
-\item Stevens, W. R., Fenner B., Rudoff, A. M.: \emsl{UNIX Network
-Programming, Vol. 1 -- The Sockets Networking API}. Prentice Hall,
-3rd edition, 2004
-\item Butenhof, D. R.: \emsl{Programming with POSIX Threads},
-Addison-Wesley; 1st edition, 1997
-% I don't why but after I switched from FreeBSD to Solaris, I can't typeset
-% word "unix" anymore. It's like it wasn't there. Using {} trick helps.
-\item UNIX specifications, see \url{http://www.unix.org}
-\item manual pages, mainly sections 2 and 3
-\end{enumerate}
-\end{slide}
-
-\label{REF_PROGRAMMING}
-
-\begin{enumerate}
-\item One of the best book on programming in Unix environment.  Does not cover
-net\-work\-ing, that is in 3.
-\item Another classic book on programming in Unix environment.  Also covers
-net\-work\-ing.  Not as detailed as books 1 and 3 but that could be to your
-advantage.  We very much recommend this book, especially if you want just one.
-The author can see the big picture which is quite rare.
-\item Unix network programming classics, one of the best on the topic; there is
-also volume 2, \emsl{UNIX Network Programming, Volume 2: Interprocess
-Communications}, covering interprocess communication in great detail.
-\item Great book on programming with threads using POSIX API.  Highly
-recommended.
-\item UNIX specifications.
-\item Detailed descriptions of system calls and functions.
-\item \label{POSIX4} A book that did not fit the slide and covers topics outside
-of the scope of this class: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers
-Guide: Programming for the Real World}, O'Reilly; 1st edition, 1995.  A great
-book on real-time POSIX extensions with a beatiful cover.  See also pages
-\pageref{REALTIMEEXTENSIONS} a \pageref{SIGWAITINFO}.
-\item[\ldots] Go to Amazon and search for ``unix''.  If you ever buy anything,
-always check whether there is a newer edition of the same book.  Note that they
-often still sell older releases as well.
-\item[\ldots] You can also buy lots of these books on Amazon in a decent second
-hand quality for a fraction of the original price.
-\end{enumerate}
-
-%%%%%
-
-\pdfbookmark[1]{souèasné unixové systémy}{currentunix}
-
-\begin{slide}
-\sltitle{Souèasné UNIXy}
+\sltitle{Current Unix and Unix-like Systems}
 Hlavní komerèní unixové systémy:
 \begin{itemize}
 \item Sun Microsystems: \emsl{SunOS} (není ji¾ dále vyvíjen), \emsl{Solaris}
@@ -218,7 +125,6 @@ Open source:
 \item \emsl{Linux} distribuce
 \end{itemize}
 \end{slide}
-
 
 \begin{itemize}
 \item Striktnì technicky vzato se jako UNIX mù¾e oznaèovat pouze systém, který
@@ -260,8 +166,6 @@ se vìt¹ina výrobcù shodla na nìkolika základních.
 \end{itemize}
 
 %%%%%
-
-\pagebreak
 
 \pdfbookmark[1]{standardy UNIXu}{unixstd}
 
@@ -402,6 +306,100 @@ real-time signály, zamykání pamìti, asynchronní I/O, èasovaèe atd.
 HTML verze je volnì k prohlí¾ení, za PDF verzi se platí.
 \end{itemize}
 
+
+\pdfbookmark[1]{literatura}{literatura}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Books on Unix system principles and design}
+
+\begin{enumerate}
+\item Uresh Vahalia: \emsl{UNIX Internals: The New Frontiers}.
+ Prentice Hall; 1st edition, 1995
+\item Bach, Maurice J.: \emsl{The Design of the UNIX Operating System}.
+Prentice Hall, 1986
+\item McKusick, M. K., Neville-Neil, G. V.: \emsl{The Design and
+Implementation of the FreeBSD Operating System}. Addison-Wesley, 2004
+%\item Goodheart, B.; Cox, J.: \emsl{The Magic Garden Explained: the
+%Internals of UNIX System~V Release 4}. Prentice Hall, 1994
+\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; 2nd
+edition, 2006.
+\item \emsl{Linux Documentation Project}. \url{http://tldp.org/}
+\end{enumerate}
+\end{slide}
+
+\begin{itemize}
+\item These books are about Unix internals, not about Unix system programming.
+\end{itemize}
+
+\begin{enumerate}
+\item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
+and Mach systems.  The 2nd edition scheduled for 2005 never happened,
+unfortunately.
+\item UNIX classic book. On UNIX System~V Rel.~2, and partially 3 as well.
+While outdated, it is one of the best books ever written on Unix.  In 1993 a
+Czech translation was released as \emsl{Principy opera\v{c}n\'{\i}ho syst\'{e}mu
+UNIX}, SAS.
+\item Structures, functions, and algorithms of the FreeBSD 5.2 kernel; it is
+based on another Unix classis book \emsl{The Design and Implementation of the
+4.4 BSD Operating System} by the same author.
+\item The best book on the Solaris operating system.  The system version in the
+book is Solaris~10.
+\item Linux documentation project home page.
+\end{enumerate}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Books on Unix programming}
+\begin{enumerate}
+\item Stevens, W. R., Rago, S. A.: \emsl{Advanced Programming in UNIX(r)
+Environment}. Addison-Wesley, 2nd edition, 2005.
+\item Rochkind, M. J.: \emsl{Advanced UNIX Programming},
+Addison-Wesley; 2nd edition, 2004
+\item Stevens, W. R., Fenner B., Rudoff, A. M.: \emsl{UNIX Network
+Programming, Vol. 1 -- The Sockets Networking API}. Prentice Hall,
+3rd edition, 2004
+\item Butenhof, D. R.: \emsl{Programming with POSIX Threads},
+Addison-Wesley; 1st edition, 1997
+% I don't why but after I switched from FreeBSD to Solaris, I can't typeset
+% word "unix" anymore. It's like it wasn't there. Using {} trick helps.
+\item UNIX specifications, see \url{http://www.unix.org}
+\item manual pages, mainly sections 2 and 3
+\end{enumerate}
+\end{slide}
+
+\label{REF_PROGRAMMING}
+
+\begin{enumerate}
+\item One of the best book on programming in Unix environment.  Does not cover
+net\-work\-ing, that is in 3.
+\item Another classic book on programming in Unix environment.  Also covers
+net\-work\-ing.  Not as detailed as books 1 and 3 but that could be to your
+advantage.  We very much recommend this book, especially if you want just one.
+The author can see the big picture which is quite rare.
+\item Unix network programming classics, one of the best on the topic; there is
+also volume 2, \emsl{UNIX Network Programming, Volume 2: Interprocess
+Communications}, covering interprocess communication in great detail.
+\item Great book on programming with threads using POSIX API.  Highly
+recommended.
+\item UNIX specifications.
+\item Detailed descriptions of system calls and functions.
+\item \label{POSIX4} A book that did not fit the slide and covers topics outside
+of the scope of this class: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers
+Guide: Programming for the Real World}, O'Reilly; 1st edition, 1995.  A great
+book on real-time POSIX extensions with a beatiful cover.  See also pages
+\pageref{REALTIMEEXTENSIONS} a \pageref{SIGWAITINFO}.
+\item[\ldots] Go to Amazon and search for ``unix''.  If you ever buy anything,
+always check whether there is a newer edition of the same book.  Note that they
+often still sell older releases as well.
+\item[\ldots] You can also buy lots of these books on Amazon in a decent second
+hand quality for a fraction of the original price.
+\end{enumerate}
+
+%%%%%
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Jazyk C
 
@@ -409,7 +407,7 @@ HTML verze je volnì k prohlí¾ení, za PDF verzi se platí.
 \label{C_LANGUAGE}
 
 \begin{slide}
-\sltitle{Jazyk C}
+\sltitle{The C Programming Language}
 \begin{itemize}
 \item témìø celý UNIX je napsaný v C, pouze nejni¾¹í strojovì
 závislá èást v~assembleru $\Rightarrow$ pomìrnì snadná
@@ -597,7 +595,7 @@ write beautiful code.
 %%%%%
 
 \begin{slide}
-\sltitle{Utility}
+\sltitle{Standard Utilities}
 \begin{tabular}{ll}
 \emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& pøekladaè C\\
 \emsl{CC}, \emsl{g++}$^\dagger$& pøekladaè C++\\
@@ -804,7 +802,7 @@ generovaný kód, vypisování varovných hlá¹ení nebo variantu jazyka
 \pdfbookmark[1]{pøeddefinovaná makra}{stdmacros}
 
 \begin{slide}
-\sltitle{Pøeddefinovaná makra}
+\sltitle{UNIX standard macros}
 \begin{tabbing}
 \hskip 11em \= \kill
 \verb#__FILE__#, \verb#__LINE__#, \verb#__DATE__#, \verb#__TIME__#,
