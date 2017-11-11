@@ -81,10 +81,10 @@ user space and system kernel.}
 \item For the API, we will follow \emph{Single UNIX Specification, version~4}
 (SUSv4). Systems that submit to the Open Group for certification and pass
 conformance tests are termed to be compliant with a UNIX standard UNIX~V7.
-Versions of Solaris, AIX, HP-UX a Mac~OS~X on various architectures are
+Versions of Solaris, AIX, HP-UX a macOS on various architectures are
 compliant with the the previous version SUSv3
 (\url{http://www.opengroup.org/openbrand/register/xy.htm}).
-\item The specific source code examples are usually tested on Mac~OS and Linux.
+\item The specific source code examples are usually tested on macOS and Linux.
 \end{itemize}
 
 %%%%%
@@ -105,64 +105,45 @@ compliant with the the previous version SUSv3
 \end{itemize}
 \end{slide}
 
-\pdfbookmark[1]{Current Unix and Unix-like Systems}{currentunix}
+\pdfbookmark[1]{Current UNIX and Unix-like Systems}{currentunix}
 
 \begin{slide}
-\sltitle{Current Unix and Unix-like Systems}
-Hlavní komerèní unixové systémy:
+\sltitle{Current UNIX and Unix-like Systems}
+Main proprietary Unix operating systems:
 \begin{itemize}
-\item Sun Microsystems: \emsl{SunOS} (není ji¾ dále vyvíjen), \emsl{Solaris}
-\item Apple: \emsl{macOS} (døíve Mac OS X)
-\item SGI: \emsl{IRIX} (není ji¾ dále vyvíjen)
+\item Sun Microsystems, now Oracle: \emsl{SunOS} (defunct), \emsl{Solaris}
+\item Apple: \emsl{macOS} (formerly Mac OS X, Mac OS)
+\item SGI: \emsl{IRIX} (in maintenance mode)
 \item IBM: \emsl{AIX}
-\item HP: \emsl{HP-UX}, \emsl{Tru64 UNIX} (Compaq)
-\item SCO: \emsl{SCO Unix}
-\item Xinuos (kdysi Novell): \emsl{UNIXware}
+\item HP: \emsl{HP-UX}, \emsl{Tru64 UNIX} (defunct, formerly by Compaq)
+\item SCO: \emsl{SCO Unix} (defunct)
+\item Xinuos (formerly Novell): \emsl{UNIXware}
 \end{itemize}
 Open source:
 \begin{itemize}
-\item \emsl{FreeBSD}, \emsl{NetBSD}, \emsl{OpenBSD}
-\item \emsl{Linux} distribuce
+\item \emsl{FreeBSD}, \emsl{NetBSD}, \emsl{OpenBSD}, \emsl{DragonflyBSD}
+\item many \emsl{Linux} distributions
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Striktnì technicky vzato se jako UNIX mù¾e oznaèovat pouze systém, který
-pro¹el certifikací Single Unix Specification.
-Z vý¹e uvedeného seznamu by to byly 4 operaèní systémy,
-které byly registrovány jako UNIX 03 na rùzných architekturách
-(\url{http://www.opengroup.org/openbrand/register/}). Ostatní sys\-témy, které
-nebyly certifikovány, se oznaèují jako Unix-like, aèkoliv v mnoha pøípadech
-splòují vìt¹inù po¾adavkù standardu. Bì¾nì se nicménì pou¾ívá oznaèení Unix
-pro obì dvì skupiny.
-\item kdy¾ jsem cca v roce 1998 projel nmapem v¹echny DNS root servery, abych
-zjistil na kterých systémech bì¾í, bylo 80\% z nich na SunOS/Solaris. IRIX je
-zase systém, který po mnoho let ovládal televizní/filmový prùmysl (napø. Pixar
-studio kde na IRIXu vznikly filmy jako \emph{A Bug's Life}, \emph{Toy Story} a
-dal¹í). A na AIX napøíklad bì¾el \emph{Deep Blue}, paralelní superpoèítaè,
-který v roce 1997 porazil v ¹esti fascinujících zápasech 3.5 ku 2.5
-úøadujícího velmistra ¹achu Garriho Kasparova. Jinými slovy -- ka¾dý systém má
-svoje úspìchy.
-\item jak ji¾ bylo zmínìno, Tru64 UNIX vychází z OSF/1 firmy DEC. Ta pøedtím
-dodávala Ultrix, zalo¾ený na BSD unixu.
-\item OpenSolaris byl projekt vzniklý v èervnu 2005 a byl zalo¾en na podmno¾inì
-zdrojových textù vývojové verze Solarisu (kernel, knihovny, pøíkazy).
-Distribuce vze¹lé z komunity jsou napøíklad LiveCD \emph{BeleniX},
-\emph{SchilliX} a \emph{Nexenta}. Pøesto¾e projekt OpenSolaris ji¾ dále nepokraèuje,
-existuje open source fork \emph{Illumos} a na nìm zalo¾ené distribuce
-\emph{SmartOS} a \emph{OpenIndiana}.
-\item pozor na to, ¾e Linux je pouze jádro, ne systém, na rozdíl tøeba od
-FreeBSD. Illumos je nìco mezi tím, jádro + drivery, základní pøíkazy a
-knihovny, a v binární podobì to má nìco pøes 100MB. V obou pøípadech je tedy
-správné pou¾ívat spojení ``Linux (Illumos) distribuce'', kdy¾ se bavíme o
-celém systému.
-\item ka¾dá komerèní varianta vycházela z jednoho ze dvou hlavních systémù --
-UNIX V nebo BSD, a pøidávala si své vlastnosti. Díky mnoha verzím UNIXu tak
-vzniká velký poèet rùzných standardù (strana \pageref{UNIXSTANDARDS}). Nakonec
-se vìt¹ina výrobcù shodla na nìkolika základních.
-\item graf znázoròující historii unixových systémù a závislosti mezi nimi na
-19-ti A4 listech ve formátu PS/PDF je k nalezení na
-\url{http://www.levenez.com/unix/}
+\item Presently, the ``UNIX'' trademark can be only used by systems that passed
+conformance tests defined in the Single UNIX Specification (SUS).
+\item From those systems above, only Solaris, macOS, AIX, and HP-UX are UNIX~03
+compliant (\url{http://www.opengroup.org/openbrand/register/}).  Other, non
+certified systems, are often described as ``Unix-like'', even that in many cases
+they closely follow the standard.  However, word ``Unix'' is often used for
+systems from either group.
+\item Note that Linux is a kernel, not the whole system.  In contrast to
+FreeBSD, for example, which covers both the kernel and the userland.  It is
+better to say a ``Linux distribution'' if you discuss a whole system that is
+built around the Linux kernel.
+\item The above list is a tiny fraction of the whole Unix world.  Every
+proprietary Unix variant usually came from either UNIX~V or BSD, and added its
+own features.  That is why there were quite a few standards as well, see page
+\pageref{UNIXSTANDARDS}.  In the end vendors agreen upon a small set of those.
+\item If you are interested in detailed and up-to-date Unix system version
+history, go check \url{https://www.levenez.com/unix/}.
 \end{itemize}
 
 %%%%%
