@@ -27,12 +27,12 @@ TEX=		unix-programming-in-c.common.tex \
 		intro.tex \
 		file-api.tex \
 		user-access.tex \
-		files.tex \
 		proc.tex \
 		signals.tex \
 		synchro.tex \
 		network.tex \
 		threads.tex \
+		files.tex \
 		history.tex
 
 SLIDES=		$(TEX) ${SLIDE}

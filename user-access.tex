@@ -87,8 +87,6 @@ strukturovaná pomocí speciálních znakù, tak¾e programy ovìøující heslo ví,
 jakou funkci a s jakými parametry pou¾ít.
 Vìt¹ina systémù umo¾òuje globální konfiguraci pou¾itých funkcí a jejich
 parametrù.
-
-
 \item existují i jiné systémy, které (nejen) pro autentizaci
 \texttt{/etc/passwd} nemusí vùbec pou¾ívat, napøíklad NIS (Network Information
 Service) nebo LDAP (Lightweight Directory Access Protocol).
@@ -140,6 +138,89 @@ Napøíklad na FreeBSD je pøíkaz \texttt{newgrp} pøístupný u¾ jen superu¾ivateli
 
 %%%%%
 
+\pdfbookmark[1]{pøístupová práva k souborùm}{fsaccessrights}
+
+\begin{slide}
+\sltitle{Pøístupová práva}
+\begin{center}
+\input{img/tex/prava.tex}
+\end{center}
+\begin{itemize}
+\item \emsl{SGID} pro soubor bez práva spu¹tìní pro skupinu v System
+V: kontrola zámkù pøi ka¾dém pøístupu (\emsl{mandatory locking})
+\item \emsl{sticky bit} pro adresáøe: právo mazat a pøejmenovávat
+soubory mají jen vlastníci souborù 
+\item \emsl{SGID} pro adresáø: nové soubory budou mít stejnou
+skupinu jako adresáø (System V; u BSD systémù to funguje jinak, viz
+poznámky)
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item SGID pro adresáøe u BSD systémù zpùsobí, ¾e soubory a podadresáøe
+vytvoøené v tomto adresáøi budou mít stejného majitele jako je majitel daného
+adresáøe. Nutným pøedpokladem je dále to, ¾e daný UFS filesystém musí být
+namontován s suiddir pøíznakem a v jádru je option SUIDDIR (a to není
+default). Navíc to nefunguje pro roota. Tato mo¾nost existuje kvùli Sambì a
+Nettalku.
+\item sticky bit pro adresáøe: pøejmenovat nebo smazat soubor mù¾e jen jeho
+vlastník (v~nìkterých implementacích staèí i právo zápisu do souboru),
+ne\-sta\-èí právo zápisu do adresáøe. Toto nastavení se pou¾ívá pro veøejné
+adresáøe (napø. \texttt{/tmp}).
+\item pùvodnì mìl sticky bit význam i pro spustitelné soubory: program s
+nastaveným sticky bitem zùstal po ukonèení v pamìti a jeho opìtovné spu¹tìní
+bylo rychlej¹í. Dnes se sticky bit v tomto významu u¾ nepou¾ívá.
+\item nìkteré filesystémy (XFS, AFS, UFS2, ZFS) mají tzv. access control lists
+(ACLs), které dovolují jemnìj¹í pøidìlování práv jednotlivým u¾ivatelùm a
+skupinám.
+\end{itemize}
+%%%%%
+
+\pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
+
+\label{GETPW_FUNC}
+\begin{slide}
+\sltitle{Obtain user/group information}
+\begin{itemize}
+\item \texttt{struct passwd *\funnm{getpwnam}(const char *name)}
+
+return structure describing user found in password database or NULL.
+
+\item \texttt{struct passwd *\funnm{getpwuid}(uid\_t uid)}
+
+ditto; perform search according to UID.
+
+\item \texttt{void \funnm{setpwent}(void)}
+\item \texttt{void \funnm{endpwent}(void)}
+\item \texttt{struct passwd *\funnm{getpwent}(void)}
+
+these functions traverse password database. \funnm{setpwent} rewinds to the
+beginning of the password database, \funnm{getpwent} gets the current entry,
+\funnm{endpwent} closes the password database and free allocated resources.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item tyto funkce fungují nezávisle na tom jak z jaké databáze byly
+získány informace o daném u¾ivateli.
+\item v¹echny tyto funkce jsou souèástí POSIX 1003.1-2008 (sekce XSH)
+\item \funnm{setpwent} je tøeba zavolat pøed prvním voláním \funnm{getpwent}
+\item analogicky exitují funkce \funnm{getgrnam} a \funnm{getgrent} které
+získávají informace o skupinách.
+\item pro prohledávání a výpis databazí lze pou¾ít program
+\texttt{getent}. Napø. k nalezení záznamu u¾ivatele a skupiny
+\texttt{root}:
+
+\begin{verbatim}
+$ getent passwd root
+root:x:0:0:Super-User:/root:/sbin/sh
+$ getent group root
+root::0:
+\end{verbatim}
+\end{itemize}
+
+%%%%%
+
 \pdfbookmark[1]{name service switch}{NSS}
 
 \begin{slide}
@@ -186,51 +267,6 @@ ethers:     files
 \end{verbatim}
 \end{itemize}
 
-
-%%%%%
-
-\pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
-
-\label{GETPW_FUNC}
-\begin{slide}
-\sltitle{Obtain user/group information}
-\begin{itemize}
-\item \texttt{struct passwd *\funnm{getpwnam}(const char *name)}
-
-return structure describing user found in password database or NULL.
-
-\item \texttt{struct passwd *\funnm{getpwuid}(uid\_t uid)}
-
-ditto; perform search according to UID.
-
-\item \texttt{void \funnm{setpwent}(void)}
-\item \texttt{void \funnm{endpwent}(void)}
-\item \texttt{struct passwd *\funnm{getpwent}(void)}
-
-these functions traverse password database. \funnm{setpwent} rewinds to the
-beginning of the password database, \funnm{getpwent} gets the current entry,
-\funnm{endpwent} closes the password database and free allocated resources.
-\end{itemize}
-\end{slide}
-
-\begin{itemize}
-\item tyto funkce fungují nezávisle na tom jak z jaké databáze byly
-získány informace o daném u¾ivateli.
-\item v¹echny tyto funkce jsou souèástí POSIX 1003.1-2008 (sekce XSH)
-\item \funnm{setpwent} je tøeba zavolat pøed prvním voláním \funnm{getpwent}
-\item analogicky exitují funkce \funnm{getgrnam} a \funnm{getgrent} které
-získávají informace o skupinách.
-\item pro prohledávání a výpis databazí lze pou¾ít program
-\texttt{getent}. Napø. k nalezení záznamu u¾ivatele a skupiny
-\texttt{root}:
-
-\begin{verbatim}
-$ getent passwd root
-root:x:0:0:Super-User:/root:/sbin/sh
-$ getent group root
-root::0:
-\end{verbatim}
-\end{itemize}
 
 %%%%%
 
@@ -487,6 +523,68 @@ vrátit (je to logické -- pøedstavte si situaci, kdy se u¾ivatel loguje do
 systému). V tom pøípadì byste museli pou¾ít volání \texttt{seteuid}, které
 nastavuje pouze EUID.
 \item pøíklad: \priklad{setuid/screate-file.c}
+\end{itemize}
+
+\pdfbookmark[1]{systém souborù}{filesys}
+
+\begin{slide}
+\sltitle{Systém souborù}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item adresáøe tvoøí strom, spolu se soubory acyklický graf (na
+jeden soubor mù¾e existovat více odkazù). 
+\item ka¾dý adresáø navíc obsahuje odkaz na sebe '\texttt{.}'
+(teèka) a na nadøazený adresáø '\texttt{..}' (dvì teèky). 
+\item pomocí rozhraní systému souborù se pøistupuje i k dal¹ím
+entitám v~systému: 
+    \begin{itemize2}
+\setlength{\itemsep}{-3pt}
+\setlength{\topsep}{0pt}
+    \item periferní zaøízení 
+    \item pojmenované roury 
+    \item sokety
+    \item procesy (\texttt{/proc}) 
+    \item pamì» (\texttt{/dev/mem}, \texttt{/dev/kmem}) 
+    \item pseudosoubory (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
+    \end{itemize2}
+\item z pohledu jádra je ka¾dý obyèejný soubor pole bajtù. 
+\item v¹echny (i sí»ové) disky jsou zapojeny do jednoho stromu.
+\end{itemize}
+\end{slide}
+
+\label{DEVFS}
+
+\begin{itemize}
+\item zaøízení, soubory v \texttt{/proc}, terminály, pamì» atd. jsou v¹echno
+jeden typ souborù - speciální soubory. Dal¹í typy souborù - regulární soubor
+(hardlink), adresáø, pojmenovaná roura, socket, symbolický link.
+\item novì vytvoøený adresáø má na sebe 2 odkazy -- jeden z nadøazeného
+adresáøe, a jeden sám na sebe, '\texttt{.}':
+
+\begin{verbatim}
+$ mkdir test
+$ ls -ld test
+drwx------   2 janp     staff        512 Mar 23 12:46 test
+\end{verbatim}
+
+\item root mù¾e v nìkterých systémech strukturu adresáøù zacyklit, ale tím
+zmate utility pro procházení filesystému; moc se cyklické struktury
+nepou¾ívají. Symbolické linky na adresáøe fungují v¹ude.
+\item pojmenované roury (viz strana \pageref{MKFIFO}) lze pou¾ít i mezi
+procesy, které nejsou pøíbuzensky spøíznìné. Jinak fungují stejnì jako
+nepojmenované roury.
+\item zmiòované sokety jsou v doménì UNIX, tj. slou¾í pro komunikaci v rámci
+jednoho systému. Sokety z domény INET, pøes které probíhá sí»ová komunikace,
+se v systému souborù neobjevují. Sí»ová komunikace zaèíná na stranì
+\pageref{NETWORKING}.
+\item debuggery pou¾ívají pamì»ové obrazy procesù dostupné v \texttt{/proc}.
+Ve vìt¹inì u{}nix-like systémù obsahuje podstrom \texttt{/proc} údaje o jádru
+systému a bì¾ících procesech ve formì textových souborù.
+\item dne¹ní moderní unixy mívají speciální filesystém \emph{devfs}, jeho¾
+obsah odrá¾í aktuální konfiguraci systému co se týèe pøipojených zaøízení. Tj.
+napø. pøi pøipojení USB sticku se v \texttt{/dev} objeví pøíslu¹né diskové
+zaøízení. Po fyzickém odpojení zaøízení odkaz z adresáøové struktury opìt
+zmizí.
 \end{itemize}
 
 \endinput
