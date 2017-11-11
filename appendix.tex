@@ -47,4 +47,115 @@ souborù se neukládají do odkládacího prostoru, ale obnovují se z
 pøíslu¹ného souboru.
 \end{description}
 
+%%%%%
+
+\pdfbookmark[1]{inetd}{inetd}
+
+\begin{slide}
+\sltitle{Správa sí»ových slu¾eb: \texttt{inetd}}
+\setlength{\baselineskip}{0.8\baselineskip}
+\begin{itemize}
+\item servery sí»ových slu¾eb se spou¹tí buï pøi startu systému, nebo je
+startuje démon \texttt{inetd} pøi pøipojení klienta. 
+\item démon \texttt{inetd} èeká na portech definovaných v
+\texttt{/etc/inetd.conf} a kdy¾ detekuje pøíchozí spojení/datagram,
+spustí pøíslu¹ný server a pøesmìruje mu deskriptory.
+\item pøíklad obsahu \texttt{/etc/inetd.conf}: 
+\end{itemize}
+\begin{alltt}
+ftp stream tcp nowait root /usr/etc/ftpd ftpd -l 
+shell stream tcp nowait root /usr/etc/rshd rshd -L 
+login stream tcp nowait root /usr/etc/rlogind rlogind 
+exec stream tcp nowait root /usr/etc/rexecd rexecd 
+finger stream tcp nowait guest /usr/etc/fingerd fingerd 
+ntalk dgram udp wait root /usr/etc/talkd talkd 
+tcpmux stream tcp nowait root internal 
+echo stream tcp nowait root internal
+\end{alltt}
+\end{slide}
+
+\label{INETD}
+
+\begin{itemize}
+\item \texttt{inetd} je v podstatì velký \texttt{poll} cyklus obhospodaøující
+sadu socketù podle konfigurace.
+\item Start pøes \texttt{inetd} ¹etøí prostøedky, proto¾e pøíslu¹ný server bì¾í
+pouze po èas, kdy jsou jeho slu¾by opravdu potøeba. Nehodí se tedy pro pro
+spoustìní vytí¾ených slu¾eb (HTTP) nebo slu¾eb kde mù¾e být velký overhead pøi
+inicializaci (napø. SSH).
+\item Typicky se pomocí \texttt{inetd} spou¹tí servery, které se pou¾ívají málo
+nebo jejich¾ inicializace je relativnì nenároèná (\texttt{telnetd},
+\texttt{ftpd}). Silnì vytí¾ené a dlouho startující servery (\texttt{httpd}) se
+obvykle startují ze systémových inicializaèních skriptù a bì¾í stále.
+\item Èasto má cenu mít \texttt{inetd} vypnutý úplnì. Pokud na va¹em stroji bì¾í
+napø. pouze SSH, tak pro to se \texttt{inetd} ve vìt¹inì pøípadù nepou¾ívá,
+\texttt{inetd} by byl jen dal¹ím serverem bì¾ícím na stroji a zdroj
+potenciálního nebezpeèí, pokud by se v nìm nebo v jednom z nìj spou¹tìných
+programù objevila bezpeènostní chyba. To by ostatnì mìlo platit pro v¹echny
+instalované programy poskytující sí»ové slu¾by - buïto by mìly implicitnì
+poslouchat pouze na localhostu (resp. pou¾ívat unixové sockety) nebo by
+implicitnì nemìly bì¾et a mìly by být spu¹tìny (ve smyslu permanentnì
+zapnuty) a¾ tehdy kdy¾ jsou skuteènì tøeba (tento pøístup se oznaèuje jako
+\emph{secure by default}).
+
+
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Formát souboru \texttt{/etc/inetd.conf}}
+\texttt{slu¾ba soket proto èekání u¾iv server argumenty}
+\begin{itemize}
+\item \texttt{slu¾ba} \dots{} jméno sí»ové slu¾by podle \texttt{/etc/services}
+\item \texttt{soket} \dots{} \texttt{stream} nebo \texttt{dgram}
+\item \texttt{proto} \dots{} komunikaèní protokol (\texttt{tcp}, \texttt{udp}) 
+\item \texttt{èekání} \dots{} \texttt{wait} (\texttt{inetd} èeká na ukonèení
+serveru pøed akceptováním dal¹ího klienta), \texttt{nowait} (\texttt{inetd} 
+akceptuje dal¹ího klienta hned) 
+\item \texttt{u¾ivatel} \dots{} server pobì¾í s identitou tohoto u¾ivatele 
+\item \texttt{server} \dots{} úplná cesta k programu serveru nebo
+\texttt{internal} (slu¾bu zaji¹»uje \texttt{inetd}) 
+\item \texttt{argumenty} \dots{} pøíkazový øádek pro server, vèetnì
+\texttt{argv[0]}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Soket typu \texttt{stream}:
+	\begin{itemize}
+	\item \texttt{wait} \dots{} server dostane soket, na který musí aspoò
+	jednou zavolat \texttt{accept}. Teprve tím získá nový soket, pøes který
+	mù¾e komunikovat s klientem. Po skonèení serveru pøebírá øízení soketu
+	zpìt \texttt{inetd}.
+	\item \texttt{nowait} \dots{} \texttt{inetd} zavolá \texttt{accept} a
+	získaný soket pøedá serveru, server tedy mù¾e rovnou komunikovat (mù¾e
+	pou¾ívat standardní vstup a výstup) a nemusí vìdìt, ¾e komunikuje po
+	síti.  Mezitím \texttt{inetd} èeká na dal¹í klienty a podle potøeby
+	spou¹tí dal¹í instance serveru.
+	\end{itemize}
+\item Jak pro \texttt{wait} tak pro \texttt{nowait} provedl \texttt{inetd}
+na soketu volání \texttt{bind} aby mu pøiøadil èíslo portu podle pole
+\texttt{slu¾ba}.
+\item V pøípadì \texttt{wait} dostane server soket od \texttt{inetd} v podobì
+deskriptoru 0 (standarní vstup). \texttt{inetd} pøed voláním \texttt{fork}
+provedl \texttt{dup2(sock, 0)}, kde \texttt{sock} je nabindovaný socket.
+Viz pøíklad \priklad{inetd/accept-rw.c}.
+\item V pøípadì \texttt{nowait} \texttt{inetd} zavolá \texttt{accept} (pro TCP
+spojení), pøesmìruje deskriptory 0, 1, a 2 do sí»ového socketu a spustí daný
+server.
+Viz pøíklad: \priklad{inetd/echo-server.sh}. Podívejte se do daného skriptu pro
+podrobné instrukce, jak ho pou¾ít.
+\item Pro soket typu \texttt{dgram} má smysl pouze \texttt{wait}. Server musí
+pøeèíst ze soketu aspoò jeden datagram.
+\item Jestli¾e \texttt{inetd} restartuje server (kromì \texttt{stream~nowait})
+pøíli¹ èasto (cca jednou za sekundu), usoudí, ¾e nastala chyba a po urèitou dobu
+(asi 10 minut) slu¾bu zablokuje (nespou¹tí server a odmítá spojení). Ostatní
+servery spou¹tí normálnì dál.
+\item Pro zajímavost, ne v¹echny systémy musí nutnì \texttt{inetd.conf} pou¾ívat
+stejným zpùsobem. Napøíklad od Solarisu 10 se tento soubor pou¾ije pouze pro
+po\-èá\-teè\-ní konverzi do interní databáze pomocí \texttt{inetconv(1M)} a pro
+zapínání a vypínání slu¾eb se pak pou¾ívá pøíkaz \texttt{inetadm(1M)}.
+\end{itemize}
+
 \endinput

@@ -405,6 +405,41 @@ pøíkazu \texttt{jobs}. Více informací viz sekce ,,JOB CONTROL'' v manuálové
 strán\-ce pro bash.
 \end{itemize}
 
+\pdfbookmark[1]{fork}{fork}
+
+\begin{slide}
+\sltitle{Create a new process: \texttt{fork()}}
+\begin{center}
+\input{img/tex/fork.tex}
+\end{center}
+\end{slide}
+
+\begin{itemize}
+\item \label{FORK} The child proces is almost an exact copy of its parent except
+for the following:
+\begin{itemize}
+\item The child process has a unique process and parent process ID.
+\item If the parent had multiple threads, the child will only have one that
+called \texttt{fork}; will be further explained on page \pageref{FORKALL}.
+\item Child process resource utilizations are set to 0.
+\item \texttt{alarm} settings and file locks are not inherited.
+\end{itemize}
+\item The file descriptor tables are exact copies in both processes.  That means
+that more processes can share and seek a common file position.  Signal masks are
+not changed, more on that on page \pageref{SIGNALBLOCKINGEXAMPLE}.
+\item For effiency and less memory consumption, the address space is not copied
+but a \emph{copy-on-write} mechanism is used.
+\item The reason why the parent gets its child's PID as a return value and the
+child gets 0 is because it is easy for the child to get its parent PID via
+\texttt{getpid}.  Imagine how the parent would figure out the new child PID,
+especially if it already spawned multiple children.
+\item Example: \priklad{fork/fork.c}
+\item \label{VFORK} There is also \texttt{vfork}, used in the past to work
+around the problem that the child address space was usually rewritten on
+subsequent \texttt{exec}.  This problem was solved via already mentioned
+copy-on-write mechanism.  See \priklad{fork/vfork.c} on how it works.
+\end{itemize}
+
 
 %%%%%
 
@@ -490,43 +525,7 @@ který je¹tì není øídicím terminálem sezení, kdy¾ pøi \texttt{open} neuvede
 pøíznak \texttt{O\_NOCTTY}, nebo jiným implementaènì závislým zpù\-so\-bem.
 \end{itemize}
 
-
 %%%%%
-
-\pdfbookmark[1]{fork}{fork}
-
-\begin{slide}
-\sltitle{Create a new process: \texttt{fork()}}
-\begin{center}
-\input{img/tex/fork.tex}
-\end{center}
-\end{slide}
-
-\begin{itemize}
-\item \label{FORK} The child proces is almost an exact copy of its parent except
-for the following:
-\begin{itemize}
-\item The child process has a unique process and parent process ID.
-\item If the parent had multiple threads, the child will only have one that
-called \texttt{fork}; will be further explained on page \pageref{FORKALL}.
-\item Child process resource utilizations are set to 0.
-\item \texttt{alarm} settings and file locks are not inherited.
-\end{itemize}
-\item The file descriptor tables are exact copies in both processes.  That means
-that more processes can share and seek a common file position.  Signal masks are
-not changed, more on that on page \pageref{SIGNALBLOCKINGEXAMPLE}.
-\item For effiency and less memory consumption, the address space is not copied
-but a \emph{copy-on-write} mechanism is used.
-\item The reason why the parent gets its child's PID as a return value and the
-child gets 0 is because it is easy for the child to get its parent PID via
-\texttt{getpid}.  Imagine how the parent would figure out the new child PID,
-especially if it already spawned multiple children.
-\item Example: \priklad{fork/fork.c}
-\item \label{VFORK} There is also \texttt{vfork}, used in the past to work
-around the problem that the child address space was usually rewritten on
-subsequent \texttt{exec}.  This problem was solved via already mentioned
-copy-on-write mechanism.  See \priklad{fork/vfork.c} on how it works.
-\end{itemize}
 
 %%%%%
 

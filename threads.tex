@@ -206,6 +206,21 @@ sám, a zároveò nastaví \texttt{errno} jako thread-safe. Stejnì jako u
 
 %%%%%
 
+\begin{slide}
+\sltitle{Pøíklad: vlákna}
+{\catcode95=12\catcode38=12
+\begin{center}
+\input{img/tex/threads.pstex_t}
+\end{center}}
+\end{slide}
+
+\begin{itemize}
+\item Toto je triviální pøíklad, kdy proces (hlavní vlákno) vytvoøí dvì dal¹í
+vlákna a poèká na jejich ukonèení.
+\end{itemize}
+
+%%%%%
+
 \pdfbookmark[1]{pthread\_create}{thrcreate}
 
 \begin{slide}
@@ -462,22 +477,6 @@ blokovaných signálù (\texttt{sigprocmask}).
 manuálnovou stránku \texttt{cancellation(5)}, která se tomu vìnuje. FreeBSD
 definuje \emph{cancellation points} v manuálové stránce
 \texttt{pthread\_setcanceltype(3)}.
-\end{itemize}
-
-
-%%%%%
-
-\begin{slide}
-\sltitle{Pøíklad: vlákna}
-{\catcode95=12\catcode38=12
-\begin{center}
-\input{img/tex/threads.pstex_t}
-\end{center}}
-\end{slide}
-
-\begin{itemize}
-\item Toto je triviální pøíklad, kdy proces (hlavní vlákno) vytvoøí dvì dal¹í
-vlákna a poèká na jejich ukonèení.
 \end{itemize}
 
 %%%%%
@@ -1297,7 +1296,7 @@ zresetovat èítaè a¾ po probuzení posledního vlákna. Jak byste to øe¹ili?
 \pdfbookmark[1]{sem\_init, sem\_post, sem\_wait}{semafory}
 
 \begin{slide}
-\sltitle{Semafory}
+\sltitle{POSIX Semaphores}
 \begin{itemize}
 \item semafory pochází z POSIX-1003.1b (real-time extensions)
 \item jména funkcí nezaèínají \emsl{pthread\_}, ale \emsl{sem\_}
@@ -1471,5 +1470,7 @@ $ find . -name '*_np\.*'
 ./man3c/sem_reltimedwait_np.3c
 \end{verbatim}
 \end{itemize}
+
+\pagebreak
 
 \endinput

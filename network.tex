@@ -162,75 +162,7 @@ provedení \texttt{bind}; dostateèná práva mohou znamenat u¾ivatele root
 nebo speciální privilegium/capability).
 \end{itemize}
 
-
 %%%%%
-
-\begin{slide}
-\sltitle{Spojované slu¾by (TCP), paralelní obsluha}
-\input{img/tex/tcp_par.tex}
-\end{slide}
-
-\begin{itemize}
-\item server akceptuje spojení od klienta a na vlastní komunikaci vytvoøí nový
-proces, který po uzavøení spojení s klientem skonèí. Rodièovský proces mù¾e
-mezitím akceptovat dal¹í klienty a spou¹tìt pro nì obslu¾né procesy. Souèasnì
-je tedy obsluhováno více klientù.
-\item po provedení \texttt{fork}, ale pøed zahájením obsluhy spojení, mù¾e
-synovský proces provést \texttt{exec} -- takto funguje napø. \texttt{inetd}
-(strana \pageref{INETD}).
-\item volání \texttt{waitpid} v cyklu odstraòuje ze systému zombie. Jinou
-mo¾ností je vyu¾ití signálu \texttt{SIGCHLD}, jeho¾ explicitní ignorování
-zabrání vzniku ¾ivých mrtvých, popø. lze instalovat handler, v nìm¾ se volá
-\texttt{wait}.
-\end{itemize}
-
-
-%%%%%
-
-\begin{slide}
-\sltitle{Spojované slu¾by, paralelní \texttt{accept()}}
-\input{img/tex/tcp_prefork.tex}
-\end{slide}
-
-\begin{itemize}
-\item po \texttt{bind} a \texttt{listen} se vytvoøí nìkolik synovských
-procesù a ka¾dý v cyklu volá \texttt{accept} a obsluhuje klienty. Jádro, pro
-u¾ivatele \emsl{nedeterministicky}, vybere pro ka¾dý po¾adavek jeden proces, v
-nìm¾ \texttt{accept} navá¾e spojení. Hlavní proces ¾ádné po¾adavky nevyøizuje,
-ale èeká v nìkterém z volání typu \texttt{wait} a vytváøí procesy, kdy¾ je
-potøeba.
-\item jednotlivé procesy serveru mezi sebou mohou komunikovat, aby v pøípadì, ¾e
-souèasných po¾adavkù je více ne¾ serverových procesù, se tato skuteènost
-zjistila a hlavní server mohl dynamicky vytvoøit dal¹í serverový proces.
-\item takto funguje napø. webový server Apache. Je mo¾né definovat, kolik
-po\-¾a\-dav\-kù má potomek zpracovat, ne¾ sám skonèí. Tímto zpùsobem se výraznì omezí
-následky pøípadných problémù, napøíklad neuvolòování pamìti, tzv. \emph{memory
-leaks}.
-\item \emsl{v¹echny tøi uvedené zpùsoby èinnosti serveru fungují se stejným
-kli\-en\-tem} -- èinnost klienta nezávisí na variantì serveru.
-\end{itemize}
-
-%%%%%
-
-\begin{slide}
-\sltitle{Datagramové slu¾by (UDP)}
-\input{img/tex/udp.tex}
-\end{slide}
-
-\begin{itemize}
-\item z pohledu volaných sí»ových funkcí je funkce serveru a klienta shodná.
-Klient je zde ten, kdo po¹le první datagram.
-\item stejnì jako v pøípadì TCP, klient nemusí dìlat \texttt{bind}, jestli¾e
-mu nezále¾í na tom, jaké èíslo portu bude pou¾ívat. Server zjistí port klienta z
-obsahu adresní èásti datagramu.
-\item výhodou nespojované slu¾by je men¹í re¾ie a to, ¾e pøes jeden soket lze
-komunikovat s~více procesy (pøi spojované komunikaci je spojení v¾dy navázáno s
-jedním procesem).
-\item pro UDP je mo¾né volat \texttt{connect}. Tím se nenavá¾e spojení, ale
-soket se nastaví tak, ¾e mù¾e nadále komunikovat pouze s adresou a portem
-specifikovanými ve volání \texttt{connect}. Místo \texttt{sendto} a
-\texttt{recvfrom} se pak pou¾ívají funkce \texttt{send} a \texttt{recv}.
-\end{itemize}
 
 %%%%%
 
@@ -508,69 +440,6 @@ nebo \texttt{struct sockaddr\_in6}) a v tøetím argumentu její délku.
 \item \label{TCP_SINK_SERVER_C} Pøíklad: \priklad{tcp/tcp-sink-server.c}
 \end{itemize}
 
-%%%%%
-
-\pdfbookmark[1]{inet\_pton, inet\_ntop}{ipaddrfncs}
-
-\begin{slide}
-\sltitle{Práce s IPv4 a IPv6 adresami}
-\begin{itemize}
-\item binární reprezentace adresy se nám ¹patnì ète
-\item a reprezentaci adresy øetìzcem nelze pou¾ít pøi práci se \texttt{sockaddr}
-strukturami
-\end{itemize}
-
-\texttt{int \funnm{inet\_pton}(int \emph{af}, const char *\emph{src},
-void *\emph{dst});}
-\begin{itemize}
-\item pøevede øetìzec na binární adresu, tj. to co je mo¾né pou¾ít v
-\texttt{in\_addr} nebo \texttt{in6\_addr} polo¾kách \texttt{sockaddr} struktur
-\item vrací 1 (OK), 0 (chybnì zadaná adresa) nebo -1 (a nastaví \texttt{errno})
-\end{itemize}
-
-\funml{cont char *\funnm{inet\_ntop}(\=int \emph{af}, const void *\emph{src},
-\\\>char *\emph{dst}, size\_t \emph{size});}
-\begin{itemize}
-\item opak k \texttt{inet\_pton}; vrací \emph{\texttt{dst}} nebo \texttt{NULL}
-(a nastaví \texttt{errno})
-\end{itemize}
-\begin{itemize}
-\item pro obì volání platí, ¾e \texttt{af} je \texttt{AF\_INET} nebo
-\texttt{AF\_INET6}
-\end{itemize}
-\end{slide}
-
-\label{IPv4_IPv6_ADDRESSES}
-
-\begin{itemize}
-\item Funkce jsou deklarované v \texttt{arpa/inet.h}.
-\item \texttt{inet\_pton} vrací 1 pokud konverze probìhla, 0 pokud daný øetìzec
-není adresa dané adresní rodiny, a -1 pokud \emph{af} není podporováno
-(\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} vrací \texttt{dst} pokud je v¹e OK
-a \texttt{NULL} s nastaveným \texttt{errno} pokud ne.
-\item Adresy i porty v binární podobì jsou v sí»ovém poøadí bajtù, jak lze
-oèekávat.
-\item \texttt{dst} musí být dostateènì velké, proto¾e zde není parametr
-specifikující velikost. To ale není problém, podle nastavení \texttt{af}
-pou¾ijete konkrétní adresní strukturu nebo øetìzec. Pro maximální postaèující
-velikost øetìzcù pro adresy norma definuje dvì makra,
-\texttt{INET\_ADDRSTR\-LEN} (16) a \texttt{INET6\_ADDRSTRLEN} (48). Je to vèetnì
-místa pro ukonèující \texttt{\bs{}0}.
-\item \texttt{size} je velikost øetìzce \texttt{dst}. Pokud není dostateèná,
-volání sel¾e s chybou \texttt{ENOSPC}.
-\item \texttt{n} je \texttt{network}, \texttt{p} je \texttt{presentable}
-\item Pro IPv4 adresy se pou¾ívala volání \texttt{inet\_aton} a
-\texttt{inet\_ntoa} (\texttt{a} jako \texttt{ascii}). Díky novým voláním ji¾
-tyto funkce není potøeba pou¾ívat. V¹echna tato volání bývají zdokumentována v
-manuálové stránce \texttt{inet}.
-\item \label{ADDRESSES} Uvìdomte si, ¾e pomocí tìchto funkcí mù¾ete
-pøevést najednou jen jeden typ, to je buï IPv4, anebo IPv6 adresu. Kdy¾
-nevíte, co èekat, zkusíte jednu a pokud to nevyjde, zkusíte druhou.
-Pøíklad: \priklad{resolving/addresses.c}.
-\end{itemize}
-
-%%%%%
-
 \pdfbookmark[1]{connect}{connect}
 
 \begin{slide}
@@ -619,6 +488,74 @@ jsme opìt tam, kde jsme byli\dots{} Je mo¾né ale pou¾ít \texttt{select} nebo
 \texttt{poll} pro èekání na zápis (ne ètení) do socketu, viz strany
 \pageref{SELECT}, \pageref{POLL} které obsahují kompletní pøíklad na
 neblokující connect, viz strana \pageref{NON_BLOCKING_CONNECT}.
+\end{itemize}
+
+%%%%%
+
+%%%%%
+
+\begin{slide}
+\sltitle{Spojované slu¾by (TCP), paralelní obsluha}
+\input{img/tex/tcp_par.tex}
+\end{slide}
+
+\begin{itemize}
+\item server akceptuje spojení od klienta a na vlastní komunikaci vytvoøí nový
+proces, který po uzavøení spojení s klientem skonèí. Rodièovský proces mù¾e
+mezitím akceptovat dal¹í klienty a spou¹tìt pro nì obslu¾né procesy. Souèasnì
+je tedy obsluhováno více klientù.
+\item po provedení \texttt{fork}, ale pøed zahájením obsluhy spojení, mù¾e
+synovský proces provést \texttt{exec} -- takto funguje napø. \texttt{inetd}
+(strana \pageref{INETD}).
+\item volání \texttt{waitpid} v cyklu odstraòuje ze systému zombie. Jinou
+mo¾ností je vyu¾ití signálu \texttt{SIGCHLD}, jeho¾ explicitní ignorování
+zabrání vzniku ¾ivých mrtvých, popø. lze instalovat handler, v nìm¾ se volá
+\texttt{wait}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Spojované slu¾by, paralelní \texttt{accept()}}
+\input{img/tex/tcp_prefork.tex}
+\end{slide}
+
+\begin{itemize}
+\item po \texttt{bind} a \texttt{listen} se vytvoøí nìkolik synovských
+procesù a ka¾dý v cyklu volá \texttt{accept} a obsluhuje klienty. Jádro, pro
+u¾ivatele \emsl{nedeterministicky}, vybere pro ka¾dý po¾adavek jeden proces, v
+nìm¾ \texttt{accept} navá¾e spojení. Hlavní proces ¾ádné po¾adavky nevyøizuje,
+ale èeká v nìkterém z volání typu \texttt{wait} a vytváøí procesy, kdy¾ je
+potøeba.
+\item jednotlivé procesy serveru mezi sebou mohou komunikovat, aby v pøípadì, ¾e
+souèasných po¾adavkù je více ne¾ serverových procesù, se tato skuteènost
+zjistila a hlavní server mohl dynamicky vytvoøit dal¹í serverový proces.
+\item takto funguje napø. webový server Apache. Je mo¾né definovat, kolik
+po\-¾a\-dav\-kù má potomek zpracovat, ne¾ sám skonèí. Tímto zpùsobem se výraznì omezí
+následky pøípadných problémù, napøíklad neuvolòování pamìti, tzv. \emph{memory
+leaks}.
+\item \emsl{v¹echny tøi uvedené zpùsoby èinnosti serveru fungují se stejným
+kli\-en\-tem} -- èinnost klienta nezávisí na variantì serveru.
+\end{itemize}
+
+\begin{slide}
+\sltitle{Datagramové slu¾by (UDP)}
+\input{img/tex/udp.tex}
+\end{slide}
+
+\begin{itemize}
+\item z pohledu volaných sí»ových funkcí je funkce serveru a klienta shodná.
+Klient je zde ten, kdo po¹le první datagram.
+\item stejnì jako v pøípadì TCP, klient nemusí dìlat \texttt{bind}, jestli¾e
+mu nezále¾í na tom, jaké èíslo portu bude pou¾ívat. Server zjistí port klienta z
+obsahu adresní èásti datagramu.
+\item výhodou nespojované slu¾by je men¹í re¾ie a to, ¾e pøes jeden soket lze
+komunikovat s~více procesy (pøi spojované komunikaci je spojení v¾dy navázáno s
+jedním procesem).
+\item pro UDP je mo¾né volat \texttt{connect}. Tím se nenavá¾e spojení, ale
+soket se nastaví tak, ¾e mù¾e nadále komunikovat pouze s adresou a portem
+specifikovanými ve volání \texttt{connect}. Místo \texttt{sendto} a
+\texttt{recvfrom} se pak pou¾ívají funkce \texttt{send} a \texttt{recv}.
 \end{itemize}
 
 %%%%%
@@ -713,65 +650,6 @@ mo¾nost pou¾ít flagy. V tom pøípadì je ale jednodu¹¹í pou¾ít \texttt{send}.
 
 %%%%%
 
-\pdfbookmark[1]{setsockopt, getsockopt, getsockname, getpeername}{socketfncs}
-
-\begin{slide}
-\sltitle{Dal¹í funkce pro sokety}
-\funml{int \funnm{setsockopt}(\=int \emph{socket}, int \emph{level},
-int \emph{opt\_name}, \\\>const void *\emph{opt\_value},
-socklen\_t \emph{option\_len});}
-\begin{itemize}
-\item nastavení parametrù soketu
-\end{itemize}
-\funml{int \funnm{getsockopt}(\=int \emph{socket}, int \emph{level},
-int \emph{opt\_name},\\\>void *\emph{opt\_value},
-socklen\_t *\emph{option\_len});}
-\begin{itemize}
-\item pøeètení parametrù soketu
-\end{itemize}
-\funml{int \funnm{getsockname}(\=int \emph{socket},
-struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
-\begin{itemize}
-\item zji¹tìní (lokální) adresy soketu
-\end{itemize}
-\funml{int \funnm{getpeername}(\=int \emph{socket},
-struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
-\begin{itemize}
-\item zji¹tìní adresy vzdál{}eného soketu (druhého konce spojení)
-\end{itemize}
-\end{slide}
-
-\label{SETSOCKOPT}
-\label{GETPEERNAME}
-\label{GETSOCKOPT}
-
-\begin{itemize}
-\item hodnota \texttt{level} v \texttt{getsockopt} a \texttt{setsockopt}
-je obvykle \verb#SOL_SOCKET#. U \texttt{get\-sock\-opt}, \texttt{option\_len}
-\emsl{musí} být inicializována na velikost \texttt{opt\_value}.
-\item funkce \texttt{getsockname} se pou¾ívá, kdy¾ nevoláme \texttt{bind}
-a potøebujeme zjistit, jaká (lokální!) adresa byla jádrem soketu pøidìlena. 
-\item volání \verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)# vrátí
-(a vyma¾e) pøíznak chyby na soketu. Asi neju¾iteènìj¹í je pøi zji¹»ování, jak
-dopadl neblokující \texttt{connect}, viz strana \pageref{CONNECT}.
-\item pøi pou¾ití \verb#SO_REUSEADDR# se dá po uzavøení poslouchajícího
-serverového soketu znovu spustit server -- volat \texttt{socket},
-\texttt{bind}, \texttt{listen} a \texttt{accept} na stejné adrese a portu
--- i kdy¾ je¹tì dobíhají spojení vytvoøená pøedchozí instancí serveru:
-
-\begin{verbatim}
-int opt = 1;
-setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-\end{verbatim}
-
-\item Pou¾ití \texttt{setsockopt} s \verb#SO_REUSEADDR# je vidìt napø. v
-pøíkladu \priklad{tcp/reuseaddr.c}. Pozor na to, ¾e musíte udìlat alespoò
-jedno spojení, jinak systém nemá na co èekat a opakovaný \texttt{bind} za
-sebou se podaøí i tak.
-\end{itemize}
-
-%%%%%
-
 \pdfbookmark[1]{close}{close}
 
 \begin{slide}
@@ -836,6 +714,126 @@ signalizuje, ¾e u¾ nebude nic zapisovat. To platí i v pøípadì pou¾ití
 \texttt{close} nebo \texttt{shutdown(fd, SHUT\_RDWR)}. Pøi pou¾ití
 \texttt{shutdown(fd, SHUT\_WR)} lze ze soketu dál èíst. Druhá strana dostane
 \texttt{EOF} pøi ètení, ale mù¾e dál zapisovat.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{inet\_pton, inet\_ntop}{ipaddrfncs}
+
+\begin{slide}
+\sltitle{Práce s IPv4 a IPv6 adresami}
+\begin{itemize}
+\item binární reprezentace adresy se nám ¹patnì ète
+\item a reprezentaci adresy øetìzcem nelze pou¾ít pøi práci se \texttt{sockaddr}
+strukturami
+\end{itemize}
+
+\texttt{int \funnm{inet\_pton}(int \emph{af}, const char *\emph{src},
+void *\emph{dst});}
+\begin{itemize}
+\item pøevede øetìzec na binární adresu, tj. to co je mo¾né pou¾ít v
+\texttt{in\_addr} nebo \texttt{in6\_addr} polo¾kách \texttt{sockaddr} struktur
+\item vrací 1 (OK), 0 (chybnì zadaná adresa) nebo -1 (a nastaví \texttt{errno})
+\end{itemize}
+
+\funml{cont char *\funnm{inet\_ntop}(\=int \emph{af}, const void *\emph{src},
+\\\>char *\emph{dst}, size\_t \emph{size});}
+\begin{itemize}
+\item opak k \texttt{inet\_pton}; vrací \emph{\texttt{dst}} nebo \texttt{NULL}
+(a nastaví \texttt{errno})
+\end{itemize}
+\begin{itemize}
+\item pro obì volání platí, ¾e \texttt{af} je \texttt{AF\_INET} nebo
+\texttt{AF\_INET6}
+\end{itemize}
+\end{slide}
+
+\label{IPv4_IPv6_ADDRESSES}
+
+\begin{itemize}
+\item Funkce jsou deklarované v \texttt{arpa/inet.h}.
+\item \texttt{inet\_pton} vrací 1 pokud konverze probìhla, 0 pokud daný øetìzec
+není adresa dané adresní rodiny, a -1 pokud \emph{af} není podporováno
+(\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} vrací \texttt{dst} pokud je v¹e OK
+a \texttt{NULL} s nastaveným \texttt{errno} pokud ne.
+\item Adresy i porty v binární podobì jsou v sí»ovém poøadí bajtù, jak lze
+oèekávat.
+\item \texttt{dst} musí být dostateènì velké, proto¾e zde není parametr
+specifikující velikost. To ale není problém, podle nastavení \texttt{af}
+pou¾ijete konkrétní adresní strukturu nebo øetìzec. Pro maximální postaèující
+velikost øetìzcù pro adresy norma definuje dvì makra,
+\texttt{INET\_ADDRSTR\-LEN} (16) a \texttt{INET6\_ADDRSTRLEN} (48). Je to vèetnì
+místa pro ukonèující \texttt{\bs{}0}.
+\item \texttt{size} je velikost øetìzce \texttt{dst}. Pokud není dostateèná,
+volání sel¾e s chybou \texttt{ENOSPC}.
+\item \texttt{n} je \texttt{network}, \texttt{p} je \texttt{presentable}
+\item Pro IPv4 adresy se pou¾ívala volání \texttt{inet\_aton} a
+\texttt{inet\_ntoa} (\texttt{a} jako \texttt{ascii}). Díky novým voláním ji¾
+tyto funkce není potøeba pou¾ívat. V¹echna tato volání bývají zdokumentována v
+manuálové stránce \texttt{inet}.
+\item \label{ADDRESSES} Uvìdomte si, ¾e pomocí tìchto funkcí mù¾ete
+pøevést najednou jen jeden typ, to je buï IPv4, anebo IPv6 adresu. Kdy¾
+nevíte, co èekat, zkusíte jednu a pokud to nevyjde, zkusíte druhou.
+Pøíklad: \priklad{resolving/addresses.c}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{setsockopt, getsockopt, getsockname, getpeername}{socketfncs}
+
+\begin{slide}
+\sltitle{Dal¹í funkce pro sokety}
+\funml{int \funnm{setsockopt}(\=int \emph{socket}, int \emph{level},
+int \emph{opt\_name}, \\\>const void *\emph{opt\_value},
+socklen\_t \emph{option\_len});}
+\begin{itemize}
+\item nastavení parametrù soketu
+\end{itemize}
+\funml{int \funnm{getsockopt}(\=int \emph{socket}, int \emph{level},
+int \emph{opt\_name},\\\>void *\emph{opt\_value},
+socklen\_t *\emph{option\_len});}
+\begin{itemize}
+\item pøeètení parametrù soketu
+\end{itemize}
+\funml{int \funnm{getsockname}(\=int \emph{socket},
+struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
+\begin{itemize}
+\item zji¹tìní (lokální) adresy soketu
+\end{itemize}
+\funml{int \funnm{getpeername}(\=int \emph{socket},
+struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
+\begin{itemize}
+\item zji¹tìní adresy vzdál{}eného soketu (druhého konce spojení)
+\end{itemize}
+\end{slide}
+
+\label{SETSOCKOPT}
+\label{GETPEERNAME}
+\label{GETSOCKOPT}
+
+\begin{itemize}
+\item hodnota \texttt{level} v \texttt{getsockopt} a \texttt{setsockopt}
+je obvykle \verb#SOL_SOCKET#. U \texttt{get\-sock\-opt}, \texttt{option\_len}
+\emsl{musí} být inicializována na velikost \texttt{opt\_value}.
+\item funkce \texttt{getsockname} se pou¾ívá, kdy¾ nevoláme \texttt{bind}
+a potøebujeme zjistit, jaká (lokální!) adresa byla jádrem soketu pøidìlena. 
+\item volání \verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)# vrátí
+(a vyma¾e) pøíznak chyby na soketu. Asi neju¾iteènìj¹í je pøi zji¹»ování, jak
+dopadl neblokující \texttt{connect}, viz strana \pageref{CONNECT}.
+\item pøi pou¾ití \verb#SO_REUSEADDR# se dá po uzavøení poslouchajícího
+serverového soketu znovu spustit server -- volat \texttt{socket},
+\texttt{bind}, \texttt{listen} a \texttt{accept} na stejné adrese a portu
+-- i kdy¾ je¹tì dobíhají spojení vytvoøená pøedchozí instancí serveru:
+
+\begin{verbatim}
+int opt = 1;
+setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+\end{verbatim}
+
+\item Pou¾ití \texttt{setsockopt} s \verb#SO_REUSEADDR# je vidìt napø. v
+pøíkladu \priklad{tcp/reuseaddr.c}. Pozor na to, ¾e musíte udìlat alespoò
+jedno spojení, jinak systém nemá na co èekat a opakovaný \texttt{bind} za
+sebou se podaøí i tak.
 \end{itemize}
 
 %%%%%
@@ -1315,118 +1313,6 @@ na macOS, tak¾e se na nìj nelze spoléhat.
 sekunda je volání \texttt{nanosleep}, které je ale definované roz¹íøením POSIX.4
 a tedy nemusí být v¾dy k dispozici. Pøíklad: \priklad{sleep/nanosleep.c}.
 \end{itemize}
-\end{itemize}
-
-
-%%%%%
-
-\pdfbookmark[1]{inetd}{inetd}
-
-\begin{slide}
-\sltitle{Správa sí»ových slu¾eb: \texttt{inetd}}
-\setlength{\baselineskip}{0.8\baselineskip}
-\begin{itemize}
-\item servery sí»ových slu¾eb se spou¹tí buï pøi startu systému, nebo je
-startuje démon \texttt{inetd} pøi pøipojení klienta. 
-\item démon \texttt{inetd} èeká na portech definovaných v
-\texttt{/etc/inetd.conf} a kdy¾ detekuje pøíchozí spojení/datagram,
-spustí pøíslu¹ný server a pøesmìruje mu deskriptory.
-\item pøíklad obsahu \texttt{/etc/inetd.conf}: 
-\end{itemize}
-\begin{alltt}
-ftp stream tcp nowait root /usr/etc/ftpd ftpd -l 
-shell stream tcp nowait root /usr/etc/rshd rshd -L 
-login stream tcp nowait root /usr/etc/rlogind rlogind 
-exec stream tcp nowait root /usr/etc/rexecd rexecd 
-finger stream tcp nowait guest /usr/etc/fingerd fingerd 
-ntalk dgram udp wait root /usr/etc/talkd talkd 
-tcpmux stream tcp nowait root internal 
-echo stream tcp nowait root internal
-\end{alltt}
-\end{slide}
-
-\label{INETD}
-
-\begin{itemize}
-\item \texttt{inetd} je v podstatì velký \texttt{poll} cyklus obhospodaøující
-sadu socketù podle konfigurace.
-\item Start pøes \texttt{inetd} ¹etøí prostøedky, proto¾e pøíslu¹ný server bì¾í
-pouze po èas, kdy jsou jeho slu¾by opravdu potøeba. Nehodí se tedy pro pro
-spoustìní vytí¾ených slu¾eb (HTTP) nebo slu¾eb kde mù¾e být velký overhead pøi
-inicializaci (napø. SSH).
-\item Typicky se pomocí \texttt{inetd} spou¹tí servery, které se pou¾ívají málo
-nebo jejich¾ inicializace je relativnì nenároèná (\texttt{telnetd},
-\texttt{ftpd}). Silnì vytí¾ené a dlouho startující servery (\texttt{httpd}) se
-obvykle startují ze systémových inicializaèních skriptù a bì¾í stále.
-\item Èasto má cenu mít \texttt{inetd} vypnutý úplnì. Pokud na va¹em stroji bì¾í
-napø. pouze SSH, tak pro to se \texttt{inetd} ve vìt¹inì pøípadù nepou¾ívá,
-\texttt{inetd} by byl jen dal¹ím serverem bì¾ícím na stroji a zdroj
-potenciálního nebezpeèí, pokud by se v nìm nebo v jednom z nìj spou¹tìných
-programù objevila bezpeènostní chyba. To by ostatnì mìlo platit pro v¹echny
-instalované programy poskytující sí»ové slu¾by - buïto by mìly implicitnì
-poslouchat pouze na localhostu (resp. pou¾ívat unixové sockety) nebo by
-implicitnì nemìly bì¾et a mìly by být spu¹tìny (ve smyslu permanentnì
-zapnuty) a¾ tehdy kdy¾ jsou skuteènì tøeba (tento pøístup se oznaèuje jako
-\emph{secure by default}).
-
-
-\end{itemize}
-
-%%%%%
-
-\begin{slide}
-\sltitle{Formát souboru \texttt{/etc/inetd.conf}}
-\texttt{slu¾ba soket proto èekání u¾iv server argumenty}
-\begin{itemize}
-\item \texttt{slu¾ba} \dots{} jméno sí»ové slu¾by podle \texttt{/etc/services}
-\item \texttt{soket} \dots{} \texttt{stream} nebo \texttt{dgram}
-\item \texttt{proto} \dots{} komunikaèní protokol (\texttt{tcp}, \texttt{udp}) 
-\item \texttt{èekání} \dots{} \texttt{wait} (\texttt{inetd} èeká na ukonèení
-serveru pøed akceptováním dal¹ího klienta), \texttt{nowait} (\texttt{inetd} 
-akceptuje dal¹ího klienta hned) 
-\item \texttt{u¾ivatel} \dots{} server pobì¾í s identitou tohoto u¾ivatele 
-\item \texttt{server} \dots{} úplná cesta k programu serveru nebo
-\texttt{internal} (slu¾bu zaji¹»uje \texttt{inetd}) 
-\item \texttt{argumenty} \dots{} pøíkazový øádek pro server, vèetnì
-\texttt{argv[0]}
-\end{itemize}
-\end{slide}
-
-\begin{itemize}
-\item Soket typu \texttt{stream}:
-	\begin{itemize}
-	\item \texttt{wait} \dots{} server dostane soket, na který musí aspoò
-	jednou zavolat \texttt{accept}. Teprve tím získá nový soket, pøes který
-	mù¾e komunikovat s klientem. Po skonèení serveru pøebírá øízení soketu
-	zpìt \texttt{inetd}.
-	\item \texttt{nowait} \dots{} \texttt{inetd} zavolá \texttt{accept} a
-	získaný soket pøedá serveru, server tedy mù¾e rovnou komunikovat (mù¾e
-	pou¾ívat standardní vstup a výstup) a nemusí vìdìt, ¾e komunikuje po
-	síti.  Mezitím \texttt{inetd} èeká na dal¹í klienty a podle potøeby
-	spou¹tí dal¹í instance serveru.
-	\end{itemize}
-\item Jak pro \texttt{wait} tak pro \texttt{nowait} provedl \texttt{inetd}
-na soketu volání \texttt{bind} aby mu pøiøadil èíslo portu podle pole
-\texttt{slu¾ba}.
-\item V pøípadì \texttt{wait} dostane server soket od \texttt{inetd} v podobì
-deskriptoru 0 (standarní vstup). \texttt{inetd} pøed voláním \texttt{fork}
-provedl \texttt{dup2(sock, 0)}, kde \texttt{sock} je nabindovaný socket.
-Viz pøíklad \priklad{inetd/accept-rw.c}.
-\item V pøípadì \texttt{nowait} \texttt{inetd} zavolá \texttt{accept} (pro TCP
-spojení), pøesmìruje deskriptory 0, 1, a 2 do sí»ového socketu a spustí daný
-server.
-Viz pøíklad: \priklad{inetd/echo-server.sh}. Podívejte se do daného skriptu pro
-podrobné instrukce, jak ho pou¾ít.
-\item Pro soket typu \texttt{dgram} má smysl pouze \texttt{wait}. Server musí
-pøeèíst ze soketu aspoò jeden datagram.
-\item Jestli¾e \texttt{inetd} restartuje server (kromì \texttt{stream~nowait})
-pøíli¹ èasto (cca jednou za sekundu), usoudí, ¾e nastala chyba a po urèitou dobu
-(asi 10 minut) slu¾bu zablokuje (nespou¹tí server a odmítá spojení). Ostatní
-servery spou¹tí normálnì dál.
-\item Pro zajímavost, ne v¹echny systémy musí nutnì \texttt{inetd.conf} pou¾ívat
-stejným zpùsobem. Napøíklad od Solarisu 10 se tento soubor pou¾ije pouze pro
-po\-èá\-teè\-ní konverzi do interní databáze pomocí \texttt{inetconv(1M)} a pro
-zapínání a vypínání slu¾eb se pak pou¾ívá pøíkaz \texttt{inetadm(1M)}.
 \end{itemize}
 
 \endinput
