@@ -1,0 +1,117 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <title>Unix programming in C syllabus</title>
+  <script type='text/javascript'>
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body>
+<h1>Unix programming in C syllabus</h1>
+
+<p>
+Note that slide numbers do not always have to match the current version.
+</p>
+
+<p><b>1. pøedná¹ka</b> (3.10.)<br>
+Administrativa, podmínky a pravidla, informace o cvièení<br>
+úvod, literatura, C, programátorské utility, konvence,
+princip pøekladu, linker, ar, make, dynamický linker<br>
+<em>[slajdy 3-31]</em>
+</p>
+
+<p><b>2. pøedná¹ka</b> (10.10.)<br>
+API vers ABI, debuggery, pøehled headerù,
+<tt>main()</tt>, environment promìnné, zpracování pøepínaèù
+(<tt>getopt</tt>, <tt>getopt_long</tt>), struktura UNIXu, procesy, vlákna,
+programy
+<br>
+<em>[slajdy 32-48]</em>
+</p>
+
+<p><b>3. pøedná¹ka</b> (17.10.)<br>
+systémová volání obecnì, knihovní funkce pro návratové hodnoty systémových volání,
+API pro soubory<br>
+<em>[slajdy 49-53, 80-101]</em>
+</p>
+
+<p><b>4. pøedná¹ka</b> (24.10.)<br>
+<tt>/etc/passwd</tt>, <tt>/etc/group</tt>, pøístupová práva, identifikace
+procesù a souborù (UID, GID), set UID, práva pro soubory
+<br>
+skupiny procesù, job control, sessions, identifikace procesu, start a ukonèení
+procesu a programu, ELF, roury<br>
+<em>[slajdy 56-62]</em>,
+<em>[slajdy 102-114]</em>
+</p>
+
+<p><b>5. pøedná¹ka</b> (31.10.)<br>
+pamì» procesù a jádra, virtuální pamì», stavy procesu, plánování
+procesù, sdílená pamìt, mapování souborù do pamìti<br>
+<em>[slajdy 103-111, 122-125]</em>
+</p>
+
+<p><b>6. pøedná¹ka</b> (7.11.)<br>
+dynamický pøístup ke knihovnám, signály<br>
+<em>[slajdy 126-128, 130-141]</em>
+</p>
+
+<p><b>7. pøedná¹ka</b> (14.11.)<br>
+úvod do synchronizace procesù, zamykání (problém vzájemného vylouèení, lock
+soubory, zamykání pomocí fcntl, deadlock), System V IPC obecnì, System V
+semafory.<br>
+<em>[slajdy 143-160]</em>
+</p>
+
+<p><b>8. pøedná¹ka</b> (21.11.)<br>
+sí»ová komunikace<br>
+<em>[slajdy 162-186]</em>
+</p>
+
+<p><b>9. pøedná¹ka</b> (28.11.)<br>
+<tt>select/poll</tt>, inetd, úvod do vláken, globální promìnné pro vlákna, 
+vytvoøení/ukonèení/zru¹ení vlákna, fork a vlákna, signály a vlákna<br>
+<em>[slajdy 187-205]</em>
+</p>
+
+<p><b>10. pøedná¹ka</b> (5.12.)<br>
+synchronizace vláken, reentrantnost funkcí, nepøenositelná volání pro
+vlákna<br>
+<em>[slajdy 206-219]</em>
+</p>
+
+<p><b>11. pøedná¹ka</b> (12.12.)<br>
+vývoj, standardy
+</p>
+
+<p><b>12. pøedná¹ka</b> (19.12.)<br>
+úvod do systému souborù, pøístup k
+zaøízením, fyzické ulo¾ení filesystému, organizace filesystémù s5 a ufs,
+navigace v adresáøích, linky, vývoj ve správì adresáøových polo¾ek,
+VFS, otevøené soubory z pohledu jádra,
+rùzné zpùsoby zaji¹tìní konzistence souborového systému, fsck<br>
+<em>[slajdy 63-78</em>
+</p>
+
+<p><b>13. pøedná¹ka</b> (9.1.)<br>
+debugging
+</p>
+
+<p><hr>
+Poslední zmìna:
+<script>
+write_last_mod ();
+</script>
+
+</body>
+</html>
