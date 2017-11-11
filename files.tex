@@ -450,42 +450,6 @@ strukturu \texttt{vfs} reprezentující pøipojený filesystém
 filesystém pøipojen
 \end{itemize}
 
-
-%%%%%
-
-\begin{slide}
-\sltitle{System view of open files I.}
-\begin{center}
-%\input{img/tex/open_files1.latex}
-\includegraphics[width=89mm]{img/eps/open_files1.eps}
-% This is too big.  I'd have had to shrunk it.
-%\includegraphics{img/eps/open_files1.eps}
-\end{center}
-\end{slide}
-
-\begin{itemize}
-\item toto je nejjednodu¹¹í pohled na tabulky v jádøe které se týkají souborù,
-je to pøevzato z [Bach]; dnes to je o nìco slo¾itìj¹í, my¹lenka je ale poøád
-stejná. Realitì více se podobající obrázek je na pøí¹tím slajdu.
-\item ka¾dý proces má svoji tabulku souborových deskriptorù (\emph{user file
-descriptor table})
-\item z této tabulky je odkazovnáno na systémovou tabulku otevøených souborù
-systému (\emph{file table}; ano, tato tabulka je pouze jedna). Zde je mód
-otevøení souboru a také \emsl{aktuální pozice v souboru.}
-\item z tabulky otevøených souborù je odkazováno do tabulky naètených inodù v
-pamìti. Dnes jsou to tzv. \emph{vnodes} -- \emph{virtual nodes}, ale to v této
-chvíli není relevantní.
-\item tabulka otevøených souborù systému, která vlastnì vytváøí o jednu úroveò
-odkazù navíc, je zde proto, aby rùzné procesy mohly sdílet stejnou aktuální
-pozici v souboru.
-\item pøi otevøení souboru pomocí volání \texttt{open} se v¾dy alokuje nový
-slot v tabulce deskriptorù a také v systémové tabulce otevøených souborù (to
-je dùle¾ité!). Sdíl{}ení se pak v rámci jednoho procesu dosáhne duplikací
-deskriptorù, kdy více deskriptorù sdílí stejný slot v tabulce otevøených
-souborù systému nebo v pøípadì rùzných procesù pak pomocí vytvoøení nového
-procesu pomocí volání \texttt{fork}(), viz strana \pageref{FDSHARING}.
-\end{itemize}
-
 %%%%%
 
 \begin{slide}
