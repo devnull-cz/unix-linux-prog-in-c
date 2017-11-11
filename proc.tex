@@ -189,7 +189,7 @@ pøedná¹ka o operaèních systémech na MFF (NSWI004 - Operaèní systémy).
 \item z jakých segmentù se skládá pamì»ový prostor konkrétního
 procesu lze zjistit pomocí pøíkazu \texttt{pmap(1)} (na Solarisu, na NetBSD a v
 nìkterých Linuxových distribucích) nebo \texttt{procmap(1)} (v OpenBSD)
-nebo \texttt{vmmap(1)} v Mac~OS~X.
+nebo \texttt{vmmap(1)} v macOS.
 \end{itemize}
 
 %%%%%
@@ -339,9 +339,9 @@ funkce vrátí -1 tak ji zkontrolovat.
 \item prioritní tøídu a hodnotu nice daného procesu lze zobrazit pøepínaèem
 -l programu ps(1) nebo pomocí specifikace hodnot které se mají vypsat.
 \item Pøíklad: hodnoty priority mají na rùzných systémech rùzné ¹kály.
-Napø. na Mac~OS~X~10.9 má spu¹tìný proces hodnotu priority 30, po zvý¹ení
+Napø. na macOS~10.9 má spu¹tìný proces hodnotu priority 30, po zvý¹ení
 hodnoty nice (proces je "hodnìj¹í" na ostatní procesy a dobrovolnì tedy sní¾il
-svoji prioritu) se mu hodnota prorita sní¾í na 21 co¾ na Mac~OS~X znamená
+svoji prioritu) se mu hodnota prorita sní¾í na 21 co¾ na macOS znamená
 i sní¾ení priority:
 \begin{verbatim}
 $ sleep 200 &
@@ -718,7 +718,7 @@ section header table\\
 \item The UNIX standard does not specify what executable file format systems
 should use.  While most of the UNIX and unix-like systems (eg. Linux distros)
 use ELF, there are other widely used systems that do not.  One example is
-Mac~OS~X (which is a certified UNIX system) that uses the \emph{Mach-O} file
+macOS (which is a certified UNIX system) that uses the \emph{Mach-O} file
 format, short for \emph{Mach Object}.  Each Mach-O file is made
 up of one Mach-O header, followed by a series of load commands, followed by one
 or more segments, each of which contains between 0 and 255 sections.
