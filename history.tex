@@ -1,0 +1,240 @@
+
+changequote([[[, ]]])
+
+\pdfbookmark[1]{historie UNIXu}{unixhist}
+
+\begin{slide}
+\sltitle{Books on UNIX history}
+\begin{itemize}
+\item Peter Salus: \emsl{A Quarter Century of UNIX}, Addison-Wesley;
+1st~edition (1994)
+\item Libes D., Ressler, S.: \emsl{Life With Unix: A Guide for
+Everyone}, Prentice Hall (1989)
+\item \emsl{Open Sources: Voices from the Open Source Revolution},
+kapitola \emsl{Twenty Years of Berkeley Unix From AT\&T-Owned to
+Freely Redistributable}; O'Reilly (1999); on-line na webu:
+\url{http://oreilly.com/openbook/opensources/book/index.html}
+\item[\ldots] lots of material on this topic is online
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item The chapter on the BSD UNIX from \emph{Open Sources} written by Marshall
+Kirk McKusick is excellent.
+\end{itemize}
+%%%%%
+
+\begin{slide}
+\sltitle{(Pre)historie UNIXu}
+\begin{itemize}
+\item 1925 -- \emsl{Bell Telephone Laboratories} -- výzkum v
+komunikacích (napø. 1947: transistor) v rámci AT\&T
+\item 1965 -- BTL s General Electric a MIT vývoj OS \emsl{Multics}
+(MULTIplexed Information and Computing System) 
+\item 1969 -- Bell Labs opou¹tí projekt, \emsl{Ken Thompson} pí¹e
+assembler, základní OS a systém souborù pro PDP-7 
+\item 1970 -- Multi-cs $\Rightarrow$ Uni-cs $\Rightarrow$ Uni-x
+\item 1971 -- UNIX V1, a portován na PDP-11
+\item prosinec 1971 -- první edice \emph{UNIX Programmer's Manual}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item AT\&T = American Telephone and Telegraph Company
+\item Multics byl systém, který významnì ovlivnil dal¹í vývoj operaèních
+systémù. Obsahoval mnoho v té dobì inovativních my¹lenek, z nich¾ ale ne v¹echny
+byly pøijímány kladnì. Významnì ovlivnil právì UNIX, který mnoho my¹lenek
+pøevzal a jeho nedostatky se naopak sna¾il napravit. Hlavní rozdíl byl asi ten,
+¾e UNIX byl navr¾en jako mnohem jednodu¹¹í systém, ne¾ Multics.
+\item po odchodu BTL z projektu Multics prodala GE svoji poèítaèovou divizi
+firmì Honeywell vèetnì projektu Multics, který se pak pod její patronací dále
+aktivnì vyvíjel (virtuální pamì», multiprocesory, \dots), a¾ do roku 1985.
+Poslední instalace Multics-u fungovala na kanadském Ministerstvu obrany
+(Canadian Department of National Defence) a systém byl napøíklad je¹tì aktivnì
+pou¾íván pro vojenské operace bìhem války v Perském zálivu. Definitivní shutdown
+byl proveden 31. øíjna 2000. Více informací je mo¾né nalézt na
+\url{http://www.multicians.org}.
+\item pøed poèátkem práce na vývojovém prostøedí pro PDP-7 napsal Thompson
+program \emph{Space Travel}, který byl vyvinut na jiném prostøedí (Honeywell
+635) a na pásce pøenesen na PDP-7.
+\item celkem bylo 10 edicí tohoto manuálu, korespondující deseti verzím UNIXu
+vzniklých v BTL.
+\item UNIX V1 nemìl volání \texttt{pipe} !!!
+\item manuál pro verzi 1:
+%\url{www.cs.bell-labs.com/who/dmr/1stEdman.html}.
+\url{http://man.cat-v.org/unix-1st/}
+Stojí za to nahlédnout, jak jeho struktura ovlivnila vzhled dne¹ních
+ma\-nu\-á\-lo\-vých stránek.
+\item \emsl{za pov¹imnutí stojí, ¾e UNIX je zhruba o 10 let star¹í ne¾ DOS}
+\item systém Multics mìl 9 hlavních cílù, jak popsáno v èlánku
+\emph{Introduction and Overview of the Multics System} z roku 1965. Za
+nejzajímavìj¹í cíl bych pova¾oval po¾adavek na nepøeru¹ovaný bìh systému.
+\item Multics byl napsaný v jazyce PL/I (Programming Language \#1), tedy døíve
+ne¾ byl UNIX pøepsaný do C !
+\item Multicsu byl v roce 1980 udìl{}en jako prvnímu systému level B2. Po
+nìkolik let to byl jediný systém s tímto bezpeènostím levelem.
+\item GE byla zalo¾ena v roce 1892 slouèením dvou spoleèností, z nich¾ jedna
+byla Edison General Electric Company zalo¾ená roku 1879 Thomasem Alvou Edisonem
+(vynálezce ¾árovky, filmové kamery, \dots); v souèasné dobì její dceøinné
+spoleènosti pokrývají mnoho oblastí, vèetnì dodávky jednoho ze dvou typù motorù
+pro Airbus 380 nebo bankovnictví.
+\item PDP = Programmed Data Processor. První typ, \emph{PDP-1}, se prodávala za
+\$120.000 v dobì, kdy se jiné poèítaèe prodávaly za ceny pøes milión. To byla
+také strategie fy DEC - pojem \emph{computer} tehdy znamenal drahou vìc,
+potøebující sál a tým lidí, který se o to v¹echno bude starat. Proto DEC své
+ma¹iny nenazýval poèítaèi, ale pravì slovem \emph{PDPs}.
+\item PDP-11 je legendární ma¹ina od firmy DEC, postupnì vznikaly verze PDP-1 az
+PDP-16, kromì PDP-2, PDP-13. Existují PDP-11 systémy, které je¹tì dnes bì¾í, a
+také firmy, které pro nì vyrábìjí náhradní díly.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Historie UNIXu, pokraèování}
+\begin{itemize}
+\item únor 1973 -- UNIX V3 obsahoval \emph{cc} pøekladaè (jazyk C
+byl vytvoøen \emsl{Dennisem Ritchiem} pro potøeby UNIXu)
+\item øíjen 1973 -- UNIX byl pøedstaven veøejnosti èlánkem \emph{The
+UNIX Timesharing System} na konferenci ACM
+\item listopad 1973 -- \emsl{UNIX V4 pøepsán do jazyka C}
+\item 1975 -- UNIX V6 byl první verzí UNIXu bì¾nì k dostání mimo BTL
+\item 1979 -- UNIX V7, pro mnohé ``the last true UNIX'', obsahoval
+\emph{uucp}, Bourne shell; velikost kernelu byla pouze 40KB !!!
+\item 1979 -- UNIX V7 portován na 32-bitový VAX-11
+\item 1980 -- Microsoft pøíchází s XENIXem, který je zalo¾ený na
+UNIXu~V7
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item ACM = Association for Computing Machinery, zalo¾ena 1947. UNIX pøedstavili
+Ken Thompson a Dennis Ritchie.
+\item \emsl{akt pøepsání UNIXu do jazyka C byl mo¾ná nejvýznamnìj¹ím momentem
+v historii tohoto systému} $\Rightarrow$ UNIX mohl být mnohem jednodu¹eji
+portován na jiné architektury
+\item na verzi 6 je zalo¾ena legendární kniha \emph{A commentary on the Unix
+Operating System}, její¾ autorem je John Lions.
+\item Microsoft neprodával XENIX pøímo, ale licencoval ho OEM výrobcùm
+(Original Equipment Manufacturer) jako byl Intel, SCO a jiní. Jiné firmy pak
+XENIX dále portovaly na 286 (Intel) a 386 (SCO, 1987). Na webu je mo¾né najít
+zajímavé informace popisující tuto dobu a tehdy kladný vztah Microsoftu k
+UNIXu.
+% find UNIX-v7/ -type f -name '*. wc -l {} \; | \
+%     awk 'BEGIN { cnt = 0; } { cnt += $1; } END { printf("lines: %d\n", cnt); }'
+%lines: 188319
+%find UNIX-v7/ -type f -name '*.[cshy]' | wc -l
+%    1131
+\item UNIX V7 mìl cca 188 tisíc øádek zdrojového kódu
+v cca 1100 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
+pøes soubory se jménem \texttt{*.[cshy]}).
+\item pokud vás více zajímá historie uni{}xu, podívejte se na Wikipedii na heslo
+``u{}nix'' a skrz odkazy máte na dlouho co èíst.
+% http://minnie.tuhs.org/Seminars/Saving_Unix/sslides/ss-sslides.html
+\item V roce 1973 byl UNIX víceu¾ivatelský systém (konta s hesly) s podporou pro 
+multiprocessing s ochranou procesù a stránkováním. Mìl signály, roury,
+hierarchický systém souborù s mount pointy, souborová práva (User/group/other
+r/w/x), hard linky, zaøízení pøístupná jako soubory. Kernel byl napsán v jazyku C
+a v pamìti zabíral jeho obraz 26 Kilobytù. Pro práci se soubory slou¾ily
+systémová volání \texttt{open()}, \texttt{close()}, \texttt{read()},
+\texttt{write()}, \texttt{seek()}, \texttt{pipe()}.
+K manipulaci s procesy volání \texttt{fork()}, \texttt{exec()}, \texttt{wait()},
+\texttt{exit()}. Celkem bylo 48 syscallù, z nich existuje 35 do dne¹ní doby.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Divergence UNIXu}
+\begin{itemize}
+\item pol. 70. let -- uvolòování UNIXu na univerzity: pøedev¹ím \emsl{University
+of California v Berkeley}
+\item 1979 -- z UNIX/32V (zmínìný port na VAX) poskytnutého do
+Berkeley se vyvíjí \emsl{BSD Unix (Berkeley Software Distribution)}
+verze 3.0; poslední verze 4.4 v roce 1993
+\item 1982 \emsl{AT\&T}, vlastník BTL, mù¾e vstoupit na trh poèítaèù
+(zakázáno od roku 1956) a pøíchází s verzí \emph{System III} (1982)
+a¾ \emph{V.4} (1988) -- tzv. \emph{SVR4}
+\item vznikají UNIX International, OSF (Open Software Foundation),
+X/OPEN, \dots 
+\item 1991 -- Linus Torvalds zahájil vývoj OS Linux, verze jádra 1.0 byla
+dokonèena v r. 1994
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item UNIX je univerzální operaèní systém fungující na ¹iroké ¹kále poèítaèù
+od embedded a handheld systémù (Linux), pøes osobní poèítaèe a¾ po velké
+servery a superpoèítaèe.
+\item UNIX V3 = \emph{UNIX verze 3}, UNIX V.4 = \emph{system 5 release 4}
+atd., tj. UNIX V3 != SVR3.
+\item UNIX System III tedy není UNIX V3; v této dobì (pozdní 70. léta) bylo v
+BTL nìkolik skupin, které pøíspívaly do vývoje UNIXu. Vx verze byly vyvíjeny v
+rámci \emph{Computer Research Group}, dal¹í skupiny byly \emph{Unix System
+Group} (USG), \emph{Programmer's WorkBench} (PWB). Dal¹í vìtví UNIXu byl
+Columbus UNIX té¾ v rámci BT. Na tìchto rùzných verzích je právì zalo¾ena
+verze System III. Zájemce o více informací odkazuji na web.
+\item UNIX se roz¹tìpil na dvì hlavní vìtve: AT\&T a BSD, jednotliví výrobci
+pøicházeli s~vlastními modifikacemi. \emsl{Jednotlivé klony od sebe navzájem
+pøebíraly vlastnosti.}
+% find SysV-R4.0/ -type f -name '*.[cshy]' | wc -l
+%    5714
+%find SysV-R4.0/ -type f -name '*.[cshy]' -exec wc -l {} \; | ~/bin/sum.awk 
+%lines: 1500713
+\item System V R4 mìl cca 1.5 milionu øádek zdrojového kódu
+v cca 5700 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
+pøes soubory se jménem \texttt{*.[cshy]}).
+\item Univerzita v Berkeley získala jako jedna z prvních licenci UNIXu v roce
+1974. Bìhem nìkolika let studenti (jedním z nich byl Bill Joy, pozdìj¹í
+zakladatel firmy Sun Microsystems a autor C-shellu) vytvoøili SW balík
+\emph{Berkeley Software Distribution} (BSD) a prodávali ho v roce 1978 za
+\$50. Tyto poèáteèní verze BSD obsahovaly pouze SW a utility (první verze:
+Pascal pøekladaè, editor \emph{ex}), ne systém ani ¾ádné jeho zmìny. To pøi¹lo
+a¾ s verzí 3BSD. verze 4BSD vzniká roku 1980 ji¾ jako projekt financovaný
+agenturou DARPA a vedený Billem Joyem. Trpí problémy spojenými s nedostateèným
+výkonem a vzniká tak vyladìný systém 4.1BSD dodávaný od roku 1981.
+\item 4.1BSD mìlo být pùvodnì 5BSD, ale poté, co AT\&T vzneslo  námitky, ¾e by
+si zákazníci mohli plést 5BSD se systémem System~V, pøe¹lo BSD na èíslování
+4.xBSD. Bì¾nou vìcí bylo, ¾e ne¾ psát vlastní kód, vývojáøi z Berkeley se
+radìji nejdøíve podívali kolem, co je ji¾ hotové. Tak BSD napøíklad pøevzalo
+virtuální pamì» z Machu a nebo NFS-kompatibilní kód vyvinutý na jedné kanadské
+univerzitì.
+%\item (1988) 4.3BSD-Tahoe mìl ji¾ rozdìl{}ený kód kernelu na závislý na
+%architektuøe a nezávislý
+%\item (1989) \emph{Networking Release 1}, první volnì ¹iøitelný kód z
+%Berkeley obsahující sí»ový kód z Tahoe, nezávislý na licenèní politice AT\&T.
+%Licenèní politika z Berkeley byla oproti politice AT\&T velmi liberální.
+\item výrobci hardware dodávali varianty UNIXu pro své poèítaèe a
+komercializace tak je¹tì zhor¹ila situaci co týèe diverzifikace totoho systému
+\item v 80-tých letech se proto zaèaly objevovat snahy o standardizaci. Standard
+øíká, jak má vypadat systém navenek (pro u¾ivatele, programátora a správce),
+nezabývá se implementací. Cílem je pøenositelnost aplikací i u¾ivatelù. V¹ech\-ny
+systémy toti¾ z dálky vypadaly jako UNIX, ale pøi bli¾¹ím prozkoumání se li¹ily
+v mnoha dùle¾itých vlastnostech. System~V a BSD se napø. li¹ily v pou¾itém
+filesystému, sí»ové architektuøe i v architektuøe virtuální pamìti.
+\item kdy¾ v roce 1987 firmy AT\&T a Sun (jeho¾ tehdej¹í SunOS byl zalo¾ený
+na BSD) spojily svoje úsilí na vyvinutí jednoho systému, který by obsahoval to
+nejlep¹í z obou vìtví, kromì nad¹ených reakcí to vzbudilo i strach u mnoha
+dal¹ích výrobcù unixových systémù, kteøí se báli, ¾e by to pro obì firmy
+znamenalo obrovskou komerèní výhodu. Vzniká proto Open Software Foundation
+(nezamìòovat za FSF), a zakládajícími èleny byly mimo jiné firmy
+Hewlett-Packard, IBM a Digital. Z toho vze¹lý systém OSF/1 ale nebyl pøíli¹
+úspì¹ný, a dodával ho pouze Digital, který ho pøejmenoval na Digital UNIX.
+Zajímavostí je, ¾e systém je postavený na mikrojádru Mach. Po akvizici
+Digitalu Compaqem byl systém pøejmenován na Tru64 a s tímto jménem je dále
+podporován firmou Hewlett-Packard, která se v roce 2002 s Compaqem spojila. Mezitím
+firmy AT\&T a Sun kontrovaly zalo¾ením UNIX International. Toto období pøelomu
+80-tých a 90-tých let se nazývá \emsl{Unix Wars} -- boj o to, co bude
+``standardním unixem''.
+\item OSF a UI se staly velkými rivaly, ale velmi rychle se støetly s
+neèekaným protivníkem - s firmou Microsoft.
+\item (1992) 386BSD zalo¾ené na \emph{Networking Release 2}; Bill Jolitz
+vytvoøil 6 chybìjících souborù a dal tak dohromady funkèní BSD systém pro
+i386. Tento systém se stal základem systémù \emph{NetBSD} a \emph{FreeBSD} (a
+dal¹ích, z tìchto dvou systémù vycházejících).
+\item (1995) 4.4BSD-Lite Release 2, po které následuje rozpu¹tìní CSRG, která
+skoro 20 let pilotovala vývoj BSD vìtve. Více ji¾ zmínìná kapitola o BSD
+Unixu.
+\end{itemize}
+
+\endinput

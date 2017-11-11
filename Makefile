@@ -30,7 +30,8 @@ TEX=		unix-programming-in-c.common.tex \
 		signals.tex \
 		synchro.tex \
 		network.tex \
-		threads.tex
+		threads.tex \
+		history.tex
 
 SLIDES=		$(TEX) ${SLIDE}
 NOTES=		$(TEX) ${NOTE}
