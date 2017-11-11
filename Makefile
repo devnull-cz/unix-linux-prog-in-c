@@ -25,6 +25,8 @@ NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
 TEX=		unix-programming-in-c.common.tex \
 		intro.tex \
+		file-api.tex \
+		user-access.tex \
 		files.tex \
 		proc.tex \
 		signals.tex \

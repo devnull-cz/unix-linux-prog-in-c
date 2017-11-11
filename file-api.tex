@@ -1,0 +1,1100 @@
+changequote([[[, ]]])
+
+\pdfbookmark[1]{standardní deskriptory}{stdfds}
+
+\begin{slide}
+\sltitle{API pro soubory}
+\begin{itemize}
+\item pøed pou¾itím musí proces ka¾dý soubor nejprve otevøít voláním
+\texttt{open()} nebo \texttt{creat()}. 
+\item otevøené soubory jsou dostupné pøes \emsl{deskriptory souborù} (file
+descriptors), èíslované od 0, více deskriptorù mù¾e sdílet jedno
+\emsl{otevøení souboru} (mód ètení/zápis, ukazatel pozice) 
+\item standardní deskriptory: 
+    \begin{itemize}
+    \item 0 \dots{} standardní vstup (jen pro ètení) 
+    \item 1 \dots{} standardní výstup (jen pro zápis) 
+    \item 2 \dots{} chybový výstup (jen pro zápis) 
+    \end{itemize}
+\item ètení a zápis z/do souboru: \texttt{read()}, \texttt{write()}
+\item zmìna pozice: \texttt{lseek()}, zavøení: \texttt{close()},
+informace: \texttt{stat()}, øídicí funkce: \texttt{fcntl()},
+práva: \texttt{chmod()}, \dots
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item ka¾dá funkce, která alokuje deskriptory (nejen \texttt{open}
+a \texttt{creat}, ale napø. i \texttt{pipe}, \texttt{dup},
+\texttt{socket}) alokuje v¾dy volné deskriptory s nejni¾¹ím
+èíslem.
+\item proces dìdí otevøené soubory od rodièe, tyto soubory nemusí
+znovu otvírat. Obvykle (ale ne v¾dy) proces dostane otevøené alespoò
+deskriptory 0, 1 a 2.
+\item funkce ze souboru \texttt{stdio.h} (napø. \texttt{fopen},
+\texttt{fprintf}, \texttt{fscanf}) a odkazy na soubory pomocí ukazatele na
+\texttt{FILE} jsou definovány ve standardní knihovnì a pro svojí èinnost
+pou¾ívají volání jádra (napø. \texttt{open}, \texttt{write},
+\texttt{read}). My se nebudeme knihovnou \texttt{stdio} zabývat.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{open}{open}
+
+\begin{slide}
+\sltitle{Otevøení souboru: \texttt{open()}}
+\texttt{int \funnm{open}(const char *\emph{path}, int \emph{oflag},
+... );}
+\begin{itemize}
+\item otevøe soubor daný jménem (cestou) \texttt{path}, vrátí èíslo
+jeho deskriptoru (pou¾ije první volné), \texttt{oflag} je
+OR-kombinace pøíznakù 
+    \begin{itemize}
+    \item \texttt{O\_RDONLY}/\texttt{O\_WRONLY}/\texttt{O\_RDWR} \dots{}
+    otevøít pouze pro ètení / pouze pro zápis / pro ètení i zápis 
+    \item \texttt{O\_APPEND} \dots{} pøipojování na konec 
+    \item \texttt{O\_CREAT} \dots{} vytvoøit, kdy¾ neexistuje 
+    \item \texttt{O\_EXCL} \dots{} chyba, kdy¾ existuje (pou¾ití s
+    \texttt{O\_CREATE})
+    \item \texttt{O\_TRUNC} \dots{} zru¹it pøedchozí obsah (právo zápisu
+    nutné)
+    \item \dots{}
+    \end{itemize}
+\item pøi \texttt{O\_CREAT} definuje tøetí parametr \texttt{mode}
+pøístupová práva
+\end{itemize}
+\end{slide}
+
+\label{OPEN}
+
+\begin{itemize}
+\item pøi pou¾ití \texttt{O\_CREAT} se \texttt{mode} je¹tì modifikuje podle
+nastavení aktuální masky, které se mìní voláním \texttt{umask}. Defaultní
+hodnota je typicky \texttt{022}. Doporuèuji se zamyslet, zda ji ve va¹em shell
+profile skriptu nenastavit na \texttt{077}. To ale nikdy nedìlejte pro roota,
+jinak skonèíte s podivnì se chovajícím systémem -- nainstalovaný software nebude
+moct spustit pod bì¾ným u¾ivatelem, to co døíve fungovalo fungovat pøestane
+apod.
+\item \texttt{mode} nemá defaultní hodnotu, tj. vezme se to, co je na zásobníku
+i kdy¾ tento parametr není pøítomen! Pøíznaky i mód jsou ulo¾eny v systémové
+tabulce otevøených souborù.
+\item pokud se znovu pou¾ije døíve vyu¾ívaná polo¾ka v tabulce deskriptorù nebo
+v tabulce otevøených souborù, v¹e potøebné se vynuluje (pozice v souboru, flagy
+deskriptoru, \dots)
+\item existují je¹tì dal¹í nastavitelné pøíznaky:
+\begin{itemize}
+\item \texttt{O\_SYNC} (\texttt{O\_DSYNC}, \texttt{O\_RSYNC} -- není
+na BSD) \dots{} operace se souborem skonèí a¾ po fyzickém ulo¾ení
+dat (synchronized I/O)
+\item \texttt{O\_NOCTTY} \dots{} pøi otvírání terminálu procesem,
+který nemá øídicí terminál, se tento terminál nestane øídícím
+terminálem procesu
+\item \label{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} pokud nelze ètení nebo
+zápis provést okam¾itì, volání \texttt{read}/\texttt{write} skonèí s chybou
+místo zablokování procesu
+\end{itemize}
+\item v pøístupových právech se vynulují ty bity, které jsou
+nastavené pomocí \texttt{umask}.
+\item pro ètení a zápis nelze pou¾ít \texttt{O\_RDONLY | O\_WRONLY}, proto¾e
+implementace pou¾ily 0 pro read-only flag. Norma proto definuje, ¾e aplikace
+musí pou¾ít právì jeden z tìchto tøí flagù.
+\item je mo¾né otevøít a zároveò vytvoøit soubor pro zápis tak, ¾e jeho mód
+zápis nedovoluje. Pøi pøí¹tím otevøení souboru se ale ji¾ tento mód uplatní
+pøi kontrole pøístupu a pro zápis jej otevøít nepùjde. Pro \texttt{O\_TRUNC}
+také platí, ¾e musíte mít pro daný soubor právo zápisu.
+\item Chování \texttt{O\_EXCL} bez souèasného pou¾ití \texttt{O\_CREAT} není
+definováno. Pro zamykání souborù se pou¾ívá \texttt{fcntl}, viz strana
+\pageref{FCNTL}.
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{creat}{creat}
+
+\begin{slide}
+\sltitle{Vytvoøení souboru}
+\texttt{int \funnm{creat}(const char *\emph{path}, mode\_t \emph{mode});}
+\begin{itemize}
+\item \texttt{open()} s pøíznakem \texttt{O\_CREAT} vytvoøí soubor, pokud
+je¹tì neexistuje. V zadané hodnotì pøístupových práv se vynulují bity, které
+byly nastaveny pomocí funkce\\
+\texttt{mode\_t \funnm{umask}(mode\_t \emph{cmask});} 
+\item funkce je ekvivalentní volání\\
+\texttt{open(path, O\_WRONLY|O\_CREAT|O\_TRUNC, mode);}
+\end{itemize}
+\texttt{int \funnm{mknod}(const char *\emph{path}, mode\_t \emph{mode},
+dev\_t \emph{dev});}
+\begin{itemize}
+\item vytvoøí speciální soubor zaøízení. 
+\end{itemize}
+\texttt{int \funnm{mkfifo}(const char *\emph{path}, mode\_t \emph{mode});} 
+\begin{itemize}
+\item vytvoøí pojmenovanou rouru.
+\end{itemize}
+\end{slide}
+
+\label{MKFIFO}
+\label{CREAT}
+
+\begin{itemize}
+\item Volání vrací nejni¾¹í deskriptor, který v dané chvíli nebyl otevøený pro
+proces
+\item \texttt{open} doká¾e otevøít regulární soubor, zaøízení i pojmenovanou
+rouru, ale vytvoøit doká¾e jen regulární soubor; pro ostatní typy souborù je
+nutné pou¾ít zde uvedená speciální volání.
+\item Test pomocí pøíznaku \texttt{O\_EXCL} na to, zda soubor existuje, a jeho
+pøípadné vytvoøení je atomická operace. Toho se vyu¾ívá pøi pou¾ívání lock
+souborù. Ze slajdu je vidìt, ¾e tento test je mo¾né provést jen pomocí volání
+\texttt{open}, ne \texttt{creat}.
+\item Speciální soubory mù¾e vytváøet pouze root, proto¾e se pomocí nich
+definují pøístupová práva k periferním zaøízením.
+\item Povolené hodnoty pro \texttt{mode} je mo¾né nalézt vìt¹inou v manuálové
+stránkce pro \texttt{chmod(2)}, a urèitì je naleznete i v hlavièkovém souboru
+\texttt{stat.h}, kde musí být podle normy definované.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{read, write}{readwrite}
+
+\begin{slide}
+\sltitle{Ètení a zápis souborù: \texttt{read()}, \texttt{write()}}
+
+\texttt{ssize\_t \funnm{read}(int \emph{fildes}, void *\emph{buf},
+size\_t \emph{nbyte});}
+\begin{itemize}
+\item z otevøeného souboru s èíslem deskriptoru \texttt{fildes}
+pøeète od aktuální pozice max. \texttt{nbyte} bajtù dat a ulo¾í je
+od adresy \texttt{buf}. 
+\item vrací poèet skuteènì pøeètených bajtù (\texttt{<= nbyte}), 0
+znamená konec souboru.
+\end{itemize}
+
+\texttt{ssize\_t \funnm{write}(int \emph{fildes}, const void *\emph{buf},
+size\_t \emph{nbyte});}
+\begin{itemize}
+\item do otevøeného souboru s èíslem deskriptoru \texttt{fildes} zapí¹e na
+aktuální pozici max. \texttt{nbyte} bajtù dat ulo¾ených od adresy
+\texttt{buf}. 
+\item vrací velikost skuteènì zapsaných dat (\texttt{<= nbyte}). 
+\end{itemize}     
+\end{slide}
+
+\begin{itemize}
+\setlength{\itemsep}{0.8\itemsep}
+\item pro UNIX je ka¾dý soubor posloupnost bajtù bez dal¹í vnitøní struktury.
+\item \emsl{chování \texttt{read} a \texttt{write} závisí na typu souboru}
+(regulární, zaøízení, roura, soket) a na tom, zda je soubor v blokujícím nebo
+neblokujícím módu (flag \texttt{O\_NONBLOCK} pøi otevøení souboru, viz strana
+\pageref{O_NONBLOCK}).
+\item pro obì volání existuje nìkolik zásadních rohových pøípadù a následující
+informace jsou výòatkem z manuálových stránek. Pokud si nejste jisti, doporuèuji
+se podívat pøímo do normy (POSIX 1003.1, sekce XSH, èást System Interfaces).
+\item volání \texttt{read} vrátí nenulový poèet bajtù men¹í ne¾ \texttt{nbyte},
+pokud v souboru zbývá ménì ne¾ \texttt{nbyte} bajtù, nebo volání bylo pøeru¹eno
+signálem, nebo soubor je roura, zaøízení èi soket a aktuálnì je k~dispozici ménì
+ne¾ \texttt{nbyte} bajtù. Pøi neexistenci dat se blokující \texttt{read}
+zablokuje, dokud se nìjaká data neobjeví, neblokující \texttt{read} vrátí
+\texttt{-1} a nastaví \texttt{errno} na \texttt{EAGAIN}.
+\item volání \texttt{write} vrátí nenulový poèet bajtù men¹í ne¾ \texttt{nbyte},
+jestli¾e se do souboru nevejde víc dat (napø. zaplnìný disk), zápis je pøeru¹en
+signálem nebo je nastaveno \verb#O_NONBLOCK# a do roury, soketu nebo zaøízení se
+vejde pouze èást zapisovaných dat. Bez \verb#O_NONBLOCK# se èeká, dokud se
+nepodaøí zapsat v¹e. Pokud nelze aktuálnì zapsat nic, blokující \texttt{write}
+se zablokuje, dokud není mo¾né zapisovat, neblokující \texttt{write} vrátí
+\texttt{-1} a nastaví \verb#errno# na \verb#EAGAIN#.
+\item \emsl{dùle¾ité výjimky vzhledem k rourám} jsou uvedeny na stranì
+\pageref{NAMEDPIPE}.
+\item kdy¾ \texttt{read} nebo \texttt{write} vrátí ménì ne¾ \texttt{nbyte} z
+dùvodu chyby, opakované volání té¾e funkce vrátí \texttt{-1} a nastaví kód chyby
+v \texttt{errno}.
+\item pøeru¹ení \texttt{read}, \texttt{write} signálem døív, ne¾ se podaøí
+pøeèíst, resp. zapsat aspoò jeden bajt, zpùsobí návrat s hodnotou \texttt{-1} a
+nastavení \verb#errno# na \verb#EINTR#. Pozor na to, ¾e zde je rozdíl proti
+situaci, kdy pøed doruèením signálu podaøí pøeèíst nebo zapsat alespoò jeden
+bajt (viz vý¹e).
+\item pøíznak otevøení souboru \verb#O_APPEND# zajistí atomický zápis na konec
+souboru (pouze na lokálním disku), tj. \emsl{ka¾dý} zápis se provede na konec
+souboru (tzv. \emph{append-only} soubor).
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{close}{close}
+
+\begin{slide}
+\sltitle{Uzavøení souboru: \texttt{close()}}
+\texttt{int \funnm{close}(int \emph{fildes});} 
+\begin{itemize}
+\item uvolní deskriptor \texttt{fildes}, pokud to byl poslední deskriptor, který
+odkazoval na otevøení souboru, zavøe soubor a uvolní záznam o otevøení souboru. 
+\item kdy¾ je poèet odkazù na soubor 0, jádro uvolní data souboru. Tedy i po
+zru¹ení v¹ech odkazù (jmen) mohou se souborem pracovat procesy, které ho mají
+otevøený. Soubor se sma¾e, a¾ kdy¾ ho zavøe poslední proces. 
+\item kdy¾ se zavøe poslední deskriptor roury, v¹echna zbývající data v~rouøe se
+zru¹í. 
+\item pøi skonèení procesu se automaticky provede \texttt{close()} na v¹echny
+deskriptory.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Pokud proces potøebuje doèasný soubor, mù¾e ho vytvoøit, ihned smazat a
+pak s ním pracovat pøes existující deskriptor (tento deskriptor lze pøedat
+synovským procesùm). Kdy¾ je takový soubor zavøen v¹emi procesy, jádro sma¾e
+jeho data z disku.
+\item I operace \texttt{close} mù¾e selhat. Napø. nìkteré filesystémy zapisují
+data na disk a¾ v okam¾iku zavøení souboru, kdy¾ zápis skonèí chybou,
+\texttt{close} vrátí \texttt{-1}.
+\item Chbìjící zavírání deskriptorù pøi ukonèení práce s nimi vede k
+situaci, které se øíká \emph{file descriptor leak}.
+Není to úplnì pøesnì to, jak se typicky chápe \emph{memory leak} (pamìt, na
+kterou jsme ztratili ukazatel), ale následky jsou podobné.
+\item \label{SIMPLE_CAT} Pøíklad na jednoduchý \texttt{cat(1)} program:
+\priklad{read/cat.c}
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Example: copy files}
+\begin{alltt}
+{\footnotesize
+#include <fcntl.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+\{
+    char buf[4096];
+    int inf, outf;
+    ssize\_t ilen;
+
+    inf = \emprg{open}(argv[1], O\_RDONLY);
+    outf = \emprg{creat}(argv[2], 0666);
+    while ((\emblue{ilen} = \emprg{read}(inf, buf, sizeof (buf))) > 0)
+            \emprg{write}(outf, buf, \emblue{ilen});
+
+    \emprg{close}(inf); \emprg{close}(outf);
+    return (0);
+\}
+}
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item Tento pøíklad je kompletní! Staèí provést cut-and-paste, pøelo¾it a
+spustit. Nutno poznamenat, ¾e pro úèely pou¾ití pouze jednoho slajdu se
+netestují ¾ádné chyby, vèetnì ignorování toho, ¾e u¾ivatel mù¾e program spustit
+bez parametrù, co¾ zpùsobí pokus o pøístup do pamìti na místo, které neobsahuje
+oèekávaná data. To pak na nìkterých systémech mù¾e zpùsobit core dump.
+\item Je neefektivní èíst a zapisovat soubor po jednotlivých bajtech, proto¾e
+ka¾dé systémové volání má jistý overhead, nezávislý na velikosti zpracovávaného
+bloku. Lep¹í je proto najednou zpracovávat rozumnì velké bloky, napøíklad
+8-64KB. Pøechozí pøíklad \priklad{read/cat.c} má pøepínaè \texttt{-b} pro
+nastavení velikosti bloku pro ètení; zkuste s (a bez) \texttt{-b 1} a zmìøte
+pomocí \texttt{time(1)}. Uvidíte velký rozdíl.
+\item Pokud potøebujete pracovat s malými èástmi/buffery, je lep¹í pou¾ít stream
+orintované knihovní funkce \texttt{fopen}, \texttt{fread}, \dots které data
+vnitønì bufferují.
+\item V¹imnìte si, ¾e v¾dy zapisujeme jen tolik bajtù, kolik jsme jich naèetli.
+\end{itemize}
+
+
+%%%%%
+\begin{slide}
+\sltitle{Working with a named pipe (FIFO)}
+
+\begin{itemize}
+\item it may not be possible to create a FIFO on a distributed filesystem (eg.
+NFS or AFS)
+\item you need to know the semantics of opening a FIFO
+  \begin{itemize}
+  \item opening a FIFO for just reading will block until a writer (aka producer)
+  shows up, unless one already exists.
+  \item opening a FIFO for just writing will block until a reader (aka consumer)
+  shows up, unless one already exists.
+  \item this behavior can be adjusted using a flag \texttt{O\_NONBLOCK}
+  \end{itemize}
+\item semantics for reading and writing is a bit more complicated, see
+the notes below this slide.
+  \begin{itemize}
+  \item same as for a conventional, unnamed, pipe (will be later)
+  \end{itemize}
+\end{itemize}
+\end{slide}
+
+\label{NAMEDPIPE}
+
+\begin{itemize}
+\item Co se týèe vytvoøení pojmenované roury, mluvíme zde o volání
+\texttt{mkfifo} ze strany \pageref{MKFIFO}. Pou¾ití nepojmenované roury je
+popsané na stranì \pageref{PIPE}.
+\item Ètenáø je proces, který otevøe soubor (i) pro ètení, zapisovatel je
+proces, který otevøe soubor (i) pro zápis.
+\item Je mo¾né otevøít rouru pro zápis i ètení stejným procesem najednou, ani¾
+by pøedtím existoval ètenáø nebo zapisovatel. Proces pak mù¾e do roury zapisovat
+a z opaèného konce èíst, co do roury napsal.
+\item Pokud rouru nemá ¾ádný proces otevøenou pro zápis, pro okam¾ité vrácení
+deskriptoru pouze pro ètení je nutné \emsl{otevøít} rouru s flagem
+\texttt{O\_NONBLOCK}, proces se jinak na rouøe zablokuje èekáním na
+zapisovatele. Pozor ale na to, ¾e pokus o \emsl{ètení} z roury bez zapisovatele
+okam¾itì vrátí 0 jako indikaci konce souboru; \emsl{proces se nezablokuje
+èekáním na zapisovatele}, bez ohledu na to zda byl soubor otevøen v blokovacím
+èi neblokovacím módu. Pøi \emsl{zápisu} do roury bez ètenáøe (tj. zapisovatel
+otevøel rouru je¹tì v dobì, kdy ètenáø existoval, viz následující odstavec)
+po¹le kernel procesu signál \texttt{SIGPIPE} (``broken pipe''):
+
+\begin{verbatim}
+bash$ dd if=/dev/zero | date
+Sun Mar  2 01:03:38 CET 2008
+bash$ echo ${PIPESTATUS[0]}
+141
+bash$ kill -l 141
+PIPE
+\end{verbatim}
+
+
+\item v pøípadì otevírání pouze pro zápis s \texttt{O\_NONBLOCK} bez
+existujícího ètenáøe se vrátí chyba a \texttt{errno} se nastaví na
+\texttt{ENXIO}. Tato asymetrie je snahou, aby v rouøe nebyla data, která nebudou
+v krátké dobì pøeètena -- systém nemá zpùsob, jak uschovávat data v rouøe bez
+èasového omezení. Bez \texttt{O\_NONBLOCK} flagu se proces zablokuje èekáním na
+ètenáøe. Asymetrií je mínìno to, ¾e systému nevadí ètenáøi bez zapisovatelù, ale
+nechce mít zapisovatele bez ètenáøù. I tato situace se mù¾e stát, viz pøedchozí
+odstavec, ale tam to jinak øe¹it nelze.
+\item z uvedeného tedy vyplývá, ¾e pokud chcete vytvoøit proces, který èeká na
+pojmenované rouøe a vykonává po¾adavky od rùzných procesù-zapisovatelù
+(od ka¾dého jeden), musíte ji otevøít s flagem
+\texttt{O\_RDWR} i kdy¾ do roury nehodláte zapisovat; jinak po prvním
+zablokování v \texttt{open} pøi èekání na otevøení roury zapisovatelem by
+dal¹í volání \texttt{read} pro akceptování dal¹ího po¾adavku typicky vrátilo
+0, pokud by náhodou roura nebyla mezitím pro zápis otevøena dal¹ím procesem.
+
+
+\item zápis maximální velikosti \texttt{PIPE\_BUF} (\texttt{limits.h}) je
+zaruèený jako atomický, tj. data nesmí být prolo¾ena daty jiných zapisujících
+procesù. Napø. v Solarisu 11 to je to 5120 bajtù, ve FreeBSD 5.4 je to 512
+bajtù. Pokud zapisujete více, mù¾e se to stát. Zároveò platí, ¾e pokud se
+zapisuje ménì ne¾ \texttt{PIPE\_BUF} bajtù, zapí¹ou se v¾dy najednou, a pokud je
+nastaveno \texttt{O\_NONBLOCK} a nelze toho dosáhnout, vrátí se chyba.
+\item roura nemá pozici v souboru, zápis tak v¾dy pøidává na konec.
+\item stejnì se vzhledem ke ètení a zápisu chová i nepojmenovaná roura, viz
+strana \pageref{PIPE}.
+
+%%%\item pro zápis platí toto (pøevzato z [Rochkind]):
+%%%
+%%%\renewcommand{\arraystretch}{1.3}
+%%%
+%%%\begin{tabularx}{1.0\textwidth}{|l|l|l|l|l|}
+%%%\hline
+%%%\texttt{O\_NONBLOCK} ? & bajtù k zápisu & nic nelze zapsat & èásteèný zápis
+%%%mo¾ný & kompletní zápis mo¾ný \\
+%%%\hline
+%%%není & \texttt{<= PIPE\_BUF} & zablokuje se; kompletní zápis; atomické &
+%%%zablokuje se; kompletní zápis; atomické & nezablokuje se; kompletní zápis;
+%%%atomické \\
+%%%\hline
+%%%není & \texttt{> PIPE\_BUF} & zablokuje se; kompletní zápis; není atomické &
+%%%zablokuje se; kompletní zápis; není atomické & mù¾e se zablokovat; kompletní
+%%%zápis; není atomické \\
+%%%\hline
+%%%nastaven & \texttt{<= PIPE\_BUF} & \texttt{EAGAIN} & \texttt{EAGAIN} &
+%%%nezablokuje se; kompletní zápis; atomické \\
+%%%\hline
+%%%nastaven & \texttt{> PIPE\_BUF} & \texttt{EAGAIN} & nezablokuje se; èásteèný
+%%%zápis nebo \texttt{EAGAIN}; není atomické & nezablokuje se; kompletní,
+%%%èásteèný zápis nebo \texttt{EAGAIN}; není atomické \\
+%%%\hline
+%%%\end{tabularx}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{lseek}{lseek}
+
+\begin{slide}
+\sltitle{Setting file position: \texttt{lseek()}}
+\texttt{off\_t \funnm{lseek}(int \emph{fildes}, off\_t \emph{offset},
+int \emph{whence});}
+\begin{itemize}
+\item will reposition the file offset for reading and writing in an already
+opened file associated with a file descriptor \emph{fildes}
+\item based on value of \texttt{whence}, the file offset is set to:
+    \begin{itemize}
+    \item \texttt{SEEK\_SET} \dots{} the value of \emph{offset}
+    \item \texttt{SEEK\_CUR} \dots{} current position plus \emph{offset}
+    \item \texttt{SEEK\_END} \dots{} size of the file plus \emph{offset}
+    \end{itemize}
+\item returns the resulting offset (ie. from the file beginning)
+\item \texttt{lseek(fildes, 0, SEEK\_CUR)} only returns the current file
+position
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item \label{LSEEK} Poèítá se od 0, tj. offset 0 je první bajt souboru. Tam, kde
+to má smysl, je mo¾né pro \texttt{offset} pou¾ít i záporné èíslo. Pøíklad:
+\priklad{read/lseek.c}.
+
+
+\item Lze se pøesunout i na pozici za koncem souboru. Pokud se pak
+provede zápis, soubor se prodlou¾í a v pøeskoèené èásti budou samé
+nuly (samotné \texttt{lseek} nestaèí). Nìkteré filesystémy takové
+bloky celých nul pro úsporu místa neukládají.
+\item Velikost souboru je mo¾né zjistit pomocí \texttt{lseek(fildes,
+0, SEEK\_END)}.
+\item Nejèastìj¹í operace s \texttt{lseek} jsou \emsl{tøi}: nastavení
+konkrétní pozice od zaèátku souboru, nastavení pozice na konec
+souboru a zji¹tìní aktuální pozice v souboru (0 spoleènì se
+\texttt{SEEK\_CUR})
+\item Pøi pou¾ití \texttt{lseek} se ¾ádné I/O neprovede, tj. ¾ádný pøíkaz
+se nepo¹le na øadiè disku.
+\item \texttt{lseek} nemusí slou¾it jen pro operace \texttt{read} a
+\texttt{write}, ale také pro následnou operaci \texttt{lseek}
+\item \label{BIG_FILE} Seekování a zápis mù¾e vést k problémùm se zálohami.
+Pøíklad: \priklad{read/big-file.c} demonstruje, ¾e pøesun souboru s
+"dírami" (tzv. sparse file) mù¾e vést k nárùstu velikosti souboru
+co se týèe blokù alokovaných file systémem.
+Chování zále¾í na kombinaci operaèního systému, archivního programu a
+file systému (a jejich verzí). Nìkteré programy mají pøepínaèe, které
+umo¾ní díry zachovat (napø. \texttt{dd} s \texttt{conv=sparse},
+\texttt{tar} s \texttt{-S}, \texttt{rsync} s \texttt{--sparse}, atd.).
+
+
+\item Pozor na pøehození parametrù. Druhá øádka samostatnì vypadá OK, ale má
+pøehozené parametry. \texttt{SEEK\_SET} je navíc 0 a \texttt{SEEK\_CUR} je 1,
+tak¾e vás to nikam neposune a nic ¹patného se nestane, a o to je hor¹í to pak
+najít.
+\begin{verbatim}
+lseek(fd, 1, SEEK_SET)
+lseek(fd, SEEK_SET, 1)
+\end{verbatim}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{truncate}{truncate}
+
+\begin{slide}
+\sltitle{Change file size: \texttt{truncate()}}
+\texttt{int \funnm{truncate}(const char *\emph{path}, off\_t \emph{length});\\
+int \funnm{ftruncate}(int \emph{fildes}, off\_t \emph{length});}
+\begin{itemize}
+\item causes the regular file to be truncated to a size of precisely
+\emph{length} bytes.
+\item if the file was larger than \emph{length}, the extra data is lost
+\item if the file previously was shorter, it is extended, and the extended part
+reads as null bytes
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item zru¹it ve¹kerý obsah souboru pøi otevøení se dá pøíznakem
+\texttt{O\_TRUNC} ve funkci \texttt{open}.
+\item podrobnosti je tøeba hledat v manuálové stránce, napø. ve
+FreeBSD v sekci BUGS nalezneme toto: \emph{Use of \texttt{truncate}
+to extend a file is not portable.}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{dup, dup2}{dup}
+
+\begin{slide}
+\sltitle{Descriptor duplication: \texttt{dup()}, \texttt{dup2()}}
+\texttt{int \funnm{dup}(int \emph{fildes});}
+\begin{itemize}
+\item creates a copy of the file descriptor \emph{fildes}, using the
+lowest-numbered unused descriptor.  Returns the new descriptor.
+\item same as \texttt{fcntl(fildes, F\_DUPFD, 0);} (will be later)
+\end{itemize}
+\texttt{int \funnm{dup2}(int \emph{fildes}, int \emph{fildes2});}
+\begin{itemize}
+\item duplicates \texttt{fildes} to \texttt{fildes2}. 
+\item same as\\
+\texttt{close(fildes2);\\ fcntl(fildes, F\_DUPFD, fildes2);}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item první volný deskriptor se pou¾ije i u otevírání a vytváøení souborù,
+viz strany \pageref{OPEN} a \pageref{CREAT}.
+\item duplikovaný a pùvodní deskriptor sdílí stejné otevøení souboru a tedy i
+ak\-tu\-ál\-ní pozici a mód ètení/zápis.
+\item ekvivalent pro \texttt{dup2} není zcela ekvivalentní, napø. pokud je
+\texttt{fildes} rovný \texttt{fildes2}, tak se neprovede
+\texttt{close(fildes2)} a \texttt{dup2} rovnou vrátí \texttt{fildes2}.
+Více viz POSIX 1003.1 (èást XSH, System interfaces).
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Example: implement shell redirection}
+\begin{itemize}
+\item \verb#$ program < in > out 2>> err#
+\end{itemize}
+\begin{verbatim}
+close(0);
+open("in", O_RDONLY);
+close(1);
+open("out", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+close(2);
+open("err", O_WRONLY | O_CREAT | O_APPEND, 0666);
+\end{verbatim}
+\begin{itemize}
+\item \verb#$ program > out 2>&1#
+\end{itemize}
+\begin{verbatim}
+close(1);
+open("out", O_WRONLY | O_CREAT | O_TRUNC, 0666);
+close(2);
+dup(1);
+\end{verbatim}
+\end{slide}
+
+\begin{itemize}
+\item note the flag \texttt{O\_APPEND} used to implement a redirection
+\texttt{>>}.
+\item \label{REDIRECT} Dal¹í pøíklad pou¾ití \texttt{dup} uvidíme, a¾ se budeme
+zabývat rourami. První pøesmìrování (bez \texttt{stderr}) je v
+\priklad{read/redirect.c}. Volání \texttt{execl} v tomto pøíkladu nahradí
+aktuální obraz bì¾ícího procesu obrazem programu pøe\-da\-ného jako první
+argument. Více o volání \texttt{execl} je na stranì \pageref{EXEC}.
+\item pro pochopení toho jak funguje pøesmìrování je dobré si nakreslit
+tabulku deskriptorù v èase a kam "ukazují". napø. pro druhý pøíklad
+(iniciální stav, stav po \texttt{close(1)} \texttt{open("out", ...)},
+koneèný stav):
+\begin{verbatim}
++-------+               +-------+               +-------+
+|   0   +-> stdin       |   0   +-> stdin       |   0   +-> stdin
++-------+               +-------+               +-------+
+|   1   +-> stdout ===> |   1   +-> "out"  ===> |   1   +-> "out"
++-------+               +-------+               +-------+    ^
+|   2   +-> stderr      |   2   +-> stderr      |   2   +----/ 
++-------+               +-------+               +-------+
+\end{verbatim}
+
+
+\item Je potøeba si dát pozor na stav deskriptorù. Druhý pøíklad nebude
+fungovat, kdy¾ bude deskriptor 0 uzavøen, proto¾e \texttt{open} vrátí deskriptor
+0 (první volný) a \texttt{dup} vrátí chybu (pokus o duplikaci uzavøeného
+deskriptoru). Mo¾né øe¹ení:
+\begin{alltt}
+close(1);
+if((fd = open("out", O\_WRONLY | O\_CREAT | O\_TRUNC, 0666)) == 0)
+    dup(0);
+close(2);
+dup(1);
+if(fd == 0)
+    close(0);
+\end{alltt}
+nebo
+\begin{alltt}
+fd = open("out", O\_WRONLY | O\_CREAT | O\_TRUNC, 0666);
+if(fd != 1) \{
+    dup2(fd, 1);
+    close(fd);
+\}
+dup2(1, 2);
+\end{alltt}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{fcntl, ioctl}{fcntlioctl}
+
+\begin{slide}
+\sltitle{Manipulate file descriptors and devices: \texttt{fcntl()},
+\texttt{ioctl()}} \texttt{int \funnm{fcntl}(int \emph{fildes}, int
+\emph{cmd}, ...);}
+\begin{itemize}
+\item provides file descriptor duplication, setting descriptor and file status
+flags, and advisory and possibly mandatory locking.
+
+Example: close standard error output on program execution (exec call)\\
+\texttt{fcntl(2, F\_SETFD, FD\_CLOEXEC);}
+\end{itemize}
+
+\texttt{int \funnm{ioctl}(int \emph{fildes}, int \emph{request}, ... );}
+\begin{itemize}
+\item manipulates the underlying device parameters of special files
+\item used as a universal interface for manipulating devices.  Each device
+defines a set of requests it understands.
+\end{itemize}
+\end{slide}
+
+\label{FCNTL}
+
+\begin{itemize}
+\item jak pozdìji uvidíme, i k socketùm se pøistupuje pøes souborové
+deskriptory, a je tedy mo¾né \texttt{fnctl} pou¾ít i na nì, tøeba pro
+nastavení neblokujícího socketu. Více informací viz strana \pageref{CONNECT}.
+\item mo¾né hodnoty \texttt{cmd} ve funkci \texttt{fcntl}:
+\begin{itemize}
+\item \texttt{F\_DUPFD} \dots{} duplikace deskriptoru
+\item \texttt{F\_GETFD} \dots{} zji¹tìní pøíznakù deskriptoru
+(\texttt{FD\_CLOEXEC} -- uzavøení pøi exec). \texttt{FD\_CLOEXEC} je jediný flag
+pro deskriptory, definovaný v normì UNIX~03.
+\item \texttt{F\_SETFD} \dots{} nastavení pøíznakù deskriptoru
+\item \texttt{F\_GETFL} \dots{} zji¹tìní módu ètení/zápis a pøíznakù otevøení
+souboru (jako u \texttt{open})
+\item \texttt{F\_SETFL} \dots{} nastavení pøíznakù otevøení souboru
+(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK}, \texttt{O\_RSYNC},
+\texttt{O\_SYNC}). Nemohu nastavit pøíznaky pro RO/RW a ani pøíznaky pro
+vytvoøení, zkrácení nebo exkluzivní pøístup k souboru.
+\item \texttt{F\_GETLK}, \texttt{F\_SETLK}, \texttt{F\_SETLKW} \dots{}
+nastavování zámkù
+\end{itemize}
+\item je dùle¾ité si uvìdomit, ¾e jsou dva druhy pøíznakù -- pøíznak(y) pro
+souborový deskriptor a pøíznaky pro jedno konkrétní otevøení souboru -- tj.
+pøíznaky jsou ulo¾ené ve dvou rùzných tabulkách.
+
+
+\item periferní zaøízení podporují ètení a zápis dat pomocí \texttt{read},
+\texttt{write} a mapování dat do pamìti (\texttt{mmap}), ve¹keré dal¹í
+operace se zaøízením (napø. nastavení parametrù, zamèení nebo eject) se dìlají
+funkcí \texttt{ioctl}.
+\item pøi nastavování pøíznakù nejdøív v¾dy zjistìte, jaké byly pøedtím. I kdy¾
+jste si jisti, ¾e v dané chvíli jsou nulové a je tedy mo¾né provést
+\texttt{fcntl(fd, O\_APPEND)}, nemù¾ete vìdìt, co se mù¾e zmìnit (napøíklad o
+pár øádkù vý¹e nìjaký flag pøidáte, ani¾ byste vìdìli, ¾e jste ovlivnìni kódem
+dole). Tedy v¾dy pou¾ijte napøíklad toto:
+
+\begin{verbatim}
+flags = fcntl(fd, F_GETFL);
+if (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)
+  ...
+\end{verbatim}
+
+\dots a podobnì pro odebrání flagu -- je ¹patné øe¹ení nastavit
+hodnotù flagù na nulu, místo toho je tøeba pou¾ít bitového
+jednièkového doplòku pøíslu¹ného flagu (\texttt{flags \& \tilda{}O\_APPEND}).
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{stat, fstat}{stat}
+
+\begin{slide}
+\sltitle{Get file status information: \texttt{stat()}}
+\setlength{\baselineskip}{0.9\baselineskip}
+\texttt{int \funnm{stat}(const char *\emph{path}, struct stat *\emph{buf});\\
+int \funnm{fstat}(int \emph{fildes}, struct stat *\emph{buf});}
+\begin{itemize}
+\item for a file specified by a path or a file descriptor, returns a struct
+containing file information, such as:
+\begin{itemize}
+\item \texttt{st\_ino} \dots{} i-node number
+\item \texttt{st\_dev} \dots{} ID of device containing file
+\item \texttt{st\_uid}, \texttt{st\_gid} \dots{} user/group ID of owner
+\item \texttt{st\_mode} \dots{} file type and mode
+\item \texttt{st\_size}, \texttt{st\_blksize}, \texttt{st\_blocks}
+\dots{} total size in bytes, preferred blocksize for filesystem I/O, and number
+of 512B blocks allocated
+\item \texttt{st\_atime}, \texttt{st\_mtime}, \texttt{st\_ctime}
+\dots{} time of last access, last modification, and last i-node modification
+\item \texttt{st\_nlink} \dots{} number of hard links
+\end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item update èasu posledního pøístupu k souboru lze na bì¾ných file
+systémech vypnout pomocí optionu \texttt{noatime} pøíkazu \texttt{mount}.
+Hodit se to mù¾e pro urychlení, pokud se provádí ètení velkého mno¾ství
+souborù a nezále¾í na èasu pøístupu na tìchto souborech (napø. pøi
+kompilaci).
+\item \emph{Metadata} jsou informace o souboru -- tedy mód, èasy pøístupu,
+délka, vlastník a skupina atd. Nepatøí mezi nì skuteèná data souboru, a ani
+jméno, které není ulo¾eno v rámci daného souboru, ale v adresáøi èi v
+adresáøích.
+\item Metadata je mo¾né pøeèíst, i kdy¾ proces nemá práva pro ètení obsahu
+souboru.
+\item Touto funkcí nezískám flagy deskriptoru ani flagy z pole tabulky
+otevøených souborù v systému, zde jde o informace ohlednì souboru ulo¾eného na
+pa\-mì\-»o\-vém médiu.
+\item Co se stane kdy¾ se zavolá \texttt{fstat} na deskriptory 0,1,2 ?
+(pøedpokládáme ¾e nejsou pøesmìrované z normálního stavu)
+
+
+\item \texttt{st\_ctime} není èas vytvoøení souboru (creation time), ale èas
+zmìny indexového uzlu (change time)
+\item Norma nespecifikuje poøadí polo¾ek ve struktuøe ani nezakazuje pøidat
+dal¹í.
+\item \label{STAT} Pøíklad: \priklad{stat/stat.c}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{lstat}{lstat}
+
+\begin{slide}
+\sltitle{Get file status information (2)}
+\begin{itemize}
+\item for a file type, in \texttt{<sys/stat.h>} there are
+constants \verb#S_IFMT# (bit mask for the file type bit field), \verb#S_IFBLK#
+(block device), \verb#S_IFCHR# (character device), \verb#S_IFIFO#
+(FIFO), \verb#S_IFREG# (regular), \verb#S_IFDIR# (directory),
+\verb#S_IFLNK# (symlink). 
+\item macros for file type checking: \verb#S_ISBLK(m)#,
+\verb#S_ISCHR(m)#, \verb#S_ISFIFO(m)#, \verb#S_ISREG(m)#,
+\verb#S_ISDIR(m)#, and \verb#S_ISLNK(m)#. 
+\item access right masks: \verb#S_IRUSR# (owner has read permission),
+\verb#S_IWGRP# (group has write permission), etc.
+\end{itemize}
+\texttt{int \funnm{lstat}(const char *\emph{path}, struct stat
+*\emph{buf});}
+\begin{itemize}
+\item if \emph{path} is a symlink, \texttt{stat()} returns informace on the file
+the symlink refers to. This function returns information about the link itself.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item typ a práva souboru jsou ulo¾ena spoleènì v \verb#st_mode#,
+proto existují zmi\-òo\-va\-ná makra.
+\item S\_IFMT specifikuje tu èást bitù, které jsou vìnované typu
+souboru, makra pro jednotlivé typy pak nejsou masky, ale hodnoty,
+tak¾e test na typ souboru je nutné udìlat takto:
+\texttt{(st\_mode~\&~S\_IFMT~==~S\_IFREG)}. V¹echna makra jsou v
+normì, tak¾e jejich pou¾íváním zaruèíme pøenositelný kód.
+\item Pøíklad: \priklad{stat/filetype.c}
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{utime}{utime}
+
+\begin{slide}
+\sltitle{Setting file times}
+\texttt{int \funnm{utime}(const char *\emph{path},
+const struct utimbuf *\emph{times});}
+\begin{itemize}
+\item changes file last access and modification times
+\item cannot change i-node access time (ctime)
+\item calling process must have write permission for the file
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Tuto funkci pou¾ívají hlavnì kopírovací a archivaèní programy,
+aby zajistily stejné èasy kopie a originálu (napø. \texttt{tar} nebo
+\texttt{rsync}). 
+\item Shellové rozhraní pro funkci \texttt{utime} pøedstavuje pøíkaz
+\texttt{touch}. Mìnit takto èas modifikace i-uzlu ale nelze.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{link, unlink, rename}{link}
+
+\begin{slide}
+\sltitle{File name manipulations}
+\texttt{int \funnm{link}(const char *\emph{path1}, const char *\emph{path2});}
+\begin{itemize}
+\item creates a new link (aka hard link), ie. a directory entry, named
+\emph{path2} to file \emph{path1}.  Hard links cannot span filesystems (use
+\funnm{symlink} for that).
+\end{itemize}
+\texttt{ int \funnm{unlink}(const char *\emph{path});}
+\begin{itemize}
+\item deletes a name (ie. a directory entry) and after deleting the last link to
+the file and after closing the file by all processes, delete the file data.
+\end{itemize}
+\texttt{int \funnm{rename}(const char *\emph{old}, const char *\emph{new});}
+\begin{itemize}
+\item change the file name (ie. one specific link) from \emph{old} to
+\emph{new}.  Works within the same filesystem only.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item opìt zdùrazòuji, ¾e \emsl{u{}nix nemá volání typu delete na soubory}.
+Po\-drob\-nì\-ji viz strana \pageref{FILEDELETE}.
+\item volání \texttt{link} vytváøí hardlinky, tj. zobrazení ze
+jména souboru na èíslo i-uzlu. Èísla i-uzlù jsou jednoznaèná pouze v
+rámci svazku, proto pro linky mezi filesystémy je nutné pou¾ít
+symlinky.
+\item parametr \texttt{path2} nesmí existovat, tedy nelze takto
+pøejmenovávat
+\item \texttt{unlink} nefunguje na adresáøe
+\item shellový pøíkaz \texttt{mv} pou¾ívá \texttt{rename} pro
+pøesuny v rámci jednoho svazku. Pøesun souboru mezi filesystémy
+vy¾aduje nejprve soubor zkopírovat a pak smazat originál voláním
+\texttt{unlink}.
+\item \texttt{rename} funguje nad symlinky, ne nad soubory, na
+které symlink ukazuje
+\item existuje i volání \texttt{remove}, viz strana \pageref{REMOVE}.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{symlink, readlink}{symlink}
+
+\begin{slide}
+\sltitle{Symbolic links}
+\texttt{int \funnm{symlink}(const char *\emph{path1},
+const char *\emph{path2});} 
+\begin{itemize}
+\item make a new symbolic name from \emph{path2} $\rightarrow$ \emph{path1}.
+\item \emph{path1} may span filesystems, and may not exist at all
+\end{itemize}
+\texttt{int \funnm{readlink}(const char *\emph{path}, char *\emph{buf},
+size\_t \emph{bufsz});} 
+\begin{itemize}
+\item put maximum of \emph{bufsz} bytes from the symlink target path to
+\emph{buf}
+\item returns the number of bytes written to \emph{buf}. 
+\item \emph{buf} is \emsl{not} terminated by \verb#'\0'#
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Shellový pøíkaz \texttt{ln} volá \texttt{symlink} nebo
+\texttt{link}, podle toho, jestli je pou¾it pøe\-pí\-naè \texttt{-s}
+nebo ne.
+\item Smazání hardlinku nesma¾e soubor, pokud na nìj vede je¹tì jiný
+hardlink. Naopak soubor (polo¾ku adresáøe i data) je mo¾né smazat, i
+kdy¾ na nìj ukazují nìjaké symlinky.
+\item \texttt{readlink} je pou¾itelný v situaci, pokud chci
+smazat soubor, na který daný symlink ukazuje
+\item \texttt{bufsize} se typicky dává o 1 men¹í ne¾ velikost
+bufferu, to pro ukonèení znakem \verb#'\0'#
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{mkdir, rmdir, opendir, readdir, closedir}{dirfncs}
+
+\begin{slide}
+\sltitle{Working with directories}
+\texttt{int \funnm{mkdir}(const char *\emph{path}, mode\_t \emph{mode});}
+\begin{itemize}
+\item attempts to create an empty directory \emph{path} with entries
+'\texttt{.}' a '\texttt{..}' 
+\end{itemize}
+\texttt{int \funnm{rmdir}(const char *\emph{path});}
+\begin{itemize}
+\item deletes directory \emph{path}.  The directory \emsl{must} be empty.
+\end{itemize}
+\texttt{DIR *\funnm{opendir}(const char *\emph{dirname});\\
+struct dirent *\funnm{readdir}(DIR *\emph{dirp});\\
+int \funnm{closedir}(DIR *\emph{dirp});}
+\begin{itemize}
+\item sequentially reads directory entries
+\item structure \texttt{dirent} contains:
+    \begin{itemize}
+    \item \verb#d_ino# \dots{} i-node number
+    \item \verb#d_name# \dots{} file name
+    \end{itemize}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Polo¾ky adresáøe nejsou nijak uspoøádány, \texttt{readdir} je mù¾e vracet
+v libovolném poøadí. V pøípadì chyby se vrací NULL jako pøedtím a \texttt{errno}
+je nastaveno. Konec adresáøe se signalizuje tím, ¾e \texttt{readdir} vrátí NULL
+a \texttt{errno} není zmìnìno.
+\item \texttt{readdir} je stavová funkce. Pro vrácení se na zaèátek je mo¾né
+pou¾ít funkci \texttt{rewinddir}. Pokud tuto funkci voláte z více vláken je
+nutné pou¾ívat reentrantní \texttt{readdir\_r}, proto¾e struktura
+\texttt{dirent} je statická.
+\item V nìkterých implementacích (napø. FreeBSD) lze adresáø otevøít pro ètení
+(ne pro zápis) jako normální soubor a èíst ho pomocí \texttt{read}, ale je tøeba
+znát jeho vnitøní organizaci. Proto je \texttt{readdir} pro zpracování obsahu
+adresáøe lep¹í ne¾ \texttt{read}, který vrací raw data adresáøe. Kromì toho,
+norma nevy¾aduje, aby adresáø bylo mo¾né èíst funkcí \texttt{read}, Linux to
+napøíklad nedovolí.
+\item \texttt{d\_ino} není moc u¾iteèné, proto¾e v pøípadì, kdy daný adresáø je
+mount point, tak ukazuje na adresáø, na který je dal¹í filesystém namontován, ne
+na koøen namontovaného filesystému
+\item \label{D_TYPE} Nìkteré systémy mají ve struktuøe \texttt{dirent} polo¾ku
+\texttt{d\_type}. Ta mù¾e nabývat hodnot \texttt{DT\_REG}, \texttt{DT\_DIR},
+\texttt{DT\_FIFO} atd., viz manuálová stránka pro \texttt{dirent}. Byla to vìc
+specifická pro BSD a následnì pøevzatá i jinými systémy, na\-pøí\-klad Linuxem.
+Není to souèástí normy a tedy to \emsl{není pøenositelné.} Pøe\-no\-si\-tel\-ný
+zpùsob je na ka¾dou polo¾ku zavolat \texttt{stat}.
+\item \texttt{rmdir} nefunguje na neprázdný adresáø, musíte sami smazat jeho
+obsah pøed smazáním adresáøe. Nìkdy lze v kódu nalézt zoufalé pokusy typu
+\texttt{system("rm -r xxx")} co¾ má svoje nevýhody (napø. závislost programu
+na shellu. Dále pozor na sanitizaci promìnných prostøedí a jména adresáøe).
+\item \label{REMOVE} Norma specifikuje i volání \texttt{remove}, které se chová
+jako \texttt{unlink} pro regulární soubory, a jako \texttt{rmdir} pro adresáøe.
+\end{itemize}
+
+
+%%%%%
+
+\begin{slide}
+\sltitle{Example: read a directory}
+\begin{alltt}
+int main(int argc, char *argv[])
+\{
+    DIR *d;
+    struct dirent *de;
+
+    for(int i = 1; i < argc; i++) \{
+        d = \emprg{opendir}(argv[i]);
+        while(de = \emprg{readdir}(d))
+            printf("%s\bs{}n", de->d_name);
+        \emprg{closedir}(d);
+    \} 
+    return (0);
+\}
+\end{alltt}
+\end{slide}
+
+\begin{itemize}
+\item pøíkaz \texttt{ls} je zalo¾en na takovéto smyèce, navíc
+provádí napø. tøídìní jmen souborù a zji¹»ování dal¹ích informací
+pomocí \texttt{stat}.
+\item konec adresáøe se pozná tak, ¾e \texttt{readdir} vrátí
+\texttt{NULL}. To v¹ak vrátí i v pøípadì, pokud nastala chyba. V
+takovém pøípadì je kód chyby v promìnné \texttt{errno}, v pøípadì
+prvním je \texttt{errno} nezmìnìna. Proto by \texttt{errno} mìlo být
+v¾dy nastavené na nulu pøed voláním \texttt{readdir}. V pøíkladu
+tomu tak není, proto¾e z dùvodu málo místa nekontrolujeme
+\texttt{errno} vùbec.
+\item pøíklad: \priklad{readdir/readdir.c}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{chdir, fchdir, getcwd}{pwd}
+
+\begin{slide}
+\sltitle{Change working directory}
+\begin{itemize}
+\item every process has its current working directory.  When a process refers to
+a file using a relative path, the reference is interpreted relative to the
+current working directory of the process.
+\item the working directory is inherited from the process parent
+\end{itemize}
+\texttt{int \funnm{chdir}(const char *\emph{path});}\\
+\texttt{int \funnm{fchdir}(int \emph{fildes});}
+\begin{itemize}
+\item changes working directory for the process
+\end{itemize}
+\texttt{char *\funnm{getcwd}(char *\emph{buf}, size\_t \emph{size});}
+\begin{itemize}
+\item stores the absolute path to the current working directory to \emph{buf},
+its \emph{size} must be at least one byte longer than the path length.
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item funkci \texttt{fchdir} se pøedává deskriptor získaný voláním
+\texttt{open} na adresáø.
+\item funkce \texttt{getcwd} mù¾e vrátit jinou cestu ne¾ tu, po které jsme
+se do ak\-tu\-ál\-ní\-ho adresáøe dostali, jesli¾e èást cesty v
+\texttt{chdir} byl symlink nebo do¹lo k pøesunu (pøejmenování) nìkterého
+adresáøe na cestì od koøene. U souèasných u{}nixù by se to ale u¾ stát nemìlo.
+\item na vìt¹inì moderních unixových systémù existuje funkce \texttt{chroot},
+která u\-mo¾\-òu\-je zmìnit koøenový adresáø volajícího procesu na daný
+adresáø. Je èasto pou¾ívaná v implementací serverù k omezení pøístupu
+pouze na daný podstrom file systému (napø. FTP servery).
+Pokud se pou¾ívá pro zapezpeèení, vy¾aduje to zvlá¹tní opatrnost,
+proto¾e existují cesty jak se dostat do pù\-vod\-ní\-ho stromu.
+Pokud je nutné z chroot prostøedí spou¹tìt programy, nastávají dal¹í
+komplikace s nutností replikace kritických systémových souborù do chroot
+prostøedí (pokud není program upraven aby mìl v¹e zabudované v sobì).
+Tato funkce není souèástí aktuální verze standardu (POSIX 1003.1-2008).
+\begin{itemize}
+\item dal¹í, mnohem obecnìj¹í, zpùsoby izolace procesù se dají nalézt v
+unixových systémech (jails v FreeBSD, zones v Solarisu, sandboxing v Mac
+OS X). Zpravidla se velmi li¹í tím jaké hranice doká¾í vytyèit, k èemu
+jsou urèeny, zpùsobem administrace, \ldots.
+\end{itemize}
+\end{itemize}
+
+%%%%%
+
+\pdfbookmark[1]{access}{access}
+
+\begin{slide}
+\sltitle{Check permissions for access: \texttt{access()}}
+\texttt{int \funnm{access}(const char *\emph{path}, int \emph{amode});}
+\begin{itemize}
+\item checks whether the calling process can access the file \emph{path}
+\item \emph{amode} is an OR-combination of contants 
+    \begin{itemize}
+    \item \verb#R_OK# \dots{} read permission test
+    \item \verb#W_OK# \dots{} write permission test
+    \item \verb#X_OK# \dots{} execution permission test
+    \item \verb#F_OK# \dots{} file existence test
+    \end{itemize}
+\item in contrast to \texttt{stat()}, the result depends on the process's RUID
+and RGID
+\item \emsl{never use this call, it cannot be used in a safe way.  See the notes
+below.}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Volání \texttt{access} aplikuje mechanismus testování pøístupových práv k
+zadanému souboru pro volající proces a vrátí výsledek.
+\item Funkce \texttt{access} volání byla pro setuid proces, aby si mohl ovìøit,
+zda u¾ivatel bì¾ící daný setuid proces by mìl za normálních okolností k
+pøíslu¹nému souboru pøístup. Z toho vyplývá, ¾e toto volání je \emsl{security
+hole} -- mezi testem a následnou akcí se soubor mù¾e zmìnit tøeba tak, ¾e
+pùvodní (mùj) soubor sma¾u a vytvoøím symbolický link se stejným jménem na
+soubor, ke kterému bych jinak nemìl pøístup. Toto proces nemù¾e nikdy o¹etøit,
+tak¾e vesele zmodifikuje soubor, který bych jako u¾ivatel nikdy nemohl zmìnit.
+Správným øe¹ením je vrátit se zpátky k reálným UID/GID a pøístup rovnou
+vyzkou¹et. Pokud napøíklad daný soubor otevøeme, u¾ nám ho nikdo pod rukama
+``nevymìní''.
+\end{itemize}
+
+
+%%%%%
+
+\pdfbookmark[1]{chmod, chown}{chmodchown}
+
+\begin{slide}
+\sltitle{Setting file permissions}
+\texttt{int \funnm{chmod}(const char *\emph{path}, mode\_t \emph{mode});}
+\begin{itemize}
+\item changes permissions of file \emph{path} to \emph{mode}.
+\item can be used by the file owner or root
+\end{itemize}
+\texttt{int \funnm{chown}(const char *\emph{path}, uid\_t \emph{owner},
+gid\_t \emph{group});}
+\begin{itemize}
+\item changes file owner and group for \emph{path}.  Value of
+\texttt{-1} means do not change that ID.
+\item only root change change owners so that users could not work around quotas
+to disown their files
+\item a regular user can change a group of files he/she owns, and must belong to
+the target group
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item parametr \texttt{mode} zde samozøejmì neobsahuje typ souboru,
+jako tomu je na\-pøí\-klad u volání \texttt{stat}. Hodnoty
+\texttt{mode} viz \texttt{chmod}(2).
+\item pokud nejsem vlastník, nemohu celkem logicky zmìnit mód ani u
+souboru s nastaveným pøístupem \texttt{rw-rw-rw-}
+\item v nìkterých implementacích mù¾e vlastník souboru pøedat
+vlastnictví nì\-ko\-mu jinému, napø. v IRIXu je chování \texttt{chown}
+nastavitelné jako parametr jádra.
+\item není bì¾né volat funkci \texttt{chmod} z u¾ivatelských
+aplikací, na to se pou¾ívají flagy u volání \texttt{open}, hlavní
+pou¾ití je v aplikaci \texttt{chmod(1)}
+\end{itemize}
+
+
+
+\endinput
