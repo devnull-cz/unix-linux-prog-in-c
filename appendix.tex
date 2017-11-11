@@ -1,0 +1,50 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\sltitle{Virtual memory implementation}
+\begin{itemize}
+\item processes in UNIX use virtual addresses to access physical memory.
+The virtual - physical convertion is performed by hardware with the help
+of kernel.
+\item in case of memory shortage unused parts of memory are stored to
+(\emsl{swap}) space on disk. 
+\item before SVR2 the \texttt{swapper} process (nowadays
+\texttt{sched}) swapped out whole processes. 
+\item from SVR2 on (\emsl{demand paging}) is used with \emsl{copy-on-write}.
+Pages are allocated only after first use and private pages are copied only
+after modification. Freeing and swapping of individual pages is performed
+by the \texttt{pageout} process, swapping of whole processes is done only
+when critically low on memory.
+\end{itemize}
+\end{slide}
+
+\begin{description}
+\item[pøeklad adres:] pøístup na neplatnou adresu nebo pokus o zápis
+do pamìti pouze pro ètení vyvolá signál \texttt{SIGSEGV}.
+\item[swap:] odkládací prostor se vytváøí na samostatném oddílu
+disku, od SVR4 mù¾e být i v~souboru.
+\item[swapper:] proces \texttt{swapper} se sna¾í odlo¾it na disk nìjaký
+proces, který není zam\-èen v~pamìti, a na uvolnìné místo zavést døíve
+odlo¾ený proces.
+\item[demand paging:] pøi ¾ádosti procesu o pamì» se pouze upraví
+tabulka stránek. První instrukce adresující obsah stránky vyvolá
+výjimku. Jádro ji o¹etøí tím, ¾e alokuje stránku. 
+\item[copy-on-write:] více procesù mù¾e sdílet zapisovatelnou
+fyzickou stránku, která je ale logicky privátní pro ka¾dý proces
+(tato situace nastane napø. po vytvoøení procesu voláním
+\texttt{fork}). Dokud procesy z pamìti pouze ètou, pøistupují ke
+sdíl{}ené stránce. Pokud se proces pokusí obsah stránky zmìnit, vyvolá
+výjimku. Jádro zkopíruje stránku, pøidìlí procesu kopii, která u¾ je
+privátní a proces ji mù¾e dále libovolnì mìnit. Ostatní procesy
+pou¾ívají stále ne\-zmì\-nì\-nou pùvodní stránku.
+\item stránky k odlo¾ení se hledají algoritmem \emph{NRU} (not recently
+used): ka¾dá stránka má pøíznaky \texttt{referenced} a
+\texttt{modified}, na zaèátku vynulované. Pøi prvním pøístupu se
+nastaví \texttt{referenced}, pøi zmìnì \texttt{modified}. Oba
+pøíznaky se periodicky nulují. Pøednostnì se uvolòují stránky, které
+nejsou modifikované ani pou¾ité. Stránky kódu programu a mapovaných
+souborù se neukládají do odkládacího prostoru, ale obnovují se z
+pøíslu¹ného souboru.
+\end{description}
+
+\endinput

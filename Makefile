@@ -33,6 +33,7 @@ TEX=		unix-programming-in-c.common.tex \
 		network.tex \
 		threads.tex \
 		files.tex \
+		appendix.tex \
 		history.tex
 
 SLIDES=		$(TEX) ${SLIDE}
