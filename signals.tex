@@ -25,39 +25,42 @@
 changequote([[[, ]]])
 
 \begin{slide}
-\sltitle{Signály}
+\sltitle{Signals}
 \begin{itemize}
-\item informují proces o výskytu urèité události
-\item na u¾ivatelské úrovni zpøístupòují mechanizmy pøeru¹ení
-\item kategorie signálù: 
+\item notify a process of asynchronous events, and handle exceptions
+\item mechanism of an interrupt available in user level
+\item signal categories
     \begin{itemize}
-    \item \emsl{chybové události} generované bì¾ícím procesem, napø.
-    pokus o pøístup mimo pøidìlenou oblast pamìti (\texttt{SIGSEGV})
-    \item \emsl{asynchronní události} vznikající mimo proces, napø.
-    signál od jiného procesu, vypr¹ení nastaveného èasu
-    (\texttt{SIGALRM}), odpojení terminálu (\texttt{SIGHUP}), stisk
+    \item \emsl{exceptions} caused by a running process, eg.
+    attempt to access a restricted area of memory (\texttt{SIGSEGV})
+    \item \emsl{asynchronous events} happening independently of the main program
+    flow, eg. a signal from another process, a timer expiration
+    (\texttt{SIGALRM}), terminal disconnect (\texttt{SIGHUP}), or pressing
     \texttt{Ctrl-C} (\texttt{SIGINT})
     \end{itemize}
-\item nejjednodu¹¹í mechanizmus pro komunikaci mezi procesy -- nesou
-pouze informaci o tom, ¾e nastala nìjaká událost.
-\item vìt¹inou se zpracovávají asynchronnì -- pøíchod signálu  pøeru¹í bìh
-procesu a vyvolá se obslu¾ná funkce, tzv. \emph{handler signálu}
+\item it is the simplest interprocess communication -- it only carries
+information that an event happened
+\item mostly processed asynchronously -- a signal interrupts the current process
+flow and a \emph{signal handler} are invoked
 \end{itemize}
 \end{slide}
 
 \label{SIGNALS}
 
 \begin{itemize}
-\item se signálem není svázána ¾ádná jiná informace ne¾ èíslo signálu, pokud se
-nepou¾ije POSIX-1003.1b roz¹íøení (real-time), viz strana
+\item Interrupts can be viewed as a mean of communication between the CPU and
+the OS kernel while signals are for communication between the kernel and
+processes.
+\item There is no other information bound to the signal other than its signal
+number.  That is, unless the real-time extension POSIX-1003.1b is used, see page
 \pageref{REALTIMEEXTENSIONS}.
-\item po návratu z handleru (pokud k nìmu dojde) proces pokraèuje od
-mís\-ta pøeru¹ení.
-\item historicky signály vznikly jako mechanizmus pro \uv{násilné}
-ukonèení procesu. Z toho vyplynul i název funkce \texttt{kill} pro
-poslání signálu.
-\item Signály lze zpacovávat i synchronnì, viz \texttt{sigwait} na
-str. \pageref{SIGWAIT}.
+\item After returning from the handler, if that happens, the process continues
+exactly from the place where the interruption happened.
+\item Historically, signals were provided as a mechanism to forcefully terminate
+processes.  That is why the function for sending signals is called
+\funnm{kill}.
+\item You can process signals in a synchronous way, see \funnm{sigwait} on page
+\pageref{SIGWAIT}.
 \end{itemize}
 
 %%%%%
@@ -65,40 +68,40 @@ str. \pageref{SIGWAIT}.
 \pdfbookmark[1]{kill}{kill}
 
 \begin{slide}
-\sltitle{Poslání signálu}
+\sltitle{Sending signals}
 \texttt{int \funnm{kill}(pid\_t \emph{pid}, int \emph{sig});}
 \begin{itemize}
-\item po¹le signál s èíslem \texttt{sig} procesu (nebo skupinì
-procesù) podle hodnoty \texttt{pid}: 
+\item sends signal \emph{sig} to a process or a process group
+based on value of \emph{pid}: 
     \begin{itemize}
-    \item \texttt{> 0} \dots{} procesu s èíslem pid
-    \item \texttt{== 0} \dots{} v¹em procesùm ve stejné skupinì 
-    \item \texttt{== -1} \dots{} v¹em procesùm, kromì systémových 
-    \item \texttt{< -1} \dots{} procesùm ve skupinì \texttt{abs(pid)} 
+    \item \texttt{> 0} \dots{} to process with \emph{pid}
+    \item \texttt{== 0} \dots{} to all processes in the same group
+    \item \texttt{== -1} \dots{} to all aside from system processes
+    \item \texttt{< -1} \dots{} to processes in a group \texttt{abs(pid)} 
     \end{itemize}
-\item \texttt{sig == 0} znamená, ¾e se pouze zkontroluje oprávnìní
-poslat signál, ale ¾ádný signál se nepo¹le. 
-\item právo procesu poslat signál jinému procesu závisí na UID obou
-procesù.
+\item \texttt{sig == 0} means the system only checks whether the process has
+enough privileges to send a signal without sending it
+\item whether a process may send other process a signal depends on UID of both
+processes
 \end{itemize}
 \end{slide}
 
 \label{KILLSYSCALL}
 
 \begin{itemize}
-\item proces s EUID~==~0 mù¾e poslat signál libovolnému procesu.
-\item ostatní procesy:
+\item Traditionally, process with EUID~==~0 can send a signal to any other
+process.  However, some systems optionally provide fine grain privileges and the
+situation there is different even for root.  That is out of scope for this class
+though.  \item Sending a signal to another process:
     \begin{itemize}
-    \item Linux, Solaris: RUID nebo EUID procesu, který poslal signál, se musí
-    shodovat s reálným UID nebo saved set-user-ID cílového procesu.
-    \item FreeBSD: musí se shodovat EUID obou procesù.
-    \item IRIX: RUID nebo EUID procesu, který poslal signál, se musí shodovat
-    s reálným nebo efektivním UID nebo saved set-user-ID cílového procesu.
+    \item Linux, Solaris: RUID or EUID of the process that sent the signal must
+    match the real UID or saved SUID of the target process.
+    \item FreeBSD: EUID of the processes must match
     \end{itemize}
-\item pøíklad (obsahuje i zachycení signálu, viz dal¹í slajdy)
-\priklad{signals/kill.c}
-\item nulový signál lze pou¾ít i pro jednoduchou kontrolu existence procesu
-s daným pid, viz \priklad{signals/check-existence.c}.
+\item Example (covers handling of the signal as well, see upcoming slides for
+details): \priklad{signals/kill.c}
+\item 0 signal can be also used for a simple check for the specific process
+existence, see \priklad{signals/check-existence.c}.
 \end{itemize}
 
 %%%%%
@@ -397,17 +400,17 @@ místo vzniku signálu se dají pou¾ít funkce \texttt{sigsetjmp} a
 okam¾iku pøíchodu signálu není program uvnitø ne-reentrantní funkce. Výskokem z
 handleru do hlavního programu není vykonávání takové funkce ukonèeno a mohou
 nastat stejné problémy jako pøi volání ne-reentrantní funkce pøímo z handleru.
-\item \label{REALTIMEEXTENSIONS} pokud systém podporuje èást POSIX.1b zvanou
-\emph{Realtime Signals Extension} (RTS), je mo¾né pøí\-zna\-kem
-\texttt{SA\_SIGINFO} toto roz\-¹í\-øe\-ní pou¾ít. V tom pøípadì se pou¾ije jiná
-polo¾ka struktury \texttt{sigaction} pro ukazatel na handler, a tou je
-\texttt{sa\_sigaction}. Tento handler má ji¾ 3 parametry a je mo¾né zjistit
-napøíklad to, který proces signál poslal, pod jakým u¾ivatelem proces bì¾el a
-mnoho dal¹ích informací. Zájemce odkazuji na manuálovou stránku
-\texttt{signal.h(3HEAD)} na Solarisu, specifikaci tohoto hlavièkového souboru
-pøímo v SUSv3 nebo na knihu [POSIX.4], strana \pageref{REF_PROGRAMMING}. Dal¹í
-informace jsou také na stranách \pageref{POSIX} a \pageref{SIGWAITINFO}.
-Pøíklady: \priklad{sig\-nals/siginfo.c}, \priklad{sig\-nals/sigqueue.c}.
+\item \label{REALTIMEEXTENSIONS} If your system supports a part of POSIX.1b
+called \emph{Realtime Signals Extension} (RTS), it is possible to use the
+extension if you use flag \texttt{SA\_SIGINFO}.  In that case a
+\texttt{sa\_sigaction} member of the structure \texttt{sigaction} must be used
+for the handler, not \texttt{sa\_handler}.  The new handler has three parameters
+and it is possible to learn the PID of a signalling process, its UID, and more.
+See manual page \texttt{signal.h(3HEAD)} on Solaris, the online SUS
+specification of the header file, or the book [POSIX.4], page
+\pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
+\pageref{SIGWAITINFO}.  Examples: \priklad{sig\-nals/siginfo.c},
+\priklad{sig\-nals/sigqueue.c}.
 \end{itemize}
 
 %%%%%
