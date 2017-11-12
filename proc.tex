@@ -945,7 +945,7 @@ process.
 \item However, in \texttt{bash}, all processes in a pipeline are direct children
 of the shell itself, ie. \texttt{bash} calls \funnm{fork} that many times as is
 the number of programs in the pipeline.  Before the prompt is printed, it waits
-for all processes to finish.
+for all processes it directly created to finish.
 \end{itemize}
 
 %%%%%
