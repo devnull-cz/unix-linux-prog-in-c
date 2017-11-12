@@ -1244,36 +1244,32 @@ linked program has mapped into its address space upon execution.  Also see pages
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: zpøístupnìní knihovny}
+\sltitle{Example: accessing a dynamic library}
 \begin{alltt}
-char *err;
 void *handle;
 double y, x = 1.3;
 double (*fun)(double); 
 char *libname = "libm.so", *fn\_name = "sin";
 
-if ((handle = \emprg{dlopen}(libname, RTLD\_NOW)) == NULL) \{
-        fprintf(stderr, "%s\bs{}n", dlerror()); exit(1);
-\}
-fun = \emprg{dlsym}(handle, fn\_name);
-if ((err = \emprg{dlerror}()) != NULL)
-        fprintf(stderr, "%s\bs{}n", err); exit(1);
+if ((handle = \emprg{dlopen}(libname, RTLD\_NOW)) == NULL)
+        err(1, "dlopen: %s", \emprg{dlerror}());
+
+if ((fun = \emprg{dlsym}(handle, fn\_name)) == NULL)
+        err(1, "dlsym: %s", \emprg{dlerror}());
+
 y = fun(x);
 \emprg{dlclose}(handle);
 \end{alltt}
 \end{slide}
 
 \begin{itemize}
-\item zde se volá funkce \texttt{sin} z knihovny matematických funkcí
-\texttt{libm.so}.
-\item funkce \texttt{dlsym} vrátí adresu symbolu daného jména, ale
-v¾dy jako ukazatel na \texttt{void}, neprobíhá ¾ádná typová kontrola
-ani není k dispozici ¾ádná informace o typu symbolu. Ten, kdo tuto
-adresu pou¾ívá, musí zajistit její správné pøetypování. 
-\item pøi pou¾ití knihoven v C++ je tøeba si uvìdomit, ¾e C++
-pou¾ívá \emph{name mangling}, tj. do jména funkce (metody) je
-zakódováno pøípadné jméno tøídy nebo namespace a typy parametrù.
-\item pøíklad: \priklad{dyn-lib/dlopen.c}
+\item The code calls function \funnm{sin} from \texttt{libm.so}, the math
+library.
+\item \funnm{dlsym} returns the symbol address but always as a pointer to
+\texttt{void}, there is no type check, and no type information is available
+either.  The caller must retype the returned address.
+\item If you use C++, note that \emph{name mangling} is used.
+\item Example: \priklad{dyn-lib/dlopen.c}
 \end{itemize}
 
 \endinput
