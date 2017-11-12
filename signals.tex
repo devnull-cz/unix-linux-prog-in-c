@@ -223,7 +223,7 @@ that does not violate the standard either.
 
 \begin{itemize}
 \item Signal \texttt{SIGHUP} is often used as a way to let a daemon know its
-configuration file changed and that it should read it again.
+configuration file changed and that it should re-read it.
 \item \texttt{SIGINT} and \texttt{SIGQUIT} are usually generated from a terminal
 via \texttt{Ctrl-C} and \texttt{Ctrl-\bs}, respectively, and could be redefined
 using the command \texttt{stty} or via a function \funnm{tcsetattr}.  In order
@@ -235,7 +235,7 @@ user input nor any signal.  Many applications, mainly daemons, rely on the fact
 that they are sent \texttt{SIGTERM} on termination, which they often handle and
 perform pre-exit actions.  For example, flushing the database, removing
 temporary files and file locks, etc.  So, do not use \texttt{SIGKILL} right away
-because "it's the simplest way to kill a process" as you might run in troubles.
+because "it's the simplest way to kill a process" as you might run in trouble.
 \item Example on using \texttt{SIGQUIT} on Solaris:
 
 \begin{verbatim}
