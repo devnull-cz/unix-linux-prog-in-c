@@ -98,54 +98,55 @@ though.  \item Sending a signal to another process:
     match the real UID or saved SUID of the target process.
     \item FreeBSD: EUID of the processes must match
     \end{itemize}
-\item Example (covers handling of the signal as well, see upcoming slides for
-details): \priklad{signals/kill.c}
+\item Example: \priklad{signals/killing-myself.c}
 \item 0 signal can be also used for a simple check for the specific process
 existence, see \priklad{signals/check-existence.c}.
 \end{itemize}
 
 %%%%%
 
-\pdfbookmark[1]{o¹etøení signálu}{sighandle}
+\pdfbookmark[1]{Handling signals}{sighandle}
 
 \begin{slide}
-\sltitle{O¹etøení signálù}
+\sltitle{Handling signals}
 \begin{itemize}
-\item pokud proces neøekne jinak, provede se v závislosti na konkrétním
-signálu implicitní akce, tj. buï:
+\item unless a process sets otherwise, each signal triggers a specific default
+action, one of:
     \begin{itemize}
-    \item ukonèení procesu (\emsl{exit}) 
-    \item ukonèení procesu plus coredump (\emsl{core})
-    \item ignorování signálu (\emsl{ignore})
-    \item pozastavení procesu (\emsl{stop})
-    \item pokraèování pozastaveného procesu (\emsl{continue}) 
+    \item terminate the process (\emsl{exit}) 
+    \item terminate and dump a core (\emsl{core})
+    \item ignore the signal (\emsl{ignore})
+    \item stop the process (\emsl{stop})
+    \item resume the process (\emsl{continue}) 
     \end{itemize}
-\item proces také mù¾e nastavit ignorování signálu 
-\item nebo signál o¹etøení u¾ivatelsky definovanou funkcí (\emsl{handler}), po
-návratu z~handleru proces pokraèuje od místa pøeru¹ení 
+\item process can either set to ignore a specific signal\dots
+\item \dots{}or can handle the signal via a user-defined function,
+called a \emsl{handler}
 \end{itemize}
 
-signály \texttt{SIGKILL} a \texttt{SIGSTOP} v¾dy vyvolají implicitní
-akci (zru¹ení, resp. pozastavení).
+Signals \texttt{SIGKILL} and \texttt{SIGSTOP} \emsl{always} trigger an implicit
+action, ie. exit or stop, respectively.
 \end{slide}
 
 \begin{itemize}
-\item vytvoøení core dumpu znamená ulo¾ení kompletního obsahu pamìti procesu
-do souboru, typicky se jménem \texttt{core}
-\item vìt¹ina signálù implicitnì ukonèí proces, nìkteré navíc vytvoøí ji¾
-zmiòovaný core dump, který je mo¾né následnì pou¾ít pro ladicí úèely.
-\item dùvod toho, proè pøi \texttt{exec} se v¹echny nastavené handlery signálù
-nahradí implicitní obsluhou (strana \pageref{EXEC}) je jasný -- kód pøíslu¹ných
-oblu¾ných funkcí po volání \texttt{exec} pøestane existovat.
-\item Èísla signálù a jejich jméno lze zjistit pøepínaèe \texttt{-l} pøíkazu
-\texttt{kill}. Bez dal¹ího argumentu vypí¹e seznam v¹ech signálù vèetnì èísla,
-pøi pou¾ití èíselného argumentu vypí¹e název signálu:
+\item Creating a core dump means to store the contents of the process virtual
+address space to a file.  Usually such file has a word \texttt{core} in its
+filename.
+\item Most of the signals implicitly terminate the process, some create a core
+dump on top of that to enable a post-mortem analysis.
+\item The reason why \funnm{exec} replaces all user set handlers to its implicit
+action (see also page \pageref{EXEC}) is obvious -- code of the original
+handlers no longer exists after the \funnm{exec} call finishes.
+\item You can learn the signal numbers and their names using the \texttt{-l}
+option for the \texttt{kill(1)} command.  Without the argument, it will print
+the list of all signals with their corresponding numbers.  Example:
+
 \begin{verbatim}
 $ kill -l SIGPIPE
 13
 \end{verbatim}
-\item Implicitní nastavení akcí pro jednotlivé signály je vìt¹inou popsáno v
-manuálové stránce \emph{signal} resp. \emph{signal.h}.
+\item For each signal, you can learn what is its implicit action by checking a
+manual page for function \funnm{signal} or possibly for \emph{signal.h}.
 \end{itemize}
 
 %%%%%
