@@ -1089,7 +1089,7 @@ re¾imu do re¾imu jádra a zpìt.
 \pdfbookmark[1]{msync, munmap, mprotect}{msync}
 
 \begin{slide}
-\sltitle{Mapování souborù do pamìti (2)}
+\sltitle{Mapping files to memory (2)}
 \texttt{int \funnm{msync}(void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{flags});}
 \begin{itemize}
@@ -1164,51 +1164,49 @@ signál \texttt{SIGBUS}, viz pøíklad \priklad{mmap/aligned.c}.
 \pdfbookmark[1]{dlopen, dlsym, dlclose, dlerror}{dynlib}
 
 \begin{slide}
-\sltitle{Dynamický pøístup ke knihovnám}
-\texttt{void *\funnm{dlopen}(const char *\emph{file}, int \emph{mode});} 
+\sltitle{Accessing dynamic link libraries}
+\texttt{void *\funnm{dlopen}(const char *\emph{path}, int \emph{mode});} 
 \begin{itemize}
-\item zpøístupní knihovnu v souboru \texttt{file}, vrátí
-\emsl{handle} nebo \texttt{NULL}.
-\item v \emph{mode} je OR-kombinace \texttt{RTLD\_NOW} (okam¾ité relokace),
-\texttt{RTLD\_LAZY} (odlo¾ené relokace), \texttt{RTLD\_GLOBAL}
-(symboly budou globálnì dostupné), \texttt{RTLD\_LOCAL} (nebudou
-globálnì dostupné). 
+\item loads \emph{path} unless already loaded, returns
+a \emsl{handle} or \texttt{NULL}.
+\item in \emph{mode} there is an OR combination of \texttt{RTLD\_NOW} (immediate
+bind), \texttt{RTLD\_LAZY} (bound when needed), \texttt{RTLD\_GLOBAL}
+(symbols accessible from all modules), \texttt{RTLD\_LOCAL} (symbols accessible
+through the handle only)
 \end{itemize}
-\texttt{void *\funnm{dlsym}(void *\emph{handle}, const char *\emph{name});}
+\texttt{void *\funnm{dlsym}(void *\emph{handle}, const char *\emph{symbol});}
 \begin{itemize}
-\item vrátí adresu symbolu zadaného jména z knihovny. 
+\item returns the address of \emph{symbol}
 \end{itemize}
 \texttt{int \funnm{dlclose}(void *\emph{handle});}
 \begin{itemize}
-\item ukonèí pøístup ke knihovnì. 
+\item closes the dynamic library
 \end{itemize}
 \texttt{char *\funnm{dlerror}(void);}
 \begin{itemize}
-\item vrátí textový popis chyby pøi práci s knihovnami.
+\item gets diagnostic information
 \end{itemize}
 \end{slide}
 
 \label{DLOPEN}
 
 \begin{itemize}
-\item pomocí tìchto funkcí lze implementovat dynamicky nahrávané plug-in moduly
-naèítané aplikací podle potøeby (napø. podle obsahu jejího
-kon\-fi\-gu\-raè\-ní\-ho souboru).
-\item dynamickým naèítáním knihoven se také dá vyøe¹it situace, kdy potøebujeme
-vyu¾ít nìkolik knihoven, které definují symbol se stejným jménem. Jedna knihovna
-se pøímo pøilinkuje k programu, k ostatním se pøistupuje pomocí \texttt{dlopen}.
-\item soubor musí být ve správném formátu (sdíl{}ená knihovna \texttt{.so} ve
-formátu \emph{ELF} resp. formátu podporovaném na daném systému),
-napøíklad u \texttt{gcc} to znamená pou¾ít pøepínaè \texttt{-shared},
-u \texttt{cc} na Solarisu (Sun Studio Compiler) je to pøepínaè \texttt{-G}.
-Na OS X (s formátem \emph{Mach-O}) je to \texttt{-dynamiclib}, knihovny
-mají pøíponu \texttt{.dynlib}.
-\item pokud cesta obsahuje znak \texttt{/}, bere se podle tvaru jako globální
-nebo re\-la\-tiv\-ní. Pokud lomítko neobsahuje, pou¾ije se pro hledaní objektu
-defaultní na\-sta\-ve\-ní dynamického linkeru, typicky \texttt{/lib} a
-\texttt{/usr/lib}, které se dá roz¹íøít pomocí promìnné
-\texttt{LD\_LIBRARY\_PATH}. Na její pou¾ití ov¹em pozor, viz poznámky na
-stranì \pageref{EVIL_LDLIBPATH}.
+\item For example, you could use these functions to implement a dynamically
+loadable plug-in modules.  Modules to load could be determined either on the fly
+based on user input, or could be read from a configuration file.
+\item If you have multiple dynamic libraries that all define a symbol of the
+same name, you could link one of those during the build process, and other
+libraries can be accessed via \funnm{dlopen}.
+\item You need a file of the correct format.  For example, on a Linux distro,
+that is an ELF shared library with an \texttt{.so} suffix.  With gcc, you will
+need \texttt{-shared} to build such a library there.  If on macOS (file format
+\emph{Mach-O}), you will need \texttt{-dynamiclib}.  Libraries there have a
+suffix \texttt{.dynlib}.
+\item If \emph{path} contains \texttt{/}, it is taken either as global or
+relative, if not, the dynamic linker uses its default path to search for the
+library, usually in \texttt{/lib} and \texttt{/usr/lib}.  You can extend the
+list of paths to search via an environment variable \texttt{LD\_LIBRARY\_PATH}.
+Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
 \item konstanty pro parametr \emph{mode} funkce \funnm{dlopen}:
     \begin{itemize}
     \item \texttt{RTLD\_NOW} -- v¹echny relokace (vyøe¹ení v¹ech odkazù) pro
