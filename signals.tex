@@ -27,7 +27,7 @@ changequote([[[, ]]])
 \begin{slide}
 \sltitle{Signals}
 \begin{itemize}
-\item notify a process of asynchronous events, and handle exceptions
+\item for notifying a process of asynchronous events, and exception handling
 \item mechanism of an interrupt available in user level
 \item signal categories
     \begin{itemize}
@@ -110,8 +110,8 @@ existence, see \priklad{signals/check-existence.c}.
 \begin{slide}
 \sltitle{Handling signals}
 \begin{itemize}
-\item unless a process sets otherwise, each signal triggers a specific default
-action, one of:
+\item unless a process sets it otherwise, each signal triggers a specific
+default action, one of:
     \begin{itemize}
     \item terminate the process (\emsl{exit}) 
     \item terminate and dump a core (\emsl{core})
@@ -131,7 +131,8 @@ action, ie. exit or stop, respectively.
 \begin{itemize}
 \item Creating a core dump means to store the contents of the process virtual
 address space to a file.  Usually such file has a word \texttt{core} in its
-filename.
+filename.  Some systems, eg. macOS, may not generate core dumps by default even
+if its for signals with default core dump action.
 \item Most of the signals implicitly terminate the process, some create a core
 dump on top of that to enable a post-mortem analysis.
 \item The reason why \funnm{exec} replaces all user set handlers to its implicit
@@ -151,56 +152,56 @@ manual page for function \funnm{signal} or possibly for \emph{signal.h}.
 
 %%%%%
 
-\pdfbookmark[1]{pøehled signálù}{siglist}
+\pdfbookmark[1]{Signal listing}{siglist}
 
 \begin{slide}
-\sltitle{Pøehled signálù (1)}
+\sltitle{Signal listing (1)}
 
-signály je mo¾né logicky rozdìlit do nìkolika skupin\dots
+We could divide signals into a few groups\dots
 
-\emsl{detekované chyby:}
+\emsl{Detected errors:}
 
 \begin{tabular}{ll}
-\texttt{SIGBUS} & pøístup k nedef. èásti pamì»ového objektu (core) \\
-\texttt{SIGFPE} & chyba aritmetiky v pohyblivé èárce (core) \\
-\texttt{SIGILL} & nepovolená instrukce (core) \\
-\texttt{SIGPIPE} & zápis do roury, kterou nikdo neète (exit) \\
-\texttt{SIGSEGV} & pou¾ití nepovolené adresy v pamìti (core) \\
-\texttt{SIGSYS} & chybné systémové volání (core) \\
-\texttt{SIGXCPU} & pøekroèení èasového limitu CPU (core) \\
-\texttt{SIGXFSZ} & pøekroèení limitu velikosti souboru (core)\\
+\texttt{SIGBUS} & bus error, eg. wrong alignment (core) \\
+\texttt{SIGFPE} & floating point exception (core) \\
+\texttt{SIGILL} & illegal instructions (core) \\
+\texttt{SIGPIPE} & write on a pipe with no reader (exit) \\
+\texttt{SIGSEGV} & sigmentation violation (core) \\
+\texttt{SIGSYS} & non-existent system call invoked (core) \\
+\texttt{SIGXCPU} & CPU time limit exceeded (core) \\
+\texttt{SIGXFSZ} & file size limit exceeded (core)\\
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item Generování tìchto signálù vychází z chyb programu.
-\item Pro signály \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL} a
-\texttt{SIGSEGV} není normou pøesnì definována pøíèina, ale obvykle jsou to
-chyby detekované hardwarem. Pøíklady \priklad{signals/sigsegv.c},
-\priklad{signals/div-by-zero.c}.
-\item \label{SPECIALSIGNALS} \emsl{Pro tyto ètyøi signály také platí tato
-speciální pravidla} (podrobnosti viz kapitola \emph{2.4 Signal Concepts} v normì
-SUSv3):
+\item Those signals are generated on an error in a program.
+\item For signals \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL}, and
+\texttt{SIGSEGV} the standard does not specify what exactly has to be the
+reason but usually those are errors detected by hardware.
+Examples: \priklad{signals/sigsegv.c}, \priklad{signals/div-by-zero.c}.
+\item \label{SPECIALSIGNALS} \emsl{For those four signals, there are some
+special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
+SUSv4):
 \begin{itemize}
-\item Pokud byly nastavené jako ignorované voláním \texttt{sigaction}, je
-chování programu po té, co je mu takový signál poslán, normou nedefinováno.
-\item Návratová hodnota handleru není definována.
-\item Následek situace, kdy jeden z tìchto signálu je maskován v okam¾iku jeho
-vygenerovaní je nedefinovaný.
+\item If set as ignored by function \funnm{sigaction}, the program behavior
+after such a signal is delivered is undefined.
+\item Return value of the handler is undefined.
+\item If such a signal is masked while the signal is being delivered, the
+program behavior is undefined.
 \end{itemize}
-\item Jinými slovy -- pokud je hardwarem detekovaná chyba reálná (signál není
-poslán pøes \texttt{kill} a podobnými funkcemi), vá¹ program se pøes tuto chybu
-nemusí vùbec dostat. Není bezpeèné chybu ignorovat, pokraèovat v bìhu po návratu
-z handleru nebo oddálit øe¹ení pomocí zamaskování. Zachytit tyto signály lze, o
-tom, ¾e by to bylo jinak, norma nemluví. Pokud tedy máte pro tyto signály
-handler, \emsl{je potøeba poøe¹it danou situaci jak uznáte za vhodné a pak
-ukonèit program}. Mù¾ete to vyzkou¹et na pøíkladu
-\priklad{signals/catch-SIGSEGV.c}. Dal¹í informace vèetnì jiného pøíkladu na
-vyzkou¹ení je mo¾né nalézt na stranì \pageref{THREADS_SIGWAIT}.
-\item Poznámka: pokud je nìco normou nedefinováno (\emph{undefined}), obecnì to
-znamená, ¾e se neoèekává, ¾e by programátor potøeboval znát pøesné chování v
-takové situaci. Pokud je to potøeba, pravdìpodobnì je ve va¹em programu nìco
-¹patnì. Jako v¾dy, urèite by se na¹ly vyjímky potvrzující pravidlo.
+\item Bottom line is that if a hardware generated error is real (ie. the signal
+is not send via \funnm{kill} or similar functions), the process may never get
+over that error at all.  It is not safe to ignore such errors, continue after
+returning from a handler, or mask such signals.  You can catch such signals
+though, the standard does not prohibit that.  However, if you do, you should do
+so only to deal with the situation and exit.
+You can check \priklad{signals/catch-SIGSEGV.c}. More information and another
+example can be found on page \pageref{THREADS_SIGWAIT}.
+\item Note: if the standard specifies any behavior as \emph{undefined}, it means
+the specification does not state what should happend and that whatever happens
+does not violate the standard.  So, if you trigger such a behavior and your
+computer burns down or even flies off to the Moon, possibly still in flames,
+that does not violate the standard either.
 \end{itemize}
 
 \begin{slide}
