@@ -1239,13 +1239,14 @@ znamená, ¾e si mù¾ete napsat vlastní linker a pomocí \texttt{-I} pro \texttt{ld}
 ho pak nastavit jako dynamický linker pro vá¹ program.
 \item dynamická sekce se vypí¹e pomocí \texttt{elfdump -d}, dynamické knihovny
 jsou o\-zna\-èe\-né tagem \texttt{NEEDED}
-\item závislosti na dynamických knihovnách je mo¾né pohodlnì zjistit pomocí
-pøí\-ka\-zu \texttt{ldd} (Solaris, Linux, BSD), který zjistí konkrétní cesty
-ke knihovnám. Tento
-pøíkaz øe¹í zá\-vis\-los\-ti rekurzívnì a uvidíte tedy i nepøímé závislosti -
-tj. takové knihovny, které jsou pou¾ité knihovnami, které pøíslu¹ný program
-pou¾ívá pøímo. Zjistit co je pøesnì závislé na èem je mo¾né pomocí volby
-\texttt{-v}. Na OS X je ekvivalentem \texttt{ldd} pøíkaz \texttt{otool -L}.
+\item Finding out shared object dependencies is very easy via the
+\texttt{ldd} command (Solaris, Linux, BSD).  It displays paths to the libraries
+that will be used if the program is run in the same environment (see right
+below for more information).  The command resolves the depencides recursively so
+you will also see dynamic libraries that are used by other libraries and not
+directly by the program.  To find out what exactly depends on what, use the
+\texttt{-v} option.  macOS does not have \texttt{ldd}, use \texttt{otool -L}
+instead.
 \item jaké knihovny byly pøi spu¹tìní nakonec pou¾ity mù¾e být jiné ne¾ co uká¾e
 pøíkaz \texttt{ldd}, a to tøeba díky mechanismu \texttt{LD\_PRELOAD}. Na
 Solarisu proto existuje pøíkaz \texttt{pldd}, který pomocí èísla procesu uká¾e
