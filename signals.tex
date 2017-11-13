@@ -208,7 +208,7 @@ that does not violate the standard either.
 \texttt{SIGABRT} & abort program (core) \\
 \texttt{SIGHUP} & terminal line hangup (exit) \\
 \texttt{SIGINT} & interrupt program via \texttt{Ctrl-C} (exit) \\
-\texttt{SIGKILL} & kill program (exit, \emsl{cannot handle nor ignore})\\
+\texttt{SIGKILL} & kill program (exit, \emsl{cannot be caught or ignored})\\
 \texttt{SIGQUIT} & quit program via \texttt{Ctrl-\bs} (core) \\
 \texttt{SIGTERM} & software termination signal (exit) \\
 \texttt{SIGUSR1} & user-defined signal 1 (exit) \\
@@ -253,63 +253,57 @@ are available for use to the user.
 %%%%%
 
 \begin{slide}
-\sltitle{Pøehled signálù (3)}
+\sltitle{Signal listing (3)}
 
-\emsl{job control:}
+\emsl{Job control:}
 
 \begin{tabular}{ll}
-\texttt{SIGCHLD} & zmìna stavu synovského procesu (ignore)\\
-\texttt{SIGCONT} & pokraèování pozastaveného procesu (continue) \\
-\texttt{SIGSTOP} & pozastavení (stop, \emsl{nelze o¹etøit ani ignorovat}) \\
-\texttt{SIGTSTP} & pozastavení z terminálu \texttt{Ctrl-Z} (stop) \\
-\texttt{SIGTTIN} & ètení z terminálu procesem na pozadí (stop) \\
-\texttt{SIGTTOU} & zápis na terminál procesem na pozadí (stop) \\
+\texttt{SIGCHLD} & child status has changed (ignore)\\
+\texttt{SIGCONT} & continue after stop (continue) \\
+\texttt{SIGSTOP} & stop (stop; \emsl{cannot be caught or ignored}) \\
+\texttt{SIGTSTP} & stop from terminal \texttt{Ctrl-Z} (stop) \\
+\texttt{SIGTTIN} & background read attempted from control terminal (stop) \\
+\texttt{SIGTTOU} & background write attempted to control terminal (stop) \\
 \end{tabular}
-
-\begin{itemize}
-\item souèástí nepovinného POSIX roz¹íøení, existují pouze kdy¾ v
-\texttt{<unistd.h>} je definováno makro \texttt{\_POSIX\_JOB\_CONTROL}
-\end{itemize}
 
 \end{slide}
 
 \begin{itemize}
-\item platí, ¾e nikdy není povoleno více procesùm najednou èíst z
-kontrolního terminálu, ale více procesù najednou mù¾e na terminál
-zapisovat.
-\item pozastavení skupiny procesù spustìné z terminálu (èasto pøes
-\texttt{Ctrl-Z}) se pro\-vádí signálem \texttt{SIGTSTP}, ne \texttt{SIGSTOP};
-aplikace tedy tento signál mù¾e zachytit. \label{SIGTSTP}
+\item Those used to be part of a non-mandatory POSIX extension but now they are
+required by POSIX.1-2008.  See also page \pageref{UNIXSTANDARDS}.
+\item Only one process at any given time can read from its process group control
+terminal but multiple processes can write to it at the same time.
+\item Stopping a process group from a terminal, usually via \texttt{Ctrl-Z}, is
+done with signal \texttt{SIGTSTP}, not \texttt{SIGSTOP}; a program thus can
+catch the signal. \label{SIGTSTP}
 \end{itemize}
-
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøehled signálù (4)}
+\sltitle{Signal listing (4)}
 
-\emsl{èasovaèe:}
+\emsl{Timers:}
 
 \begin{tabular}{ll}
-\texttt{SIGALRM} & plánované èasové pøeru¹ení (exit) \\
-\texttt{SIGPROF} & vypr¹ení profilujícího èasovaèe (exit) \\
-\texttt{SIGVTALRM} & vypr¹ení virtuálního èasovaèe (exit) \\
+\texttt{SIGALRM} & timer expired (exit) \\
+\texttt{SIGPROF} & profiling timer alarm (exit; see \funnm{setitimer}(2)) \\
+\texttt{SIGVTALRM} & virtual time alarm (exit; also see \funnm{setitimer}(2)) \\
 \end{tabular}
 
-\emsl{rùzné:}
+\emsl{Miscelaneous:}
 
 \begin{tabular}{ll}
-\texttt{SIGPOLL} & testovatelná událost (exit) \\
-\texttt{SIGTRAP} & ladicí pøeru¹ení (core) \\
-\texttt{SIGURG} & urgentní událost na soketu (ignore) \\
+\texttt{SIGPOLL} & event occured on explicitly watched file descriptor (exit) \\
+\texttt{SIGTRAP} & trace trap (core) \\
+\texttt{SIGURG} & urgent condition present on socket (ignore) \\
 
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item \texttt{SIGALRM} a související funkce \texttt{alarm} se pou¾ívají pro
-odmìøování èasových intervalù v u¾ivatelském procesu (napø. pøi implementaci
-timeoutù).
+\item \texttt{SIGALRM} and related function \funnm{alarm} is used for setting
+timer alarms, useful for implementation of timeouts, for example.
 \end{itemize}
 
 %%%%%
