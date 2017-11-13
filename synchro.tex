@@ -65,7 +65,7 @@ pamìti. Pro tyto pøípady má napøíklad Solaris sadu funkcí
 zamykací mechanismy. Více viz strana \pageref{ATOMIC_ADD}.
 \item obecnì obdobný problém nastává, kdy¾ více procesù sdílí nìjaký systémový
 zdroj.
-\item \label{RACE_C} pøíklad: \priklad{race/race.c}
+\item \label{RACE_C} pøíklad: \example{race/race.c}
 \end{itemize}
 
 
@@ -303,8 +303,8 @@ void \funnm{unlock}(char *lockfile) \{
 \begin{itemize}
 \item \label{LOCK_UNLOCK} klíèem k úspìchu je samozøejmì pou¾ití flagu
 \texttt{O\_EXCL}
-\item pøíklad: \priklad{file-locking/lock-unlock.c}, a pou¾ijte spoleènì se
-shellovým skriptem \priklad{file-locking/run.sh}.
+\item pøíklad: \example{file-locking/lock-unlock.c}, a pou¾ijte spoleènì se
+shellovým skriptem \example{file-locking/run.sh}.
 \item pøi havárii procesu nedojde ke zru¹ení pøípadných zámkù a ostatní procesy
 by èekaly vìènì. Proto je vhodné si do lock-souboru poznamenat PID procesu,
 který zámek vytvoøil. Proces, který èeká na odemèení, mù¾e testovat, zda proces,
@@ -423,10 +423,10 @@ v¹echny jeho zámky.
 \item pokud pøi pou¾ití \texttt{F\_GETLK} není pøíslu¹ná èást
 souboru zamèená, je struktura \texttt{flock} vrácena bez zmìny kromì
 první polo¾ky, která je nastavena na \texttt{F\_UNLCK}.
-\item \label{FCNTL_LOCKING} pøíklad: \priklad{file-locking/fcntl-locking.c}
+\item \label{FCNTL_LOCKING} pøíklad: \example{file-locking/fcntl-locking.c}
 \item \label{FCNTL_FIXED_RACE_C} pøíklad na fcntl (je to pomocí fcntl
-,,opravená'' verze døívej¹ího pøí\-kla\-du \priklad{race/race.c} ze strany
-\pageref{RACE_C}): \priklad{race/fcntl-fixed-race.c}.
+,,opravená'' verze døívej¹ího pøí\-kla\-du \example{race/race.c} ze strany
+\pageref{RACE_C}): \example{race/fcntl-fixed-race.c}.
 \item zamykání pøes \texttt{fcntl} i \texttt{lockf} má jednu
 dùle¾itou vlastnost, kterou výsti¾nì popisuje napøíklad manuálová
 stránka pro \texttt{fcntl} v systému FreeBSD:
@@ -445,7 +445,7 @@ closes the password database.}
 \texttt{fcntl}, specifikuje se pouze jak zamknout a kolik bajtù od souèasné
 pozice v souboru. Velmi èasto je implementována jako wrapper kolem
 \texttt{fcntl}.
-\item Pøíklad \priklad{file-locking/lockf.c} demonstruje jak funguje
+\item Pøíklad \example{file-locking/lockf.c} demonstruje jak funguje
 mandatory locking a ukazuje pou¾ití funkce \texttt{lockf}.
 \end{itemize}
 
@@ -764,8 +764,8 @@ vedlej¹ího èísla zaøízení. Stejný klíè pro rùzné soubory je vrácen, pokud se
 \item pokud tedy nepøíbuzné procesy chtìjí pou¾ívat stejný semafor, \emsl{musí
 být jmého souboru pro klíè domluveno pøedem.}
 \item \label{SEM_FIXED_RACE_C} pøíklad na semafory (je to pomocí semaforù
-,,opravená'' verze døívej¹ího pøí\-kla\-du \priklad{race/race.c} ze strany
-\pageref{RACE_C}): \priklad{race/sem-fixed-race.c}.
+,,opravená'' verze døívej¹ího pøí\-kla\-du \example{race/race.c} ze strany
+\pageref{RACE_C}): \example{race/sem-fixed-race.c}.
 \end{itemize}
 
 %%%%%

@@ -98,9 +98,9 @@ though.  \item Sending a signal to another process:
     match the real UID or saved SUID of the target process.
     \item FreeBSD: EUID of the processes must match
     \end{itemize}
-\item Example: \priklad{signals/killing-myself.c}
+\item Example: \example{signals/killing-myself.c}
 \item 0 signal can be also used for a simple check for the specific process
-existence, see \priklad{signals/check-existence.c}.
+existence, see \example{signals/check-existence.c}.
 \end{itemize}
 
 %%%%%
@@ -178,7 +178,7 @@ We could divide signals into a few groups\dots
 \item For signals \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL}, and
 \texttt{SIGSEGV} the standard does not specify what exactly has to be the
 reason but usually those are errors detected by hardware.
-Examples: \priklad{signals/sigsegv.c}, \priklad{signals/div-by-zero.c}.
+Examples: \example{signals/sigsegv.c}, \example{signals/div-by-zero.c}.
 \item \label{SPECIALSIGNALS} \emsl{For those four signals, there are some
 special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
 SUSv4):
@@ -195,7 +195,7 @@ over that error at all.  It is not safe to ignore such errors, continue after
 returning from a handler, or mask such signals.  You can catch such signals
 though, the standard does not prohibit that.  However, if you do, you should do
 so only to deal with the situation and exit.
-You can check \priklad{signals/catch-SIGSEGV.c}. More information and another
+You can check \example{signals/catch-SIGSEGV.c}. More information and another
 example can be found on page \pageref{THREADS_SIGWAIT}.
 \item Note: if the standard specifies any behavior as \emph{undefined}, it means
 the specification does not state what should happend and that whatever happens
@@ -380,7 +380,7 @@ zpracovává události. Zpomalení obsluhy signálu je minimální, proto¾e funkce
 která èeká na dal¹í po¾adavek je typicky pøeru¹itelná signálem a v takovém
 pøípadì ihned vrací \texttt{EINTR}. Následuje kontrola globální(ch)
 promìnné(ých) na to, zda byl pøijmut nìjaký signál.
-Viz pøíklad \priklad{signals/event-loop.c}.
+Viz pøíklad \example{signals/event-loop.c}.
 \item funkce \texttt{sigaction} je obecnìj¹í ne¾ star¹í funkce
 \texttt{signal} a \texttt{sigset}, kte\-ré zde ani nezmiòuji. Doporuèuji
 pou¾ívat pouze \texttt{sigaction}. Pou¾ití \texttt{signal} není napøíklad
@@ -393,7 +393,7 @@ handler pøed jeho vyvoláním resetován na \texttt{SIG\_DFL}. Funkce pøíznaku
 \texttt{SA\_RESETHAND} je právì to, aby bylo mo¾né simulovat pùvodní chování
 funkce \texttt{signal()}, které bývá implementováno pomocí systémového volání
 \texttt{sigaction()}. Pøíklad na rozdíl mezi funkcemi \texttt{signal()} a
-\texttt{sig\-action()}: \priklad{signal/signal-vs-sigaction.c}.
+\texttt{sig\-action()}: \example{signal/signal-vs-sigaction.c}.
 \item (nebudete nejspí¹ potøebovat) pro výskok z handleru signálu jinam ne¾ na
 místo vzniku signálu se dají pou¾ít funkce \texttt{sigsetjmp} a
 \texttt{siglongjmp}. Pozor na to, ¾e v tomto pøípadì si musíme být jisti, ¾e v
@@ -409,8 +409,8 @@ and it is possible to learn the PID of a signalling process, its UID, and more.
 See manual page \texttt{signal.h(3HEAD)} on Solaris, the online SUS
 specification of the header file, or the book [POSIX.4], page
 \pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
-\pageref{SIGWAITINFO}.  Examples: \priklad{sig\-nals/siginfo.c},
-\priklad{sig\-nals/sigqueue.c}.
+\pageref{SIGWAITINFO}.  Examples: \example{sig\-nals/siginfo.c},
+\example{sig\-nals/sigqueue.c}.
 \end{itemize}
 
 %%%%%
@@ -457,7 +457,7 @@ na konto procesu, posílá \texttt{SIGPROF}
 pøíkladu funkci \texttt{fprintf} apod., nemusel by to být dobrý nápad, proto¾e
 nemusí být bezpeèná pro pou¾ití v handleru signálu, viz strana
 \pageref{ASYNCSIGNALSAFE}.
-\item pøíklad: \priklad{signals/alarm.c}
+\item pøíklad: \example{signals/alarm.c}
 \end{itemize}
 
 %%%%%
@@ -599,7 +599,7 @@ principu, ale na rozdíl od \texttt{sigwait} pracují s \texttt{errno} a je z nich
 mo¾né získat více informací díky struktuøe \texttt{siginfo\_t}, viz strana
 \pageref{REALTIMEEXTENSIONS}. Je tedy mo¾né je pou¾ít místo \texttt{sigwait}.
 \item Pøíklad (signál se pou¾ije pro synchronizaci dvou procesù komunikujících
-pøes sdílenou pamì»): \priklad{signals/sigwait.c}
+pøes sdílenou pamì»): \example{signals/sigwait.c}
 \item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
 pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Více
 se doètete na stranách \pageref{SPECIALSIGNALS} a \pageref{THREADS_SIGWAIT}. 

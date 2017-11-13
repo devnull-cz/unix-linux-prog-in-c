@@ -109,7 +109,7 @@ zablokuje se celý proces, tj. ¾ádné vlákno nemù¾e bì¾et. To vyplývá z toho, ¾e
 jádro v tomto modelu o pojmu vlákno nic neví. Knihovní funkce jsou proto
 pøepsány tak, ¾e místo blokujících volání se pou¾ijí neblokující, aktuální
 kontext se ulo¾í a následnì pøepne na jiné vlákno pomocí volání \texttt{setjmp}
-a \texttt{longjmp}. Pøíklad: \priklad{pthreads/setjmp.c}.
+a \texttt{longjmp}. Pøíklad: \example{pthreads/setjmp.c}.
 \end{itemize}
 
 \begin{slide}
@@ -248,7 +248,7 @@ zpùsobit to, ¾e ne¾ si novì spu¹tìné vlákno staèí pøeèíst hodnotu \texttt{i},
 pøíkaz \texttt{for} provede dal¹í iteraci a hodnota se zmìní. Obecnì vlákno mù¾e
 dostat místo správné hodnoty \texttt{i} libovolnou vìt¹í.
 \item \label{WRONG_USE_OF_ARG} Pøíklady:
-\priklad{pthreads/wrong-use-of-arg.c}, \priklad{pthreads/correct-use-of-arg.c}.
+\example{pthreads/wrong-use-of-arg.c}, \example{pthreads/correct-use-of-arg.c}.
 
 \item Co je mo¾né pou¾ít, pokud potøebujeme pøedat pouze jednu hodnotu
 (\textbf{podle C standardu je to ale implementaènì závislé a tedy
@@ -268,7 +268,7 @@ vlákna:
 printf("thread \%d started\bs{}n", (int)arg);
 \end{alltt}
 
-\label{INT_AS_ARG} Pøíklad: \priklad{pthreads/int-as-arg.c}
+\label{INT_AS_ARG} Pøíklad: \example{pthreads/int-as-arg.c}
 \item Pokud potøebujeme pøedat více bajtù ne¾ je velikost ukazatele, tak u¾
 opravdu musíme pøedat ukazatel na pamì» s pøíslu¹nými pøedávanými daty nebo
 pou¾ít globální promìnné; pøístup k nim je pak ale samozøejmì nutné
@@ -318,7 +318,7 @@ ne\-zvìt\-¹u\-je.} Bývá to kolem 64-512 KB, tak¾e pokud si ve funkci alokujete
 pole o velikosti 256KB a pou¾ijete ho, je dost mo¾né, ¾e skonèíte s core
 dumpem. Pokud chcete zásobník vìt¹í ne¾ je systémový default, musíte pou¾ít
 argument \emph{attr} pøi vytvoøení vlákna.
-Pøíklad: \priklad{pthreads/pthread-stack-overflow.c}
+Pøíklad: \example{pthreads/pthread-stack-overflow.c}
 \item O soukromých klíèovaných atributech vlákna více na stranì
 \pageref{THREAD_SPECIFIC_DATA}.
 \item Ka¾dé vlákno má je¹tì vlastní signálovou masku, k tomu se také dostaneme,
@@ -369,7 +369,7 @@ pthread\_detach(pthread\_self());
 \item Jiná mo¾nost jak nastavit, ¾e se na vlákna nemusí èekat, je zavolat funkci
 \texttt{p\-thr\-ead\_attr\_setdetachstate} s hodnotou
 \texttt{PTHREAD\_CREATE\_DETACHED} nad strukturou atributù a tu pak pou¾ít ve
-voláních \texttt{pthread\_create}. Pøíklad: \priklad{pthreads/set-detachstate.c}
+voláních \texttt{pthread\_create}. Pøíklad: \example{pthreads/set-detachstate.c}
 \item Nastavením \texttt{NULL} do argumentu \emph{\texttt{val\_ptr}} systému
 sdìlujeme, ¾e nás ná\-vra\-to\-vá hodnota ukonèeného vlákna nezajímá.
 \item Èekat na ukonèení vlákna mù¾e libovolné jiné vlákno, nejen to,
@@ -386,8 +386,8 @@ potøebovali s POSIXovými vlákny, je jednoduché nastavit vlákna jako
 \emph{detached}, pou¾ít podmínkové promìnné, a pøedávat potøebné informace pøes
 globální promìnnou pod ochranou zámku, který je s podmínkovou promìnnou svázán.
 Více viz strana \pageref{CONDITION_VARIABLES}.
-\item \label{PTHREAD_JOIN} Pøíklady: \priklad{pthreads/pthread-join.c},
-\priklad{pthreads/pthread-detach-join.c}
+\item \label{PTHREAD_JOIN} Pøíklady: \example{pthreads/pthread-join.c},
+\example{pthreads/pthread-detach-join.c}
 \end{itemize}
 
 
@@ -467,7 +467,7 @@ zamknutý mutex, musíte mutex odemknout v úklidových handlerech.
 \item Funkce \verb#pthread_setcancelstate# a \verb#pthread_setcanceltype# jsou
 obdobou zakázání a povolení zru¹ení procesu signálem pomocí manipulace s maskou
 blokovaných signálù (\texttt{sigprocmask}).
-\item \label{PTHREAD_CANCEL} Pøíklad: \priklad{pthreads/pthread-cancel.c}
+\item \label{PTHREAD_CANCEL} Pøíklad: \example{pthreads/pthread-cancel.c}
 \item Pøi ru¹ení vlákna mù¾e nastat mnoho mo¾ností. Solaris má tøeba samostatnou
 manuálnovou stránku \texttt{cancellation(5)}, která se tomu vìnuje. FreeBSD
 definuje \emph{cancellation points} v manuálové stránce
@@ -600,9 +600,9 @@ destruktory klíèovaných dat.
 pou¾ité knihovnì a verzi systému, napøíklad na Solarisu pøed verzí 10 znamenalo
 \texttt{fork} v knihovnì \texttt{libthread} (jiná knihovna ne¾
 \texttt{libpthread}) to samé co \texttt{forkall}.
-\item Pøíklady: \priklad{pthreads/fork.c},
-\priklad{pthreads/fork-not-in-main.c},
-\priklad{pthreads/forkall.c}
+\item Pøíklady: \example{pthreads/fork.c},
+\example{pthreads/fork-not-in-main.c},
+\example{pthreads/forkall.c}
 \item \label{ATFORK} Pomocí funkce \texttt{pthread\_atfork} je mo¾né nastavit
 handlery které se automaticky vykonají pøed pou¾itím \texttt{fork} v rodièi
 a po návratu z \texttt{fork} v rodièi a synovském procesu.  Toto volání se
@@ -624,7 +624,7 @@ kritickou sekci),
 na které se èeká v handleru. Toto samozøejmì pøedpokládá, ¾e zamykání a
 odemykání v handlerech dodr¾uje zamykací pravidla ("protokol") stanovený
 pro celý program a nedojde tedy k deadlocku.
-\priklad{pthreads/atfork.c}
+\example{pthreads/atfork.c}
 Více napø. v [Butenhof].
 \end{itemize}
 
@@ -671,7 +671,7 @@ maska se pak podìdí pøi ka¾dém volání \texttt{pthread\_create}.
 \item V prostøedí vláken nepou¾ívejte \texttt{sigprocmask} (strana
 \pageref{SIGPROCMASK}), proto¾e chování tohoto volání není v takovém prostøedí
 normou specifikováno. Mù¾e to fungovat, a také nemusí.
-\item \label{THREADS_SIGWAIT} Pøíklad: \priklad{pthreads/sigwait.c}.
+\item \label{THREADS_SIGWAIT} Pøíklad: \example{pthreads/sigwait.c}.
 \item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
 pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Tyto
 signály jsou ge\-ne\-ro\-va\-né pøímo pro vlákno, tak¾e pokud je zablokujete,
@@ -687,7 +687,7 @@ while they are blocked, the result is undefined, unless the signal was generated
 by the kill() function, the sigqueue() function, or the raise() function.}
 \end{quote}
 
-Pøíklad: \priklad{pthreads/sigwait-with-sync-signals.c}. Tento pøíklad ukazuje,
+Pøíklad: \example{pthreads/sigwait-with-sync-signals.c}. Tento pøíklad ukazuje,
 ¾e na Solarisu 10, Solarisu 11, FreeBSD 7.2 a Linux distribuci, která se hlásí
 jako ``Gentoo Base System release 1.12.13'', je signál \texttt{SIGSEGV} doruèen
 a proces zabit bez ohledu na to, zda je maskován. Na¹el jsem ale i systém, který
@@ -801,7 +801,7 @@ Mnì osobnì pøijde testování mutexových funkcí jako nadbyteèné a trochu
 znepøehledòující kód, ale mù¾e být dobrý nápad je pou¾ívat pøi vývoji kódu, a
 pøed odevzdáním finální verze pak testy odstranit. Solaris a Linux defaultnì
 pou¾ívají nastavení normal, FreeBSD pou¾ívá errorcheck. \label{NOTMYLOCK}
-Pøíklad: \priklad{mutexes/not-my-lock.c}.
+Pøíklad: \example{mutexes/not-my-lock.c}.
 \item dal¹í typ je \texttt{PTHREAD\_MUTEX\_RECURSIVE} které dr¾í poèet zamèení
 daným threadem. Ostatní thready dostanou pøístup jedinì tehdy kdy¾ poèet
 dosáhne 0. Tento typ mutexu nelze sdílet mezi procesy.
@@ -896,8 +896,8 @@ situace zvolit rozumný kompromis. Také nezapomeòte, ¾e je mo¾né explicitnì
 nastavit, zda chcete error checking u mutexù nebo ne. Mù¾e být dobré øe¹ení
 kontrolu zamykání/odemykání vypnout tehdy, kdy¾ u¾ máte v¹e otestované a vìøíte,
 ¾e error checking kód dále nepotøebujete.
-\item \label{MUTEX_RACE} pøíklady: \priklad{mutexes/race.c} a
-\priklad{mutexes/race-fixed.c}
+\item \label{MUTEX_RACE} pøíklady: \example{mutexes/race.c} a
+\example{mutexes/race-fixed.c}
 \item mutexy je mo¾né nastavit i pro fungovaní mezi vlákny rùzných procesù.
 Funguje to tak, ¾e funkce implementující mutexy vyu¾ijí sdílenou pamì», její¾
 odkaz se nastaví jako jeden z atributù mutexu. Více viz manuálová stránka pro
@@ -1095,7 +1095,7 @@ ale není to nutné.  Mù¾ete signalizovat a¾ po odemknutí a v takovém pøípadì to
 mù¾e být v závislosti na konkrétním systému i efektivnìj¹í, proto¾e probuzené
 vlákno se hned neuspí na zámku, který jinak je¹tì dr¾íte, pokud signalizujete v
 rámci kritické sekce.
-\item \label{QUEUESIMULATION} pøíklad: \priklad{cond-variables/queue-simulation.c}
+\item \label{QUEUESIMULATION} pøíklad: \example{cond-variables/queue-simulation.c}
 \end{itemize}
 
 
@@ -1200,7 +1200,7 @@ podporu v C11 standardu pøes \emph{stdatomic.h}.
 \end{slide}
 
 \begin{itemize}
-\item \label{ATOMIC_ADD} Pøíklad \priklad{race/atomic-add.c} demonstruje
+\item \label{ATOMIC_ADD} Pøíklad \example{race/atomic-add.c} demonstruje
 problém se soubìhem pøi sèítání a jeho mo¾ná øe¹ení. Program spustí dvì
 vlákna, ka¾dé vlákno pracuje se stejnou globální promìnnou \emsl{x}, do
 které v cyklu postupnì pøiète èísla od jedné do velikosti parametru
@@ -1267,7 +1267,7 @@ implementovat, co¾ je pøípad Mac OS X (10.10).
 \item bariéru mù¾ete vyu¾ít napø. v situaci, kdy mezi jednotlivými fázemi
 zpracování je potøeba provést jistou inicializaci, vlákna pøed ní tedy na sebe
 v¾dy musí poèkat, proto¾e inicializace dal¹í fáze mù¾e zaèít a¾ tehdy, kdy
-skonèí fáze pøedchozí. Pøíklad \priklad{pthreads/pthread-barrier.c} ukazuje
+skonèí fáze pøedchozí. Pøíklad \example{pthreads/pthread-barrier.c} ukazuje
 pou¾ití ba\-ri\-éry pro nìkolik fází zpracování dat.
 \item podmínka pro bariéru je napøíklad hodnota èítaèe rovnající se nule. Ka¾dé
 vlákno, které dosáhne bariéry, sní¾í èítaè, který je na zaèátku inicializován na
@@ -1385,7 +1385,7 @@ Nicménì, na FreeBSD 6.0 je tato funkce implementovaná tak, ¾e pou¾ívá
 implicitnì thread-local storage pro ulo¾ení výstupních dat a
 tím pádem je thread safe. To ji je¹tì ale neèiní úplnì bezpeènou k
 pou¾ití (nemluvì o tom, ¾e program , který se spoléhá na takové chování
-není portabilní), viz pøíklad \priklad{reentrant/gethostbyname.c}. O nìco
+není portabilní), viz pøíklad \example{reentrant/gethostbyname.c}. O nìco
 lep¹í je pou¾ít reentrantní verzi této funkce \texttt{gethostbyname\_r}
 (pokud je na daném systému k dispozici), u které lze specifikovat adresu,
 kam má ukládat svùj výstup, èím¾ se stává reentrantní. Daleko nejlep¹í
@@ -1393,7 +1393,7 @@ kam má ukládat svùj výstup, èím¾ se stává reentrantní. Daleko nejlep¹í
 \pageref{GETADDRINFO}), která je sama o sobì reentrantní.
 
 
-\item pøíklad: \priklad{reentrant/inet\_ntoa.c} - tady je vidìt, ¾e ani
+\item pøíklad: \example{reentrant/inet\_ntoa.c} - tady je vidìt, ¾e ani
 takto napsaná funkce vám nepomù¾e pokud je volaná dvakrát v rámci
 jednoho volání \texttt{printf}. Poka¾dé vrací pointer se stejnou adresou
 (v jednom threadu), kterou si \texttt{printf} pouze poznamená a pøi

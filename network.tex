@@ -388,7 +388,7 @@ TCP handshake a systém zaène pøijímat data. Data se ukládají do bufferu s
 omezenou velikostí, a po dosa¾ení jeho limitu je spojení sice stále aktivní, ale
 TCP window je nastaveno na 0 -- systém dal¹í data pøestal pøijímat. Velikost
 bufferu bývá v øádu desítek kilobajtù. \label{UP_TO_LISTEN_ONLY_C} Pøíklad:
-\priklad{tcp/up-to-listen-only.c}.
+\example{tcp/up-to-listen-only.c}.
 \item V pøíkladu je pou¾ito makro \texttt{SOMAXCONN}, vy¾adované normou v
 souboru \texttt{sys/socket.h}. Specifikuje maximální povolenou délku fronty pro
 \texttt{listen()}. Co se dívám na rùzné verze systémù co mám k dispozici, tak
@@ -437,7 +437,7 @@ mìl by v druhém argumentu pøedávat adresu struktury
 \texttt{struct sockaddr\_storage} (do které se vejde jakákoliv struktura
 specifická pro danou address family, tedy \texttt{struct sockaddr\_in}
 nebo \texttt{struct sockaddr\_in6}) a v tøetím argumentu její délku.
-\item \label{TCP_SINK_SERVER_C} Pøíklad: \priklad{tcp/tcp-sink-server.c}
+\item \label{TCP_SINK_SERVER_C} Pøíklad: \example{tcp/tcp-sink-server.c}
 \end{itemize}
 
 \pdfbookmark[1]{connect}{connect}
@@ -468,7 +468,7 @@ komunikaci pou¾ívat bì¾ná souborová volání \texttt{write} a
 \texttt{sendmsg}, \texttt{recvmsg}. Chování funkcí pro zápis a
 ètení dat je podobné jako \texttt{write} a \texttt{read} pro
 roury.
-\item Pøíklad: \label{CONNECT_C} \priklad{tcp/connect.c}
+\item Pøíklad: \label{CONNECT_C} \example{tcp/connect.c}
 \item I pro nespojované slu¾by (UDP) se dá volat \texttt{connect},
 tím se nenavá¾e spojení, ale pouze se omezí adresa protistrany, se
 kterou je mo¾né pøes soket komunikovat. Pro posílání datagramù se pak pou¾ívají
@@ -601,7 +601,7 @@ nezajímá -- tomu tak ale u datagramù vet¹inou není.
 \item stejnì jako \texttt{sendto}, je i \texttt{recvfrom} mo¾né pou¾ít pro
 spojovanou slu¾bu. Získat adresu protistrany je ale asi jednodu¹¹í pøes volání
 \texttt{getpeername}, viz strana \pageref{GETPEERNAME}.
-\item pøíklad: \label{UDP_SERVER_C} \priklad{udp/udp-server.c}
+\item pøíklad: \label{UDP_SERVER_C} \example{udp/udp-server.c}
 \end{itemize}
 
 
@@ -645,7 +645,7 @@ lokálního bufferu o\-de\-sí\-la\-ných dat.
 \item Pokud pou¾ijete \texttt{sendto} na streamovanou slu¾bu, je to mo¾né, ale
 adresa se ignoruje. Jediný dùvod proè nepou¾ít pøímo \texttt{write} by tak byla
 mo¾nost pou¾ít flagy. V tom pøípadì je ale jednodu¹¹í pou¾ít \texttt{send}.
-\item Pøíklad: \label{UDP_CLIENT_C} \priklad{udp/udp-client.c}.
+\item Pøíklad: \label{UDP_CLIENT_C} \example{udp/udp-client.c}.
 \end{itemize}
 
 %%%%%
@@ -686,7 +686,7 @@ povoleno nastavením pøíznaku \texttt{SO\_REUSEADDR} pomocí funkce
 \item reset spojení je abnormální ukonèení spojení. V TCP se pou¾ije
 paket s nastaveným pøíznakem \texttt{RST}. Na druhé stranì se
 normální ukonèení spojení projeví jako konec souboru (pøi ètení),
-reset zpùsobí chybu \texttt{ECONNRESET}. Pøíklad \priklad{tcp/linger.c}.
+reset zpùsobí chybu \texttt{ECONNRESET}. Pøíklad \example{tcp/linger.c}.
 \end{itemize}
 
 %%%%%
@@ -774,7 +774,7 @@ manuálové stránce \texttt{inet}.
 \item \label{ADDRESSES} Uvìdomte si, ¾e pomocí tìchto funkcí mù¾ete
 pøevést najednou jen jeden typ, to je buï IPv4, anebo IPv6 adresu. Kdy¾
 nevíte, co èekat, zkusíte jednu a pokud to nevyjde, zkusíte druhou.
-Pøíklad: \priklad{resolving/addresses.c}.
+Pøíklad: \example{resolving/addresses.c}.
 \end{itemize}
 
 %%%%%
@@ -831,7 +831,7 @@ setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 \end{verbatim}
 
 \item Pou¾ití \texttt{setsockopt} s \verb#SO_REUSEADDR# je vidìt napø. v
-pøíkladu \priklad{tcp/reuseaddr.c}. Pozor na to, ¾e musíte udìlat alespoò
+pøíkladu \example{tcp/reuseaddr.c}. Pozor na to, ¾e musíte udìlat alespoò
 jedno spojení, jinak systém nemá na co èekat a opakovaný \texttt{bind} za
 sebou se podaøí i tak.
 \end{itemize}
@@ -909,7 +909,7 @@ standardní protokoly a slu¾by.
 jsou zde \emph{slu¾by}, reprezentované èísly portù. Protokol je TCP, UDP,
 OSPF, GRE apod., tedy to, co je pøená¹eno v IP paketu v polo¾ce
 \texttt{Protocol}, viz strany 11 a 14 v RFC~791.
-\item \label{GETBYNAME} pøíklad: \priklad{resolving/getbyname.c}
+\item \label{GETBYNAME} pøíklad: \example{resolving/getbyname.c}
 \end{itemize}
 
 %%%%%
@@ -956,7 +956,7 @@ socket). Podobnì pro pro polo¾ku \texttt{ai\_flags} struktury
 \texttt{AI\_PASSIVE}.
 \item Po skonèení práce s výsledky nezapomeòte zavolat funkci
 \texttt{freeaddrinfo}, která uvolní naalokovanou pamìt.
-\item \label{GETADDRINFO} pøíklad: \priklad{resolving/getaddrinfo.c}
+\item \label{GETADDRINFO} pøíklad: \example{resolving/getaddrinfo.c}
 \item Døíve se hodnì pou¾ívaly funkce \funnm{gethostbyname} a
 \funnm{gethostbyaddr}.  Tyto funkce pracují pouze s IPv4 adresami a jmény,
 jsou tak \emsl{pova¾ovány za zastaralé} a jejich pou¾ití se nedoporuèuje.
@@ -1011,7 +1011,7 @@ a \texttt{getservbyport}.
 a hodí se tedy pro pou¾ití v prostøedí s thready (alespoò na vìt¹inì systémù).
 \item manuálová stránka obsahuje seznam pou¾itelných \texttt{NI\_} flagù pro
 \texttt{\emph{flags}} a jejich význam 
-\item \label{GETNAMEINFO} pøíklad: \priklad{resolving/getnameinfo.c}
+\item \label{GETNAMEINFO} pøíklad: \example{resolving/getnameinfo.c}
 
 
 \end{itemize}
@@ -1156,7 +1156,7 @@ neslo¾íte zkou¹ku (viz strana \pageref{SLEEP1}). Správné øe¹ení této situace je
 pou¾ít napøíklad \texttt{select} a následnì zavolat \texttt{read} na ty
 deskriptory, které volání \texttt{select} ohlásí jako \emph{pøipravené}.
 \item \label{BUSY_WAITING_C} Pøíklad na busy waiting:
-\priklad{select/busy-wait.c}. V¹imnìte si, ¾e novì vytvoøený soket v pøíkladu
+\example{select/busy-wait.c}. V¹imnìte si, ¾e novì vytvoøený soket v pøíkladu
 je bez flagu \texttt{O\_NONBLOCK}, viz strana \pageref{ACCEPT}, tak¾e je nutné
 flag nastavit.
 
@@ -1211,12 +1211,12 @@ pro ostatní systémy.
 \item Pokud se èas nastaví na 0, tedy teï nemluvíme o nastavení ukazatele na
 \texttt{NULL}, \texttt{select} se dá pou¾ít pro tzv. \emph{polling} -- zjistí
 souèasný stav a hned se vrátí.
-\item Pøíklad: \label{SELECT_C} \priklad{select/select.c}
+\item Pøíklad: \label{SELECT_C} \example{select/select.c}
 \item \texttt{select} lze pou¾ít na zji¹»ování stavu po volání
 \texttt{connect} na neblokující socket. Zda spojení probìhlo úspì¹nì se
 dozvíte z funkce \texttt{getsockopt} s \texttt{opt\_name} nastaveným na
 \texttt{SO\_ERROR}, viz strana \pageref{GETSOCKOPT}.
-\label{NON_BLOCKING_CONNECT} Pøíklad: \priklad{tcp/non-blocking-connect.c}.
+\label{NON_BLOCKING_CONNECT} Pøíklad: \example{tcp/non-blocking-connect.c}.
 
 
 \end{itemize}
@@ -1263,7 +1263,7 @@ je buffer neprázdný.
 pøipravenosti k zápisu, pokud data nejsou z druhé strany ètena.
 To jde jednodu¹e nasimulovat pomocí programu, který se jen pøipojí
 (provede TCP handshake), ale nic neète.
-Viz pøíklad a komentáø v \priklad{select/write-select.c}.
+Viz pøíklad a komentáø v \example{select/write-select.c}.
 \end{itemize}
 
 %%%%%
@@ -1306,12 +1306,12 @@ deskriptory po ka¾dém volání \texttt{poll}, ani nulovat \texttt{revents}.
 \item Pokud nastavíte poèet deskriptorù na 0 (a mìli byste pak pro \texttt{fds}
 pou¾ít \texttt{NULL}), mù¾ete \texttt{poll} jednodu¹e vyu¾ít pro èekání s men¹í
 granularitou ne¾ po sekundách nabízené voláním \texttt{sleep}. Pøíklad:
-\label{POLL_SLEEP_C} \priklad{sleep/poll-sleep.c} Tento "trik" ov¹em nefunguje
+\label{POLL_SLEEP_C} \example{sleep/poll-sleep.c} Tento "trik" ov¹em nefunguje
 na macOS, tak¾e se na nìj nelze spoléhat.
 \begin{itemize}
 \item Mimochodem, jiný zpùsob, jak dosáhnout men¹í granularity ne¾ je jedna
 sekunda je volání \texttt{nanosleep}, které je ale definované roz¹íøením POSIX.4
-a tedy nemusí být v¾dy k dispozici. Pøíklad: \priklad{sleep/nanosleep.c}.
+a tedy nemusí být v¾dy k dispozici. Pøíklad: \example{sleep/nanosleep.c}.
 \end{itemize}
 \end{itemize}
 

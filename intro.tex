@@ -807,7 +807,7 @@ být øádek s definicí následujícího makra. Pak naètìte \texttt{unistd.h}.
 \texttt{\_POSIX\_SOURCE}) a podle nastavení jiných maker (napø.
 \texttt{\_POSIX\_VERSION}) pak zjistíte, co jste dostali. Musíte ale v¾dy po
 nastavení maker nainkludovat \texttt{unistd.h} a pou¾ít správný pøekladaè.
-Napøíklad se pokusíme pøelo¾it program \priklad{basic-utils/standards.c}, který
+Napøíklad se pokusíme pøelo¾it program \example{basic-utils/standards.c}, který
 vy\-¾a\-du\-je SUSv3, na systému podporujícím SUSv3 (Solaris 10), ale
 pøekladaèem, který podporuje pouze SUSv2 (SUSv3 pøekladaè je \texttt{c99}).
 Pozor, ¾e defaultní chování va¹eho pøekladaèe mù¾e být klidnì právì to z
@@ -837,7 +837,7 @@ souborech.
 \item POSIX.1 v sobì zahrnuje ANSI C; tedy C89, ne C99 (o C standardech více
 na stranì \pageref{C_LANGUAGE}).
 \item co se týèe maker k jednotlivým standardùm, velmi dobrá je kapitola 1.5 v
-[Rochkind]. Viz také \priklad{basic-tools/suvreq.c}.
+[Rochkind]. Viz také \example{basic-tools/suvreq.c}.
 \begin{verbatim}
 int
 main(void)
@@ -1027,7 +1027,7 @@ má. Následuje pak tøeba spu¹tìní \texttt{make} s parametrem \texttt{install}
 apod.
 \item \texttt{make} je samozøejmì univerzální nástroj, pou¾itelný i jinde ne¾ u
 pøekladù zdrojových kódù
-\item pøíklad: \priklad{basic-utils/Makefile01}. Pozor na to, ¾e pro nestandardní
+\item pøíklad: \example{basic-utils/Makefile01}. Pozor na to, ¾e pro nestandardní
 jmé\-no vstup\-ní\-ho souboru je nutné pou¾ít pøepínaè \texttt{-f}:
 ``\texttt{make -f Makefile01}''.
 \end{itemize}
@@ -1073,7 +1073,7 @@ $ make -f Makefile02
 \end{verbatim}
 
 \item co se týká pou¾ití zpìtného lomítka, tak to funguje jako oddìlovaè slov, a
-\texttt{make} místo nìj vlo¾í mezeru. Pøíklad: \priklad{basic-utils/Makefile07}.
+\texttt{make} místo nìj vlo¾í mezeru. Pøíklad: \example{basic-utils/Makefile07}.
 \item zdvojením \texttt{\$} se potlaèí speciální význam dolaru (viz
 následující slajd)
 \item znak \texttt{@} na zaèátku øádku potlaèí jeho výpis --
@@ -1083,7 +1083,7 @@ vykonávat.
 provedl lze dosáhnout pou¾itím pøepínaèe \texttt{-n}.
 \item znak \texttt{-} na zaèátku øádku zpùsobí ignorování nenulové
 návratové hodnoty; jinak \texttt{make} v¾dy v takové situaci zahlásí
-chyby a okam¾itì skonèí. Pøíklad: \priklad{basic-utils/Makefile04}.
+chyby a okam¾itì skonèí. Pøíklad: \example{basic-utils/Makefile04}.
 \item 
 \begin{verbatim}
 test1:
@@ -1118,9 +1118,9 @@ test2:
 
 \begin{itemize}
 \item kdy¾ je stejné makro definováno vícekrát, platí jeho poslední definice,
-viz pøíklad \priklad{basic-utils/Makefile03}.
+viz pøíklad \example{basic-utils/Makefile03}.
 \item makra není mo¾né definovat rekurzivnì, viz
-\priklad{basic-utils/Makefile05}:
+\example{basic-utils/Makefile05}:
 
 \begin{alltt}
 \$ cat basic-utils/Makefile05
@@ -1157,12 +1157,12 @@ all:
 \item v ostatních situacích je vhodné, pøípadnì nezbytné pou¾ít programy typu
 \texttt{autoconf} nebo \texttt{automake}. Nìkteré \texttt{make} implementace
 mají pøímo direktivy pro podmínìné zpracování vstupního souboru, napøíklad make
-na BSD. Pøíklad: \priklad{basic-utils/Makefile08.bsd}.
+na BSD. Pøíklad: \example{basic-utils/Makefile08.bsd}.
 \item pøepínaèem \texttt{-e} mù¾eme \texttt{make} donutit, aby ignoroval
 nastavení promìnných ve vstupním souboru v pøípadì, ¾e je definována promìnná
 prostøedí stejného jména. Normálnì \texttt{make} pøebírá aktuální nastavení
 promìnných prostøedí jen v pøípadì, ¾e dané promìnné nejsou nastavené ve
-vstupním souboru. Pøíklad: \priklad{basic-utils/Makefile06}.
+vstupním souboru. Pøíklad: \example{basic-utils/Makefile06}.
 \item \texttt{make} je velmi silný nástroj, staèí se podívat do systémových
 \texttt{Makefile} souborù jakéhokoli un{}ix-like systému (najdìte si na
 Wikipedii, co to znamená ``un{}ix-like'', pokud to nevíte). Typickou spoleènou
@@ -1246,7 +1246,7 @@ instead.
 pøíkaz \texttt{ldd}, a to tøeba díky mechanismu \texttt{LD\_PRELOAD}. Na
 Solarisu proto existuje pøíkaz \texttt{pldd}, který pomocí èísla procesu uká¾e
 závislosti konkrétního procesu. Pøíklad na \texttt{LD\_PRELOAD}: pou¾ijte ji¾
-zmínìný \texttt{Ma\-ke\-file01}, a pøelo¾te \priklad{basic-utils/preload.c}
+zmínìný \texttt{Ma\-ke\-file01}, a pøelo¾te \example{basic-utils/preload.c}
 takto:
 ``\texttt{cc -shared -o lib\-pre\-load.so preload.c}''. Pak spus»te
 program, který zachytí
@@ -1397,7 +1397,7 @@ $ ./a.out
 -1077941135
 \end{verbatim}
 
-\item \label{ABI_MAIN} pøíklad: \priklad{lib-abi/abi-main.c} (komentáø v
+\item \label{ABI_MAIN} pøíklad: \example{lib-abi/abi-main.c} (komentáø v
 souboru napoví jak pou¾ít os\-tat\-ní soubory ve stejném adresáøi)
 
 
@@ -1523,11 +1523,11 @@ $<$something$>$; how do I do it in dbx?''
 \item pokud nepou¾ijete pøepínaè -g, bude vám dbx na Solarisu stále
 platný, proto¾e zobrazí argumenty funkcí. U BSD systémù a linuxových distribucí
 -g pou¾ít musíte, jinak vám debuggery moc nepomohou. Kdy je to na Solarisu
-platné i bez -g je v vidìt v pøíkladu \priklad{debug/dbx.c}. Pøi kompilaci
+platné i bez -g je v vidìt v pøíkladu \example{debug/dbx.c}. Pøi kompilaci
 s gcc a pou¾ití gdb neuká¾e pøíkaz \texttt{where} parametry funkce
 \texttt{crash()} zatímco se Solaris Studio kompilerem a debuggerem dbx se
 parametry funkce vypí¹í, tak¾e je vidìt hodnota která se pøiøazovala.
-\item pøíklad: \priklad{debug/coredump.c}. Po pøelo¾ení a spu¹tìní program
+\item pøíklad: \example{debug/coredump.c}. Po pøelo¾ení a spu¹tìní program
 spadne a zanechá core dump.
 
 \begin{verbatim}
@@ -1722,7 +1722,7 @@ pøíslu¹ných specifikacích, které jsou on-line. Na nìkterých systémech
 (Solaris) mají jednotlivé hlavièkové soubory svoji vlastní manuálovou stránku
 (\texttt{man stdlib.h}).
 \item makro \texttt{assert} je mo¾né z bìhem kompilace odstranit pomocí makra
-\texttt{NDEBUG}. Pøíklad: \priklad{assert/assert.c}.
+\texttt{NDEBUG}. Pøíklad: \example{assert/assert.c}.
 
 \begin{verbatim}
 cat assert.c 
@@ -1862,7 +1862,7 @@ else
         echo "success"
 fi
 \end{verbatim}
-Pøíklad: \priklad{main/return-256.c}.
+Pøíklad: \example{main/return-256.c}.
 \item \label{RETURN255} nepou¾ívejte proto ve funkci \texttt{main}
 \texttt{return (-1)} a nikde pak ani
 \texttt{exit(-1)}, z toho vznikne návratová hodnota \texttt{255} a kód je
@@ -1870,7 +1870,7 @@ matoucí. Je vùbec velmi vhodné pou¾ívat pouze \texttt{0} a \texttt{1}, pokud
 není
 zá\-sad\-ní dùvod pro jiné hodnoty, tøeba ten ¾e jich potøebujete více -- mù¾ete
 se podívat napøíklad na manuálovou stránku pro \texttt{passwd} na Solarisu,
-sekce \texttt{EXIT STATUS}. Pøíklad: \priklad{main/return-negative-1.c}.
+sekce \texttt{EXIT STATUS}. Pøíklad: \example{main/return-negative-1.c}.
 
 
 \item rozdíl mezi funkcemi \texttt{exit} a \verb#_exit# je v tom, ¾e
@@ -1881,8 +1881,8 @@ dal¹í akce.
 
 Pro zajímavost, napøíklad ve FreeBSD je \texttt{\_exit} systémové
 volání a \texttt{exit} knihovní funkce, ale na Solarisu jsou obì systémovými
-voláními. Pøíklad: \priklad{exit/exit.c}
-\item \label{MAIN_C} pøíklad: \priklad{main/print-argv.c}
+voláními. Pøíklad: \example{exit/exit.c}
+\item \label{MAIN_C} pøíklad: \example{main/print-argv.c}
 \end{itemize}
 
 %%%%%
@@ -1929,7 +1929,7 @@ mìlo být v manuálové stránce. Typicky v sekci nazvané \emph{ENVIRONMENT} nebo
 promìnnou \texttt{EDITOR} apod.
 \item pokud je \texttt{envp} tøetím parametrem funkce \texttt{main}, tak je to
 stejná hodnota co je v ukazateli \texttt{environ}.
-\item pøíklad: \priklad{main/print-env.c} (vèetnì pou¾ití
+\item pøíklad: \example{main/print-env.c} (vèetnì pou¾ití
 \texttt{env} pøíkazu zpùsobem, který vyèistí zdìdìné promìnné prostøedí).
 \begin{verbatim}
 $ cc print-env.c
@@ -1967,7 +1967,7 @@ XXX=yyy
 \item u \texttt{putenv} se vlo¾ený øetìzec stane souèástí prostøedí (jeho
 pozdìj¹í zmìna tak zmìní prostøedí) a nesmíte proto pou¾ívat retìzce v
 automatických pro\-mìn\-ných, toto øe¹í \texttt{setenv}, který hodnotu promìnné
-zkopíruje. Viz pøíklad \priklad{main/putenv.c}.
+zkopíruje. Viz pøíklad \example{main/putenv.c}.
 \item dùle¾ité je zapamatovat si, ¾e synovský proces zdìdí v okam¾iku svého
 vzniku od rodièe v¹echny promìnné prostøedí, ale jakákoliv manipulace s nimi v
 synovi je lokální a do otce se nepøená¹í. Ka¾dý proces má svou kopii
@@ -1992,7 +1992,7 @@ není nebì¾né narazit na kód, který s tímto polem pracuje pøímo. Pozor v¹ak na
 to, ¾e v takovém pøípadì pak ji¾ nesmíte pou¾ívat zde uvedené funkce, jinak se
 mù¾ete dostat do problémù s jejich konkrétní implementací. A hlavnì, nový kód
 takto nepi¹te, proto¾e norma SUSv3 pøímou práci s tímto polem nedoporuèuje.
-\item pøíklad: \priklad{main/getenv.c}
+\item pøíklad: \example{main/getenv.c}
 \item pozor na to, ¾e je rozdíl mezi nastavením hodnoty promìnné na
 prázdný string a odmazáním promìnné ze seznamu promìnných (pomocí
 \texttt{unsetenv}).
@@ -2107,8 +2107,8 @@ pro\-mìn\-né \texttt{optreset} na 1.
 \item standardní \texttt{getopt} zachová poøadí pøepínaèù pøi zpracování
 \item pøi pou¾ití nedefinovaného pøepínaèe funkce vypí¹e chybu; to lze potlaèit
 na\-sta\-ve\-ním \texttt{opterr} na 0.
-\item \label{GETOPT} pøíklad: shellový skript \priklad{getopt/getopts.sh}
-pøepsaný do jazyka C pomocí \texttt{getopt} funkce, \priklad{getopt/getopt.c}
+\item \label{GETOPT} pøíklad: shellový skript \example{getopt/getopts.sh}
+pøepsaný do jazyka C pomocí \texttt{getopt} funkce, \example{getopt/getopt.c}
 \end{itemize}
 
 %%%%%
@@ -2552,7 +2552,7 @@ distribucích. Tyto funkce nejsou souèástí SUS, tak¾e ani na certifikovaných
 UNIX systémech se nelze spolehnout na jejich pøítomnost. Øe¹ením je kontrolovat
 jejich existenci v pøedkompilaèním skriptu a pøípadnì mít jejich verzi souèástí
 zdrojových kódù programu pro pøípad ¾e nebudou na cílovém systému nalezeny.
-\item pøíklad (viz také \priklad{err/err.c}):
+\item pøíklad (viz také \example{err/err.c}):
 
 \begin{verbatim}
 #include <errno.h>

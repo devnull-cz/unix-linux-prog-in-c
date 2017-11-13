@@ -118,7 +118,7 @@ od implementace pomocí \texttt{brk}/\texttt{sbrk}.
 neinicializované promìnné. Pokud si ale na tomto systému necháte vypsat adresu
 jedné z nich, zjistíte, ¾e inicializované i neinicializované promìnné sdílí
 spoleèný datový segment, na obrázku oznaèený jako ,,executable -- DATA''.
-Pøíklad: \priklad{pmap/proc-addr-space.c}
+Pøíklad: \example{pmap/proc-addr-space.c}
 \item mapování kernelu není nutné, napøíklad u Solarisu na \emph{amd64}
 architektuøe (tj. 64-bit) u¾ kernel do u¾ivatelského prostoru procesu
 mapován není.
@@ -433,11 +433,11 @@ but a \emph{copy-on-write} mechanism is used.
 child gets 0 is because it is easy for the child to get its parent PID via
 \texttt{getpid}.  Imagine how the parent would figure out the new child PID,
 especially if it already spawned multiple children.
-\item Example: \priklad{fork/fork.c}
+\item Example: \example{fork/fork.c}
 \item \label{VFORK} There is also \texttt{vfork}, used in the past to work
 around the problem that the child address space was usually rewritten on
 subsequent \texttt{exec}.  This problem was solved via already mentioned
-copy-on-write mechanism.  See \priklad{fork/vfork.c} on how it works.
+copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
 \end{itemize}
 
 
@@ -489,7 +489,7 @@ vrácené z \texttt{getppid} na hodnotu 1 (co¾ je bì¾nì proces \texttt{init}
 resp. jeho ekvivalent), není portabilní.
 \\
 V rùzných virtualizovaných prostøedích (PID namespaces v Linux, Zones v
-Solarisu) to nemusí platit. Viz pøíklad \priklad{session/getppid.c}.
+Solarisu) to nemusí platit. Viz pøíklad \example{session/getppid.c}.
 \end{itemize}
 
 
@@ -652,7 +652,7 @@ are also passing to the program being executed the environment variables of the
 calling process, ie. the \texttt{environ} array.
 \item For some unknown historical reasons, there is no ``p'' with ``e'' together
 in the standard.  However, GNU provides \funnm{execvpe} as an extension.
-\item \label{EXEC_DATE} Example: \priklad{exec/exec-date.c}
+\item \label{EXEC_DATE} Example: \example{exec/exec-date.c}
 \item \label{EXECL} The following use of \funnm{execl} is incorrect as it is
 missing the mandatory argument for \texttt{argv[0]}:
 
@@ -846,7 +846,7 @@ termination.  The parent could also choose not to wait for the child termination
 right away but carry on with its life and wait for the child later.
 \item Note that you have to use macros from the previous slide to get the
 child's return value out of the status information.
-\item \label{WAITPID} Example: \priklad{wait/wait.c}
+\item \label{WAITPID} Example: \example{wait/wait.c}
 \end{itemize}
 
 %%%%%
@@ -893,7 +893,7 @@ open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
 may not.  It is best to assume unidirectional pipes.
 \item \emsl{Important:} the same rules applied to reading and writing from/to
 named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
-\item Example: \priklad{pipe/broken-pipe.c}, \priklad{pipe/deadlock-in-read.c}
+\item Example: \example{pipe/broken-pipe.c}, \example{pipe/deadlock-in-read.c}
 \end{itemize}
 
 %%%%%
@@ -911,7 +911,7 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 \item Remember, open file descriptors are unaffected by \funnm{exec} aside from
 file descriptors with the \texttt{FD\_CLOEXEC} flag -- those are closed in the
 \emsl{successful} \funnm{exec} call.
-\item Example: \priklad{pipe/pipe-and-fork.c}
+\item Example: \example{pipe/pipe-and-fork.c}
 \item Closing the writing descriptor \texttt{pd[1]} (see
 {\color[rgb]{1,0,0} $\triangleright$}) in the consumer process is required
 as the EOF would not be detected otherwise.
@@ -1011,7 +1011,7 @@ allowed), or \texttt{PROT\_NONE} (no access allowed).
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
-\item Pøíklady: \priklad{mmap/reverse.c}, \priklad{mmap/map-nocore.c}
+\item Examples: \example{mmap/reverse.c}, \example{mmap/map-nocore.c}
 \item v pøíznacích musí být pøítomen \emsl{právì jeden} z \texttt{MAP\_PRIVATE}
 a \texttt{MAP\_SHARED}.  There is also \texttt{MAP\_FIXED}, with which the
 kernel tries to map the section at \emph{addr} even if it means to unmap and
@@ -1048,7 +1048,7 @@ after the \texttt{MAP\_PRIVATE} mapping is established are visible through the
 \item hodnota \texttt{off+l{}en} mù¾e pøekraèovat aktuální velikost souboru, za
 konec souboru ale nelze zapisovat a soubor tak prodlou¾it - proces by obdr¾el
 signál \texttt{SIGBUS} resp. \texttt{SIGSEGV},
-viz pøíklad \priklad{mmap/lseek.c}.  Signál dostanu stejnì tak v situaci, kdy
+viz pøíklad \example{mmap/lseek.c}.  Signál dostanu stejnì tak v situaci, kdy
 do read-only namapovaného segmentu zkusím zapsat (je to logické, pøiøazení
 nemá návratovou hodnotu kterou byste mohli otestovat).
 \item mapuje se v¾dy po celých stránkách, hodnoty \texttt{off} (a pøi
@@ -1060,10 +1060,10 @@ do souboru.
 volání \texttt{shmat}.
 \item pøístup do namapovaného úseku, ale za poslední existující stránku
 namapovaného objektu, zpùsobí signál \texttt{SIGBUS} resp. \texttt{SIGSEGV}.
-Neplatí to v¹ude úplnì pøesnì, viz pøíklad \priklad{mmap/sigbus.c}.
+Neplatí to v¹ude úplnì pøesnì, viz pøíklad \example{mmap/sigbus.c}.
 \item Pøi pou¾ití \texttt{MAP\_FIXED} namapování souboru nahradí pøípadné
 pøedchozí mapování stránek v rozsahu.
-\texttt{addr} a¾ \texttt{addr+l{}en-1}, viz pøíklad \priklad{mmap/override.c}.
+\texttt{addr} a¾ \texttt{addr+l{}en-1}, viz pøíklad \example{mmap/override.c}.
 \item existující roz¹íøení pro flagy (nejsou souèástí SUSv3):
     \begin{itemize}
     \setlength{\itemsep}{0.8\itemsep}
@@ -1156,7 +1156,7 @@ za\-èát\-ku).
 \item Jedna z hlavních výhod sdílených segmentù je mo¾nost pracovat s
 daty v souboru pomocí pointerové aritmetiky. Obecnì je ale nutné dát pozor
 na zarovnání pøi dereferencích; napø. na SPARCu dojde pøi takovém pøístupu
-signál \texttt{SIGBUS}, viz pøíklad \priklad{mmap/aligned.c}.
+signál \texttt{SIGBUS}, viz pøíklad \example{mmap/aligned.c}.
 \end{itemize}
 
 %%%%%
@@ -1220,7 +1220,7 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     When a program is started, all linked libraries are bound right away unless
     the program or individual libraries are linked for ``lazy binding'' via
     \texttt{-z lazy} (gcc).  See manual pages for \texttt{ld} a \texttt{ld.so.1}
-    (Solaris) or \texttt{ld.so} (Linux).  Example: \priklad{dyn-lib/ld-lazy.c}.
+    (Solaris) or \texttt{ld.so} (Linux).  Example: \example{dyn-lib/ld-lazy.c}.
     \item \texttt{RTLD\_GLOBAL} \dots{} symbols defined by the shared object
     will be  made available for symbol resolution of subsequently loaded
     objects.  That is the default for objects mapped when executing a program.
@@ -1235,7 +1235,7 @@ redefining existing functions if we need to call the original function in our
 redefined one.  The library with a modified function is loaded first, possibly
 using \texttt{LD\_PRELOAD}, and the address of the original function can be
 found using \texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}.  Example:
-\priklad{dyn-lib/rtld\_next.c}.
+\example{dyn-lib/rtld\_next.c}.
 \item  All these functions are part of the dynamic linker that each dynamically
 linked program has mapped into its address space upon execution.  Also see pages
 \pageref{RUNTIMELINKER} and \pageref{EXEC}.
@@ -1269,7 +1269,7 @@ library.
 \texttt{void}, there is no type check, and no type information is available
 either.  The caller must retype the returned address.
 \item If you use C++, note that \emph{name mangling} is used.
-\item Example: \priklad{dyn-lib/dlopen.c}
+\item Example: \example{dyn-lib/dlopen.c}
 \end{itemize}
 
 \endinput

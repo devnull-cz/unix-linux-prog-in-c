@@ -140,11 +140,11 @@ na soketu volání \texttt{bind} aby mu pøiøadil èíslo portu podle pole
 \item V pøípadì \texttt{wait} dostane server soket od \texttt{inetd} v podobì
 deskriptoru 0 (standarní vstup). \texttt{inetd} pøed voláním \texttt{fork}
 provedl \texttt{dup2(sock, 0)}, kde \texttt{sock} je nabindovaný socket.
-Viz pøíklad \priklad{inetd/accept-rw.c}.
+Viz pøíklad \example{inetd/accept-rw.c}.
 \item V pøípadì \texttt{nowait} \texttt{inetd} zavolá \texttt{accept} (pro TCP
 spojení), pøesmìruje deskriptory 0, 1, a 2 do sí»ového socketu a spustí daný
 server.
-Viz pøíklad: \priklad{inetd/echo-server.sh}. Podívejte se do daného skriptu pro
+Viz pøíklad: \example{inetd/echo-server.sh}. Podívejte se do daného skriptu pro
 podrobné instrukce, jak ho pou¾ít.
 \item Pro soket typu \texttt{dgram} má smysl pouze \texttt{wait}. Server musí
 pøeèíst ze soketu aspoò jeden datagram.
