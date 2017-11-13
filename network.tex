@@ -1,6 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\pdfbookmark[0]{sí»ová komunikace}{site}
+\pdfbookmark[0]{network programming}{site}
 \begin{slide}
 \sltitle{Obsah}
 \begin{itemize}
@@ -1071,11 +1071,11 @@ nenulovosti pointeru \texttt{r} za koncem prvního cyklu).
 
 %%%%%
 
-\pdfbookmark[1]{TCP klient}{tcpclientcode}
+\pdfbookmark[1]{TCP client}{tcpclientcode}
 \label{TCPCLNTEXAMPLE}
 
 \begin{slide}
-\sltitle{Pøíklad: TCP klient}
+\sltitle{Example: TCP client}
 \begin{alltt}
 int fd; struct addrinfo *r, *rorig, hi;
 memset(&hi, 0, sizeof (hi)); hi.ai\_family = AF\_UNSPEC;
@@ -1089,7 +1089,7 @@ for (rorig = r; r != NULL; r = r->ai\_next) \{
             break;
 \}
 \emprg{freeaddrinfo}(resorig);
-/* Komunikace se serverem */
+/* communication with server */
 close(fd);
 \end{alltt}
 \end{slide}
