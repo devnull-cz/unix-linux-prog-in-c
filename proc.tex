@@ -1229,7 +1229,7 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     mapped instances of the same library will not overlap.  However, all
     globally mapped symbols from there are shared, eg. \texttt{errno}.
     \end{itemize}
-\item \label{RTLD_NEXT} special handle \texttt{RTLD\_NEXT} searches the symbol
+\item \label{RTLD_NEXT} Special handle \texttt{RTLD\_NEXT} searches the symbol
 only in libraries loaded after the library that called \funnm{dlsym}.  Handy for
 redefining existing functions if we need to call the original function in our
 redefined one.  The library with a modified function is loaded first, possibly
