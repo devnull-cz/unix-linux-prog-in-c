@@ -1,13 +1,13 @@
-% Slidy k pøedná¹ce UNIX
-% (c) 1999-2015, Martin Beran, Jan Pechanec, Vladimir Kotal
+% Unix programming in C
+% (c) 1999-2017, Martin Beran, Jan Pechanec, Vladimir Kotal
 
-% (janp) poznamky
+% (janp) notes
 %
-% obrazky
-%   - staci udelat obrazek v jakemkoli formatu, zkonvertovat to do EPS (aby to
-%   melo BoudingBox), napr. pomoci ImageMagicks ("convert abc.gif abc.eps") a
-%   includovat pomoci \includegraphics s tim, ze zadam velikost cimz vlastne
-%   delam na obrazek scale. Priklad s img/examples/circle.eps:
+% pictures
+%   - create picture in any format, convert to EPS (so that is has
+%   BoudingBox), e.g. using ImageMagicks ("convert abc.gif abc.eps") and
+%   include using \includegraphics with a size which makes the image to scale.
+%   Example for img/examples/circle.eps:
 %
 %   \includegraphics[width=30mm]{circle.eps}
 %
@@ -50,11 +50,7 @@ changequote([[[, ]]])
 % for strike-through (\sout)
 \usepackage[normalem]{ulem}
 
-% colored frame around source code path to examples
-% which is actually a link
-\newcommand{\example}[1]{\fcolorbox{cyan}{white}{\href{https://github.com/devnull-cz/unix-prog-in-c-src/blob/master/#1}{\texttt{#1}}}}
-
-% s timhle nefunguje hyperref !
+% cannot use hyperref with this one !
 %\usepackage{sem-a4}
 
 % (janp)
@@ -69,7 +65,11 @@ changequote([[[, ]]])
 %\usepackage{pstricks} % colortbl s tím nefunguje
 %\usepackage{colortbl}
 
-%%% Makra %%%
+%%% Macros %%%
+
+% colored frame around source code path to examples
+% which is actually a link
+\newcommand{\example}[1]{\fcolorbox{cyan}{white}{\href{https://github.com/devnull-cz/unix-prog-in-c-src/blob/master/#1}{\texttt{#1}}}}
 
 % (janp)
 \chardef\clqq=254  \sfcode254=0 \lccode254=0
@@ -149,13 +149,10 @@ changequote([[[, ]]])
 
 %\graphicspath{{./img/tex}}
 
-
 \begin{document}
 
 %\usefont{IL2}{cmr}{m}{n}
 %\renewcommand{\slidefonts}{\usefont{IL2}{cmss}{m}{n}}
-
-\hyphenation{stra-na}
 
 \input{intro.m4.tex}
 \input{file-api.m4.tex}
