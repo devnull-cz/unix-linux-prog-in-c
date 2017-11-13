@@ -1012,77 +1012,80 @@ allowed), or \texttt{PROT\_NONE} (no access allowed).
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
 \item Examples: \example{mmap/reverse.c}, \example{mmap/map-nocore.c}
-\item v pøíznacích musí být pøítomen \emsl{právì jeden} z \texttt{MAP\_PRIVATE}
-a \texttt{MAP\_SHARED}.  There is also \texttt{MAP\_FIXED}, with which the
+\item in the flags \emsl{exactly one} of \texttt{MAP\_PRIVATE},
+\texttt{MAP\_SHARED} has to be present.
+There is also \texttt{MAP\_FIXED}, with which the
 kernel tries to map the section at \emph{addr} even if it means to unmap and
 already existing mapping.  Without \texttt{MAP\_FIXED}, the kernel will try to
 use \emph{addr} but if there is an existing mapping, it will try to find another
 address to use (and returns it).
-\item mapování souborù do pamìti je alternativou ke zpracování souborù pomocí
-\texttt{read}, \texttt{write}, \texttt{lseek}.  Po namapování lze se
-souborem pracovat jako s datovou strukturou v pamìti. Soubor se nekopíruje celý
-do pamìti, alokují se pouze stránky na které se pøistupuje. Pokud je potøeba
-stránku uvolnit, obsah se ukládá zpìt do souboru (kdy¾ je pou¾it
-\texttt{MAP\_SHARED} -- tento zpùsob namapování je tedy ekvivalentní tomu, kdy
-program zapí¹e do stejného souboru pomocí \texttt{write(2)}) nebo do swapu --
-pou¾ívá se mechanizmus copy-on-write (pøi \texttt{MAP\_PRIVATE}).
-\item pro namapování souboru do pamìti tedy potøebuji soubor nejdøíve otevøít
-pomocí \texttt{open}. Mód v \texttt{prot} nemù¾e být ``vy¹¹í'' ne¾ bylo
-specifikováno v módu pro \texttt{open}. Pou¾ití \texttt{MAP\_FIXED} se
-nedoporuèuje, proto¾e to mù¾e být problém pro pøenositelnost kódu.
-\item \textbf{varování:} toto se týká pouze \texttt{MAP\_SHARED} -- pokud je
-soubor jiným procesem zkrácen tak, ¾e zkrácení se týká i právì namapované èásti,
-pøi pøístupu do takové pamìti je procesu
-zaslán signál \texttt{SIGBUS} resp. \texttt{SIGSEGV}.
-Øe¹ením je pou¾ít mandatory locking, to ale není
-v¹ude implementováno. V pøípadì, ¾e je namapovaná pamì» pou¾ita jako parametr
-volání \texttt{write}, signál se nepo¹le, proto¾e \texttt{write} vrátí -1
-a \texttt{errno} je nastaveno na \texttt{EFAULT}.
-\item pøi pou¾ití \texttt{MAP\_PRIVATE} vidím na Solarisu v¹echny zmìny
-provedené jinými procesy, které namapovaly sdíl{}enì, a¾ do té doby, kdy do
-stránky zapí¹u -- v tom okam¾iku se vytvoøí kopie stránky a dal¹í takové zmìny
-ji¾ nevidím. Na FreeBSD tyto zmìny nevidím ani pøed zápisem. Viz specifikace:
+\item mapping files in memory is alternative to processing files using
+\texttt{read}, \texttt{write}, \texttt{lseek}.  After the file is mapped it is
+possible to work with it as a data structure in memory. The file is not being
+copied to the memory as a whole, rather only the pages which are accessed are
+allocated. If it is necessary to free some page, the contents are written back
+to the storage, i.e. the file. That is, if the \texttt{MAP\_SHARED} is used
+-- this way of mapping is therefore equivalent to writing back via
+\texttt{write(2)}) or to the swap -- same copy-on-write mechanism is used
+(when using \texttt{MAP\_PRIVATE}).
+\item For the file to be mapped into memory it is first necessary to open it
+via \texttt{open}. The access mode in \texttt{prot} cannot be ``higher'' than
+specified in the mode for \texttt{open}.
+\item The use of \texttt{MAP\_FIXED} se not recommended, since it hampers
+portability of the code.
+\item \textbf{warning:} w.r.t. \texttt{MAP\_SHARED} -- if the file is truncated
+by another process so that the truncation affects the mapped part, the access
+to such area results in the \texttt{SIGBUS} resp. \texttt{SIGSEGV} or signal
+to be sent to the process. One way how to get around it is to use
+mandatory locking, however it is not implemented in all the systems.
+In case the mapped memory is used as a parameter for \texttt{write},
+the signal will not be sent and \texttt{write} wil return -1
+with \texttt{errno} set to \texttt{EFAULT}.
+\item when using \texttt{MAP\_PRIVATE} on Solaris all the changes done by other
+processes that have mapped the file using \texttt{MAP\_SHARED} are visible
+until the process writes to the page.
+-- at this moment a copy of the page is created and subsequent changes by
+other processes are not visible anymore.
+On FreeBSD the changes are not visible even before the first write.
+The spec says:
 \emph{,,It is unspecified whether modifications to the underlying object done
 after the \texttt{MAP\_PRIVATE} mapping is established are visible through the
 \texttt{MAP\_PRIVATE} mapping.''}
-\item hodnota \texttt{off+l{}en} mù¾e pøekraèovat aktuální velikost souboru, za
-konec souboru ale nelze zapisovat a soubor tak prodlou¾it - proces by obdr¾el
-signál \texttt{SIGBUS} resp. \texttt{SIGSEGV},
-viz pøíklad \example{mmap/lseek.c}.  Signál dostanu stejnì tak v situaci, kdy
-do read-only namapovaného segmentu zkusím zapsat (je to logické, pøiøazení
-nemá návratovou hodnotu kterou byste mohli otestovat).
-\item mapuje se v¾dy po celých stránkách, hodnoty \texttt{off} (a pøi
-\texttt{MAP\_FIXED} i \texttt{addr}) musí být správnì zarovnané.  Poslední
-stránka je za koncem souboru doplnìna nulami a tento úsek se nikdy nepøepisuje
-do souboru.
-\item Anonymní mapování lze sdílet mezi rùznými procesy pouze pomocí
-\texttt{fork()}. Jedinou alternativou je pamì» sdílená pomocí systémového
-volání \texttt{shmat}.
-\item pøístup do namapovaného úseku, ale za poslední existující stránku
-namapovaného objektu, zpùsobí signál \texttt{SIGBUS} resp. \texttt{SIGSEGV}.
-Neplatí to v¹ude úplnì pøesnì, viz pøíklad \example{mmap/sigbus.c}.
-\item Pøi pou¾ití \texttt{MAP\_FIXED} namapování souboru nahradí pøípadné
-pøedchozí mapování stránek v rozsahu.
-\texttt{addr} a¾ \texttt{addr+l{}en-1}, viz pøíklad \example{mmap/override.c}.
-\item existující roz¹íøení pro flagy (nejsou souèástí SUSv3):
+\item the value of \texttt{off+l{}en} can exceed current size of the file,
+however it is not possible to write beyond the end of the file and thus
+extend the file - the process would otherwise receive the \texttt{SIGBUS} or
+\texttt{SIGSEGV} signal, see example \example{mmap/lseek.c}.
+The signal is also received when attempting to write to file mapped read-only.
+(this makes sense, the assignment does not have a return value which can be
+tested)
+\item the mapping is done in whole pages, the \texttt{off} values have to
+be aligned correctly (also when using \texttt{MAP\_FIXED} the \texttt{addr}).
+Last page after the end of file is padded with zeroes and this section is
+never written back to the file.
+\item It is possible to share anonymous mapping between processes using
+\texttt{fork()}. The only alternative is shared memory established using
+\texttt{shmat}.
+\item Access to the mapped region beyond the existing page of mapped object
+causes \texttt{SIGBUS} or \texttt{SIGSEGV} signal.
+This is not universally true, see example \example{mmap/sigbus.c}.
+\item When using \texttt{MAP\_FIXED} the new mapping will replace any existing
+mapping from \texttt{addr} to \texttt{addr+l{}en-1}, see example
+\example{mmap/override.c}.
+\item extensions not part of SUSv3:
     \begin{itemize}
     \setlength{\itemsep}{0.8\itemsep}
-    \item pøíznak \texttt{MAP\_ANON} ve FreeBSD a Solarisu -- vytvoøení
-    anonymního segmentu bez vazby na soubor, deskriptor musí být \texttt{-1}.
-    Mapuje se tak anonymní objekt, který jak víme má místo fyzického ulo¾ení
-    na swapu (tedy není trvalé). Linux má podobnou funkcionalitu pøes
-    \texttt{MAP\_ANONYMOUS}. Tento pøíznak pou¾ívají pamì»ové alokátory, které
-    pracují s voláním \texttt{mmap}, viz také strana
-    \pageref{SOLARIS_PROC_ADDR_SPACE}.
-    \item v IRIXu lze pomocí \texttt{MAP\_AUTOGROW} automaticky
-    zvìt¹it namapovaný objekt pøi pøístupu za jeho stávající konec.
+    \item \texttt{MAP\_ANONYMOUS} flag -- will create anonymous segment
+    (without association to a file), the descriptor has to be \texttt{-1}.
+    An anonymous object is mapped that has storage in swap area.
+    This flag is frequently used by heap allocators.
+    see also page \pageref{SOLARIS_PROC_ADDR_SPACE}.
+    \item in IRIXu it is possible to use \texttt{MAP\_AUTOGROW} that will
+    automatically grow mapped object when accessing beyond its current end.
     \end{itemize}
-\item bì¾ným pøíkazem, který pou¾ívá mapování souborù do pamìti, je
-\texttt{cat(1)}. Èíst z takové pamìti je prostì rychlej¹í ne¾ opakovanì volat
-\texttt{read}, kde je nutné se pro ka¾dé takové volání pøepnout z u¾ivatelského
-re¾imu do re¾imu jádra a zpìt.
+\item Example of system command using file mapping is \texttt{cat(1)}. 
+Using mapped memory is more efficient than calling \texttt{read} repeatedly,
+saving the overhead necessary for switching to kernel and back to userspace.
 \end{itemize}
-
 
 %%%%%
 
@@ -1093,42 +1096,42 @@ re¾imu do re¾imu jádra a zpìt.
 \texttt{int \funnm{msync}(void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{flags});}
 \begin{itemize}
-\item zapí¹e zmìnìné stránky v úseku l{}en bajtù od adresy addr do
-souboru. Hodnota flags je OR-kombinace 
+\item will write back specified pages in the region of l{}en bytes from address
+addr. The flags is OR-combination of:
     \begin{itemize}
-    \item \texttt{MS\_ASYNC} \dots{} asynchronní zápis 
-    \item \texttt{MS\_SYNC} \dots{} synchronní zápis 
-    \item \texttt{MS\_INVALIDATE} \dots{} zru¹it namapovaná data,
-    která se li¹í od obsahu souboru 
+    \item \texttt{MS\_ASYNC} \dots{} asynchronous write
+    \item \texttt{MS\_SYNC} \dots{} synchronous write
+    \item \texttt{MS\_INVALIDATE} \dots{} destroy mapped data,
+    that are differ from file contents
     \end{itemize}
 \end{itemize}
 \texttt{int \funnm{munmap}(void *\emph{addr}, size\_t \emph{l{}en});}
 \begin{itemize}
-\item zapí¹e zmìny, zru¹í mapování v délce \texttt{l{}en} od adresy
-\texttt{addr}. 
+\item write back changes, destroy mapping of lenght \texttt{l{}en} from
+address \texttt{addr}.
 \end{itemize}
 \texttt{int \funnm{mprotect}(void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{prot});}
 \begin{itemize}
-\item zmìní pøístupová práva k namapovanému úseku souboru. Hodnoty
-prot jsou stejné jako u \texttt{mmap()}.
+\item change access rights to mapped section of a file. The values
+prot are the same as for \texttt{mmap()}.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item ulo¾ení zmìn do souboru na disk je zaruèené a¾ po provedení
-\texttt{msync} nebo \texttt{munmap}, ale ostatní procesy, které
-mají soubor namapován, vidí zmìny hned.
-\item mapování pamìti a nastavování pøístupových práv pou¾ívá napø.
-knihovna Electric Fence, která slou¾í pro ladìní chyb pøi práci s
-dynamickou pamìtí.
+\item writing the changes to the storage is guaranteed only after
+\texttt{msync} or \texttt{munmap}, however other processes that have the file
+mapped as well will see the changes immediately.
+\item mapping to memory and setting access rights is used by the
+Electric Fence library, which is used for detection of errors when using
+dynamic memory.
 \end{itemize}
 
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: mapování souborù do pamìti}
+\sltitle{Example: mapping files into memory}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
 int main(int argc, char *argv[])
@@ -1151,12 +1154,12 @@ int main(int argc, char *argv[])
 \end{slide}
 
 \begin{itemize}
-\item Tento program otoèí poøadí znakù v souboru (zapí¹e soubor od konce k
-za\-èát\-ku).
-\item Jedna z hlavních výhod sdílených segmentù je mo¾nost pracovat s
-daty v souboru pomocí pointerové aritmetiky. Obecnì je ale nutné dát pozor
-na zarovnání pøi dereferencích; napø. na SPARCu dojde pøi takovém pøístupu
-signál \texttt{SIGBUS}, viz pøíklad \example{mmap/aligned.c}.
+\item This program will reverse the bytes in a file.
+\item One of the advantages of shared memory segments is that it is possible
+to work with the data using pointer arithmetics. Generallyt it is necessary
+to watch out for alignment when dereferencing a pointer, e.g.  on SPARC 
+unaligned access will cause the \texttt{SIGBUS} signal, see example
+\example{mmap/aligned.c}.
 \end{itemize}
 
 %%%%%
