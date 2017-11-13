@@ -329,25 +329,25 @@ timer alarms, useful for implementation of timeouts, for example.
 \pdfbookmark[1]{sigaction}{sigaction}
 
 \begin{slide}
-\sltitle{Nastavení obsluhy signálù}
+\sltitle{Setting actions for signals}
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 int \funnm{sigaction}(\=int \emph{sig},
 const struct sigaction *\emph{act},\\\> struct sigaction *\emph{oact});
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item nastaví obsluhu signálu \texttt{sig} podle \texttt{act} a
-vrátí pøedchozí nastavení v~\texttt{oact}. 
-\item obsah struktury \texttt{sigaction}: 
+\item assigns an action \emph{act} for a signal \emph{sig},
+previous setting is returned in \emph{oact}, if non-zero
+\item structure \texttt{sigaction} contains:
     \begin{itemize}
     \item \texttt{void (*\emph{sa\_handler})(int)} \dots{} \texttt{SIG\_DFL},
-    \texttt{SIG\_IGN}, nebo adresa handleru 
-    \item \texttt{sigset\_t \emph{sa\_mask}} \dots{} signály blokované v
-    handleru, navíc je blokován signál \texttt{sig}
-    \item \texttt{int \emph{sa\_flags}} \dots{} \texttt{SA\_RESETHAND} (pøi
-    vstupu do handleru nastavit \texttt{SIG\_DFL}), \texttt{SA\_RESTART}
-    (restartovat pøeru¹ená systémová volání), \texttt{SA\_NODEFER} (neblokovat
-    signál \texttt{sig} bìhem obsluhy)
+    \texttt{SIG\_IGN}, or a handler address (ie. a handler function name)
+    \item \texttt{sigset\_t \emph{sa\_mask}} \dots{} signals blocked while in
+    handler; plus \emph{sig} is blocked by default
+    \item \texttt{int \emph{sa\_flags}} \dots{} \texttt{SA\_RESETHAND} (handler
+    is reset to \texttt{SIG\_DFL} at the moment the signal is delivered),
+    \texttt{SA\_RESTART} (restart pending calls), \texttt{SA\_NODEFER}
+    (do not block \emph{sig} while in handler)
     \end{itemize}
 \end{itemize}
 \end{slide}
