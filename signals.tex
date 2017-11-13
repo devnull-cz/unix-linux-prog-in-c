@@ -20,23 +20,19 @@
 changequote([[[, ]]])
 
 \begin{slide}
-\sltitle{Signals}
+\sltitle{Introduction to signals}
 \begin{itemize}
-\item for notifying a process of asynchronous events, and exception handling
+\item for notifying a process of asynchronous events, and for exception handling
 \item mechanism of an interrupt available in user level
-\item signal categories
+\item signal categories:
     \begin{itemize}
-    \item \emsl{exceptions} caused by a running process, eg.
-    attempt to access a restricted area of memory (\texttt{SIGSEGV})
     \item \emsl{asynchronous events} happening independently of the main program
-    flow, eg. a signal from another process, a timer expiration
+    flow, eg. a signal sent from another process, a timer expiration
     (\texttt{SIGALRM}), terminal disconnect (\texttt{SIGHUP}), or pressing
     \texttt{Ctrl-C} (\texttt{SIGINT})
+    \item \emsl{exceptions} caused by a running process, eg.
+    attempt to access a restricted area of memory (\texttt{SIGSEGV})
     \end{itemize}
-\item it is the simplest interprocess communication -- it only carries
-information that an event happened
-\item mostly processed asynchronously -- a signal interrupts the current process
-flow and a \emph{signal handler} are invoked
 \end{itemize}
 \end{slide}
 
@@ -46,14 +42,36 @@ flow and a \emph{signal handler} are invoked
 \item Interrupts can be viewed as a mean of communication between the CPU and
 the OS kernel while signals are for communication between the kernel and
 processes.
-\item There is no other information bound to the signal other than its signal
-number.  That is, unless the real-time extension POSIX-1003.1b is used, see page
-\pageref{REALTIMEEXTENSIONS}.
 \item After returning from the handler, if that happens, the process continues
 exactly from the place where the interruption happened.
 \item Historically, signals were provided as a mechanism to forcefully terminate
 processes.  That is why the function for sending signals is called
 \funnm{kill}.
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Introduction to signals (continued)}
+\begin{itemize}
+\item it is the simplest interprocess communication -- it only carries
+information that an event happened
+\begin{itemize}
+\item there is a real-time POSIX extension that allows for more information,
+more on that later
+\end{itemize}
+\item mostly processed asynchronously -- a signal interrupts the current process
+flow and a \emph{signal handler} is invoked
+\item signals are identified by numbers, represented by names like
+\texttt{SIGSEGV}, \texttt{SIGCHLD}, or \texttt{SIGKILL}
+\item name are usually \texttt{\#define}s, see \texttt{/usr/include/signal.h} or
+\texttt{/usr/include/sys/signal.h}
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item The real-time extension is POSIX-1003.1b.
+\pageref{REALTIMEEXTENSIONS}.
 \item You can process signals in a synchronous way, see \funnm{sigwait} on page
 \pageref{SIGWAIT}.
 \end{itemize}
