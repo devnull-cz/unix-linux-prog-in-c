@@ -34,7 +34,8 @@ TEX=		unix-programming-in-c.common.tex \
 		threads.tex \
 		files.tex \
 		other.tex \
-		history.tex
+		history.tex \
+		appendix.tex
 
 SLIDES=		$(TEX) ${SLIDE}
 NOTES=		$(TEX) ${NOTE}
