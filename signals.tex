@@ -386,7 +386,7 @@ calls actually return directly the \texttt{errno} value but that is not relevant
 now).  However, resetting the call will not work for all system calls.  You
 should consult the the documentation for your system if you intend to use it.
 On Linux, check the \texttt{signal(7)} manual page.  Example:
-\texttt{signals/interrupted-read.c}.
+\example{signals/interrupted-read.c}.
 \item Beware of deadlocks (will be discussed in the chapter on synchronization).
 If you set \texttt{SA\_NODEFER}, your handler needs to be reentrant.
 \item \label{ASYNCSIGNALSAFE} \emsl{You should only use functions in a safe way
@@ -411,7 +411,7 @@ variable and testing it later does not experience any real delay.  Example:
 to use \funnm{sigaction}() only.  Behavior of \funnm{signal}() is not specified
 with threads, for example.  It can also behave in a very different way on
 different systems, some keep the handler set after delivering the signal, some
-reset it to \texttt{SIG\_DFL}.  Check \example{signal/signal-vs-sigaction.c} if
+reset it to \texttt{SIG\_DFL}.  Check \example{signals/signal-vs-sigaction.c} if
 interested.
 \item \label{REALTIMEEXTENSIONS} If your system supports a part of POSIX.1b
 called \emph{Realtime Signals Extension} (RTS), it is possible to use the
