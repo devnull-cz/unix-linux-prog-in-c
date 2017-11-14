@@ -384,7 +384,7 @@ changed.  You are not interested in previous setting, use \texttt{NULL} for
 signal will return an error with \texttt{errno} set to \texttt{EINTR} (some
 calls actually return directly the \texttt{errno} value but that is not relevant
 now).  However, resetting the call will not work for all system calls.  You
-should consult the the documentation for your system if you intend to use it.
+should consult the documentation for your system if you intend to use it.
 On Linux, check the \texttt{signal(7)} manual page.  Example:
 \example{signals/interrupted-read.c}.
 \item Beware of deadlocks (will be discussed in the chapter on synchronization).
