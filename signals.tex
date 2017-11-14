@@ -198,8 +198,8 @@ We could divide signals into a few groups\dots
 \texttt{SIGBUS} & bus error, eg. wrong alignment (core) \\
 \texttt{SIGFPE} & floating point exception (core) \\
 \texttt{SIGILL} & illegal instructions (core) \\
-\texttt{SIGPIPE} & write on a pipe with no reader (exit) \\
 \texttt{SIGSEGV} & sigmentation violation (core) \\
+\texttt{SIGPIPE} & write on a pipe with no reader (exit) \\
 \texttt{SIGSYS} & non-existent system call invoked (core) \\
 \texttt{SIGXCPU} & CPU time limit exceeded (core) \\
 \texttt{SIGXFSZ} & file size limit exceeded (core)\\
@@ -208,17 +208,20 @@ We could divide signals into a few groups\dots
 
 \begin{itemize}
 \item Those signals are generated on an error in a program.
-\item For signals \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL}, and
-\texttt{SIGSEGV} the standard does not specify what exactly has to be the
-reason but usually those are errors detected by hardware.
-Examples: \example{signals/sigsegv.c}, \example{signals/div-by-zero.c}.
+\item For the first four signals -- \texttt{SIGBUS}, \texttt{SIGFPE},
+\texttt{SIGILL}, and \texttt{SIGSEGV} the standard does not specify what exactly
+has to be the reason but usually those are errors detected by hardware.
+Try the following examples, and check the return value with ``\texttt{kill -l
+\$?}'': \example{signals/sigsegv.c},
+\example{signals/div-by-zero.c}.
 \item \label{SPECIALSIGNALS} \emsl{For those four signals, there are some
 special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
 SUSv4):
 \begin{itemize}
 \item If set as ignored by function \funnm{sigaction}, the program behavior
 after such a signal is delivered is undefined.
-\item Return value of the handler is undefined.
+\item The behavior of a process is undefined after it returns from a
+signal-catching function.
 \item If such a signal is masked while the signal is being delivered, the
 program behavior is undefined.
 \end{itemize}
@@ -268,7 +271,8 @@ user input nor any signal.  Many applications, mainly daemons, rely on the fact
 that they are sent \texttt{SIGTERM} on termination, which they often handle and
 perform pre-exit actions.  For example, flushing the database, removing
 temporary files and file locks, etc.  So, do not use \texttt{SIGKILL} right away
-because "it's the simplest way to kill a process" as you might run in trouble.
+only because "it's the simplest way to kill a process" as you might run in
+trouble.
 \item Example on using \texttt{SIGQUIT} on Solaris:
 
 \begin{verbatim}
@@ -373,60 +377,42 @@ previous setting is returned in \emph{oact}, if non-zero
 \end{slide}
 
 \begin{itemize}
-\item kdy¾ je \texttt{act == NULL}, pouze se zjistí nastavení obsluhy, nemìní
-se. Jestli¾e nás pøedchozí nastavení nezajímá, lze pou¾ít \texttt{oact ==
-NULL}.
-\item pokud není nastaveno \texttt{SA\_RESTART}, systémová volání aktivní v
-bodì pøíchodu signálu skonèí s chybou \texttt{EINTR}.  Restartování nemusí
-fungovat pro v¹echna systémová volání, napø. na FreeBSD je \texttt{select}
-pøeru¹en signálem v¾dy, i kdy¾ je nastaveno \texttt{SA\_RESTART} (pozn: nemusí
-být pravda u souèasných verzí, nezkou¹el jsem to na nich).
-\item pozor na problém vzájemného vylouèení mezi procesem a handlerem, popø.
-mezi handlery pro rùzné signály. Jestli¾e je nastaveno \texttt{SA\_NODEFER},
-mìl by být handler reentrantní.
-\item \label{ASYNCSIGNALSAFE} \emsl{v handleru signálu by se mìly pou¾ívat pouze
-funkce, které jsou pro takové pou¾ití bezpeèné.} Musí buï být reentrantní, nebo
-je nutné zajistit, aby nepøi¹el signál v nevhodnou dobu (napø. uvnitø funkce
-pøijde signál, v jeho¾ handleru se volá stejná funkce). Minimální skupina
-funkcí, které musí být tzv. \emsl{\emph{async-signal-safe}}, je vyjmenována v
-SUSv3 v sekci \emph{System Interfaces: General Information $\Rightarrow$ Signal
-Concepts $\Rightarrow$ Signal Actions (2.4.3)}. Jednotlivé systémy mohou
-samozøejmì definovat i dal¹í takové funkce. Zda funkce je nebo není bezpeènì
-pou¾itelná v handleru by mìlo být jasné z manuálové stránky; na Solarisu je tato
-informace v¾dy v sekci \emph{ATTRIBUTES}.
-\item proè mù¾e nastat problém, kdy¾ pou¾ijete v handleru signálu jinou funkci
-ne¾ async-signal-safe? Je to jednoduché -- pøedstavte si, ¾e kdy¾ program
-vykonává funkci, která není async-signal-safe, pøijde signál a v handleru se
-vyvolá funkce stejná. Pokud funkce není pro takové pou¾ití napsaná, tak mù¾e
-dojít napøíklad k nekonzistenci statických dat ve funkci pou¾itých, pøípadnì k
-uváznutí (dead lock) apod. Právì kvùli tomu, ¾e v handlerech lze bezpeènì pou¾ít
-jen podmno¾inu existujících volání, se v handleru èasto pouze nastaví globální
-promìnná oznaèující pøíchod pøíslu¹ného signálu a ta se následnì testuje,
-napøíklad v cyklu serveru, který vyøizuje po¾adavky nebo programu který
-zpracovává události. Zpomalení obsluhy signálu je minimální, proto¾e funkce
-která èeká na dal¹í po¾adavek je typicky pøeru¹itelná signálem a v takovém
-pøípadì ihned vrací \texttt{EINTR}. Následuje kontrola globální(ch)
-promìnné(ých) na to, zda byl pøijmut nìjaký signál.
-Viz pøíklad \example{signals/event-loop.c}.
-\item funkce \texttt{sigaction} je obecnìj¹í ne¾ star¹í funkce
-\texttt{signal} a \texttt{sigset}, kte\-ré zde ani nezmiòuji. Doporuèuji
-pou¾ívat pouze \texttt{sigaction}. Pou¾ití \texttt{signal} není napøíklad
-správné s vlákny, viz specifikace: ``Use of this function is unspecified in a
-multi-threaded process.''
-\item \label{SIGNAL_VS_SIGACTION} Pozor na to, ¾e chování funkce
-\texttt{signal()} se mù¾e li¹it podle systému. Na\-pøík\-lad na FreeBSD zùstává
-handler stále nastaven, na Solarisu je z dùvodu zachování zpìtné kompatibility
-handler pøed jeho vyvoláním resetován na \texttt{SIG\_DFL}. Funkce pøíznaku
-\texttt{SA\_RESETHAND} je právì to, aby bylo mo¾né simulovat pùvodní chování
-funkce \texttt{signal()}, které bývá implementováno pomocí systémového volání
-\texttt{sigaction()}. Pøíklad na rozdíl mezi funkcemi \texttt{signal()} a
-\texttt{sig\-action()}: \example{signal/signal-vs-sigaction.c}.
-\item (nebudete nejspí¹ potøebovat) pro výskok z handleru signálu jinam ne¾ na
-místo vzniku signálu se dají pou¾ít funkce \texttt{sigsetjmp} a
-\texttt{siglongjmp}. Pozor na to, ¾e v tomto pøípadì si musíme být jisti, ¾e v
-okam¾iku pøíchodu signálu není program uvnitø ne-reentrantní funkce. Výskokem z
-handleru do hlavního programu není vykonávání takové funkce ukonèeno a mohou
-nastat stejné problémy jako pøi volání ne-reentrantní funkce pøímo z handleru.
+\item If \texttt{act == NULL} you only get the present setting and nothing is
+changed.  You are not interested in previous setting, use \texttt{NULL} for
+\emph{oact}.
+\item If \texttt{SA\_RESTART} is not set, the system call interrupted by the
+signal will return an error with \texttt{errno} set to \texttt{EINTR} (some
+calls actually return directly the \texttt{errno} value but that is not relevant
+now).  However, resetting the call will not work for all system calls.  You
+should consult the the documentation for your system if you intend to use it.
+On Linux, check the \texttt{signal(7)} manual page.  Example:
+\texttt{signals/interrupted-read.c}.
+\item Beware of deadlocks (will be discussed in the chapter on synchronization).
+If you set \texttt{SA\_NODEFER}, your handler needs to be reentrant.
+\item \label{ASYNCSIGNALSAFE} \emsl{You should only use functions in a safe way
+from a handler}.  By safe it is meant either use reentrant functions or you need
+to make sure the signal is not delivered in the wrong time (for example, the
+signal is delivered within a function and the same function is called from the
+handler, and the function is not ready for that).  Minimal set of functions
+that must be \emsl{\emph{async-signal-safe}} is listed in SUSv4 in section
+\emph{System Interfaces: General Information $\Rightarrow$ Signal Concepts
+$\Rightarrow$ Signal Actions (2.4.3)}.  Systems can extend the list, of course.
+Whether a function is safe to use in a signal handler or not should be
+documented in its manual page.
+\item Using static data in a function would generally be a problem for its
+asynchronous signal safety.  It can lead to corrupt data, deadlocks, etc.  As
+the set of functions safe to use in a handler is limited, one way to use the
+signals is only to set a global variable in the handler and test it later, for
+example in a loop that processes some events.  As a function waiting for an
+event is typically interruptible by a signal (see above), setting the global
+variable and testing it later does not experience any real delay.  Example:
+\example{signals/event-loop.c}.
+\item There is also a simplified signal facility \funnm{signal}().  We recommend
+to use \funnm{sigaction}() only.  Behavior of \funnm{signal}() is not specified
+with threads, for example.  It can also behave in a very different way on
+different systems, some keep the handler set after delivering the signal, some
+reset it to \texttt{SIG\_DFL}.  Check \example{signal/signal-vs-sigaction.c} if
+interested.
 \item \label{REALTIMEEXTENSIONS} If your system supports a part of POSIX.1b
 called \emph{Realtime Signals Extension} (RTS), it is possible to use the
 extension if you use flag \texttt{SA\_SIGINFO}.  In that case a
@@ -443,7 +429,7 @@ specification of the header file, or the book [POSIX.4], page
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: èasovì omezený vstup}
+\sltitle{Example: setting time limit for read}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
 void handler(int sig)
@@ -484,7 +470,7 @@ na konto procesu, posílá \texttt{SIGPROF}
 pøíkladu funkci \texttt{fprintf} apod., nemusel by to být dobrý nápad, proto¾e
 nemusí být bezpeèná pro pou¾ití v handleru signálu, viz strana
 \pageref{ASYNCSIGNALSAFE}.
-\item pøíklad: \example{signals/alarm.c}
+\item Example: \example{signals/alarm.c}
 \end{itemize}
 
 %%%%%
