@@ -378,7 +378,7 @@ previous setting is returned in \emph{oact}, if non-zero
 
 \begin{itemize}
 \item If \texttt{act == NULL} you only get the present setting and nothing is
-changed.  You are not interested in previous setting, use \texttt{NULL} for
+changed.  If not interested in previous setting, use \texttt{NULL} for
 \emph{oact}.
 \item If \texttt{SA\_RESTART} is not set, the system call interrupted by the
 signal will return an error with \texttt{errno} set to \texttt{EINTR} (some
