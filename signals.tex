@@ -455,20 +455,22 @@ int main(void)
 \label{SIGALRM}
 
 \begin{itemize}
-\item lze pou¾ívat i èasovaèe s jemnìj¹ím rozli¹ením ne¾ 1 s.
-Nastavují a testují se funkcemi \texttt{setitimer} a
-\texttt{getitimer}. Pøi vypr¹ení posílají signály procesu, který
-èasovaèe nastavil podle prvního argumentu \emph{which}:
+\item You can also use timers with a finer granularity provided by
+\funnm{setitimer}() and \funnm{getitimer}() functions.  After the timer expires,
+a process is sent a signal based on the value of the first argument
+\emph{which}:
 \begin{itemize}
-\item \texttt{ITIMER\_REAL} \dots{} mìøí reálný èas, posílá \texttt{SIGALRM}
-\item \texttt{ITIMER\_VIRTUAL} \dots{} mìøí virtuální èas (pouze èas, kdy proces
-bì¾í), posílá \texttt{SIGVTALRM}
-\item \texttt{ITIMER\_PROF} \dots{} mìøí virtuální èas a èas, kdy systém bì¾í
-na konto procesu, posílá \texttt{SIGPROF}
+\item \texttt{ITIMER\_REAL} \dots{} timer decrements in real time, and
+\texttt{SIGALRM} is used.
+\item \texttt{ITIMER\_VIRTUAL} \dots{} timer decrements in process virtual time
+which runs only when the process is executing.  A signal \texttt{SIGVTALRM} is
+used.
+\item \texttt{ITIMER\_PROF} \dots{} timer decrements both in process virtual
+time and when the system is running on behalf of the process, and
+\texttt{SIGPROF} is used.
 \end{itemize}
-\item pozn: v¹imìte si, ¾e aèkoliv by to svádìlo pou¾ít pro tisk hlá¹ky v
-pøíkladu funkci \texttt{fprintf} apod., nemusel by to být dobrý nápad, proto¾e
-nemusí být bezpeèná pro pou¾ití v handleru signálu, viz strana
+\item Note that we use \funnm{write}() system call to write the text.  Functions
+like \funnm{printf}() are generally not safe to use in signal handlers, see page
 \pageref{ASYNCSIGNALSAFE}.
 \item Example: \example{signals/alarm.c}
 \end{itemize}
@@ -478,10 +480,9 @@ nemusí být bezpeèná pro pou¾ití v handleru signálu, viz strana
 \pdfbookmark[1]{sigprocmask, sigpending}{sigblock}
 
 \begin{slide}
-\sltitle{Blokování signálù}
+\sltitle{Signal blocking}
 \begin{itemize}
-\item blokované signály budou procesu doruèeny a zpracovány a¾ po
-odblokování. 
+\item blocked signals are delivered to the process after getting unblocked again
 \end{itemize}
 \begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
 int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
@@ -489,58 +490,57 @@ int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item nastaví masku blokovaných signálù a vrátí starou masku. 
-\item \emph{how} -- \texttt{SIG\_BLOCK} pro pøidání signálù co se mají
-blokovat, pro odebrání \texttt{SIG\_UNBLOCK}, pro
-kompletní zmìnu masky \texttt{SIG\_SETMASK}
-\item pro manipulaci s maskou signálù slou¾í funkce:
-\texttt{sigaddset()}, \texttt{sigdelset()}, \texttt{sigemptyset()},
-\texttt{sigfillset()}, \texttt{sigismember()}
+\item sets the blocked signal mask and returns the old one
+\item \emph{how} -- \texttt{SIG\_BLOCK} adds signals to block,
+\texttt{SIG\_UNBLOCK} for removing signals, for a complete mask change
+use \texttt{SIG\_SETMASK}
+\item for manipulating signal sets, use \funnm{sigaddset}(),
+\funnm{sigdelset}(), \funnm{sigemptyset}(), \funnm{sigfillset}(),
+\funnm{sigismember}()
 \end{itemize}
 \texttt{int \funnm{sigpending}(sigset\_t *\emph{set});}
 \begin{itemize}
-\item vrátí èekající zablokované signály.
+\item returns a mask for the signals pending for delivery
 \end{itemize}
 \end{slide}
 
 \label{SIGPROCMASK}
 
 \begin{itemize}
-\item Je rozdíl mezi ignorováním a blokováním signálu. Ignorovaný signál jádro
-zahodí a proces ho nedostane, blokovaný signál proces dostane po jeho
-odblokování.
-\item Závisí na implementaci, zda pøi vícenásobném doruèení stejného signálu
-procesu, který má tento signál zablokovaný, bude signál po odblokování o¹etøen
-jednou nebo vícekrát.
-\item V pøípadì roz¹íøení signálù z POSIX.4 (strana
-\pageref{REALTIMEEXTENSIONS}), tj. pou¾ití pøíznaku \texttt{SA\_SIGINFO}, jsou
-signály doruèované pøes frontu a tedy se ¾ádný násobný výs\-kyt stejného signálu
-neztratí.
-\item Argument \texttt{oset} pro získání pùvodní masky mù¾e být \texttt{NULL},
-stejnì jako mù¾e být nastavený na \texttt{NULL} i parametr druhý, tj.
-\texttt{set}. Ve speciálním pøípadì, kdy jsou oba parametry nulové, funkce
-\texttt{sigprocmask} nedìlá nic.
+\item The system silently ignores attempts to block \texttt{KILL} and
+\texttt{STOP}.
+\item It is a difference to ignore and block a signal.  A signal ignored will
+never be delivered to the process, while a blocked signal is remembered by the
+kernel and is delivered if the process unblocks it.
+\item It is implementation dependend if a signal received multiple times while
+blocked will be delivered only once or multiple times after unblocking.
+\item If POSIX.4 extension is used (see page
+\pageref{REALTIMEEXTENSIONS} and the use of \texttt{SA\_SIGINFO}), signals are
+delivered through a queue and multiple signals are never squeezed into one
+delivery.
+\item Both arguments \emph{oset} and \emph{set} may be \texttt{NULL}.  If both
+are \texttt{NULL} in the same invocation of the function, nothing happens.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: blokování signálù}
+\sltitle{Example: blocking signals}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
 sigset\_t sigs, osigs; struct sigaction sa;
 sigfillset(&sigs); \emprg{sigprocmask}(SIG\_BLOCK, &sigs, &osigs);
 switch(cpid = fork()) \{
-    case -1: /* Chyba */
+    case -1:
         \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
         ...
-    case 0: /* Synovský proces */
+    case 0: /* Child */
         sa.sa\_handler = h\_cld; sigemptyset(&sa.sa\_mask);
         sa.sa\_flags = 0;
         \emprg{sigaction}(SIGINT, &sa, NULL);
         \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
         ...
-    default: /* Rodièovský proces */
+    default: /* Parent */
         \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
         ...
 \}
@@ -548,22 +548,14 @@ switch(cpid = fork()) \{
 \end{slide}
 
 \begin{itemize}
-\item \label{SIGNALBLOCKINGEXAMPLE} pøíklad ukazuje situaci, kdy proces vytváøí
-potomky pomocí \texttt{fork} a je potøeba, aby potomci mìli jiný handler
-signálù ne¾ rodièovský proces. Funguje to proto, ¾e volání \texttt{fork} nemìní
-masky signálù, viz strana
-\pageref{FORK}.
-\item pro jednoduchost v pøíkladu blokuji v¹echny signály, i kdy¾ na stranách
-\pageref{SPECIALSIGNALS} a \pageref{THREADS_SIGWAIT} je vysvìtleno, proè to není
-správné pou¾ití maskování.
-\item blokování je vhodné pou¾ít tam, kde o¹etøení pøeru¹ení uprostøed
-posloupnosti operací by bylo pøíli¹ slo¾ité, nebo kde korektní o¹etøení není
-jinak mo¾né. V uvedeném pøíkladì by bez blokování signálù mohl synovský proces
-dostat signál døív, ne¾ stihne zmìnit handler.
-\item dal¹í pøíklad je proces, který pøi vypr¹ení timeoutu pøeru¹í provádìnou
-posloupnost operací voláním \texttt{siglongjmp} zevnitø handleru signálu. Je
-po\-tøe\-ba zablokovat signál \texttt{SIGALRM} bìhem provádìní atomických
-podposloupností (tj. takových, které se musí provést buï celé, nebo vùbec ne).
+\item \label{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a process
+needs to use a different signal mask in its child.  If you just changed the mask
+in the child without blocking the signals first you would create a potential
+race -- a child would for a short time run with an unwanted mask.  Note that
+\funnm{fork}() does not change the signal mask, see page \pageref{FORK}.
+\item Out of simplicity we block all the signals in the example even that on
+pages \pageref{SPECIALSIGNALS} and \pageref{THREADS_SIGWAIT} it is explained why
+it is not a good thing.
 \end{itemize}
 
 %%%%%
