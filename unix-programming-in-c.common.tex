@@ -37,9 +37,9 @@ changequote([[[, ]]])
 \usepackage[bookmarks,breaklinks=true,%
 	colorlinks=true,linkcolor=MyDarkBlue,urlcolor=MyDarkRed,%
 	pdftex,%
-	pdfauthor={Vladimír Kotal},%
+	pdfauthor={Vladimír Kotal, Jan Pechanec},%
 	pdftitle={Unix programming in C},%
-	pdfsubject={materials for the NSWI015 class at MFF-UK},%
+	pdfsubject={Materials for the NSWI015 class at MFF-UK},%
 	pdfkeywords={Unix, programming, C, MFF, MFF-UK},%
 	pagebackref=true,%
 	]{hyperref}
@@ -122,36 +122,9 @@ changequote([[[, ]]])
     \catcode`\_=13\catcode`\&=13
     \expandafter\def\the\prgcharsI{\_}\expandafter\def\the\prgcharsII{\&}}
 
-% Fonty
-%\DeclareTextFontCommand{\textrm}{\usefont{IL2}{cmss}{m}{n}}
-%\DeclareTextFontCommand{\textbf}{\usefont{IL2}{cmss}{bx}{n}}
-%\DeclareTextFontCommand{\texttt}{\usefont{IL2}{cmtt}{m}{n}}
-%\DeclareTextFontCommand{\noterm}{\usefont{IL2}{cmr}{m}{n}}
-%\DeclareTextFontCommand{\notebf}{\usefont{IL2}{cmr}{bx}{n}}
-
-% (janp)
-%\DeclareOldFontCommand{\rm}{\usefont{IL2}{cmss}{m}{n}}{\mathrm}
-%\DeclareOldFontCommand{\bf}{\usefont{IL2}{cmss}{bx}{n}}{\mathbf}
-%\DeclareOldFontCommand{\tt}{\usefont{IL2}{cmtt}{m}{n}}{\mathtt}
-
-%\usefont{IL2}{cmr}{m}{n}
-
-% (janp)
-%\renewcommand{\slidefonts}{\usefont{IL2}{cmss}{m}{n}
-% (janp)
-%\def\descriptionlabel##1{\hspace\labelsep\bfseries ##1}}
-
 \centerslidesfalse
 
-% (janp)
-%\csprimeson
-
-%\graphicspath{{./img/tex}}
-
 \begin{document}
-
-%\usefont{IL2}{cmr}{m}{n}
-%\renewcommand{\slidefonts}{\usefont{IL2}{cmss}{m}{n}}
 
 \input{intro.m4.tex}
 \input{file-api.m4.tex}
