@@ -124,6 +124,62 @@ changequote([[[, ]]])
 
 \centerslidesfalse
 
+% This is ugly beyond believe but it gets the job done.  Next version needs to
+% use one string per item only.  Also, instead of a number, we could use a
+% string.  The string should correspond to the filename.
+\newcommand{\slidecontents}[1] {
+\begin{slide}
+\sltitle{Contents}
+\begin{itemize}
+\ifnum#1=1
+	\item \emsl{Introduction, Unix and C, programming tools}
+\else
+	\item Introduction, Unix and C, programming tools
+\fi
+\ifnum#1=2
+	\item \emsl{Basic Unix concepts and conventions, its API}
+\else
+	\item Basic Unix concepts and conventions, its API
+\fi
+\ifnum#1=3
+	\item \emsl{Access rights, devices}
+\else
+	\item Access rights, devices
+\fi
+\ifnum#1=4
+	\item \emsl{Process manipulation, program execution}
+\else
+	\item Process manipulation, program execution
+\fi
+\ifnum#1=5
+	\item \emsl{Signals}
+\else
+	\item Signals
+\fi
+\ifnum#1=6
+	\item \emsl{Process synchronization and interprocess communication}
+\else
+	\item Process synchronization and interprocess communication
+\fi
+\ifnum#1=7
+	\item \emsl{Network programming}
+\else
+	\item Network programming
+\fi
+\ifnum#1=8
+	\item \emsl{Programming with threads}
+\else
+	\item Programming with threads
+\fi
+\ifnum#1=9
+	\item \emsl{Appendix}
+\else
+	\item Appendix
+\fi
+\end{itemize}
+\end{slide}
+}
+
 \begin{document}
 
 \input{intro.m4.tex}
