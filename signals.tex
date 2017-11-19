@@ -564,50 +564,46 @@ it is not a good thing.
 \pdfbookmark[1]{pause, sigsuspend, sigwait}{sigwait}
 
 \begin{slide}
-\sltitle{Èekání na signál}
+\sltitle{Waiting for a signal}
 \texttt{int \funnm{pause}(void);}
 \begin{itemize}
-\item pozastaví volající proces do pøíchodu (neblokovaného) signálu
+\item suspends the caller until delivery of a signal that is not blocked or
+ignored
 \end{itemize}
 \texttt{int \funnm{sigsuspend}(const sigset\_t *\emph{sigmask});}
 \begin{itemize}
-\item jako \texttt{pause()}, ale navíc po dobu èekání masku
-blokovaných signálù zmìní na \texttt{sigmask}
+\item like \funnm{pause}(), also temporarily changes the blocked signal mask
 \end{itemize}
 \texttt{int \funnm{sigwait}(const sigset\_t *\emph{set}, int *\emph{sig});}
 \begin{itemize}
-\item èeká na pøíchod signálu z mno¾iny \texttt{set} (tyto signály
-musí být pøedtím zablokované), èíslo signálu vrátí v \texttt{sig}. Vrací 0 nebo
-èíslo chyby.
-\item nevolá se handler signálu (to ale není v normì jednoznaènì
-definováno)
+\item waits for a signal from \emph{set} (must be blocked) and puts the signal
+number to \emph{sig}.
+\item the signal handler is not called
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Neblokovaný signál v \texttt{pause} a \texttt{sigsuspend} vyvolá handler a
-po jeho skonèení program opustí signál zachycující funkci a pokraèuje dále.
-Pokud má ale signál proces ukonèit (napø. nemaskovaný \texttt{SIGTERM} bez
-handleru), stane se tak.
-\item Pomocí tìchto funkcí a blokování signálù se implementuje synchronní
-obsluha signálù. Proces nejprve zablokuje signály, které ho zajímají, a pak na
-nì ve vhod\-ných chvílích buï èeká, nebo jen testuje (pomocí
-\texttt{sigpending}), zda signál pøi¹el, a pokud ne, pokraèuje dál.
-\item \label{SIGWAIT} Funkce \texttt{sigwait} byla pøidána s POSIX-1003.1c
-roz¹íøením (vlákna) a je to ``jediný'' správný zpùsob, jak obsluhovat
-asynchronní signály v multi-vláknové aplikaci. To ¾e byla pøidána s vlákny je
-potvrzeno i tím, ¾e v pøípadì problémù vrací pøímo èíslo chyby.
-\item \label{SIGWAITINFO} Existují i pøíbuzné
-podobnì se jmenující funkce \texttt{sigwaitinfo} a \texttt{sigtimedwait},
-definované s roz¹íøením POSIX-1003.1\emsl{b} (real-time). Fungují na podobném
-principu, ale na rozdíl od \texttt{sigwait} pracují s \texttt{errno} a je z nich
-mo¾né získat více informací díky struktuøe \texttt{siginfo\_t}, viz strana
-\pageref{REALTIMEEXTENSIONS}. Je tedy mo¾né je pou¾ít místo \texttt{sigwait}.
-\item Pøíklad (signál se pou¾ije pro synchronizaci dvou procesù komunikujících
-pøes sdílenou pamì»): \example{signals/sigwait.c}
-\item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
-pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Více
-se doètete na stranách \pageref{SPECIALSIGNALS} a \pageref{THREADS_SIGWAIT}. 
+\item When in \funnm{pause}() or \funnm{sigsuspend}(), a signal not blocked will
+call a handler, if one is set, and the signal catching function returns, unless
+the process is terminated by the signal.
+\item With \funnm{sigwait}(), you can implement a synchronnous signal
+handling.  First, a process blocks signals it is interested in, then when
+convenient, it waits for them or just checks whether there are some pending
+using \funnm{sigpending}().
+\item \label{SIGWAIT} Funtion \funnm{sigwait}() was added with POSIX-1003.1c
+extensions (threads) and you should use this function when dealing with signals
+in the multithreaded application.  As other POSIX thread functions, it returns
+an error number directly, and 0 on success.
+\item \label{SIGWAITINFO} There are also similar functions \funnm{sigwaitinfo}()
+and \funnm{sigtimedwait}(), defined with the POSIX-1003.1\emsl{b} extension
+(real-time).  They work in a similar way but set \texttt{errno} on failure and
+it is possible to get more information upon signal delivery using a structure
+\texttt{siginfo\_t}, see page \pageref{REALTIMEEXTENSIONS}.
+\item Example (a signal is used for synchronization of two processes
+communicating via a shared memory): \example{signals/sigwait.c}
+\item Do not use for synchronous signals like \texttt{SIGSEGV}, \texttt{SIGILL},
+etc.  More on that on pages \pageref{SPECIALSIGNALS} and
+\pageref{THREADS_SIGWAIT}. 
 \end{itemize}
 
 \endinput
