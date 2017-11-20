@@ -386,14 +386,14 @@ that must be \emsl{\emph{async-signal-safe}} is listed in SUSv4 in section
 $\Rightarrow$ Signal Actions (2.4.3)}.  Systems can extend the list, of course.
 Whether a function is safe to use in a signal handler or not should be
 documented in its manual page.
-\item Using static data in a function would generally be a problem for its
-asynchronous signal safety.  It can lead to corrupt data, deadlocks, etc.  As
-the set of functions safe to use in a handler is limited, one way to use the
-signals is only to set a global variable in the handler and test it later, for
-example in a loop that processes some events.  As a function waiting for an
-event is typically interruptible by a signal (see above), setting the global
-variable and testing it later does not experience any real delay.  Example:
-\example{signals/event-loop.c}.
+\item Using static data and/or locking in a function would generally be a
+problem for its asynchronous signal safety.  It can lead to corrupt data,
+deadlocks, etc.  As the set of functions safe to use in a handler is limited,
+one way to use the signals is only to set a global variable in the handler and
+test it later, for example in a loop that processes some events.  As a function
+waiting for an event is typically interruptible by a signal (see above), setting
+the global variable and testing it later does not experience any real delay.
+Example: \example{signals/event-loop.c}.
 \item There is also a simplified signal facility \funnm{signal}().  We recommend
 to use \funnm{sigaction}() only.  Behavior of \funnm{signal}() is not specified
 with threads, for example.  It can also behave in a very different way on
@@ -535,11 +535,12 @@ switch(cpid = fork()) \{
 \end{slide}
 
 \begin{itemize}
-\item \label{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a process
-needs to use a different signal mask in its child.  If you just changed the mask
-in the child without blocking the signals first you would create a potential
-race -- a child would for a short time run with an unwanted mask.  Note that
-\funnm{fork}() does not change the signal mask, see page \pageref{FORK}.
+\item \label{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a child
+needs to use a different signal handler from its parent.  If you just changed
+the handler in the child without blocking the signals first in the parent you
+would create a potential race -- a child would for a short time run with an
+unwanted handler.  Note that \funnm{fork}() does not change the signal mask, see
+page \pageref{FORK}.
 \item Out of simplicity we block all the signals in the example even that on
 pages \pageref{SPECIALSIGNALS} and \pageref{THREADS_SIGWAIT} it is explained why
 it is not a good thing.
