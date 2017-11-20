@@ -79,8 +79,8 @@ flow and a \emph{signal handler} is invoked
 \begin{itemize}
 \item The real-time extension is POSIX-1003.1b.
 \pageref{REALTIMEEXTENSIONS}.
-\item You can process signals in a synchronous way, see \funnm{sigwait} on page
-\pageref{SIGWAIT}.
+\item You can process signals in a synchronous way, see \funnm{sigwait}() on
+page \pageref{SIGWAIT}.
 \end{itemize}
 
 %%%%%
@@ -155,9 +155,9 @@ filename.  Some systems, eg. macOS, may not generate core dumps by default even
 if its for signals with default core dump action.
 \item Most of the signals implicitly terminate the process, some create a core
 dump on top of that to enable a post-mortem analysis.
-\item The reason why \funnm{exec} replaces all user set handlers to its implicit
-action (see also page \pageref{EXEC}) is obvious -- code of the original
-handlers no longer exists after the \funnm{exec} call finishes.
+\item The reason why \funnm{exec}() replaces all user set handlers to its
+implicit action (see also page \pageref{EXEC}) is obvious -- code of the
+original handlers no longer exists after the \funnm{exec}() call finishes.
 \item You can learn the signal numbers and their names using the \texttt{-l}
 option for the \texttt{kill(1)} command.  Without the argument, it will print
 the list of all signals with their corresponding numbers.  Example:
@@ -167,7 +167,7 @@ $ kill -l SIGPIPE
 13
 \end{verbatim}
 \item For each signal, you can learn what is its implicit action by checking a
-manual page for function \funnm{signal} or possibly for \emph{signal.h}.
+manual page for function \funnm{signal}() or possibly for \emph{signal.h}.
 \end{itemize}
 
 %%%%%
@@ -205,7 +205,7 @@ Try the following examples, and check the return value with ``\texttt{kill -l
 special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
 SUSv4):
 \begin{itemize}
-\item If set as ignored by function \funnm{sigaction}, the program behavior
+\item If set as ignored by function \funnm{sigaction}(), the program behavior
 after such a signal is delivered is undefined.
 \item The behavior of a process is undefined after it returns from a
 signal-catching function.
@@ -249,14 +249,14 @@ that does not violate the standard either.
 configuration file changed and that it should re-read it.
 \item \texttt{SIGINT} and \texttt{SIGQUIT} are usually generated from a terminal
 via \texttt{Ctrl-C} and \texttt{Ctrl-\bs}, respectively, and could be redefined
-using the command \texttt{stty} or via a function \funnm{tcsetattr}.  In order
+using the command \texttt{stty} or via a function \funnm{tcsetattr}().  In order
 to generate core files, your system must allow it.  Check command
 \texttt{ulimit}.
 \item \label{SIGKILL} As \texttt{SIGKILL} cannot be handled, use it only if you
 know what you are doing.  For example, if a running process does not respond to
-user input nor any signal.  Many applications, mainly daemons, rely on the fact
-that they are sent \texttt{SIGTERM} on termination, which they often handle and
-perform pre-exit actions.  For example, flushing the database, removing
+user input nor any other signal.  Many applications, mainly daemons, rely on the
+fact that they are sent \texttt{SIGTERM} on termination, which they often handle
+and perform pre-exit actions.  For example, flushing the database, removing
 temporary files and file locks, etc.  So, do not use \texttt{SIGKILL} right away
 only because "it's the simplest way to kill a process" as you might run in
 trouble.
