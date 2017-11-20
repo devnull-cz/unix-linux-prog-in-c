@@ -572,7 +572,7 @@ number to \emph{sig}.
 
 \begin{itemize}
 \item When in \funnm{pause}() or \funnm{sigsuspend}(), a signal not blocked will
-call a handler, if one is set, and the signal catching function returns, unless
+call a handler if one is set, and the signal catching function returns unless
 the process is terminated by the signal.
 \item With \funnm{sigwait}(), you can implement a synchronnous signal
 handling.  First, a process blocks signals it is interested in, then when
@@ -583,7 +583,7 @@ extensions (threads) and you should use this function when dealing with signals
 in the multithreaded application.  As other POSIX thread functions, it returns
 an error number directly, and 0 on success.
 \item \label{SIGWAITINFO} There are also similar functions \funnm{sigwaitinfo}()
-and \funnm{sigtimedwait}(), defined with the POSIX-1003.1\emsl{b} extension
+and \funnm{sigtimedwait}() defined with the POSIX-1003.1\emsl{b} extension
 (real-time).  They work in a similar way but set \texttt{errno} on failure and
 it is possible to get more information upon signal delivery using a structure
 \texttt{siginfo\_t}, see page \pageref{REALTIMEEXTENSIONS}.
