@@ -537,10 +537,10 @@ switch(cpid = fork()) \{
 \begin{itemize}
 \item \label{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a child
 needs to use a different signal handler from its parent.  If you just changed
-the handler in the child without blocking the signals first in the parent you
-would create a potential race -- a child would for a short time run with an
-unwanted handler.  Note that \funnm{fork}() does not change the signal mask, see
-page \pageref{FORK}.
+the handler in the child without blocking the signals before \funnm{fork}()
+a potential race would have been created -- a child would have run for a short
+time with an unwanted handler.  Note that \funnm{fork}() does not change the
+signal mask, see page \pageref{FORK}.
 \item Out of simplicity we block all the signals in the example even that on
 pages \pageref{SPECIALSIGNALS} and \pageref{THREADS_SIGWAIT} it is explained why
 it is not a good thing.
