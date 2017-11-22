@@ -11,47 +11,47 @@ changequote([[[, ]]])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{slide}
-\sltitle{Vlákna}
+\sltitle{Threads}
 \begin{itemize}
-\item vlákno (\emph{thread}) = linie výpoètu (\emph{thread of execution})
-\item vlákna umo¾òují mít více linií výpoètu v rámci jednoho procesu
-\item klasický unixový model: jednovláknové procesy
-\item vlákna nejsou vhodná pro v¹echny aplikace
-\item výhody vláken:
+\item \emph{thread} = \emph{thread of execution}, a basic software ``thing''
+that can do work on a computer
+\item classic Unix model: single threaded processes
+\item with introduction of threads, a process becomes just data -- address
+space, open files, etc.
+\item advantages of multithreaded applications
   \begin{itemize}
-  \item zrychlení aplikace, typicky na víceprocesorech (vlákna
-  jednoho procesu mohou bì¾et souèasnì na rùzných procesorech)
-  \item modulární programování
+  \item speed-up -- a typical objective is having threads on multiple CPUs
+  running in parallel
+  \item more modular programming
   \end{itemize}
-\item nevýhody vláken:
+\item disadvantages
   \begin{itemize}
-  \item není jednoduché korektnì napsat slo¾itìj¹í kód s vlákny
-  \item obtí¾nìj¹í debugging
+  \item more complex code
+  \item debugging may become more difficult
   \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Pro aplikace, kde ka¾dý krok závisí na kroku pøedcházejícím, nemají vlákna
-pøíli¹ velký smysl.
-\item Debuggery typicky mají podporu vláken, ale debugging zmìní timing, tak¾e
-to co v reálu dìlá problém se pøi debuggingu vùbec nemusí projevit. Toto
-vìt¹inou není problémem u klasických 1-vláknových procesù.
-\item Jak bylo uvedeno na slajdech s doporuèenou literaturou, k vláknùm existuje
-výborná kniha [Butenhof]. On-line pak je tøeba dostupná obsáhlá kniha
-\emsl{Multithreaded Programming Guide} na \url{http://docs.oracle.com}.
-\item \label{PRIVILEGE_SEPARATION} Dal¹í situací, kdy je potøeba zùstat u
-pou¾ití procesù, je pokud je nutné vy\-tvo\-øe\-ným procesùm mìnit reálné a
-efektivní UID. To je tøeba pøípad OpenSSH, kde se pro ka¾dé spojení vytvoøí dva
-server procesy. Jeden proces bì¾í s maximálními privilegii, typicky jako root, a
-poskytuje slu¾by neprivilegovanému procesu bì¾ícím pod pøihlá¹eným u¾ivatelem.
-Takovou slu¾bou je tøeba alokace presudo terminálu, co¾ pod bì¾ným u¾ivatelem
-nelze provést. Idea je taková, ¾e vìt¹ina kódu privilegia roota nepotøebuje,
-èím¾ se výraznì zmen¹í mno¾ství kódu, kde by chyba vedla k získání privilegií
-roota. Tento zpùsob se nazývá \emph{privilege separation} a není mo¾né ho
-dosáhnout pomocí vláken tak, ¾e by rùzná vlákna bì¾ela pod rùznými u¾ivateli,
-proto¾e v¹echna vlákna sdílejí stejný adresový prostor, a ka¾dé ho tak mù¾e
-mìnit.
+\item Not all applications are fit for multithreading as some tasks are not
+inherently parallel in nature.
+\item Even that debugguers typically support threads, the problem is that
+debugging changes timing so when you start debugging things that run in
+parallel, the problem may not reproduce anymore.  That is usually not a problem
+in a single threaded application.
+\item There is an excellent book on programming with POSIX threads by Butenhof,
+see page \pageref{REF_PROGRAMMING}. You can also use an online book
+\emsl{Multithreaded Programming Guide} available on
+\url{http://docs.oracle.com}.
+\item \label{PRIVILEGE_SEPARATION} An example situation when you do not want to
+use threads is if you want to change real and effective UID of processes.  Take
+OpenSSH -- every connection is served by two processes.  One, with maximum
+privileges, usually runs as root, and provides services (allocating a pseudo
+terminal is one of them) to a second, unprivileged process.  The idea is that
+most of the OpenSSH code does not need any special privilege so if a bug is
+found in code that is run under an unprivileged user, the damage is much smaller
+than if such code was run with maximum privileges.  This technique is called a
+\emph{privilege separation} and you could not do the same thing with threads.
 \end{itemize}
 
 \begin{slide}
