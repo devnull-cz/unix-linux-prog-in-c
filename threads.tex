@@ -16,8 +16,8 @@ changequote([[[, ]]])
 \item \emph{thread} = \emph{thread of execution}, a basic software ``thing''
 that can do work on a computer
 \item classic Unix model: single threaded processes
-\item with introduction of threads, a process becomes just data -- address
-space, open files, etc.
+\item with introduction of threads, a process becomes just a container for
+threads
 \item advantages of multithreaded applications
   \begin{itemize}
   \item speed-up -- a typical objective is having threads on multiple CPUs
@@ -33,18 +33,21 @@ space, open files, etc.
 \end{slide}
 
 \begin{itemize}
+\item \emsl{While one has to put resources into sharing data when working with
+processes, one has to put resources into managing
+inherent data sharing if working with threads.}  Note that all threads of the
+same process have equal access to the process virtual address space.
 \item Not all applications are fit for multithreading as some tasks are not
 inherently parallel in nature.
-\item Even that debugguers typically support threads, the problem is that
-debugging changes timing so when you start debugging things that run in
-parallel, the problem may not reproduce anymore.  That is usually not a problem
-in a single threaded application.
+\item Even that debuggers typically support threads, debugging changes timing so
+the problem may not reproduce when using the debugger.  That is usually not an
+issue in a single threaded application.
 \item There is an excellent book on programming with POSIX threads by Butenhof,
 see page \pageref{REF_PROGRAMMING}. You can also use an online book
-\emsl{Multithreaded Programming Guide} available on
+\emph{Multithreaded Programming Guide} available on
 \url{http://docs.oracle.com}.
 \item \label{PRIVILEGE_SEPARATION} An example situation when you do not want to
-use threads is if you want to change real and effective UID of processes.  Take
+use threads is if you want to change a real and effective UID of processes.  Take
 OpenSSH -- every connection is served by two processes.  One, with maximum
 privileges, usually runs as root, and provides services (allocating a pseudo
 terminal is one of them) to a second, unprivileged process.  The idea is that
@@ -55,53 +58,46 @@ than if such code was run with maximum privileges.  This technique is called a
 \end{itemize}
 
 \begin{slide}
-\sltitle{Implementace vláken}
+\sltitle{Implementation of threads}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{description}
 \item[library-thread model]~\\\vspace{-2.5ex}
     \begin{itemize}
-    \item vlákna jsou implementována v knihovnách, jádro je nevidí.
-    \item run-time knihovna plánuje vlákna na procesy a jádro
-    plánuje procesy na procesory. 
-    \item[$\oplus$] men¹í re¾ie pøepínání kontextu 
-    \item[$\ominus$] nemù¾e bì¾et více vláken stejného procesu
-    najednou. 
+    \item threads are implemented in a library.  Kernel has no knowledge of
+    such threads.
+    \item run-time library schedules threads on processes and kernel schedules
+    processes on CPUs
+    \item[$\oplus$] less overhead
+    \item[$\ominus$] more threads of the same process cannot run in parallel
     \end{itemize}
 \item [kernel-thread model]~\\\vspace{-2.5ex}
     \begin{itemize}
-    \item vlákna jsou implementována pøímo jádrem.
-    \item[$\oplus$] více vláken jednoho procesu mù¾e bì¾et najednou
-    na rùzných procesorech.
-    \item[$\ominus$] plánování threadù pou¾ívá systémová volání
-    místo knihovních funkcí, tím více zatì¾uje systém. 
+    \item threads are a first class kernel citizen
+    \item[$\oplus$] more threads of the same process can run in parallel on
+    multiple CPUs
     \end{itemize}
-\item[hybridní modely]~\\\vspace{-2.5ex}
+\item[hybrid models]~\\\vspace{-2.5ex}
     \begin{itemize}
-    \item vlákna se multiplexují na nìkolik jádrem plánovaných
-    entit.
+    \item N library threads scheduled on M kernel threads, N $>=$ M
+    \item[$\ominus$] too complex to implement, not really used today
     \end{itemize}
 \end{description}
 \end{slide}
 
 \begin{itemize}
-\item pùvodnì UNIX s vlákny nepracoval a první implementace byly èistì knihovní,
-bez úèasti jádra. Dnes se pou¾ívá spí¹e implementace vláken v jádru nebo smí¹ený
-model.
-\item \emsl{zatímco pøi práci s více procesy je nutné vyvinout jisté úsilí proto,
-aby dané procesy mohly data sdílet, u vláken je naopak nutné øe¹it situaci, jak
-pøirozené sdíl{}ení dat uhlídat.}
-\item vlákna implementována pouze v knihovnì mohou být preemptivní i
-nepreemptivní. Pro preemptivnost je mo¾né pou¾ít èasovaèe a signály. Pokud
-\emph{multithreading} (= pou¾ití vláken v aplikaci) není pou¾it pro zvý¹ení
-výkonu aplikace, typicky není problém s pou¾itím nepreemptivních vláken.
-Støídání vláken se automaticky dosáhne pou¾íváním blokujících systémových
-volání.
-\item \label{SETJMP} pokud se volání v library-thread modelu zablokuje,
-zablokuje se celý proces, tj. ¾ádné vlákno nemù¾e bì¾et. To vyplývá z toho, ¾e
-jádro v tomto modelu o pojmu vlákno nic neví. Knihovní funkce jsou proto
-pøepsány tak, ¾e místo blokujících volání se pou¾ijí neblokující, aktuální
-kontext se ulo¾í a následnì pøepne na jiné vlákno pomocí volání \texttt{setjmp}
-a \texttt{longjmp}. Pøíklad: \example{pthreads/setjmp.c}.
+\item Original Unix systems used library models.  Today in general the kernel
+model is used.
+\item Threads implemented in a library may be either preemptive or
+non-pre\-emp\-tive.  To achieve preemptiveness, you can use timers and signals.
+However, if the objective is more in better modular programming than real
+parallelism, usually non-preemptive threads do fine.  Switching threads will be
+done when a process would normally block in system calls.
+\item \label{SETJMP} If a system call blocks in a library implemented thread,
+the whole process will block as the kernel has no knowledge there are more
+threads in the process.  So the threading library is written the way that
+non-blocking calls are used, the thread context is saved after that and the
+library switches to another thread via \funnm{setjmp}() and \funnm{longjmp}()
+system calls.  Example: \example{pthreads/setjmp.c}.
 \end{itemize}
 
 \begin{slide}
