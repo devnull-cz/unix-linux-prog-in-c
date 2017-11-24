@@ -501,10 +501,12 @@ tries to be smarter in such situations but not always to your benefit.
 int
 main(void)
 {
-        char c;
-        int i = 0;
+        int i;
+        char c = 'X';
 
-        printf("%d\n", i);
+        for (i = 0; i < 10; ++i)
+                printf("%d\n", i);
+        printf("%c\n", c);
         return (0);
 }
 \end{verbatim}
@@ -516,8 +518,8 @@ main(void)
 \item One of the most important thing of a C style (well, any style) is
 consistency.  And often it is not that important what an exact C style a group
 of coders is going to pick as it is that one specific style is chosen and then
-religiously followed by all in the group.  A good and followed cstyle leads to
-less number of bugs in the code.
+religiously followed by all in the group.  A good and rigorously followed cstyle
+leads to a smaller number of bugs in code.
 \item A pre-push hook that runs a C style check script and refuses to accept any
 changesets not following the chosen C style is a working solution to avoid C
 style violations.
