@@ -408,48 +408,50 @@ nalézt na \url{http://www.open-std.org/}.
 %%%%%
 
 \begin{slide}
-\sltitle{Formáty dat}
+\sltitle{Data formats}
 \begin{itemize}
-\item poøadí bajtù -- závisí na architektuøe poèítaèe
+\item byte ordering -- depends on the architecture
     \begin{itemize}
     \item \raisetab{
     \begin{tabular}[t]{r|c|c|c|c|}
-%    \cline{2-5}
-    big endian: 0x11223344 =
-    &11&22&33&44\\
-%    \cline{2-5}
+    little endian: 0x11223344 =
+    &44&33&22&11\\
     \multicolumn{1}{r}{\texttt{addr +}}&
     \multicolumn{1}{c}{0}&\multicolumn{1}{c}{1}&
     \multicolumn{1}{c}{2}&\multicolumn{1}{c}{3}
     \end{tabular}}
     \item \raisetab{
     \begin{tabular}[t]{r|c|c|c|c|}
-%    \cline{2-5}
-    little endian: 0x11223344 =
-    &44&33&22&11\\
-%    \cline{2-5}
+    big endian: 0x11223344 =
+    &11&22&33&44\\
     \multicolumn{1}{r}{\texttt{addr +}}&
     \multicolumn{1}{c}{0}&\multicolumn{1}{c}{1}&
     \multicolumn{1}{c}{2}&\multicolumn{1}{c}{3}
     \end{tabular}}
     \end{itemize}
-\item øádky textových souborù konèí v UNIXu znakem \emsl{LF}
-(nikoliv \texttt{CRLF}). Volání \verb.putc('\n'). tedy pí¹e pouze
-jeden znak.
-\item big endian -- SPARC, MIPS, sí»ové poøadí bajtù
-\item little endian -- Intel
+\item in Unix, a text file line ends with a single character \emsl{LF} (not two
+characters \emsl{CRLF} as on Windows). Calling \verb.putc('\n'). thus prints
+only one character.
+\item little endian -- Intel, ARM (mostly, but it does support both)
+\item big endian -- SPARC, MIPS, network byte ordering
 \end{itemize}
 \end{slide}
 
 \label{BYTE_ORDERS}
 
 \begin{itemize}
-\item velký pozor na výstupy programù typu \texttt{hexdump}, které defaultnì
-vypisují soubor v 16-ti bitových èíslech, co¾ svádí vidìt soubor jinak, ne¾ jak
-je opravdu zapsaný na disku; viz pøíklad (i386, FreeBSD). První èíslo v souboru
-je znak 'i', který ale reprezentuje ni¾¹ích 8 bitù 16-ti bitového èísla, tak¾e
-pokud vypí¹eme první 2 bajty jako short integer, musí být reprezentace znaku 'i'
-(tj. èíslo 69) a¾ za 6a. Obdobnì pro 'kl'.
+\item \emsl{LF}, \emph{line feed}, sometimes also referred to as \emph{new
+line}, is a character 0x0A (10).  \emsl{CR}, \emph{carriage return}, or simply
+\emph{return}, is a character 0x0D (13).  To further confuse the enemy,
+"classic" Mac OS used a single \emsl{CR} as line breaks.  As present time
+macOS comes from the Unix world, it also uses \emsl{LF} now.
+\item Be careful when using tools like \texttt{hexdump} that by default print
+out a file as 16-bit numbers.  The ordering of individual bytes may not be how
+they are stored in a file.  For example, take FreeBSD on i386.  The first number
+in the file is character ``i'' which represents lower 8 bits of the first 16-bit
+number, so when the first two bytes are printed out as a 16-bit number, the byte
+representing ``i'', ie. ``69'', is shown as the second byte.  Similarly for
+``kl''.
 
 \begin{verbatim}
 $ echo -n ijkl > test
@@ -458,23 +460,31 @@ $ hexdump test
 0000004
 \end{verbatim}
 
-je samozøejmì mo¾né pou¾ít jiný formát výstupu:
+You can use other output formats though, for example as hexa bytes and
+characters in the same output:
 
 \begin{verbatim}
 $ hexdump -C test 
-00000000 69 6a 6b 6c
+00000000 69 6a 6b 6c            |ijkl|
 00000004
 \end{verbatim}
 
-\item UNIX norma pøíkaz \texttt{hexdump} nemá, ale definuje \texttt{od} (octal
-dump), tak¾e zde je jeho \texttt{hexdump}u ekvivalentní formát výpisu na
-\emph{SPARCu} (Solaris); v¹imnìte si zmìny oproti výpisu na \emph{i386} !
+\item The UNIX spec does not list \texttt{hexdump} but defines \texttt{od}
+(octal dump).  The equivalent output for the \texttt{hexdump} default output is
+as follows.  Note that since we did that on SPARC, the output is different from
+the i386 output above!
 
 \begin{verbatim}
 $ od -tx2 test
 0000000 696a 6b6c
 0000004
 \end{verbatim}
+
+\item When you open a text file in classic \texttt{vi} and you see strange
+\verb|^M| characters at the end of every line, it is that \emsl{CR} character
+from a line separator in a file brought over from a Windows system.  Just get
+rid of them via \verb|:%s/^V^M//g| where \verb|^X| means Ctrl+X.  ViM by default
+tries to be smarter in such situations but not always to your benefit.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
