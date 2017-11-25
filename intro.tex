@@ -359,50 +359,64 @@ hand quality for a fraction of the original price.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Jazyk C
 
-\pdfbookmark[1]{The C language}{C}
+\pdfbookmark[1]{The C Programming Language}{C}
 \label{C_LANGUAGE}
 
 \begin{slide}
 \sltitle{The C Programming Language}
 \begin{itemize}
-\item témìø celý UNIX je napsaný v C, pouze nejni¾¹í strojovì
-závislá èást v~assembleru $\Rightarrow$ pomìrnì snadná
-pøenositelnost
-\item navrhl Dennis Ritchie z Bell Laboratories v roce 1972. 
-\item následník jazyka B od Kena Thomsona z Bell Laboratories. 
-\item vytvoøen jako prostøedek pro pøenos OS UNIX na jiné poèítaèe
--- silná vazba na UNIX. 
-\item varianty jazyka:
+\item virtually all Unix kernels are written in C.  Only some HW dependend parts
+are written in assembler.
+\item C came into existence in the years 1969-1973, by Dennis M. Ritchie (\dag
+2011)
+\item it evolved from B, designed by Ken Thomson
+\item created as means to rewrite original Unix in a higher language.  It also
+greatly helped \emsl{portability of the system.}
+\item language variants
     \begin{itemize}
-    \item pùvodní K\&R C 
-    \item standard ANSI/ISO C
+    \item original K\&R C (1978-1979)
+    \item standard ANSI/ISO C (1989), then next C standard revisions
     \end{itemize}
-\item \emsl{úspìch jazyka C daleko pøesáhl úspìch samotného UNIXu}
+\item success of C overcame the success of Unix itself
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item CPL $\Rightarrow$ BCPL $\Rightarrow$ B (Thompson, interpret)
-$\Rightarrow$ C
-\item K\&R C -- jazyk C tak, jak je popsaný v klasické knize Brian W.
-Kernighan, Dennis M. Ritchie: The C Programming Language (Prentice-Hall,
-1978).
-\item v roce 1983 ANSI (American National Standards Institute) zformoval výbor
-pro vytvoøení C standardu. Po dlouhém a pracném procesu byl v roce 1989
-standard koneènì hotov, a je známý nejèastìji jako ``ANSI C'', pøípadnì jako
-C89 (napøíklad pøekladaè pro tuto normu se v Sun Studiu jmenuje \texttt{c89},
-jeliko¾ i to samotné jméno programu musí být podle normy).
-Druhé vydání K\&R knihy (1988) je ji¾ upravené právì pro nadcházející ANSI C.
-V roce 1990 bylo ANSI C adoptováno organizací ISO jako ISO/IEC 9899:1990;
-tento C standard tak mù¾e být nìkdy oznaèován i jako C90.
-\item se C standardem se pak nìjakou dobu nehýbalo, a¾ na konci 90-tých let
-pro¹el dal¹í revizí v rámci ISO a vzniká ISO 9899:1999, èastìji oznaèovaný
-jako C99. V roce 2000 pak naopak tento standard pøevzal ANSI. 
-\item rozdíly mezi C89 a C99 jsou mimo jiné zahrnutí inline funkcí, definicí
-pro\-mìn\-ných napøíklad i do \texttt{for} konstrukce, jednoøádkových
-komentáøù pomocí \texttt{//}, nových funkcí jako \texttt{snprintf} apod.
-\item specifikaci C standardu a mnoho dal¹ích otevøených standardù je mo¾né
-nalézt na \url{http://www.open-std.org/}.
+$\Rightarrow$ C.  Both Thompson and Ritchie worked for Bell Laboratories.
+\item It took many years before C reached its first standard.  Most work on C
+happened in 1972, another peak was in 1977-1979, then in the 1980s ANSI commitee
+was established to provide the first standard on C.  For more information on the
+early C history, see \emph{Dennis M. Ritchie, The Development of the C Language}
+paper, available freely.
+\item K\&R C refers to the C language as described in the first edition of
+\emph{The C Prog\-ramm\-ing Language} classic book by Kernighan and Ritchie,
+Prentice-Hall, 1978.
+\item In 1983 ANSI (American National Standards Institute) formed a commitee
+X3J11 to create the first C standard.  After a long and tedious process the
+standard came to existence as ANSI X3.159-1989 "Programming Language C", and is
+mostly known as ``ANSI C'', or C89, and the command line name for the compiler
+itself was \texttt{c89}.
+\item The 2nd edition of the C book (1988) was updated for the upcoming
+standard as it used one of its final drafts.  In 1990, ANSI C was adopted by ISO
+as ISO/IEC 9899:1990; that standard is sometimes called C90.  It's the same as
+C89 but it renumbered its sections and removed the rationale document which was
+part of ANSI C.  That standard was adopted back by ANSI.  After C89, ANSI never
+got involved in the C standardization anymore, it only adopted each ISO C
+standard.
+\item The next revision of the language was released in 1999 as ISO 9899:1999,
+and informally called C99.  After that, there were three technical corrigendums,
+TC1, TC2, and TC3, so the current version of the C99 standard is the combined
+C99 + TC1 + TC2 + TC3, WG14~N1256, dated 2007-09-07.  It is a work in progress,
+with its current final draft located here,
+\url{http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf}.
+\item After C99, C11 came, officially ISO/IEC 9899:2011.
+\item Some difference between C89 and C99 -- inline functions, variable
+definitions intermixed with code, one-line comments using \texttt{//}, new
+functions like \funnm{snprintf}() etc.
+\item The ISO C standards are not free but the drafts are.  The latest draft for
+each standard is virtually the standard itself, it just not does not say that.
+See \url{http://www.open-std.org/}.
 \end{itemize}
 
 %%%%%
