@@ -462,38 +462,31 @@ system.
 
 %%%%%
 
-\pdfbookmark[1]{System V IPC}{sysvipc}
+\pdfbookmark[1]{IPC}{sysvipc}
 
 \begin{slide}
-\sltitle{System V IPC}
+\sltitle{IPC}
 \begin{itemize}
-\item \emsl{IPC} je zkratka pro \emph{Inter-Process Communication}
-\item komunikace mezi procesy \emsl{v rámci jednoho systému}, tj.
-nezahrnuje sí»ovou komunikaci 
-\item \emsl{semafory} \dots{} pou¾ití pro synchronizaci procesù 
-\item \emsl{sdíl{}ená pamì»} \dots{} pøedávání dat mezi procesy,
-pøiná¹í podobné problémy jako sdíl{}ení souborù, k øe¹ení lze pou¾ít
-semafory 
-\item \emsl{fronty zpráv} \dots{} spojují komunikaci (zpráva nese
-data) se synchronizací (èekání procesu na pøíchod zprávy) 
-\item prostøedky IPC mají podobnì jako soubory definovaná \emsl{pøístupová
-práva} (pro ètení a zápis) pro vlastníka, skupinu a ostatní.
+\item \emsl{IPC} stands for \emph{Inter-Process Communication}
+\item between processes \emsl{in single system}, e.g. does not inlude
+network communication.
+\item \emsl{semaphores} \dots{} used for process synchronization
+\item \emsl{shared memory} \dots{} passing data between processes,
+brings similar problems as shared files, the solution is to use semaphores.
+\item \emsl{message queues} \dots{} provide both communication and
+synchronization (waiting for message to arrive) 
+\item IPC means have \emsl{access rights} (for reading/writing) similarly to
+files for owner, group and others.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item uvìdomte si, ¾e tyto prostøedky se vztahují ke konkrétnímu systému, System
-V, kde se objevily jako první. Dal¹í systémy je pak pøevzaly. \emsl{Ze
-tøí zde uvedených synchronizaèních prostøedkù Systemu V se budeme zabývat pouze
-semafory. Pro sdíl{}enou pamì» je mo¾né pou¾ít ji¾ probrané volání
-\texttt{mmap}, místo zasílání zpráv je mo¾né pou¾ít so\-cke\-ty (budou v nìkteré
-z pøí¹tích pøedná¹ek).}
-\item prostøedky IPC existují i poté, kdy skonèí proces, který je vytvoøil. O
-jejich zru¹ení je nutno explicitnì po¾ádat (ze shellu lze zjistit seznam IPC
-prostøedkù pøíkazem \texttt{ipcs} a smazat je pøíkazem \texttt{ipcrm}). Stav a
-obsah existujících prostøedkù IPC zùstává v platnosti, i kdy¾ s nimi právì
-nepracuje ¾ádný proces (napø. data ve sdíle{}né pamìti zùstávají, i kdy¾ ji
-nemá ¾ádný proces pøipojenou).
+\item IPC resources continue to exist even after the process that created them
+is no longer around. To destroy them it is necessary to explicitly request this.
+From the shell the list of IPS resources can be acquired using 
+the \texttt{ipcs} command. They can be deleted using the \texttt{ipcrm} command.
+The state and contents of existing IPS resources is unchanged even if no process
+works with them at the moment.
 \end{itemize}
 
 %%%%%
