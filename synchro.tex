@@ -36,7 +36,7 @@ that share the same structure and have different values of the
 \label{SYNCHRONIZATION}
 
 \begin{itemize}
-\item operations that can be expressed in C with single statement does not
+\item Operations that can be expressed in C with single statement does not
 have to be atomic. e.g. on RISC processors the command \verb.a++.
 is typically translated into:
 
@@ -51,7 +51,7 @@ directly in memory. For such cases there are sets of functions for atomic
 arithmetic operations (e.g. \texttt{atomic\_add(3c)} on Solaris) that are
 much faster than classic synchronization mechanisms.
 More on page \pageref{ATOMIC_ADD}.
-\item in general similar problem happens when multiple processes share a 
+\item In general similar problem happens when multiple processes share a 
 system resource.
 \item \label{RACE_C} example \example{race/race.c}
 \end{itemize}
@@ -89,7 +89,7 @@ and one of the processes will find out.}}
 \item process \texttt{A} reads the value of the structure \texttt{(2, 1)}
 earlier than process \texttt{B} writes member \texttt{b}
 \end{enumerate}
-\item note that synchronization problems surface only after when the program
+\item Note that synchronization problems surface only after when the program
 is running on multiprocessor(core) machine or on more processors than
 what is used when development. Something to think about when testing.
 \end{itemize}
@@ -135,7 +135,7 @@ while one processes modifies the structure, the other cannot manipulate it.
 \label{CRITICALSECTION}
 
 \begin{itemize}
-\item it is necessary to ensure mutual exclusion also when reading,
+\item It is necessary to ensure mutual exclusion also when reading,
 so that the process that is reading cannot read inconsistent state while
 another process is changing it. While writing it is necessary to exclude
 all other processes. While reading it is sufficient to exlude only writers.
@@ -170,7 +170,7 @@ multiple processes can read simultaneously.
 
 \begin{itemize}
 \item 2 situations are permitted: one writer or multiple readers
-\item on local disk the synchronization of writers can be archived via the
+\item On local disk the synchronization of writers can be archived via the
 \texttt{O\_APPEND} flag, however this is not going to work on network file
 systems such as NFS or in case it is necessary to perform multiple
 \texttt{write()} operations for single record. Moreover this does not solve
@@ -234,7 +234,7 @@ situations.
 \end{slide}
 
 \begin{itemize}
-\item both Dekker and Peterson need to achieve the result only shared memory,
+\item Both Dekker and Peterson need to achieve the result only shared memory,
 i.e. several variables shared by processes.
 \item Dekker's solution is presented as a first solution to the problem of
 mutual exlusion of 2 processes, without having to apply the mechanism of
@@ -242,7 +242,7 @@ strict alternation, i.e. if second process does not express will to enter
 critical section, the first can enter how many times it wants (and vice versa).
 Dekker's solution is not trivial, compare it with 16 year younger
 Peterson solution, e.g. on \texttt{en.wikipedia.org}.
-\item we are not going to deal with theoretical algorithms or compare hardware
+\item We are not going to deal with theoretical algorithms or compare hardware
 mechanisms used by the kernel. Instead we are going to focus on the use of 
 file level locking (which use the atomicity of some file operations)
 and special synchronization primitives offered by the kernel.
@@ -289,7 +289,7 @@ the process does not exist, it can lead to error. First process deletes the
 lock file and creates new one with its PID. Next process does the same,
 because the operation of reading file contents and removing it is not atomic.
 Now both processes think they acquired the lock.
-\item \emsl{problem:} the \texttt{lock()} function contains active waiting.
+\item \emsl{Problem:} the \texttt{lock()} function contains active waiting.
 This can be solved e.g. so that the process that acquired the lock can open
 named pipe for writing. Reader processes will enter sleep by reading from the
 pipe.
@@ -324,8 +324,8 @@ the same program are unwanted.
 \end{slide}
 
 \begin{itemize}
-\item locking of files over NFS is done via the \texttt{lockd} daemon.
-\item there are 2 types of locks:
+\item Locking of files over NFS is done via the \texttt{lockd} daemon.
+\item There are 2 types of locks:
     \begin{description}
     \item [advisory locks] -- for correct operation it is necessary that all
     processes working with locked files to check locks before reading/writing.
@@ -404,7 +404,7 @@ closes the password database.}
 \item The \texttt{lockf} function (SUSv3) is simpler variant of
 \texttt{fcntl}, specifies only how to lock and how many bytes from the current
 position in the file. Very often implemented as \texttt{fcntl} wrapper.
-\item example \example{file-locking/lockf.c} demonstrates how mandatory
+\item The example \example{file-locking/lockf.c} demonstrates how mandatory
 locking works and the use of the \texttt{lockf} function.
 \end{itemize}
 
