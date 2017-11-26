@@ -14,32 +14,31 @@ changequote([[[, ]]])
 \pdfbookmark[1]{shared data conflict}{conflict}
 
 \begin{slide}
-\sltitle{Problém: konflikt pøi sdíl{}ení dat}
+\sltitle{Problem: conflict while sharing data}
 \begin{itemize}
-\item máme strukturu \texttt{struct \{ int a, b; \} \emph{shared};}
+\item \texttt{struct \{ int a, b; \} \emph{shared};}
 \item
 \begin{alltt}
 for( ; ; ) \{
-    \emprg{/* neatomická operace */
+    \emprg{/* non-atomic operation */
     a = shared.a; b = shared.b;}
-    if (a != b) printf("NEKONZISTENTNÍ STAV");
-    \emprg{/* neatomická operace */
+    if (a != b) printf("NON-CONSISTENT STATE");
+    \emprg{/* non-atomic operation */
     shared.a = val; shared.b = val;}
 \} 
 \end{alltt}
-\item jestli¾e tento cyklus spustíme ve dvou rùzných procesech (nebo
-vláknech), které obì sdílejí stejnou strukturu shared a mají rùzné hodnoty
-\texttt{val}, bude docházet ke konfliktùm. 
-\item pøíèina: operace na zvýraznìných øádcích nejsou atomické.
+\item if the cycle is run in 2 proceses running in parallel (or threads)
+that share the same structure and have different values of the
+\texttt{val} variable, it will lead to conflicts due to non-atomic operations.
 \end{itemize}
 \end{slide}
 
 \label{SYNCHRONIZATION}
 
 \begin{itemize}
-\item ani operace, kterou lze v C zapsat jedním pøíkazem, nemusí být
-atomická.  Pø.: na RISC\-ových procesorech se pøíkaz \verb.a++.
-typicky pøelo¾í jako sekvence:
+\item operations that can be expressed in C with single statement does not
+have to be atomic. e.g. on RISC processors the command \verb.a++.
+is typically translated into:
 
 \begin{verbatim}
 load reg,[a]
@@ -47,51 +46,52 @@ inc reg
 store [a],reg
 \end{verbatim}
 
-a to z toho dùvodu, ¾e na této architektuøe nelze inkrementovat èíslo pøímo v
-pamìti. Pro tyto pøípady má napøíklad Solaris sadu funkcí
-\texttt{atomic\_add(3c)}, jejich¾ pou¾ití je mnohem rychlej¹í ne¾ klasické
-zamykací mechanismy. Více viz strana \pageref{ATOMIC_ADD}.
-\item obecnì obdobný problém nastává, kdy¾ více procesù sdílí nìjaký systémový
-zdroj.
-\item \label{RACE_C} pøíklad: \example{race/race.c}
+due to the fact that on this architecture numbers cannot be incremented
+directly in memory. For such cases there are sets of functions for atomic
+arithmetic operations (e.g. \texttt{atomic\_add(3c)} on Solaris) that are
+much faster than classic synchronization mechanisms.
+More on page \pageref{ATOMIC_ADD}.
+\item in general similar problem happens when multiple processes share a 
+system resource.
+\item \label{RACE_C} example \example{race/race.c}
 \end{itemize}
 
 
 %%%%%
 
 \begin{slide}
-\sltitle{Scénáø konfliktu}
+\sltitle{Conflict scenario}
 \begin{tabular}{rl@{\hspace{2cm}}|c|c|}
-\multicolumn{2}{l}{Procesy \emsl{A}\texttt{(val==1)} a
+\multicolumn{2}{l}{Processes \emsl{A}\texttt{(val==1)} and
 \emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
 \multicolumn{1}{c}{\texttt{b}}\\
 % \cline{3-4}
-1. & poèáteèní stav struktury & ? & ? \\
+1. & initial structure state & ? & ? \\
 % \cline{3-4}
-2. & proces \emsl{A} zapí¹e do polo¾ky \texttt{a} & 1 & ? \\
+2. & process \emsl{A} writes to member \texttt{a} & 1 & ? \\
 % \cline{3-4}
-3. & proces \emsl{B} zapí¹e do polo¾ky \texttt{a} & 2 & ? \\
+3. & process \emsl{B} writes to member \texttt{a} & 2 & ? \\
 % \cline{3-4}
-4. & proces \emsl{B} zapí¹e do polo¾ky \texttt{b} & 2 & 2 \\
+4. & process \emsl{B} writes to member \texttt{b} & 2 & 2 \\
 % \cline{3-4}
-5. & proces \emsl{A} zapí¹e do polo¾ky \texttt{b} & 2 & 1 \\
+5. & process \emsl{A} writes to member \texttt{b} & 2 & 1 \\
 % \cline{3-4}
-6. & \multicolumn{1}{l}{\parbox[t]{5cm}{struktura je v nekonzistentním stavu
-a jeden z procesù to zjistí.}}
+6. & \multicolumn{1}{l}{\parbox[t]{5cm}{the structure is in inconsistent state
+and one of the processes will find out.}}
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item dal¹í mo¾nost:
+\item more possibilities:
 \begin{enumerate}
-\item struktura je v konzistentním stavu, napø. \texttt{(1, 1)}
-\item proces \texttt{B} zapí¹e \texttt{2} do polo¾ky \texttt{a}
-\item proces \texttt{A} pøeète hodnotu struktury \texttt{(2, 1)}
-døíve, ne¾ proces \texttt{B} stihne zapsat polo¾ku \texttt{b}
+\item structure is in inconsistent state, e.g. \texttt{(1, 1)}
+\item process \texttt{B} writes \texttt{2} into member \texttt{a}
+\item process \texttt{A} reads the value of the structure \texttt{(2, 1)}
+earlier than process \texttt{B} writes member \texttt{b}
 \end{enumerate}
-\item pozor na to, ¾e synchronizaèní problémy se èasto projeví a¾ na
-víceprocesorovém stroji, nebo na více procesorech ne¾ kolik jich máte pøi vývoji
-k dispozici apod. Je tøeba na to myslet pøi testování.
+\item note that synchronization problems surface only after when the program
+is running on multiprocessor(core) machine or on more processors than
+what is used when development. Something to think about when testing.
 \end{itemize}
 
 %%%%%
@@ -99,123 +99,114 @@ k dispozici apod. Je tøeba na to myslet pøi testování.
 \pdfbookmark[1]{mutual exclusion}{mutexcl}
 
 \begin{slide}
-\sltitle{Øe¹ení: vzájemné vylouèení procesù}
+\sltitle{Solution: mutual process exlusion}
 \begin{itemize}
-\item je potøeba zajistit atomicitu operací nad strukturou, tzn.
-jeden proces provádí modifikaci a dokud neuvede strukturu do
-konzistentního stavu, druhý proces s ní nemù¾e manipulovat. 
+\item it is necessary to ensure atomic operation on the structure, i.e.
+while one processes modifies the structure, the other cannot manipulate it. 
 \end{itemize}
 \begin{tabular}{rl@{\hspace{2cm}}|c|c|}
-\multicolumn{2}{l}{Procesy \emsl{A}\texttt{(val==1)} a
+\multicolumn{2}{l}{Processes \emsl{A}\texttt{(val==1)} and
 \emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
 \multicolumn{1}{c}{\texttt{b}}\\
 % \cline{3-4}
-1. & poèáteèní stav struktury & ? & ? \\
+1. & initial structure state & ? & ? \\
 % \cline{3-4}
-2. & proces \emsl{A} zapí¹e do polo¾ky \texttt{a} & 1 & ? \\
+2. & process \emsl{A} writes to member \texttt{a} & 1 & ? \\
 % \cline{3-4}
 \setbox0=\hbox{$\left\{\vphantom{\begin{tabular}{c}\hline1\\
 \hline1\\ \hline1\\ \hline \end{tabular}}\right.$}
 \ht0=0pt\dp0=0pt\box0
-3. & proces \emsl{B} musí èekat & 1 & ? \\
+3. & process \emsl{B} must wait & 1 & ? \\
 % \cline{3-4}
-4. & proces \emsl{A} zapí¹e do polo¾ky \texttt{b} & 1 & 1 \\
+4. & process \emsl{A} writes to member \texttt{b} & 1 & 1 \\
 % \cline{3-4}
 \setbox0=\hbox{$\left\{\vphantom{\begin{tabular}{c}\hline1\\
 \hline1\\ \hline \end{tabular}}\right.$}
 \dimen0=\ht0 \advance\dimen0 by \dp0 \dimen0=0.25\dimen0
 \ht0=0pt\dp0=0pt \raisebox{-\dimen0}{\box0}%
-5. & proces \emsl{B} zapí¹e do polo¾ky \texttt{a} & 2 & 1 \\ 
+5. & proces \emsl{B} writes to member \texttt{a} & 2 & 1 \\ 
 % \cline{3-4}
-6. & proces \emsl{B} zapí¹e do polo¾ky \texttt{b} & 2 & 2 \\ 
+6. & proces \emsl{B} writes to member \texttt{b} & 2 & 2 \\ 
 % \cline{3-4}
-7. & \multicolumn{1}{l}{Struktura je v konzistentním stavu.}\\
+7. & \multicolumn{1}{l}{the structure is consistent.}\\
 \end{tabular}
 \end{slide}
 
 \label{CRITICALSECTION}
 
 \begin{itemize}
-\item je tøeba zajistit vzájemné vylouèení i pøi ètení, aby ètoucí proces
-nepøeèetl nekonzistentní obsah struktury uprostøed zmìn. Pøi zápisu je nutné
-vylouèit v¹echny ostatní procesy, ale pøi ètení staèí vylouèit jen zápis,
-souèasné ètení více procesy nevadí.
-\item \emsl{\emph{kritická sekce}} je kus kódu, který by mìl provádìt pouze jeden
-proces nebo vlákno, jinak mù¾e dojít k nekonzistencím; napøíklad ¹patnì
-pospojovaný vázaný seznam, neodpovídající si indexy v databázi apod. Je mo¾né to
-definovat i tak, ¾e kritická sekce je kód, který pøistupuje k nebo modifikuje
-blí¾e neurèený zdroj sdíl{}ený více procesy nebo vlákny a proto je nutné pøístup k
-takovému kódu synchronizovat. Kritická sekce by mìla být co nejkrat¹í, aby
-ostatní procesy (vlákna) ¾ádající o vstup do této sekce èekaly co nejkrat¹í
-mo¾nou dobu. Druhá definice je o nìco obecnìj¹í, proto¾e se do ní vejdou i
-situace, kdy pouze jeden proces nebo vlákno mù¾e stav mìnit, ale pokud se tak
-nedìje, mù¾e více procesù èi vláken daný stav èíst, to znamená ¾e kód kritické
-sekce za jistých pøesnì definovaných podmínek mù¾e vykonávat více procesù nebo
-vláken najednou.
+\item it is necessary to ensure mutual exclusion also when reading,
+so that the process that is reading cannot read inconsistent state while
+another process is changing it. While writing it is necessary to exclude
+all other processes. While reading it is sufficient to exlude only writers.
+\item \emsl{\emph{critical section}} is piece of code that can be executed
+only in one process (or thread), otherwise the operations can lead to
+inconsistent state, e.g. wrongly connected linked list, mismatched database
+indexes etc. It is possible to say that critical section is code which accesses
+or modifies resource shared with multiple processes (or threads) and therefore
+access to such code should be synchronized. Critical section should be as
+short as possible to limit contention. The second definition is more generic,
+it can also include situations where only one process (or thread) can change
+the state however if this is not happening, more processes can read
+simultaneously.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Problém: konflikt zapisovatelù a ètenáøù}
+\sltitle{Problem: readers and writers conflict}
 \begin{itemize}
-\item nìkolik bì¾ících procesù zapisuje protokol o své èinnosti do
-spoleèného log-souboru. Nový záznam je pøipojen v¾dy na konec
-souboru. 
-\item pokud zápis záznamu není proveden atomickou operací, mù¾e
-dojít k promíchání více souèasnì zapisovaných záznamù. 
-\item zapisovat smí v¾dy pouze jeden proces. 
-\item dal¹í procesy ètou data z log-souboru. 
-\item pøi pøeètení právì zapisovaného záznamu obdr¾íme nesprávná
-(neúplná) data. 
-\item bìhem operace zápisu ze souboru nelze èíst. Kdy¾ nikdo
-nezapisuje, mù¾e více procesù èíst souèasnì.
+\item several processes running in parallel write protocol with operations
+to common log file. Each new record is appended to the end of the file.
+\item if the record writing operation is not atomic, the contents of multiple
+records can be interleaved.
+\item only single process can write.
+\item other processes read data from the log file.
+\item while reading record that is being written inconsitent data is retrived.
+\item while writing, it is not possible to read. If no process is writing,
+multiple processes can read simultaneously.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item povoleny jsou tedy 2 situace: jeden zapisovatel nebo více ètenáøù
-\item na lokálním disku lze pro synchronizaci zapisovatelù pou¾ít øe¹ení pomocí
-pøí\-zna\-ku \texttt{O\_APPEND}, které ale nebude fungovat napø. na vzdál{}eném
-disku pøístupném pøes NFS nebo v pøípadì, ¾e zápis jedné logovací zprávy je
-proveden více ne¾ jedním voláním \texttt{write()}. Navíc to neøe¹í synchronizaci
-ètenáøù -- lze èíst i v prùbìhu zápisu.
+\item 2 situations are permitted: one writer or multiple readers
+\item on local disk the synchronization of writers can be archived via the
+\texttt{O\_APPEND} flag, however this is not going to work on network file
+systems such as NFS or in case it is necessary to perform multiple
+\texttt{write()} operations for single record. Moreover this does not solve
+the situation of readers -- it is still possible to read while writing.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Øe¹ení: zamykání souborù}
+\sltitle{Solution: file locking}
 \begin{itemize}
-\item zapisující proces zamkne soubor pro zápis. Ostatní procesy
-(zapisovatelé i ètenáøi) se souborem nemohou pracovat a musí èekat
-na odemèení zámku. 
-\item ètoucí proces zamkne soubor pro ètení. Zapisovatelé musí èekat
-na odemèení zámku, ale ostatní ètenáøi mohou také zamknout soubor
-pro ètení a èíst data. 
-\item v jednom okam¾iku mù¾e být na souboru aktivní nejvý¹e jeden
-zámek pro zápis nebo libovolnì mnoho zámkù pro ètení, ale ne oba
-typy zámkù souèasnì. 
-\item z dùvodu efektivity by ka¾dý proces mìl dr¾et zámek co
-nejkrat¹í dobu a pokud mo¾no nezamykat celý soubor, ale jen úsek, se
-kterým pracuje.  Preferované je pasivní èekání, aktivní èekání je
-vhodné jen na velmi krátkou dobu.
+\item writer process locks the file for writing. Other processes
+(readers and writers) cannot work with the file and have to wait for the lock
+to be unlocked.
+\item reader process locks the file for reading. Writers have to wait
+for the lock, other readers can also lock the file for reading and read data.
+\item in each moment there can be at most active lock for writing or multiple
+locks for reading. Both locks cannot be locked simultaneously.
+\item for efficiency each process should hold the lock for shortest time
+possible and if possible do not lock the whole file -- only the section that 
+is being worked with. Passive waiting is preferred, active waiting is
+suitable for very short time.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item dva zpùsoby èekání:
+\item 2 ways of waiting:
 \begin{description}
-\item[aktivní (busy waiting)] -- proces v cyklu testuje podmínku, na
-kterou èeká, dokud není splnìna
-\item[pasivní] -- proces se zaregistruje v jádru jako èekající na
-podmínku a pak se uspí, jádro ho probudí, kdy¾ dojde ke splnìní
-podmínky
+\item[active (busy waiting)] -- process test a condition in a cycle while it
+is not true.
+\item[passive] -- processer registers itself in the kernel as a waiting for
+the condition and goes asleep. The kernel wakes it up if the condition becomes
+true.
 \end{description}
-\item \label{BUSYWAITING} aktivní èekání je ospravedlnitelné pouze ve
-speciálních situacích. Na takové situace asi v zápoètovém programu nenarazíte a
-urèitì ne v pøíkladu u zkou¹ky. \emsl{Pou¾ití aktivního èekání v takovém pøípadì
-automaticky znamená nesplnìní zadání písemky.}
+\item \label{BUSYWAITING} active waiting is justifiable only in special
+situations.
 \end{itemize}
 
 %%%%%
@@ -223,43 +214,38 @@ automaticky znamená nesplnìní zadání písemky.}
 \pdfbookmark[1]{synchronization mechanisms}{synchromechs}
 
 \begin{slide}
-\sltitle{Synchronizaèní mechanismy}
+\sltitle{Synchronization mechanisms}
 \begin{itemize}
-\item teoretické øe¹ení -- algoritmy vzájemného vylouèení (Dekker
+\item theoretical solution -- mutual exclusive algorithms (Dekker
 1965, Peterson 1981) 
-\item zákaz pøeru¹ení (na 1 CPU stroji), speciální \emph{test-and-set} instrukce
-\item \emsl{lock-soubory}
-\item nástroje poskytované operaèním systémem 
+\item interrupt disable (1 CPU), special \emph{test-and-set} instructions
+\item \emsl{lock-files}
+\item tools offered by the operating system:
     \begin{itemize}
-    \item \emsl{semafory} (souèást System V IPC) 
-    \item \emsl{zámky pro soubory} (\texttt{fcntl()}, \texttt{flock()}) 
-    \item synchronizace vláken: \emsl{mutexy} (ohranièují kritické
-    sekce, pouze jedno vlákno mù¾e dr¾et mutex), \emsl{podmínkové
-    promìnné} (zablokují vlákno, dokud jiné vlákno nesignalizuje
-    zmìnu podmínky), \emsl{read-write zámky} (sdíl{}ené a exkluzivní
-    zámky, podobnì jako pro soubory)
+    \item \emsl{semaphores} (POSIX, System V IPC) 
+    \item \emsl{file level locking} (\texttt{fcntl()}, \texttt{flock()}) 
+    \item thread synchronization: \emsl{mutexes} (surround critical sections,
+    only one thread can hold the mutex), \emsl{condition variables}
+    (the thread is blocked until another thread signals condition change)
+    \emsl{read-write locks} (shared and exclusive locks, simular semantics
+    to file level locking)
     \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Dekker i Peterson potøebují k dosa¾ení po¾adavaného výsledku
-\emsl{pouze sdíle{}nou pamì»}, tj. nìkolik promìnných sdíle{}ných obìma
-procesy.
-\item Dekkerovo øe¹ení se udává jako první øe¹ení problému
-vzájemného vylouèení dvou procesù, ani¾ by bylo nutné aplikovat
-naivní algoritmus striktního støí\-dá\-ní, tj. pokud druhý proces
-nevykazoval zájem o vstup do kritické sekce, mohl tam první (a
-naopak) proces vstoupit tolikrát za sebou, kolikrát chtìl. Dekkerovo
-øe¹ení není vùbec triviální, porovnejte s o 16 let mlad¹ím øe¹ením
-Petersonovým, napøíklad na \texttt{en.wikipedia.org} (hledejte ``Dekker's
-algorithm'', ``Peterson's algorithm'')
-\item my se nebudeme zabývat teoretickými algoritmy vzájemného
-vylouèení ani nebudeme popisovat hardwarové mechanismy pou¾ívané
-jádrem.  Zamìøíme se pouze na pou¾ití lock souborù (které vyu¾ívají
-atomiènosti nìkterých souborových operací) a speciálních
-synchronizaèních nástrojù poskytovaných jádrem.
-\item podmínkové promìnné = \emph{conditional variables}
+\item both Dekker and Peterson need to achieve the result only shared memory,
+i.e. several variables shared by processes.
+\item Dekker's solution is presented as a first solution to the problem of
+mutual exlusion of 2 processes, without having to apply the mechanism of
+strict alternation, i.e. if second process does not express will to enter
+critical section, the first can enter how many times it wants (and vice versa).
+Dekker's solution is not trivial, compare it with 16 year younger
+Peterson solution, e.g. on \texttt{en.wikipedia.org}.
+\item we are not going to deal with theoretical algorithms or compare hardware
+mechanisms used by the kernel. Instead we are going to focus on the use of 
+file level locking (which use the atomicity of some file operations)
+and special synchronization primitives offered by the kernel.
 \end{itemize}
 
 %%%%%
@@ -267,18 +253,17 @@ synchronizaèních nástrojù poskytovaných jádrem.
 \pdfbookmark[1]{lock files}{lockfiles}
 
 \begin{slide}
-\sltitle{Lock-soubory}
+\sltitle{Lock files}
 \begin{itemize}
-\item pro ka¾dý sdíle{}ný zdroj existuje dohodnuté jméno souboru.
-Zamèení zdroje se provede vytvoøením souboru, odemèení smazáním
-souboru. Ka¾dý proces musí otestovat, zda soubor existuje, a pokud
-ano, tak poèkat. 
+\item for each shared resource there exists previously agreed file path.
+Locking is done by creating the file, unlocking by removing the file.
+Each process must check if the file exists and if yes, has to wait.
 \end{itemize}
 \begin{alltt}
 void \funnm{lock}(char *lockfile) \{ 
     while( (fd = open(lockfile, 
                       O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) 
-        sleep(1); {\rm /* Èekáme ve smyèce na odemèení */}
+        sleep(1); {\rm /* waiting in a loop for unlock */}
     close(fd); 
 \} 
 
@@ -289,35 +274,29 @@ void \funnm{unlock}(char *lockfile) \{
 \end{slide}
 
 \begin{itemize}
-\item \label{LOCK_UNLOCK} klíèem k úspìchu je samozøejmì pou¾ití flagu
-\texttt{O\_EXCL}
-\item pøíklad: \example{file-locking/lock-unlock.c}, a pou¾ijte spoleènì se
-shellovým skriptem \example{file-locking/run.sh}.
-\item pøi havárii procesu nedojde ke zru¹ení pøípadných zámkù a ostatní procesy
-by èekaly vìènì. Proto je vhodné si do lock-souboru poznamenat PID procesu,
-který zámek vytvoøil. Proces, který èeká na odemèení, mù¾e testovat, zda proces,
-kterému zámek patøí, stále bì¾í. Kdy¾ ne, lze zámek zru¹it a znovu zkusit
-vytvoøit. User level pøíkaz který toto umí a dovoluje pou¾ívat lock soubory z
-shellových skriptù je napøíklad \emsl{shlock}(1) (na FreeBSD v
-\texttt{/usr/ports/sysutils/shlock}), teoreticky by v¹ak mohl zpùsobit situaci z
-následujícího odstavce.
-\item \emsl{pozor:} jestli¾e více procesù najednou zjistí, ¾e proces dr¾ící
-zámek u¾ neexistuje, mù¾e dojít k následující chybì. První proces sma¾e zámek a
-znovu ho vytvoøí se svým PID. Dal¹í proces udìlá toté¾, proto¾e operace pøeètení
-obsahu souboru a jeho následného smazání není atomická. Teï si ale oba procesy
-myslí, ¾e získaly zámek!
-\item \emsl{problém:} funkce \texttt{lock()} obsahuje aktivní èekání na uvolnìní
-zámku. Lze øe¹it napø. tak, ¾e proces, který získá zámek, otevøe pro zápis
-pojmenovanou rouru. Èekající procesy se uspí tím, ¾e zkusí èíst z roury.
-Souèástí \texttt{unlock()} bude i zavøení roury a tím uvolnìní èekajících
-procesù. \label{SLEEP1} \emsl{Upozoròuji na to, ¾e zkou¹kové pøíklady pro zadání
-obsahující jakoukoli synchronizaci nejsou akceptovány jako správné, pokud je
-jakkoli pou¾ito aktivní èekání, vèetnì ukázaného øe¹ení typu \texttt{sleep(1)}
-volaného ve smyèce.}
-\item lock soubory se v praxi vìt¹inou pou¾ívají pouze pro situace, kdy se
-napøíklad hlídá násobné spu¹tìní té¾e aplikace. \emsl{Ze zku¹enosti radìji opìt
-upozoròuji, ¾e pokud je bude student na zkou¹ce pou¾ívat napøíklad pro
-synchronizaci vláken, neuspìje.}
+\item \label{LOCK_UNLOCK} The key is the \texttt{O\_EXCL} flag.
+\item example: \example{file-locking/lock-unlock.c} -- use together with 
+the \example{file-locking/run.sh} shell script.
+\item In case of process crash the locks are not removed and therefore other
+processes would wait forever. Thus it is prudent to write PID of the process 
+that created the lock to the lock file. The process that is waiting for unlock
+can verify that the process with given PID number exists. If not, it can remove
+the lock file and retry. User level command that can do this is e.g.
+\emsl{shlock}(1) (on FreeBSD in \texttt{/usr/ports/sysutils/shlock}), however
+could cause situation in the following paragraph:
+\item \emsl{watch out:} if multiple processes find out simultaneously that
+the process does not exist, it can lead to error. First process deletes the
+lock file and creates new one with its PID. Next process does the same,
+because the operation of reading file contents and removing it is not atomic.
+Now both processes think they acquired the lock.
+\item \emsl{problem:} the \texttt{lock()} function contains active waiting.
+This can be solved e.g. so that the process that acquired the lock can open
+named pipe for writing. Reader processes will enter sleep by reading from the
+pipe.
+The \texttt{unlock()} will close the pipe and so the waiting processes will
+be unblocked.
+\item Lock files are usually used for situations where multiple instances of
+the same program are unwanted.
 \end{itemize}
 
 %%%%%
@@ -325,57 +304,55 @@ synchronizaci vláken, neuspìje.}
 \pdfbookmark[1]{fcntl}{fcntl}
 
 \begin{slide}
-\sltitle{Zamykání souborù: \texttt{fcntl()}}
+\sltitle{file locking: \texttt{fcntl()}}
 \texttt{int \funnm{fcntl}(int \emph{fildes}, int \emph{cmd}, ...);}
 \begin{itemize}
-\item k nastavení zámkù pro soubor \texttt{fildes} se pou¾ívá
+\item to set locks for file \texttt{fildes}:
 \texttt{cmd}: 
     \begin{itemize}
-    \item \texttt{F\_GETLK} \dots{} vezme popis zámku z tøetího argumentu a
-    nahradí ho popisem existujícího zámku, který s ním koliduje 
-    \item \texttt{F\_SETLK} \dots{} nastaví nebo zru¹í zámek popsaný tøetím
-    argumentem, pokud nelze zámek nastavit, ihned vrací $-1$
-    \item \texttt{F\_SETLKW} \dots{} jako \texttt{F\_SETLK}, ale uspí
-    proces, dokud není mo¾né nastavit zámek (\texttt{W} znamená ``wait'')
+    \item \texttt{F\_GETLK} \dots{} takes lock description from 3rd argument
+    and replaces it with description of existing lock that collides with it.
+    \item \texttt{F\_SETLK} \dots{} sets or destroys lock described by the 3rd
+    argument. If the lock cannot be set immediately returns $-1$.
+    \item \texttt{F\_SETLKW} \dots{} like \texttt{F\_SETLK}, however puts
+    the process to sleep if it is not possible to set the lock 
+    (\texttt{W} means ``wait'')
     \end{itemize}
-\item tøetí argument obsahuje popis zámku a je typu ukazatel na
+\item 3rd argument contains lock description and is pointer to 
 \texttt{struct flock}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item zamykání souborù sdíle{}ných pøes NFS zaji¹»uje démon
-\texttt{lockd}.
-\item zámky jsou obecnì dvou typù:
+\item locking of files over NFS is done via the \texttt{lockd} daemon.
+\item there are 2 types of locks:
     \begin{description}
-    \item [advisory locks] -- pro správnou funkci musí v¹echny procesy
-    pracující se zámèenými soubory kontrolovat zámky pøed ètením nebo zápisem
-    souboru; jsou více pou¾ívané
-    \item [mandatory locks] -- jestli¾e je na souboru zámek, budou ètecí a
-    zápisové operace se souborem automaticky zablokovány, tj. zámek se uplatní
-    i v procesech, které ho explicitnì nekontrolují
+    \item [advisory locks] -- for correct operation it is necessary that all
+    processes working with locked files to check locks before reading/writing.
+    used more frequently.
+    \item [mandatory locks] -- if a file is locked, read/write operations will
+    automatically block the process, i.e. the lock will be applied also on
+    processes that do not explicitly work with the lock.
         \begin{itemize}
 	\label{MANDATORY}
-	\item nedoporuèují se, ne v¾dy fungují (napø. \texttt{lockd}
-	implementuje pouze advisory locking)
-	\item pro urèitý soubor se zapne nastavením bitu SGID a zru¹ením práva
-	spu¹tìní pro skupinu (tj. nastavení, které jinak nemá velký smysl - mít
-	set GID executable bit na souboru, který není spustitelný).
-	Funguje to tak, ¾e jeden proces si vezme zámek na daném souboru 
-	(napø. pomocí \texttt{fcntl}). Dal¹í procesy pak nemusí explicitnì
-	zamykat, proto¾e ka¾dou operaci \texttt{open/read/write} s daným
-	souborem kontroluje kernel
-	proti zámkùm na souboru a vynutí èekání a¾ do chvíle kdy je zámek
-	explicitnì první procesem uvolnìn.\\
-	Systém, který mandatory locking implementuje, je napøíklad Solaris nebo
-	Linux, FreeBSD tuto vlastnost naopak nepodporuje. Ma\-nu\-á\-lo\-vá
-	stránka fcntl(2) na Linuxu (2013) nedoporuèuje mandatory locking
-	pou¾ívat, proto¾e Linuxová implementace obsahuje chyby které vedou k
-	soubìhu a mandatory zamykání nedoká¾e tedy zajistit konzistenci.
+	\item not universally recommended, do not always work
+        (e.g. \texttt{lockd} implements just advisory locking)
+	\item for given file they are enabled by setting the SGID bit and
+        removing right to execute for the group
+	(tj. setting that otherwise does not make sense).
+	One process sets the lock (e.g. using \texttt{fcntl}). Other processes
+	then do not have to check the lock explicitly because each
+	\texttt{open/read/write} operation is checked by the kernel against
+	the file locks and enforces waiting till the lock is explicitly
+	unlocked by the owner process.\\
+	\item implemented e.g. on Solaris, Linux. FreeBSD does not support it.
+	The fcntl(2) man page on Linuxu (2013) does not recommend it because
+	the implementation contains errors that could lead to race conditions
+	and therefore the consistency cannot be generally achieved.
         \end{itemize}
     \end{description}
-\item Je dùle¾ité si uvìdomit, ¾e po skonèení procesu se v¹echny zámky, které
-dr¾el uvolní.
+\item It is important to realize that when process exits, all its locks are
+released.
 \end{itemize}
 
 %%%%%
@@ -383,41 +360,36 @@ dr¾el uvolní.
 \pdfbookmark[1]{flock}{flock}
 
 \begin{slide}
-\sltitle{Zamykání souborù: \texttt{struct flock}}
+\sltitle{File locking: \texttt{struct flock}}
 \begin{itemize}
 \item \texttt{l\_type} \dots{} typ zámku 
     \begin{itemize}
-    \item \texttt{F\_RDLCK} \dots{} sdíl{}ený zámek (pro ètení), více
-    procesù 
-    \item \texttt{F\_WRLCK} \dots{} exkluzivní zámek (pro zápis),
-    jeden proces 
-    \item \texttt{F\_UNLCK} \dots{} odemèení 
+    \item \texttt{F\_RDLCK} \dots{} shared lock (for reading)
+    \item \texttt{F\_WRLCK} \dots{} exclusive lock (for writing)
+    \item \texttt{F\_UNLCK} \dots{} unlock
     \end{itemize}
-\item \texttt{l\_whence} \dots{} jako u \texttt{lseek()}, tj.
+\item \texttt{l\_whence} \dots{} same as for \texttt{lseek()}, i.e.
 \texttt{SEEK\_SET},
 \texttt{SEEK\_CUR}, \texttt{SEEK\_END}
-\item \texttt{l\_start} \dots{} zaèátek zamykaného úseku vzhledem k
+\item \texttt{l\_start} \dots{} start of locked region with regards to
 \texttt{l\_whence}
-\item \texttt{l\_len} \dots{} délka úseku v bajtech, 0 znamená do konce souboru
-\item \texttt{l\_pid} \dots{} PID procesu dr¾ícího zámek, pou¾ívá se
-jen pro \texttt{F\_GETLK} pøi návratu
+\item \texttt{l\_len} \dots{} length of the region in bytes, 0 means till the
+end of the file
+\item \texttt{l\_pid} \dots{} PID of the process holding the lock, used
+only for \texttt{F\_GETLK} when returning.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item soubory se dají zamykat po èástech a dá se zjistit, který
-proces dr¾í zámek. Pøi ukonèení procesu se automaticky uvolní
-v¹echny jeho zámky.
-\item pokud pøi pou¾ití \texttt{F\_GETLK} není pøíslu¹ná èást
-souboru zamèená, je struktura \texttt{flock} vrácena bez zmìny kromì
-první polo¾ky, která je nastavena na \texttt{F\_UNLCK}.
-\item \label{FCNTL_LOCKING} pøíklad: \example{file-locking/fcntl-locking.c}
-\item \label{FCNTL_FIXED_RACE_C} pøíklad na fcntl (je to pomocí fcntl
-,,opravená'' verze døívej¹ího pøí\-kla\-du \example{race/race.c} ze strany
+\item If given part is not locked when using \texttt{F\_GETLK},
+the \texttt{flock} structure is returned unchanged except for the first member
+that is set to \texttt{F\_UNLCK}.
+\item \label{FCNTL_LOCKING} example: \example{file-locking/fcntl-locking.c}
+\item \label{FCNTL_FIXED_RACE_C} example on how to use fcntl (it is 
+,,fixed'' version of previous \example{race/race.c} example from page
 \pageref{RACE_C}): \example{race/fcntl-fixed-race.c}.
-\item zamykání pøes \texttt{fcntl} i \texttt{lockf} má jednu
-dùle¾itou vlastnost, kterou výsti¾nì popisuje napøíklad manuálová
-stránka pro \texttt{fcntl} v systému FreeBSD:
+\item locking via \texttt{fcntl} and \texttt{lockf} has one important property
+that is being described in the \texttt{fcntl} man page in FreeBSD:
 
 \emph{This interface follows the completely stupid semantics of System V
 and IEEE Std 1003.1-1988 (``POSIX.1'') that require that all locks
@@ -429,12 +401,11 @@ password file locks the password file database while making the
 update, and then calls \texttt{getpwnam}(3) to retrieve a record,
 the lock will be lost because \texttt{getpwnam}(3) opens, reads, and
 closes the password database.}
-\item Funkce \texttt{lockf} (souèástí SUSv3) je jednodu¹¹í variantou
-\texttt{fcntl}, specifikuje se pouze jak zamknout a kolik bajtù od souèasné
-pozice v souboru. Velmi èasto je implementována jako wrapper kolem
-\texttt{fcntl}.
-\item Pøíklad \example{file-locking/lockf.c} demonstruje jak funguje
-mandatory locking a ukazuje pou¾ití funkce \texttt{lockf}.
+\item The \texttt{lockf} function (SUSv3) is simpler variant of
+\texttt{fcntl}, specifies only how to lock and how many bytes from the current
+position in the file. Very often implemented as \texttt{fcntl} wrapper.
+\item example \example{file-locking/lockf.c} demonstrates how mandatory
+locking works and the use of the \texttt{lockf} function.
 \end{itemize}
 
 
@@ -443,29 +414,30 @@ mandatory locking a ukazuje pou¾ití funkce \texttt{lockf}.
 \pdfbookmark[1]{deadlock}{deadlock}
 
 \begin{slide}
-\sltitle{Deadlock (aka uváznutí)}
+\sltitle{Deadlock}
 \begin{itemize}
-\item máme dva sdíl{}ené zdroje \texttt{res1} a \texttt{res2} chránìné
-zámky \texttt{lck1} a \texttt{lck2}. Procesy \texttt{p1} a
-\texttt{p2} chtìjí ka¾dý výluèný pøístup k obìma zdrojùm.
+\item 2 shared resrouces \texttt{res1} and \texttt{res2} protected by locks
+\texttt{lck1} and \texttt{lck2}. Processes \texttt{p1} and
+\texttt{p2} want to have exclusive access to both resources.
 \end{itemize}
 \begin{center}
 \input{img/tex/deadlock.tex}
 \end{center}
 \begin{itemize}
-\item \emsl{pozor na poøadí zamykání!}
+\item \emsl{watch out the locking order !}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item obecnì deadlock vznikne, jestli¾e proces èeká na událost, která nemù¾e
-nastat. Zde napø. na sebe dva procesy èekají navzájem, a¾ ten druhý u\-vol\-ní
-zámek, ale k tomu nikdy nedojde. Dal¹í mo¾ností je deadlock jednoho procesu,
-který ète z roury a pøedtím zapomnìl uzavøít zápisový konec roury.  Jestli¾e
-rouru nemá u¾ nikdo dal¹í otevøenou, pokus o ètení ze zablokuje, proto¾e nejsou
-zavøeny v¹echny kopie zápisového deskriptoru a tedy nenastane konec souboru na
-rouøe, ale ètoucí proces svùj zápisový deskriptor nemù¾e zavøít, proto¾e èeká ve
-volání \texttt{read}:
+\item Generally deadlock happens if process is waiting for an event that cannot
+happen. Here e.g. 2 processes are waiting for each other, for the other to
+release the lock however that will never happen. Next possibility is deadlock
+of single process that is reading from a pipe after forgetting to close
+the write end of the pipe. If there is no one else that has the pipe open,
+the read will block because the all file desriptor copies of the write end are
+not closed and therefore the end of file cannot happen until the reading process
+closed the write end however it cannot do it because it is blocked.
+in \texttt{read} syscall:
 
 \label{FIFODEADLOCK}
 \begin{verbatim}
@@ -482,10 +454,9 @@ int main(void)
 $ ./a.out 
 ^C
 \end{verbatim}
-\item \texttt{fcntl()} provádí kontrolu a pøi výskytu deadlocku vrátí chybu
-\texttt{EDEADLK}.
-\item je vhodné se deadlocku sna¾it vyvarovat správným naprogramováním a
-nespoléhat se na kontrolu systému.
+\item \texttt{fcntl()} checks for deadlock and returns \texttt{EDEADLK}.
+\item It is best to avoid deadlock by correct programming and do not rely on the
+system.
 \end{itemize}
 
 
