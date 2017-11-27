@@ -34,6 +34,7 @@ TEX=		unix-programming-in-c.common.tex \
 		threads.tex \
 		files.tex \
 		other.tex \
+		sys-v-semaphores.tex \
 		history.tex \
 		appendix.tex
 

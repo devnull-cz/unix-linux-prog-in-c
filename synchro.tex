@@ -56,7 +56,6 @@ system resource.
 \item \label{RACE_C} example \example{race/race.c}
 \end{itemize}
 
-
 %%%%%
 
 \begin{slide}
@@ -558,166 +557,49 @@ by to ani nemìlo velký smysl. Je zde rozdíl oproti zámkùm, viz strana
 
 %%%%%
 
-\pdfbookmark[1]{segmget, semctl, semop}{semfncs}
+\pdfbookmark[1]{sem\_open, sem\_wait, sam\_post, sem\_close}{posix-semaphores}
 
 \begin{slide}
-\sltitle{API pro semafory}
-\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int
-\emph{semflg});}
+\sltitle{POSIX API for semaphores}
+
+\begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
+sem\_t \funnm{sem\_open}(\=const *char \emph{name}, int \emph{oflag},
+\\\>mode\_t \emph{mode}, unsigned int \emph{value});
+\end{tabbing}}
+\end{minipage}
 \begin{itemize}
-\item vrátí identifikátor pole obsahujícího \texttt{nsems} semaforù asociovaný
-s~klíèem \texttt{key} (klíè \texttt{IPC\_PRIVATE} \dots{} privátní semafory, pøi
-ka¾dém pou¾ití vrátí jiný identifikátor). \texttt{semflg} je OR-kombinace
-pøístupových práv a konstant \texttt{IPC\_CREAT} (vytvoøit, pokud neexistuje),
-\texttt{IPC\_EXCL} (chyba, pokud existuje). 
+\item creates or opens a new POSIX semaphore.  \emph{mode} is same as for
+\funnm{open}().  Use ``/somename'' for the \emph{name}.
 \end{itemize}
-\texttt{int \funnm{semctl}(int \emph{semid}, int \emph{semnum},
-int \emph{cmd}, ...);}
+\texttt{int \funnm{sem\_wait}(sem\_t *\emph{sem});}
 \begin{itemize}
-\item øídicí funkce, volitelný ètvrtý parametr \texttt{arg} je typu
-\texttt{union~semun}. 
+\item decrement \emph{sem}, if currently 0, the call will block
 \end{itemize}
-\texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t
-\emph{nsops});}
+\texttt{int \funnm{sem\_post}(sem\_t *\emph{sem});}
 \begin{itemize}
-\item zobecnìné operace P a V.
+\item increment \emph{sem}.  If \emph{sem} consequently becomes greater than
+0, another thread blocked in \funnm{sem\_wait}() will be woken up.
+\end{itemize}
+\texttt{int \funnm{sem\_close}(sem\_t *\emph{sem});}
+\begin{itemize}
+\item close \emph{sem}, free its resources allocated to \emsl{this} process.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item jak získat klíè pro \texttt{semget} je vysvìtleno na strane
-\pageref{FTOK}.
-\item nejvìt¹í zajímavost na System V implementaci semaforù je skuteènost, ¾e
-daný syscall neoperuje nad jedním semaforem, ale nad \emsl{polem semaforù}, a to
-atomicky. Vìt¹inou v¹ak budete potøebovat pouze jeden semafor, tj. pole o jednom
-prvku. Pro takové pou¾ití jsou System V semafory zbyteènì slo¾ité.
-\item pøístupová práva jsou jen pro ètení a zápis; bit execute zde nemá smysl.
-\item podobné schéma API funkcí (funkce na vytvoøení, øízení a operace) dodr¾ují
-i ostatní System V IPC mechanismy.
-\item jakmile je jednou pole semaforù jedním procesem vytvoøeno, mohou i ostatní
-procesy pou¾ít \texttt{semctl()} a \texttt{semop()}, ani¾ by pøedtím volaly
-\texttt{semget()}. To platí i pro semafory vytvoøené s klíèem
-\texttt{IPC\_PRIVATE}, pro které nelze volat \texttt{semget()}, proto¾e by se
-tím vytvoøilo nové pole semaforù. Je to tak proto, aby i privátní semafory mohly
-být dìdìné v rámci \texttt{fork}.
-\end{itemize}
-
-%%%%%
-
-\begin{slide}
-\sltitle{API pro semafory: \texttt{semctl()}}
-\setlength{\baselineskip}{0.9\baselineskip}
-\begin{itemize}
-\item \texttt{semnum} \dots{} èíslo semaforu v poli 
-\item mo¾né hodnoty \texttt{cmd}: 
-    \begin{itemize}
-    \item \texttt{GETVAL} \dots{} vrátí hodnotu semaforu 
-    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{nastaví semafor na hodnotu}
-    \texttt{arg.val}
-    \item \texttt{GETPID} \dots{} PID procesu, který provedl
-    poslední operaci 
-    \item \texttt{GETNCNT} \dots{} poèet procesù èekajících na vìt¹í
-    hodnotu 
-    \item \texttt{GETZCNT} \dots{} poèet procesù èekajících na nulu 
-    \item \texttt{GETALL} \dots{} ulo¾í hodnoty v¹ech semaforù do
-    pole
-    \texttt{arg.array}
-    \item \texttt{SETALL} \dots{} nastaví v¹echny semafory podle
-    \texttt{arg.array}
-    \item \texttt{IPC\_STAT} \dots{} do \texttt{arg.buf} dá poèet
-    semaforù, pøístupová práva a èasy posledních \texttt{semctl()} a
-    \texttt{semop()}
-    \item \texttt{IPC\_SET} \dots{} nastaví pøístupová práva 
-    \item \texttt{IPC\_RMID} \dots{} zru¹í pole semaforù
-    \end{itemize}
-\end{itemize}
-\end{slide}
-
-\begin{itemize}
-\item volání \texttt{semctl(semid, semnum, SETVAL, arg)} odpovídá obecné
-semaforové inicializaèní operaci \texttt{init(s,~n)}.
-\end{itemize}
-
-%%%%%
-
-\begin{slide}
-\sltitle{API pro semafory: \texttt{semop()}}
-\begin{itemize}
-\item operace se provádí atomicky (tj. buï se povede pro v¹echny
-semafory, nebo pro ¾ádný) na \texttt{nsops} semaforech podle pole
-\texttt{sops} struktur \texttt{struct~sembuf}, která obsahuje: 
-    \begin{itemize}
-    \item \texttt{sem\_num} \dots{} èíslo semaforu 
-    \item \texttt{sem\_op} \dots{} operace 
-        \begin{itemize}
-        \item \texttt{P(sem\_num, abs(sem\_op))} pro \texttt{sem\_op < 0}
-        \item \texttt{V(sem\_num, sem\_op)} pro \texttt{sem\_op > 0}
-        \item èekání na nulovou hodnotu semaforu pro \texttt{sem\_op == 0} 
-        \end{itemize}
-    \item \texttt{sem\_flg} \dots{} OR-kombinace 
-        \begin{itemize}
-        \item \texttt{IPC\_NOWAIT} \dots{} kdy¾ nelze operaci hned provést,
-        neèeká a vrátí chybu 
-        \item \texttt{SEM\_UNDO} \dots{} pøi ukonèení procesu vrátit
-        operace se semaforem
-        \end{itemize}
-    \end{itemize}
-\end{itemize}
-\end{slide}
-
-\begin{itemize}
-\item atomiènost pøes mno¾inu semaforù zajistí, ¾e nedojde k deadlocku
-v následující situaci: dva procesy $A$ a $B$ budou pou¾ívat dva semafory k
-øízení pøístupu (zamykání) ke dvìma systémovým zdrojùm. Proces $A$ je bude
-zamykat v poøadí $(0, 1)$ a proces $B$ v poøadí $(1, 0)$. Ve chvíli,
-kdy proces $A$ zamkne semafor $0$ a $B$ zamkne $1$, dojde k
-deadlocku, proto¾e ani jeden proces nemù¾e pokraèovat (potøeboval by
-zamknout druhý semafor). Pøi pou¾ití atomické operace zamèení obou
-semaforù najednou bude úspì¹ný v¾dy právì jeden proces, který získá
-oba semafory, druhý bude èekat.
-\item \texttt{SEM\_UNDO} zajistí, ¾e pøi ukonèení procesu dojde k odemèení
-semaforù (po\-u\-¾i\-tých jako zámky), které tento proces mìl zamèené.
-\end{itemize}
-
-%%%%%
-
-\pdfbookmark[1]{ftok}{ftok}
-
-\begin{slide}
-\sltitle{Vytváøení prostøedkù IPC}
-\begin{itemize}
-\item jeden proces prostøedek vytvoøí, ostatní se k nìmu pøipojí. 
-\item po skonèení pou¾ívání je tøeba prostøedek IPC zru¹it. 
-\item funkce \texttt{semget()}, \texttt{shmget()} a
-\texttt{msgget()} mají jako první parametr klíè identifikující
-prostøedek IPC. Skupina procesù, která chce komunikovat, se musí
-domluvit na spoleèném klíèi. Rùzné skupiny komunikujících procesù by
-mìly mít rùzné klíèe. 
-\end{itemize}
-\texttt{key\_t \funnm{ftok}(const char *\emph{path}, int \emph{id});}
-\begin{itemize}
-\item vrátí klíè odvozený ze zadaného jména souboru \texttt{path} a
-èísla \texttt{id}. Pro stejné \texttt{id} a libovolnou cestu
-odkazující na stejný soubor vrátí stejný klíè. Pro rùzná \texttt{id}
-nebo rùzné soubory na stejném svazku vrátí rùzné klíèe. 
-\end{itemize}
-\end{slide}
-
-\label{FTOK} poznámky k \texttt{ftok()}:
-\begin{itemize}
-\item z \texttt{id} se pou¾ije jen nejni¾¹ích 8 bitù.
-\item není specifikováno, zda bude stejný klíè vrácen i po smazání a
-znovuvytvoøení souboru. Vìt¹inou ne, proto¾e v klíèi se èasto odrá¾í èíslo
-indexového uzlu.
-\item rùzné klíèe pro rùzné soubory nejsou v¾dy zaruèené. Napø. na Linuxu se
-klíè získá kombinací 16 bitù èísla i-uzlu, 8 bitù \texttt{id} a 8 bitù
-vedlej¹ího èísla zaøízení. Stejný klíè pro rùzné soubory je vrácen, pokud se
-èísla i-uzlù shodují na spodních 16 bitech.
-\item pokud tedy nepøíbuzné procesy chtìjí pou¾ívat stejný semafor, \emsl{musí
-být jmého souboru pro klíè domluveno pøedem.}
-\item \label{SEM_FIXED_RACE_C} pøíklad na semafory (je to pomocí semaforù
-,,opravená'' verze døívej¹ího pøí\-kla\-du \example{race/race.c} ze strany
-\pageref{RACE_C}): \example{race/sem-fixed-race.c}.
+\item \emph{oflag} can be a combination of only \texttt{O\_CREAT} and
+\texttt{O\_EXCL}.  If the semaphore already exists, an invocation with only
+\texttt{O\_CREAT} silently succeeds, \texttt{O\_EXCL} will cause an error.
+\item As soon as the semaphore is created, other processes can use it as
+well, based on \emph{mode}.
+\item If the semaphore is not removed via \funnm{sem\_unlink}(), it will exist
+(in kernel) until the system is shut down.
+\item There are also memory-based semaphores that do not use a name and are not
+identified by the returned handle -- and thus use less resources.  See
+\funnm{sem\_init}() and \funnm{sem\_destroy}() for more information.
+\item Example on POSIX semaphores (it is a fixed version of the previous example
+\example{race/race.c} from page \pageref{RACE_C}):
+\example{semaphores/posix-sem-fixed-race.c}.
 \end{itemize}
 
 %%%%%
@@ -725,35 +607,34 @@ být jmého souboru pro klíè domluveno pøedem.}
 \pdfbookmark[1]{shm\_open, sem\_open, mq\_open}{posixipc}
 
 \begin{slide}
-\sltitle{Dal¹í prostøedky IPC}
+\sltitle{Other IPC facilities}
 \begin{itemize}
-\item POSIX a SUSv3 definují je¹tì dal¹í prostøedky komunikace mezi procesy: 
+\item POSIX and SUSv4 define other facilities for interprocess communication we
+have not mentioned yet:
     \begin{itemize}
-    \item \emsl{signály} \dots{} pro u¾ivatelské úèely lze vyu¾ít signály
-    \texttt{SIGUSR1} a \texttt{SIGUSR2}
-    \item \emsl{POSIXová sdíl{}ená pamì»} pøístupná pomocí \texttt{shm\_open()}
-    a \texttt{mmap()}
-    \item \emsl{POSIXové semafory} \dots{} \texttt{sem\_open()},
-    \texttt{sem\_post()}, \texttt{sem\_wait()}, \dots
-    \item \emsl{POSIXové fronty zpráv} \dots{} \texttt{mq\_open()},
-    \texttt{mq\_send()}, \texttt{mq\_receive()}, \dots{} 
+    \item \emsl{POSIX shared memory} accessible via \funnm{shm\_open}()
+    \item \emsl{POSIX queues} \dots{} \funnm{mq\_open}(),
+    \funnm{mq\_send}(), \funnm{mq\_receive}(), \dots{} 
+    \item \emsl{System V APIs} for queues, shared memory, and semaphores
     \end{itemize}
-\item Z BSD pochází \emsl{sokety (sockets)} umo¾òující komunikaci v~doménách
-\texttt{AF\_UNIX} (komunikace v rámci jednoho poèítaèe) a \texttt{AF\_INET}
-(komunikace na jednom poèítaèi nebo po síti).
+\item \emsl{sockets} come from the BSD world and allow communication in domains
+\texttt{AF\_UNIX} (communication within the same system) and \texttt{AF\_INET}
+(communication within the same system or accross network).
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item POSIXové IPC pou¾ívá pro pojmenování jednotlivých IPC objektù
-øetìzce místo numerických identifikátorù, proto do znaèné míry
-odpadají problémy s identifikací známé ze System V IPC (kde se øe¹í
-napø. funkcí \texttt{ftok()}).
-\item POSIXová rozhraní zde uvedená jsou souèástí roz¹íøení 1003.1b (aka
-POSIX.4), viz strana \pageref{POSIX4}.
-\item sokety se z BSD roz¹íøily i do ostatních UNIXových systémù a
-dostaly se i do normy SUSv2.
-\item existují dal¹í API specifické pro konkrétní systém, napø. Solaris doors.
+\item POSIX IPC API is much simpler and better designed than the System~V IPC
+API.  However, it is also much younger so you may see the System~V API used a
+lot in existing code.  For System~V semaphore API and examples, see page
+\pageref{SYSVSEM}.
+\item The POSIX API for IPC came in with extension 1003.1b (aka POSIX.4), see
+page \pageref{POSIX4}.
+\item Sockets were accepted by other Unix systems as well and has been a part of
+the UNIX specification since version 2.
+\item There are other more system specific facilities.  For example,
+\emph{doors} is an RPC like facility on Solaris, designed to be used within the
+same system only.
 \end{itemize}
 
 \label{SYNCHRONIZATIONEND}
