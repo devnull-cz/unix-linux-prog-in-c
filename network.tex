@@ -14,21 +14,19 @@ changequote([[[, ]]])
 \label{NETWORKING}
 
 \begin{slide}
-\sltitle{Sí»ová komunikace}
+\sltitle{Network communication}
 \begin{description}
-\item[UUCP (UNIX-to-UNIX Copy Program)] -- první aplikace pro
-komunikaci UNIXových systémù propojených pøímo nebo pøes modemy,
-souèást Version 7 UNIX (1978) 
-\item[sokety (sockets)] -- zavedeny ve 4.1aBSD (1982); soket je
-jeden konec obousmìrného komunikaèního kanálu vytvoøeného mezi dvìma
-procesy buï lokálnì na jednom poèítaèi, nebo s vyu¾itím sí»ového
-spojení 
-\item[TLI (Transport Layer Interface)] -- SVR3 (1987); knihovna
-zaji¹»ující sí»ovou komunikaci na úrovni 4. vrstvy referenèního
-modelu ISO OSI 
-\item[RPC (Remote Procedure Call)] -- SunOS (1984); protokol pro
-pøístup ke slu¾bám na vzdál{}eném stroji, data pøená¹ena ve tvaru XDR
-(External Data Representation)
+\item[UUCP (UNIX-to-UNIX Copy Program)] -- first application for communication
+between UNIX systems connected directly or via modems, in Version~7 UNIX (1978)
+\item[sokety (sockets)] -- introduced in 4.1aBSD (1982); socket is one end of a
+bidirectional communication channel created between two processes either on the
+same computer or across a network.
+\item[TLI (Transport Layer Interface)] -- SVR3 (1987); API providing network
+communication within the 4th layer of ISO OSI.  Counterpart to the BSD sockets
+API.
+\item[RPC (Remote Procedure Call)] -- SunOS (1984); provides access to services
+running on a remote machine, data transfered in XDR format (External Data
+Representation)
 \end{description}
 \end{slide}
 
@@ -51,7 +49,9 @@ je ve verzi SVR4 implementováno s~vyu¾itím mechanismu STREAMS. RPC
 existuje jako knihovna linkovaná k aplikacím, která vyu¾ívá sokety
 (funguje nad protokoly TCP a UDP). RPC bylo vyvinuto jako
 komunikaèní protokol pro NFS (Networked File System).
-\item existuje více (vzájemnì nekompatibilních) implementací RPC
+\item TLI is designed from an OSI model-oriented viewpoint, and it corresponds
+to the 4th layer -- transport.  TLI API looks similar to sockets.
+\item There are several mutually incompatible RPC implementations.
 \item komunikaèní kanál je specifikován adresami dvou soketù.
 \item sokety pro komunikaci pouze v rámci jednoho poèítaèe jsou v
 doménì \texttt{AF\_UNIX} a jejich jména jsou jména speciálních
