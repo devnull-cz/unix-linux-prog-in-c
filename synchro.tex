@@ -493,54 +493,54 @@ works with them at the moment.
 %%%%%
 
 \begin{slide}
-\sltitle{Semafory}
+\sltitle{Semaphores}
 \begin{itemize}
-\item zavedl je E. Dijkstra
-\item semafor s je datová struktura obsahující 
+\item introduced by E. Dijkstra
+\item semaphore is data structure that contains:
     \begin{itemize}
-    \item celé nezáporné èíslo \texttt{i} (volná kapacita) 
-    \item frontu procesù \texttt{q}, které èekají na uvolnìní 
+    \item non-negative integer \texttt{i} (free capacity) 
+    \item process queue \texttt{q}, that wait for free capacity
     \end{itemize}
-\item operace nad semaforem: 
+\item semaphore operations: 
     \begin{description}
     \item [init(s, n)]~\\
-    vyprázdnit \texttt{s.q; s.i = n}
+    empty \texttt{s.q; s.i = n}
     \item [P(s)]~\\
     \texttt{if(s.i > 0) s.i-- else\\
-    uspat volající proces a zaøadit do s.q }
+    put calling process to sleep and add it to s.q }
     \item [V(s)]~\\
     \texttt{if(s.q prázdná) s.i++ else\\
-    odstranit jeden proces z s.q a probudit ho}
+    remove one process from s.q and wake it up}
     \end{description}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emsl{P} je z holandského \uv{proberen te verlagen} -- zkus
-dekrementovat, \emsl{V} pak ze slova \uv{verhogen} -- inkrementovat.
-\item operace \texttt{P(s)} a \texttt{V(s)} lze zobecnit: hodnotu semaforu je
-mo¾né mìnit o libovolnou hodnotu \texttt{n} \dots{} \texttt{P(s,~n)},
-\texttt{V(s,~n)}.
+\item \emsl{P} is from dutch \uv{proberen te verlagen} -- try to
+decrement, \emsl{V} from \uv{verhogen} -- increment.
+\item The \texttt{P(s)} and \texttt{V(s)} operations can be made generic:
+the semaphore value is possible to change with any integer
+\texttt{n} \dots{} \texttt{P(s,~n)}, \texttt{V(s,~n)}.
 \item Allen B. Downey: \emph{The Little Book of Semaphores}, Second Edition,
 on-line na \url{http://greenteapress.com/semaphores/}
-\item \emph{binární semafor} má pouze hodnotu 0 nebo 1
+\item \emph{binary semaphore} has only values 0 or 1
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Vzájemné vylouèení pomocí semaforù}
+\sltitle{Mutual exclusion with semaphores}
 \begin{itemize}
-\item jeden proces inicializuje semafor
+\item one process initializes the semaphore
 \begin{alltt}
 sem s;
 init(s, 1);
 \end{alltt}
-\item kritická sekce se doplní o operace nad semaforem
+\item critical section is augmented with semaphore operations
 \begin{alltt}
 ...
 \emprg{P(s)};
-kritická sekce;
+critical section;
 \emprg{V(s)};
 ...
 \end{alltt}
@@ -549,12 +549,13 @@ kritická sekce;
 
 
 \begin{itemize}
-\item inicializace semaforu na hodnotu \texttt{n} dovolí vstoupit do kritické
-sekce \texttt{n} procesùm. Zde semafor funguje jako zámek, v¾dy ho odemyká
-(zvy¹uje hodnotu) stejný proces, který ho zamknul (sní¾il hodnotu).
-\item obecnì ale mù¾e semafor zvednout jiný proces, ne¾ který ho sní¾il; jinak
-by to ani nemìlo velký smysl. Je zde rozdíl oproti zámkùm, viz strana
-\pageref{MUTEXES}.
+\item semaphore initialized to \texttt{n} value allows \texttt{n} processes
+to enter the critical section simultaneously. Here semaphore works like a lock.
+The same process is unlocking (incrementing the value) and locking
+(decrementing the value).
+\item In general, the increment operation can be done by different process
+than the one which performed the decrement operation (and vice versa).
+The mutexes work differently, see page \pageref{MUTEXES}.
 \end{itemize}
 
 %%%%%
