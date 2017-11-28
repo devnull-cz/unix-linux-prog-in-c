@@ -403,6 +403,8 @@ closes the password database.}
 \item The \texttt{lockf} function (SUSv3) is simpler variant of
 \texttt{fcntl}, specifies only how to lock and how many bytes from the current
 position in the file. Very often implemented as \texttt{fcntl} wrapper.
+Beware: one cannot assume it is implemented around \texttt{fcntl} therefore
+avoid using these both together.
 \item The example \example{file-locking/lockf.c} demonstrates how mandatory
 locking works and the use of the \texttt{lockf} function.
 \end{itemize}
