@@ -31,86 +31,103 @@ Representation)
 \end{slide}
 
 \begin{itemize}
-\item ISO (International Standards Organization) OSI (Open Systems
-Interconnect) -- vrstvy (layers):
-    \begin{enumerate}
-    \setlength{\itemsep}{0pt}
-    \item fyzická (physical)
-    \item linková (data link)
-    \item sí»ová (network)
-    \item transportní (transport)
-    \item relaèní (session)
-    \item prezentaèní (presentation)
-    \item aplikaèní (application)
-    \end{enumerate}
-\item UUCP je tvoøeno aplikaèními programy, nevy¾aduje ¾ádnou
-podporu v jádru. Implementace soketù a TLI jsou souèástí jádra. TLI
-je ve verzi SVR4 implementováno s~vyu¾itím mechanismu STREAMS. RPC
-existuje jako knihovna linkovaná k aplikacím, která vyu¾ívá sokety
-(funguje nad protokoly TCP a UDP). RPC bylo vyvinuto jako
-komunikaèní protokol pro NFS (Networked File System).
+\item There are two main conceptual models for network communication.  ISO
+(International Standards Organization) OSI (Open Systems Interconnect), and the
+Internet protocol suite (also called TCP/IP).   Each one defines several layers.
+If we oversimplify, ISO OSI is very formal, quite complex, has 7 layers, and its
+specification is not freely available, while TCP/IP is simpler, not that formal,
+with 4 layers, and the specification is freely available via RFCs.  While the
+layers of the two models cannot be precisely mapped onto each other, the
+corresponding layers are roughly as follows:
+
+\vspace{1.5mm}
+
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|l|}\hline
+ISO OSI & TCP/IP\\
+\hline
+\hline
+application & application\\
+presentation & \\
+session & \\
+\hline
+transport & transport\\
+\hline
+network & internet\\
+\hline
+link & link\\
+physical & \\
+\hline
+\end{tabular}
+\renewcommand{\arraystretch}{1}
+
+\vspace{1.5mm}
+
+\item UUCP is a historical thing, fully implemented in user land without any
+kernel support.  See the \texttt{uucp} man page or Wikipedia for more
+information.
+\item RPC is implemented as a library linked to applications, uses sockets
+and works on top of TCP and UDP.  RPC was developed as a communication protocol
+for the \emph{Network Filesystem} (NFS).  There are several mutually
+incompatible RPC implementations.
 \item TLI is designed from an OSI model-oriented viewpoint, and it corresponds
 to the 4th layer -- transport.  TLI API looks similar to sockets.
-\item There are several mutually incompatible RPC implementations.
-\item komunikaèní kanál je specifikován adresami dvou soketù.
-\item sokety pro komunikaci pouze v rámci jednoho poèítaèe jsou v
-doménì \texttt{AF\_UNIX} a jejich jména jsou jména speciálních
-souborù, které reprezentují sokety v systému souborù.
-\item sokety \texttt{AF\_UNIX} jsou nìco jiného ne¾ lokální TCP/IP
-komunikace pøes loop\-back rozhraní \texttt{localhost}
-(\texttt{127.0.0.1}). Více o \texttt{AF\_UNIX} na stranì \pageref{SOCKET}.
+\item Sockets for communication within the same host are in the
+\texttt{AF\_UNIX} domain and their names correspond to special files that
+represent the sockets in the filesystem.  \texttt{ls -F} uses the equal sign
+``='' to mark a Unix domain socket.
+\item Sockets in \texttt{AF\_UNIX} are different from local TCP/IP communication
+over the looopback interface \texttt{localhost} (\texttt{127.0.0.1}).  See page
+\pageref{SOCKET} for more information on \texttt{AF\_UNIX}.
 \end{itemize}
-
 
 %%%%%
 
 \begin{slide}
-\sltitle{TCP/IP}
+\sltitle{TCP/IP basics}
 \begin{itemize}
-\item protokoly
+\item protocols
     \begin{itemize}
-    \item \emsl{IP (Internet Protocol)} -- pøístupný jen pro
-    u¾ivatele \texttt{root}
-    \item \emsl{TCP (Transmission Control Protocol)} -- streamový,
-    spojovaný, spolehlivý
-    \item \emsl{UDP (User Datagram Protocol)} -- datagramový,
-    nespojovaný, nespolehlivý
+    \item \emsl{IP (Internet Protocol)} -- principal communications protocol,
+    not accessible for a non-privileged user
+    \item \emsl{TCP (Transmission Control Protocol)} -- reliable, ordered, and
+    error-checked delivery of a stream of bytes
+    \item \emsl{UDP (User Datagram Protocol)} -- datagram, connectionless,
+    unreliable
     \end{itemize}
-\item \emsl{IP adresa} -- 4 bajty (IPv4) / 16 bajtù (IPv6), definuje
-sí»ové rozhraní, nikoliv poèítaè
-\item \emsl{port} -- 2 bajty, rozli¹ení v rámci 1 IP adresy, porty s èíslem
-men¹ím ne¾ 1024 jsou rezervované (jejich pou¾ití vy¾aduje práva u¾ivatele
-\texttt{root})
-\item \emsl{DNS (Domain Name System)} -- pøevod mezi symbolickými jmény a
-numerickými IP adresami
+\item \emsl{IP address} -- 4 bytes (IPv4) / 16 bytes (IPv6), defines a network
+interface, not a computer
+\item \emsl{port} -- 2 bytes, application end-points on a host
+\item \emsl{DNS (Domain Name System)} --  translates domain names to the
+numerical IP addresses 
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item pokud nevíte, o èem je øeè, doporuèuji Peterkovy pøedná¹ky; jsou volnì ke
-sta¾ení na webu. Jsou to nejlep¹í materiály, které jsem k dané problematice
-vidìl.
-\item UNIX pou¾ívá pro sí»ovou komunikaci nejèastìji rodinu protokolù TCP/IP.
-Pro úèely programování aplikací nás budou zajímat pøedev¹ím protokoly TCP
-(spojovaná spolehlivá komunikace) a UDP (nespojovaná nespolehlivá komunikace).
-V obou protokolech je jeden konec komunikaèního kanálu (odpovídá soketu)
-identifikován IP adresou sí»ového
-rozhraní a èíslem portu (pomocí portù se rozli¹ují sí»ové slu¾by bì¾ící na
-jednom poèítaèi). TCP spojení je pak jednoznaènì definováno jedním párem soketù.
-\item \emph{IP} -- protokol 3. vrstvy, zaji¹»uje pøenos paketù (datagramù) mezi
-rozhraními identifikovanými IP adresou; je nespolehlivý (nezaruèuje doruèení
-dat). Je definován v RFC~791. Nedílnou souèástí IP je Internet Control Message
-Protocol (ICMP), RFC~792.
-\item \emph{UDP} -- jednoduchá nadstavba nad IP, pøidává èísla portù, zùstává
-nespolehlivý a datagramovì orientovaný. RFC~768.
-\item \emph{TCP} -- vytváøí obousmìrné spojení mezi dvìma body (IP+port),
-poskytuje tok dat (stream) bez rozdìl{}ení na zprávy, zaji¹»uje øízení toku dat
-a spolehlivé doruèování. Pro vytvoøení spojení je tøeba provést tzv.
-\emph{handshake}. RFC~793.
-\item \emph{DNS} -- hierarchicky organizovaná databáze, její struktura nemusí
-mít nic spoleèného se strukturou IP adres
+\item Ports below 1024 are reserved and additional privileges are needed to use
+them.  For example, \emph{root} can access those.  See \texttt{/etc/services}
+for the textual database of port numbers and corresponding service names.
+\item To learn about networking and the Internet in general, we very much
+recommend networking lectures by Ji\v{r}\'{i} Peterka.  You can either
+attend them at MFF~UK or you can find those online.
+\item Unix mostly uses protocols from the TCP/IP family.  We will cover TCP and
+UDP.  In both protocols, one end of a communication channel is identified by an
+IP address and a port.  Those two pieces correspond to a socket.  A TCP
+connection is uniquely identified by a pair of sockets.
+\item \emph{IP} -- protocol of the internet layer within the TCP/IP network
+stack, provides data transfer between two interfaces identified by an IP
+address.  It is unreliable.  Provides routing and fragmentation.  Defined in
+RFC~791.  The Internet Control Message Protocol (ICMP), defined in RFC~792, is
+an inherent part of the IP protocol.
+\item \emph{UDP} -- a simple extension of the IP protocol, only adds protocol
+numbers.  Still unreliable and datagram oriented.  Defined in RFC~768.
+\item \emph{TCP} -- establishes connections between two points (sockets).
+Provides a continuous stream of data, congestion control and reliable
+delivery.  To create a connection, a so called \emph{handshake} must be
+performed.  The protocol is defined in RFC~793 and other follow-up RFCs.
+\item \emph{DNS} -- hieararchicaly organized database, its structure does not
+have to follow the IP address structure.
 \end{itemize}
-
 
 %%%%%
 
