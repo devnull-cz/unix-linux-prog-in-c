@@ -422,7 +422,7 @@ See \url{http://www.open-std.org/}.
 %%%%%
 
 \begin{slide}
-\sltitle{Data formats}
+\sltitle{Byte ordering}
 \begin{itemize}
 \item byte ordering -- depends on the architecture
     \begin{itemize}
@@ -443,22 +443,14 @@ See \url{http://www.open-std.org/}.
     \multicolumn{1}{c}{2}&\multicolumn{1}{c}{3}
     \end{tabular}}
     \end{itemize}
-\item in Unix, a text file line ends with a single character \emsl{LF} (not two
-characters \emsl{CRLF} as on Windows). Calling \verb.putc('\n'). thus prints
-only one character.
 \item little endian -- Intel, ARM (mostly, but it does support both)
 \item big endian -- SPARC, MIPS, network byte ordering
 \end{itemize}
 \end{slide}
 
-\label{BYTE_ORDERS}
+\label{BYTE_ORDERING}
 
 \begin{itemize}
-\item \emsl{LF}, \emph{line feed}, sometimes also referred to as \emph{new
-line}, is a character 0x0A (10).  \emsl{CR}, \emph{carriage return}, or simply
-\emph{return}, is a character 0x0D (13).  To further confuse the enemy,
-``classic'' Mac OS used a single \emsl{CR} as line breaks.  As present time
-macOS comes from the Unix world, it also uses \emsl{LF} now.
 \item Be careful when using tools like \texttt{hexdump} that by default print
 out a file as 16-bit numbers.  The ordering of individual bytes may not be how
 they are stored in a file.  For example, take FreeBSD on i386.  The first number
@@ -493,7 +485,29 @@ $ od -tx2 test
 0000000 696a 6b6c
 0000004
 \end{verbatim}
+\end{itemize}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{slide}
+\sltitle{New line character(s)}
+\begin{itemize}
+\item in Unix, a text file line ends with a single character \emsl{LF}
+\item in Windows (and MS~DOS), a new line ends with two characters, \emsl{CR+LF}
+\item on Unix, calling \verb.putc('\n'). thus prints only one character
+\item ``classic'' Mac~OS used \emsl{CR}
+\end{itemize}
+\end{slide}
+
+\label{NEWLINECHAR}
+
+\begin{itemize}
+\item \emsl{LF}, \emph{line feed}, sometimes also referred to as \emph{new
+line}, is a character 0x0A (10).  \emsl{CR}, \emph{carriage return}, or simply
+\emph{return}, is a character 0x0D (13).
+\item To further confuse the enemy, ``classic'' Mac OS used a single \emsl{CR}
+as line breaks.  As present time macOS comes from the Unix world, it also uses
+\emsl{LF} now.
 \item When you open a text file in classic \texttt{vi} and you see strange
 \verb|^M| characters at the end of every line, it is that \emsl{CR} character
 from a line separator in a file brought over from a Windows system.  Just get
