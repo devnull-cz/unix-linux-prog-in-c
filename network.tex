@@ -63,6 +63,8 @@ physical & \\
 
 \vspace{1.5mm}
 
+We will be working exclusively with the TCP/IP model.
+
 \item UUCP is a historical thing, fully implemented in user land without any
 kernel support.  See the \texttt{uucp} man page or Wikipedia for more
 information.
@@ -104,16 +106,16 @@ numerical IP addresses
 \end{slide}
 
 \begin{itemize}
+\item Unix mostly uses protocols from the TCP/IP family.  We will cover TCP and
+UDP.  In both protocols, one end of a communication channel is identified by an
+IP address and a port.  Those two pieces correspond to a socket.  A TCP
+connection is uniquely identified by a pair of sockets.
 \item Ports below 1024 are reserved and additional privileges are needed to use
 them.  For example, \emph{root} can access those.  See \texttt{/etc/services}
 for the textual database of port numbers and corresponding service names.
 \item To learn about networking and the Internet in general, we very much
 recommend networking lectures by Ji\v{r}\'{i} Peterka.  You can either
 attend them at MFF~UK or you can find those online.
-\item Unix mostly uses protocols from the TCP/IP family.  We will cover TCP and
-UDP.  In both protocols, one end of a communication channel is identified by an
-IP address and a port.  Those two pieces correspond to a socket.  A TCP
-connection is uniquely identified by a pair of sockets.
 \item \emph{IP} -- protocol of the internet layer within the TCP/IP network
 stack, provides data transfer between two interfaces identified by an IP
 address.  It is unreliable.  Provides routing and fragmentation.  Defined in
