@@ -153,8 +153,9 @@ In other words, it assigns a name to an unnamed socket.  The address must be
 either one of IP addresses assigned to one of the host network interfaces (the
 host where the socket was created), in which case it will only accept connection
 requests over that specific interface via that specific IP address, or it can be
-a special value \texttt{INADDR\_ANY}, denoting the connection will be accepted
-on any IP address on any interface of the host.
+a special value \texttt{INADDR\_ANY} (for so called \emph{wildcard sockets},
+denoting the connection will be accepted on any IP address on any interface of
+the host.
 \item \funnm{listen}() -- tells the kernel to start listening on connection
 requests on the socket.
 \item \funnm{accept}() -- blocks the process until there is a connection
@@ -348,11 +349,12 @@ for \texttt{netinet/in.h}.
 \texttt{AF\_INET6}, the port and address must be in the network byte ordering,
 see page \pageref{HTON}.
 \item As \texttt{INADDR\_ANY} is defined as \texttt{0}, you may see its use
-without \texttt{htonl}.  Never do it that way.  Next time you put an IP address
-there, you may forget to add \texttt{htonl} and you are going to run into some
-issues right away.  And again, if you write code agnostic to specific address
-families, you do not need to worry about network byte ordering for addresses and
-ports whatsoever.
+without \funnm{htonl}() (see page \pageref{HTON} for more information on the
+function).  Never do it that way.  Next time you put an IP address there, you
+may forget to add \funnm{htonl}() and you are going to run into some issues
+right away.  And again, if you write code agnostic to specific address families,
+you do not need to worry about network byte ordering for addresses and ports
+whatsoever.
 \item In the \texttt{AF\_UNIX} domain, \texttt{struct
 sockaddr\_un} is used, defined in \texttt{<sys/un.h>}:
 \begin{itemize}
@@ -371,42 +373,38 @@ the range 92 to 108.
 \pdfbookmark[1]{listen}{listen}
 
 \begin{slide}
-\sltitle{Èekání na spojení: \texttt{listen()}}
+\sltitle{Waitin for connection: \texttt{listen()}}
 \texttt{int \funnm{listen}(int \emph{socket}, int \emph{backlog});}
 \begin{itemize}
-\item oznaèí soket zadaný desktriptorem \texttt{socket} jako
-akceptující spojení a systém na soketu zaène poslouchat.
-\item maximálnì \texttt{backlog} ¾ádostí o spojení mù¾e najednou
-èekat ve frontì na obslou¾ení (implementace mù¾e hodnotu
-\texttt{backlog} zmìnit, pokud není v podporovaném rozsahu).
-®ádosti, které se nevejdou do fronty, jsou odmítnuty (tj. volání
-\texttt{connect} skonèí s chybou). 
-\item soket èeká na spojení na adrese, která mu byla døíve pøiøazena
-voláním \texttt{bind}.
+\item specifies willingness to accept incoming connections on \emph{socket}, and
+the system starts listening
+\item maximum of \emph{backlog} connection requests may wait in the queue to
+be served
+\item connection requests that do not fit the queue are refused
+(\funnm{connect}() returns an error on the other side). 
+\item the system waits for a connection on an address previously assigned by
+\funnm{bind}()
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Wildcard sokety se pou¾ívájí pro server nejèastìji. Konkrétní IP adresa
-serveru se zadává tehdy, jestli¾e je potøeba rozli¹it, pøes které sí»ové
-rozhraní pøi¹el po¾adavek na spojení (pro ka¾dé rozhraní máme jeden soket).
-Tuto mo¾nost vyu¾ívaly web servery, které podle IP adresy rozli¹ovaly virtuální
-servery. Obvykle se na takovém serveru jednomu fyzickému rozhraní pøiøadilo
-nìkolik IP adres (IP aliasing). To je ale ji¾ dávno minulostí -- roz\-li\-¹e\-ní
-vir\-tu\-ál\-ních serverù podle HTTP hlavièky \uv{\texttt{Host:}} u¾ nepotøebuje IP
-aliasy. Podobnì TLS protokol obsahuje roz¹íøení \texttt{ServerName}.
-\item To ¾e systém zaène na portu poslouchat znamená, ¾e po pøipojení probìhne
-TCP handshake a systém zaène pøijímat data. Data se ukládají do bufferu s
-omezenou velikostí, a po dosa¾ení jeho limitu je spojení sice stále aktivní, ale
-TCP window je nastaveno na 0 -- systém dal¹í data pøestal pøijímat. Velikost
-bufferu bývá v øádu desítek kilobajtù. \label{UP_TO_LISTEN_ONLY_C} Pøíklad:
-\example{tcp/up-to-listen-only.c}.
-\item V pøíkladu je pou¾ito makro \texttt{SOMAXCONN}, vy¾adované normou v
-souboru \texttt{sys/socket.h}. Specifikuje maximální povolenou délku fronty pro
-\texttt{listen()}. Co se dívám na rùzné verze systémù co mám k dispozici, tak
-Linux, FreeBSD, macOS i Solaris pou¾ívají pro toto makro hodnotu 128.
-
-
+\item The system can change \emph{backlog} if it is not in a supported range.
+\item Wildcard sockets are primarily used for servers.  If you need to
+distinguish between interfaces, you need a socket per an IP address.  This used
+to be used for web servers that distinguished virtual servers based on the IP
+address.  However, that is remote past.  To distinguish between virtual servers
+running on the same host, a HTTP header \uv{\texttt{Host:}} is used.  Similarly,
+the TLS protocol uses \texttt{ServerName}.
+\item The fact that the system starts listening on a port means that a TCP
+handshake is performed and data is being accepted.  The data is stored
+in a fixed length buffer and after it is filled out, the connection is still
+active but the TCP window is set to 0 which means the system stopped accepting
+further data.  The buffer size is usually a few tens of kilobytes.
+\label{UP_TO_LISTEN_ONLY_C} Example: \example{tcp/up-to-listen-only.c}.
+\item The example code uses macro \texttt{SOMAXCONN}, required by the UNIX
+specification to be in \texttt{sys/socket.h}.  It specifies the maximum queue
+length for \funnm{listen}().  As far as we know, Linux, FreeBSD, macOS and
+Solaris use value of 128.
 \end{itemize}
 
 %%%%%
