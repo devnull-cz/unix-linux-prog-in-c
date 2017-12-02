@@ -134,96 +134,105 @@ have to follow the IP address structure.
 %%%%%
 
 \begin{slide}
-\sltitle{Spojované slu¾by (TCP), sekvenèní obsluha}
+\sltitle{Connection-oriented (TCP), sequential service}
 \input{img/tex/tcp_seq.tex}
 \end{slide}
 
 \begin{itemize}
-\item uvìdomte si, ¾e se pou¾ívají bì¾ná \texttt{read} a \texttt{write} volání.
-\item server vytvoøí jedno spojení, teprve po jeho ukonèení akceptuje dal¹ího
-klienta.
-\item systémová volání:
+\item Note that common \funnm{read}() a \funnm{write}() calls are used.  To
+keep the picture readable, all arguments aside from a descriptor \emph{fd} were
+intentionally omitted.
+\item The server creates one connection and does not accept a new one until the
+previous connection finished.  That is why it is called a sequential service.
+\item System calls used:
 \begin{itemize}
-\item \texttt{socket} -- vytvoøí soket, vrátí jeho deskriptor
-\item \texttt{bind} -- definuje adresu soketu (IP adresu a èíslo portu), musí
-to být buï adresa jednoho ze sí»ových rozhraní poèítaèe, na kterém je vytvoøen
-soket; pak bude soket pøijímat ¾ádosti klientù pouze pøes toto rozhraní, nebo
-je to speciální hodnota \uv{libovolná adresa}; pak soket pøijímá po¾adavky
-prostøednictvím v¹ech sí»ových rozhraní (tzv. \emph{wildcard socket}).
-\item \texttt{listen} -- oznámí jádru, ¾e soket bude pøijímat po¾adavky
-klientù
-\item \texttt{accept} -- uspí proces, dokud nebude k dispozici nìjaká ¾ádost
-klienta o spojení, vytvoøí spojení a vrátí nový deskriptor, pøes který bude
-probíhat dal¹í komunikace s klientem, pùvodní deskriptor lze pou¾ít k~novému
-volání \texttt{accept} pro obslou¾ení dal¹ího klienta
-\item \texttt{close} -- ukonèí komunikaci
-\item \texttt{connect} -- ¾ádost klienta o navázání spojení, IP adresa a èíslo
-portu serveru se zadávají jako parametry, komunikace probíhá pøes deskriptor
-\texttt{fd} (na rozdíl od \texttt{accept} nevytváøí nový deskriptor)
-\end{itemize}
-\item klient nemusí volat \texttt{bind}, v takovém pøípadì mu jádro pøidìlí
-nìkterý volný port. Existují slu¾by (napø. \texttt{rsh}), které vy¾adují, aby se
-klient spojoval z privilegovaného portu (porty 0-1023). Takový klient pak musí
-provést \texttt{bind} (a navíc bì¾et s dostateènými právy alespoò do okam¾iku
-provedení \texttt{bind}; dostateèná práva mohou znamenat u¾ivatele root
-nebo speciální privilegium/capability).
-\end{itemize}
+\item \funnm{socket}() -- creates a socket, returns its descriptor.
 
-%%%%%
+\item \funnm{bind}() -- binds an IP address and a port number with the socket.
+In other words, it assigns a name to an unnamed socket.  The address must be
+either one of IP addresses assigned to one of the host network interfaces (the
+host where the socket was created), in which case it will only accept connection
+requests over that specific interface via that specific IP address, or it can be
+a special value \texttt{INADDR\_ANY}, denoting the connection will be accepted
+on any IP address on any interface of the host.
+\item \funnm{listen}() -- tells the kernel to start listening on connection
+requests on the socket.
+\item \funnm{accept}() -- blocks the process until there is a connection
+request, then creates the connection and returns a \emsl{new} descriptor which
+is used for communicating with the client.  The original socket descriptor can
+be used for another \funnm{accept}() call to serve a new connection request from
+another client.
+\item \funnm{close}() -- closes the connection.
+\item \funnm{connect}() -- the client asks to create a connection.  The IP
+address and a port number are passed as arguments (omitted in the picture), the
+communication is performed through an already existing socket descriptor
+\emph{fd}.  In contrast to \funnm{accept}(), a new file descriptor is not
+created.
+\end{itemize}
+\item A client does not have to call \funnm{bind}() in which case the kernel
+will assign one of available ports and the primary IP address on the interface
+through which the target can be accessed.  In general, as a client, you do not
+need a specific outgoing port so \funnm{bind}() is usually not needed.  However,
+some legacy services, eg.  \texttt{rsh}, require the client to connect from a
+privileged port (0-1023).  Such a client must call \funnm{bind}() to use such a
+port and also have enough privileges to do that.
+\end{itemize}
 
 %%%%%
 
 \pdfbookmark[1]{socket}{socket}
 
 \begin{slide}
-\sltitle{Vytvoøení soketu: \texttt{socket()}}
+\sltitle{Creating a socket: \texttt{socket()}}
 \setlength{\baselineskip}{0.9\baselineskip}
 \texttt{int \funnm{socket}(int \emph{domain}, int \emph{type},
 int \emph{protocol});}
 \begin{itemize}
-\item vytvoøí soket a vrátí jeho deskriptor. 
-\item \texttt{domain} -- ,,kde se bude komunikovat'': 
+\item creates a socket, returns its descriptor
+\item \emph{domain} -- ,,where the communication will take place'': 
     \begin{itemize}
-    \item \texttt{AF\_UNIX} \dots{} lokální komunikace, adresa je
-    jméno souboru
-    \item \texttt{AF\_INET}, \texttt{AF\_INET6} \dots{} sí»ová komunikace,
-    adresa je dvojice (IP adresa, port)
+    \item \texttt{AF\_UNIX} \dots{} local communication within a host, its
+    address is a filename.  Also \texttt{AF\_LOCAL}.
+    \item \texttt{AF\_INET}, \texttt{AF\_INET6} \dots{} internet communication,
+    the address is an IP address and port pair
     \end{itemize}
-\item \texttt{type}:
+\item \emph{type}:
     \begin{itemize}
-    \item \texttt{SOCK\_STREAM} \dots{} spojovaná spolehlivá slu¾ba, poskytuje
-    obousmìrný sekvenèní proud dat 
-    \item \texttt{SOCK\_DGRAM} \dots{} nespojovaná nespolehlivá slu¾ba, pøenos
-    datagramù 
+    \item \texttt{SOCK\_STREAM} \dots{} connection-oriented reliable service,
+    provides bidirectional data stream
+    \item \texttt{SOCK\_DGRAM} \dots{} connectionless unreliable service,
+    transmits datagram
     \end{itemize}
-\item \texttt{protocol}: \texttt{0} (default pro daný \texttt{type}) nebo
-platné èíslo protokolu (napø. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
+\item \emph{protocol}: \texttt{0} (default for a given \emph{type})
+or a valid protocol number (eg. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
 \end{itemize}
 \end{slide}
 
 \label{SOCKET}
 
 \begin{itemize}
-\item funkce je deklarována v \texttt{<sys/socket.h>}, stejnì jako funkce z
-dal¹ích slajdù -- \texttt{bind}, \texttt{listen}, a \texttt{accept}, a pou¾ité
-konstanty.
-\item \emsl{sokety jsou pøístupné pøes deskriptory souborù.} Po navázání spojení
-je (spojovaná) komunikace pøes soket podobná komunikaci pomocí roury s tím
-rozdílem, ¾e sokety jsou v¾dy \emsl{obousmìrné}, co¾ nemusí platit u rour, viz
-strana \pageref{TWO_WAY_PIPES}.
-\item èasto uvidíte konstanty zaèínající \verb#PF_# (jako \emph{protocol
-family}, napø. \texttt{PF\_IN\-ET}, \verb#PF_UNIX#, ne\-bo \texttt{PF\_IN\-ET6})
-a pou¾ívané ve volání \texttt{socket}. Konstanty \verb#AF_# (\emph{address
-family}) jsou pak pou¾ívané pouze pøi zadávání adres soketù. I kdy¾ to snad dává
-vìt¹í smysl, norma specifikuje pouze \texttt{AF} konstanty pro pou¾ití pro
-volání \texttt{socket} i pro zadávání adres. Hodnoty odpovídajících konstant
-\texttt{PF} jsou pak stejné, tj. definované pomocí \texttt{AF} konstant.
-Doporuèuji pou¾ívat jen \texttt{AF}.
-\item existují dal¹í typy soketù pro plný pøístup k danému protokolu
-(\texttt{SOCK\_RAW}), nebo k informacím z~routovací tabulky.
-Pro pou¾ití \texttt{SOCK\_RAW} typicky
-potøebujete dodateèná privilegia -- proto napøíklad pøíkaz \texttt{ping},
-který vyplòuje ICMP hlavièky odesílaných paketù, bývá nastaven jako SUID:
+\item Function is declared in \texttt{<sys/socket.h>} as well as other network
+related functions from the previous slide.
+\item Sockets use the same name space as file descriptors, ie. the same
+descriptor table.  If you write a simple program that only calls
+\funnm{socket}(), it will return 3 as that will be the first available slot in
+the descriptor table.
+\item Connection-oriented communication is always bidirectional and is similar
+to pipes.  However, note that pipes may not be bidirectional, see page
+\pageref{TWO_WAY_PIPES}.
+\item Sometimes you can see constants beginning with \verb#PF_# (meaning
+\emph{protocol family}, eg. \texttt{PF\_IN\-ET}, \verb#PF_UNIX#, or
+\texttt{PF\_IN\-ET6}) and used in a \funnm{socket}() call. Constants \verb#AF_#
+(\emph{address family}) are then used only for naming the sockets.  While it
+might make a better sense, the UNIX specification only defines \verb#AF_#
+constants.  And if \verb#PF_# constants exist on a system, they are defined via
+corresponding \verb#AF_# constants.  We do recommend to use only \verb#AF_#
+constants.
+\item There are other socket types, see the \texttt{socket(2)} man page.  For
+example, \texttt{SOCK\_RAW} for full protocol access or to work with a routing
+table.  In order to use \texttt{SOCK\_RAW} you usually need additional
+privileges.  That is a reason why a command \texttt{ping}, which works with ICMP
+headers of sent packets, might need an SUID privilege:
 
 \begin{verbatim}
 $ ls -l /usr/sbin/ping
