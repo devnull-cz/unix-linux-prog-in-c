@@ -169,13 +169,6 @@ communication is performed through an already existing socket descriptor
 \emph{fd}.  In contrast to \funnm{accept}(), a new file descriptor is not
 created.
 \end{itemize}
-\item A client does not have to call \funnm{bind}() in which case the kernel
-will assign one of available ports and the primary IP address on the interface
-through which the target can be accessed.  In general, as a client, you do not
-need a specific outgoing port so \funnm{bind}() is usually not needed.  However,
-some legacy services, eg.  \texttt{rsh}, require the client to connect from a
-privileged port (0-1023).  Such a client must call \funnm{bind}() to use such a
-port and also have enough privileges to do that.
 \end{itemize}
 
 %%%%%
@@ -245,67 +238,69 @@ $ ls -l /usr/sbin/ping
 \pdfbookmark[1]{bind}{bind}
 
 \begin{slide}
-\sltitle{Pojmenování soketu: \texttt{bind()}}
+\sltitle{Naming the socket: \texttt{bind()}}
 \funml{int \funnm{bind}(\=int \emph{socket},
 const struct sockaddr *\emph{address}, \\\>socklen\_t \emph{address\_len});}
 \begin{itemize}
-\item pøiøadí soketu zadanému deskriptorem \texttt{socket} adresu
-\item obecná \texttt{struct sockaddr}, nepou¾ívá se pro vlastní zadávání adres: 
+\item binds a \emph{socket} with an address
+\item \texttt{struct sockaddr} is universal and not used to fill out the address
     \begin{itemize}
-    \item \texttt{sa\_family\_t \emph{sa\_family}} \dots{} doména 
-    \item \texttt{char \emph{sa\_data}[]} \dots{} adresa 
+    \item \texttt{sa\_family\_t \emph{sa\_family}} \dots{} domain
+    \item \texttt{char \emph{sa\_data}[]} \dots{} address
     \end{itemize}
-\item pro \texttt{AF\_INET} se pou¾ívá \texttt{struct sockaddr\_in}: 
+\item for \texttt{AF\_INET}, \texttt{struct sockaddr\_in} is used:
     \begin{itemize}
-    \item \texttt{sa\_family\_t \emph{sin\_family}} \dots{} doména
+    \item \texttt{sa\_family\_t \emph{sin\_family}} \dots{} domain
     (\texttt{AF\_INET}) 
-    \item \texttt{in\_port\_t \emph{sin\_port}} \dots{} èíslo portu (16 bitù) 
-    \item \texttt{struct in\_addr \emph{sin\_addr}} \dots{} IP adresa (32 bitù) 
-    \item \texttt{unsigned char \emph{sin\_zero}[8]} \dots výplò
-    (\emph{padding})
+    \item \texttt{in\_port\_t \emph{sin\_port}} \dots{} port number (16 bits) 
+    \item \texttt{struct in\_addr \emph{sin\_addr}} \dots{} IP address (32 bits)
+    \item \texttt{unsigned char \emph{sin\_zero}[8]} \dots padding
     \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item volání \texttt{bind} pøiøazuje soketu \emph{lokální adresu}, tj.
-zdrojovou adresu o\-de\-sí\-la\-ných dat a cílovou adresu pøijímaných dat.
-Vzdál{}ená adresa, tj. adresa druhého konce komunikaèního kanálu, se nastavuje
-pomocí \texttt{connect}.
-\item struktura \texttt{sockaddr} je obecný typ, pou¾ívaný kernelem. Pro
-konkrétní nastavení adres pak podle zvolené domény a typu lze pou¾ít
-,,konkrétnìj¹í'' struktury k tomu definované (viz dal¹í slajd), které je
-pak nutné pøi pou¾ití v \texttt{bind} pøetypovat na \texttt{struct sockaddr}.
-V naprosté vìt¹inì pøípadù je ale pou¾ití tìchto struktur zbyteèné a
-nedoporuèené - program pak bude fungovat pouze pro jednu address family.
-Pøi pou¾ití obecných funkcí pro pøevod jmen na adresy se lze pou¾ití
-tìchto struktur úplnì vyhnout - viz funkce \texttt{getaddrinfo} na stranì
-\pageref{GETADDRINF}.
-\item Budete potøebovat i dal¹í hlavièkové soubory. Pøíklad je na stranì
+\item \funnm{bind}() assigns a socket its source address for packets being sent
+to the other side of the connection which is also the destination address for
+data received.  The remote address is set via \funnm{connect}().
+
+\item Structure \texttt{sockaddr} is a universal type used by a kernel.  For
+setting addresses based on a specific domain one has to use concrete structures
+per domain, see the next slide.  Those specific structures need to be casted to
+the universal structure as that is the type required by the \funnm{bind}()
+function, for example.  However, it is not recommended to use those structures
+as the program will only work for one specific address family -- we will do it
+here to show you how it works though.  However, you can use helper functions
+that convert names to addresses with no need to work those structures directly.
+See \funnm{getaddrinfo}() on page \pageref{GETADDRINF} for more information.
+\item You will also need other header files, see the example on page
 \pageref{BIND_EXAMPLE}.
-\item pro domény \texttt{AF\_INET} a \texttt{AF\_INET6} lze zadat èíslo portu a
-speciální hodnotu IP adresy, která znamená libovolnou adresu na daném stroji.
-Na takový soket (\emph{wildcard soket}) pak bude mo¾né pøíjímat po¾adavky
-na kteroukoli IP adresu nastavenou na kterékoli sí»ové kartì. Je mo¾né
-zadat i jednu konkrétní adresu, k tomu se dostaneme.
+\item For domains \texttt{AF\_INET} and \texttt{AF\_INET6}, you can use a
+special address that stands for any address on a given host.  Such a socket can
+be used to accept connections on any IP address assigned to any interface on the
+host.  That address is:
 \begin{itemize}
-\item pro \texttt{AF\_INET} je to hodnota \texttt{INADDR\_ANY} (4 nulové
-bajty odpovídající adrese \texttt{0.0.0.0})
-\item u \texttt{AF\_INET6} je situace komplikovanìj¹í, buïto lze
-pou¾ít konstantní pro\-mìnnou \texttt{in6addr\_any} nebo konstantu
-\texttt{IN6ADDR\_ANY\_INIT}, kterou ale lze pou¾ít pouze pro inicializaci
-promìnné (typu \texttt{struct in6\_addr}), nikoliv pro pøiøazení.
-Obì tyto hodnoty odpovídají adrese \texttt{::} (16 nulových bajtù).
+\item For \texttt{AF\_INET}, use \texttt{INADDR\_ANY} (4 zero
+bytes corresponding to \texttt{0.0.0.0})
+\item With \texttt{AF\_INET6} the situation is more complicated.  You can either
+use a constant variable \texttt{in6addr\_any} or a constant
+\texttt{IN6ADDR\_ANY\_INIT}.  How\-ever, the constant can be only used to
+initialize variables of type \texttt{struct in6\_addr}, not for any assignment.
+Both values correspond to \texttt{::} (16 zero bytes).
 \end{itemize}
-\item nelze spojit více soketù s jednou dvojicí (adresa, port).
-\item volání \texttt{bind} lze vynechat, jádro pak soketu (v pøípadì TCP, UDP)
-pøiøadí adresu a nìkterý volný port. Obvykle \texttt{bind}
-volá pouze server, proto¾e klienti oèekávají, ¾e bude poslouchat na pevném
-portu. Naopak klient pevný port nepotøebuje, server se port klienta dozví pøi
-navázání spojení nebo z prvního pøijatého datagramu.
-\item \emsl{adresa i port musí být do struktury ulo¾eny v¾dy v sí»ovém poøadí
-bajtù.} Poøadí bajtù bylo vysvìtleno na stranì \pageref{BYTE_ORDERING}, dal¹í
-informace pak jsou na stranì \pageref{HTON}.
+\item You cannot bind the same address to multiple sockets.
+
+\item If \funnm{bind}() is not called, the kernel will assign one of available
+ports and the primary IP address on the interface through which the destination
+can be accessed.  In general, as a client, you do not need a specific outgoing
+port so \funnm{bind}() is usually not needed and the call is typically used only
+by servers as they need a specific port number to be contacted (eg. 443 for
+HTTPS).  Note that some legacy services though, eg. \texttt{rsh}, require the
+client to connect from a privileged port (0-1023).  Such a client must call
+\funnm{bind}() to use such a port and also have enough privileges to do that.
+\item \emsl{The address and port must always use network byte ordering.} See
+page \pageref{BYTE_ORDERING} where different byte orderings were explained.
+More information is on page \pageref{HTON}.
 \end{itemize}
 
 %%%%%
