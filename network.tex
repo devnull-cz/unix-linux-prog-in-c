@@ -453,54 +453,50 @@ struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, ie. either
 \pdfbookmark[1]{connect}{connect}
 
 \begin{slide}
-\sltitle{Navázání spojení: \texttt{connect()}}
+\sltitle{Initiating a connection: \texttt{connect()}}
 \funml{int \funnm{connect}(\=int \emph{sock}, struct sockaddr *\emph{address},
 \\\>socklen\_t \texttt{address\_len});}
 \begin{itemize}
-\item navá¾e spojení lokálního soketu \texttt{sock} se vzdál{}eným
-procesem, který pomocí \texttt{listen} a \texttt{accept} èeká na
-spojení na adrese \texttt{address} (o délce \texttt{address\_len}). 
-\item jestli¾e pro soket \texttt{sock} nebyla definována adresa voláním
-\texttt{bind}, je mu pøiøazena nìjaká nepou¾itá adresa dle zvolené rodiny
-protokolù.
-\item pokud se spojení nepovede, je soket v nedefinovaném stavu. Pøed novým
-pokusem o spojení by aplikace mìla zavøít deskriptor
-\texttt{sock} a vytvoøit nový soket.
+\item attempts to make a connection to a remote socket waiting on \emph{address}
+(of \emph{address\_len} length) 
+\item if \emph{sock} was not bound before, the kernel will assign an available
+local address based on the chosen address family
+\item you should close \emph{sock} on a connection failure
 \end{itemize}
 \end{slide}
 
 \label{CONNECT}
 
 \begin{itemize}
-\item Po úspì¹ném navázání spojení mohou server i klient pro
-komunikaci pou¾ívat bì¾ná souborová volání \texttt{write} a
-\texttt{read}, nebo funkce \texttt{send}, \texttt{recv},
-\texttt{sendmsg}, \texttt{recvmsg}. Chování funkcí pro zápis a
-ètení dat je podobné jako \texttt{write} a \texttt{read} pro
-roury.
-\item Pøíklad: \label{CONNECT_C} \example{tcp/connect.c}
-\item I pro nespojované slu¾by (UDP) se dá volat \texttt{connect},
-tím se nenavá¾e spojení, ale pouze se omezí adresa protistrany, se
-kterou je mo¾né pøes soket komunikovat. Pro posílání datagramù se pak pou¾ívají
-funkce \texttt{send} a \texttt{recv}, které u¾ nemají parametr pro adresu
-protistrany. Pro nespojované slu¾by mù¾eme také volat \texttt{connect()}
-vícekrát, ka¾dé volání novì nastaví adresu komunikující strany. Pokud pou¾ijeme
-místo adresy \texttt{NULL}, nastavení protistrany je zresetováno.
-\item Pokud je socket nastaven jako neblokující, viz strana \pageref{FCNTL},
-\texttt{connect} se nezablokuje èekáním na spojení. Místo toho vrátí
-\texttt{-1} s \texttt{errno} nastavené na \texttt{EINPROGRESS} (= ``nebylo mo¾né
-vytvoøit spojení okam¾itì''), a ¾ádost o spojení se ulo¾í do systémové fronty
-pro následné vyøízení. Do té doby, ne¾ je spojení pøipraveno, volání
-\texttt{connect} vrací \texttt{-1}, nyní ale s chybou \texttt{EALREADY}. Není
-ale takto vhodné testovat pøipravenost spojení, proto¾e pokud \texttt{connect}
-skonèí s chybou, dal¹í volání \texttt{connect} provede nový pokus o spojení a
-jsme opìt tam, kde jsme byli\dots{} Je mo¾né ale pou¾ít \texttt{select} nebo
-\texttt{poll} pro èekání na zápis (ne ètení) do socketu, viz strany
-\pageref{SELECT}, \pageref{POLL} které obsahují kompletní pøíklad na
-neblokující connect, viz strana \pageref{NON_BLOCKING_CONNECT}.
-\end{itemize}
+\item As the UNIX specification does not say anything about the socket state
+after a connection failure, you should definitely close \emph{sock} before
+moving on to create a new socket and trying again.
+\item After the connection is created, both the server and client can use normal
+\funnm{read}() and \funnm{write}() calls, or \funnm{send}(), \funnm{recv},
+\funnm{sendmsg}(), and \funnm{recvmsg}().  Behavior of the functions is similar
+as if working with pipes.
+\item Example: \label{CONNECT_C} \example{tcp/connect.c}
 
-%%%%%
+\item For connection-less services (UDP), \funnm{connect}() may be used as well.
+However, it will only set the remote address so that \funnm{send}() and
+\funnm{recv}() which do not have a remote address parameter can be used.
+\item We may also call \funnm{connect}() multiple times for a connection-less
+service in which case each call sets the remote address again.  If we use
+\texttt{NULL} for the remote address, the present address is reset.
+\item If the socket is set as non-blocking, see page \pageref{FCNTL},
+\funnm{connect}() will not block while waiting to connect.  It will return
+\texttt{-1} with \texttt{errno} set to \texttt{EINPROGRESS} (= ``not possible to
+create a connection right away'') and the connection request is stored in the
+system queue to be processed.  Until the connection is ready, subsequent
+\funnm{connect}()s return \texttt{-1} with \texttt{errno} set to
+\texttt{EALREADY}.  However, using this way to test the connection readiness is
+not the right approach as if the background connection attempt fails, the next
+\funnm{connect}() tries to create a new connection and we would end up in a
+never ending loop.  The right approach is to use \funnm{select}() or
+\funnm{poll}(), see pages \pageref{SELECT} and \pageref{POLL}.  You can also
+find there an example using a non-blocking \funnm{connect}(), page
+\pageref{NON_BLOCKING_CONNECT}.
+\end{itemize}
 
 %%%%%
 
