@@ -501,22 +501,24 @@ find there an example using a non-blocking \funnm{connect}(), page
 %%%%%
 
 \begin{slide}
-\sltitle{Spojované slu¾by (TCP), paralelní obsluha}
+\sltitle{Connection-oriented (TCP), parallel service}
 \input{img/tex/tcp_par.tex}
 \end{slide}
 
 \begin{itemize}
-\item server akceptuje spojení od klienta a na vlastní komunikaci vytvoøí nový
-proces, který po uzavøení spojení s klientem skonèí. Rodièovský proces mù¾e
-mezitím akceptovat dal¹í klienty a spou¹tìt pro nì obslu¾né procesy. Souèasnì
-je tedy obsluhováno více klientù.
-\item po provedení \texttt{fork}, ale pøed zahájením obsluhy spojení, mù¾e
-synovský proces provést \texttt{exec} -- takto funguje napø. \texttt{inetd}
-(strana \pageref{INETD}).
-\item volání \texttt{waitpid} v cyklu odstraòuje ze systému zombie. Jinou
-mo¾ností je vyu¾ití signálu \texttt{SIGCHLD}, jeho¾ explicitní ignorování
-zabrání vzniku ¾ivých mrtvých, popø. lze instalovat handler, v nìm¾ se volá
-\texttt{wait}.
+\item For each client connection the server accepts, a new process is created to
+process it.  After the connection is finished, the child exits.  The parent
+process can accept new connections meanwhile.  So, multiple connections may be
+served in parallel.
+\item After \funnm{fork}()ing but before starting to use the connection, the
+child may \funnm{exec}() -- that is how \texttt{inetd} works, see page
+\pageref{INETD}.
+\item As you already know, by calling \funnm{waitpid}() you are getting rid of
+zombies.  Another way is to set to ignore \texttt{SIGCHLD} in which case you
+completely avoid the grave danger of the living dead attack (see page
+\pageref{IGNORE_SIG_CHLD}).  You could also catch the signal and call
+one of the \funnm{wait}() calls from the handler itself which is fine as the
+call is async-signal safe (see page \pageref{ASYNCSIGNALSAFE}).
 \end{itemize}
 
 %%%%%

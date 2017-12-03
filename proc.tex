@@ -813,8 +813,8 @@ by the \texttt{init} process that will call \funnm{wait} on such processes.
 However, you should always use wait for children even if you know the parent
 will exit soon.
 \item Actually, you could notify the system that the program will not wait for
-its children in which case such zombies will not accumulate.  More on that later
-when we do signals.
+its children in which case such zombies will not accumulate.  See page
+\pageref{IGNORE_SIG_CHLD}.
 \end{itemize}
 
 %%%%%

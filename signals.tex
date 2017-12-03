@@ -1,4 +1,3 @@
-
 \pdfbookmark[0]{signals}{signals}
 
 \begin{slide}
@@ -415,6 +414,8 @@ specification of the header file, or the book [POSIX.4], page
 \pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
 \pageref{SIGWAITINFO}.  Examples: \example{sig\-nals/siginfo.c},
 \example{sig\-nals/sigqueue.c}.
+\item \label{IGNORE_SIG_CHLD} By ignoring \texttt{SIG\_CHILD} you say you will
+not wait for child processes and the system will still not accumulate zombies.
 \end{itemize}
 
 %%%%%
