@@ -412,42 +412,42 @@ Solaris use value of 128.
 \pdfbookmark[1]{accept}{accept}
 
 \begin{slide}
-\sltitle{Akceptování spojení: \texttt{accept()}}
+\sltitle{Accepting connection: \texttt{accept()}}
 \funml{int \funnm{accept}(\=int \emph{socket}, struct sockaddr *\emph{address},
 \\\>socklen\_t *\emph{address\_len});}
 \begin{itemize}
-\item vytvoøí spojení mezi lokálním soketem \texttt{socket} (který
-døíve zavolal \texttt{listen}) a vzdál{}eným soketem, ¾ádajícím o
-spojení pomocí \texttt{connect}. Vrátí deskriptor (nový soket),
-který lze pou¾ívat pro komunikaci se vzdál{}eným procesem. Pùvodní
-soket mù¾e hned pøijímat dal¹í spojení pomocí \texttt{accept}. 
-\item v \texttt{address} vrátí adresu vzdál{}eného soketu. 
-\item \texttt{address\_len} je velikost struktury pro ulo¾ení
-adresy v bajtech, po návratu obsahuje skuteènou délku adresy. 
+\item creates a connection between the local, already listening \texttt{socket}
+and a remote end
+\item returns a new socket descriptor that can be used to communicate with the
+remote process.  Original socket can be used to accept another connection.
+\item returns a remote IP address/port in \emph{address} unless NULL
+\item \emph{*address\_len} is a size of the \emph{address} structure, is updated
+with its real size on return
 \end{itemize}
 \end{slide}
 
 \label{ACCEPT}
 
 \begin{itemize}
-\item Vytvoøení druhého deskriptoru pro komunikaci umo¾òuje na tom pùvodním
-ihned znovu volat \texttt{accept}.
-\item Novì vytvoøený soket má stejné vlastnosti, jako má soket \emph{socket},
-tj. pokud je napøíklad neblokující, je i nový soket neblokující.
-\item Jestli¾e se více klientù ze stejného poèítaèe najednou pøipojí k jednomu
-serveru (tj. na jednu serverovou IP adresu a jeden port), jsou jednotlivá
-spojení rozli¹ena jen èíslem portu na klientské stranì. Nezapomeòte, ¾e TCP
-spojení je jednoznaènì definováno dvìma sokety, tj. ((addr1, port1), (addr2,
-port2)).
-\item \texttt{address} mù¾e být zadána jako \texttt{NULL}, èím¾ oznamujeme, ¾e
-nás konkrétní adresa na¹eho nového soketu nezajímá. V tomto pøípadì by i
-\texttt{address\_len} mìlo být \texttt{0}.
-\item Pokud je program napsán správnì a je tedy nezávislý na address family,
-mìl by v druhém argumentu pøedávat adresu struktury
-\texttt{struct sockaddr\_storage} (do které se vejde jakákoliv struktura
-specifická pro danou address family, tedy \texttt{struct sockaddr\_in}
-nebo \texttt{struct sockaddr\_in6}) a v tøetím argumentu její délku.
-\item \label{TCP_SINK_SERVER_C} Pøíklad: \example{tcp/tcp-sink-server.c}
+\item The ``remote end'' would be a socket on which a \funnm{connect}() is
+called on a Unix system, or it could be possibly something else on other
+systems.  Remember that protocols and APIs are two different things.
+\item The newly created socket has the same characteristics as \emph{socket}.
+For example, if \emph{socket} was non-blocking, the new socket is non-blocking
+as well.
+\item If more clients running on the same host connect to the same server (ie.
+using the same IP address and port), individual connections are distinguished
+only by the client side port number.  Do remember that a TCP connection is
+uniquely identified by two sockets, ie. ``((addr1, port1), (addr2, port2)).''
+\item The \emph{address} may be \texttt{NULL} which means the caller is not
+interested in the remote end address.  In that case, \emph{address\_len} should
+be \texttt{NULL} as well.
+\item If the code is written to be independent of an address family, it should
+use \texttt{struct sockaddr\_storage} for \emph{address}.  Any specific address
+struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, ie. either
+\texttt{struct sockaddr\_in} or \texttt{struct sockaddr\_in6}.  Also see page
+\pageref{TCPCLNTEXAMPLE}.
+\item \label{TCP_SINK_SERVER_C} Example: \example{tcp/tcp-sink-server.c}
 \end{itemize}
 
 \pdfbookmark[1]{connect}{connect}
@@ -1075,8 +1075,6 @@ volání uvolòující alokované entity, napø. uzavøení socketu v pøípadì chyby
 volání \texttt{bind}. Stejnì tak se neøe¹í situace kdy se vyèerpá seznam
 bez toho aby \texttt{bind} uspìl (to lze detekovat pomocí kontroly
 nenulovosti pointeru \texttt{r} za koncem prvního cyklu).
-
-
 \end{itemize}
 
 %%%%%
