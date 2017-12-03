@@ -373,7 +373,7 @@ the range 92 to 108.
 \pdfbookmark[1]{listen}{listen}
 
 \begin{slide}
-\sltitle{Waitin for connection: \texttt{listen()}}
+\sltitle{Waiting for connection: \texttt{listen()}}
 \texttt{int \funnm{listen}(int \emph{socket}, int \emph{backlog});}
 \begin{itemize}
 \item specifies willingness to accept incoming connections on \emph{socket}, and
@@ -430,8 +430,8 @@ with its real size on return
 \label{ACCEPT}
 
 \begin{itemize}
-\item The ``remote end'' would be a socket on which a \funnm{connect}() is
-called on a Unix system, or it could be possibly something else on other
+\item The ``remote end'' is the socket on which a \funnm{connect}() is
+called on a remote Unix host, or it could be possibly something else on other
 systems.  Remember that protocols and APIs are two different things.
 \item The newly created socket has the same characteristics as \emph{socket}.
 For example, if \emph{socket} was non-blocking, the new socket is non-blocking
