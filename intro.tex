@@ -387,11 +387,11 @@ greatly helped \emsl{portability of the system.}
     \item original K\&R C (1978-1979)
     \item standard ANSI/ISO C (1989), then next C standard revisions
     \end{itemize}
-\item success of C overcame the success of Unix itself
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
+\item The success of C eventually overcame the success of Unix itself.
 \item CPL $\Rightarrow$ BCPL $\Rightarrow$ B (Thompson, interpret)
 $\Rightarrow$ C.  Both Thompson and Ritchie worked for Bell Laboratories.
 \item It took many years before C reached its first standard.  Most work on C
@@ -546,12 +546,10 @@ main(void)
         char c = 'X';
 
         for (i = 0; i < 10; ++i)
-                printf("%d\n", i);
-        printf("%c\n", c);
+                printf("%c%d\n", c, i);
         return (0);
 }
 \end{verbatim}
-
 \end{itemize}
 \end{slide}
 
@@ -588,8 +586,7 @@ int main(void) {
         int i = 0; char c;
         if (1)
         printf("%d\n", i);i=2;
-return (0);
-}
+return (0); }
 \end{verbatim}
 
 \end{itemize}
