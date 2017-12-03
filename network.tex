@@ -524,26 +524,24 @@ call is async-signal safe (see page \pageref{ASYNCSIGNALSAFE}).
 %%%%%
 
 \begin{slide}
-\sltitle{Spojované slu¾by, paralelní \texttt{accept()}}
+\sltitle{Connection-oriented service, parallel \texttt{accept()}}
 \input{img/tex/tcp_prefork.tex}
 \end{slide}
 
 \begin{itemize}
-\item po \texttt{bind} a \texttt{listen} se vytvoøí nìkolik synovských
-procesù a ka¾dý v cyklu volá \texttt{accept} a obsluhuje klienty. Jádro, pro
-u¾ivatele \emsl{nedeterministicky}, vybere pro ka¾dý po¾adavek jeden proces, v
-nìm¾ \texttt{accept} navá¾e spojení. Hlavní proces ¾ádné po¾adavky nevyøizuje,
-ale èeká v nìkterém z volání typu \texttt{wait} a vytváøí procesy, kdy¾ je
-potøeba.
-\item jednotlivé procesy serveru mezi sebou mohou komunikovat, aby v pøípadì, ¾e
-souèasných po¾adavkù je více ne¾ serverových procesù, se tato skuteènost
-zjistila a hlavní server mohl dynamicky vytvoøit dal¹í serverový proces.
-\item takto funguje napø. webový server Apache. Je mo¾né definovat, kolik
-po\-¾a\-dav\-kù má potomek zpracovat, ne¾ sám skonèí. Tímto zpùsobem se výraznì omezí
-následky pøípadných problémù, napøíklad neuvolòování pamìti, tzv. \emph{memory
-leaks}.
-\item \emsl{v¹echny tøi uvedené zpùsoby èinnosti serveru fungují se stejným
-kli\-en\-tem} -- èinnost klienta nezávisí na variantì serveru.
+\item After calling \funnm{bind}() and \funnm{listen}(), the parent creates
+several children who sequentially serve connection requests.  Kernel,
+non-deterministically from the user point of view, distributes the connection
+requests between child processes waiting in \funnm{accept}().  The parent itself
+does not serve any connection but possibly \funnm{wait}()s and creates new
+processes as needed.
+\item The parent should monitor the number of existing children serving
+connections as well as the number of queued connections, and spawn new processes
+as necessary.  It is a good idea for child processes to voluntarily exit after
+serving a certain number of connections to avoid issues like memory leaks to
+affect the host as a whole.  Apache can be configured to work like this.
+\item All server side ways of serving the connections work with the same client.
+The way a client works does not depend on which approach the server choses.
 \end{itemize}
 
 \begin{slide}
