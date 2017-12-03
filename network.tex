@@ -388,7 +388,8 @@ be served
 \end{slide}
 
 \begin{itemize}
-\item The system can change \emph{backlog} if it is not in a supported range.
+\item The system may silently adjust \emph{backlog} if it is not in a supported
+range.
 \item Wildcard sockets are primarily used for servers.  If you need to
 distinguish between interfaces, you need a socket per an IP address.  This used
 to be used for web servers that distinguished virtual servers based on the IP
@@ -476,10 +477,10 @@ moving on to create a new socket and trying again.
 \funnm{sendmsg}(), and \funnm{recvmsg}().  Behavior of the functions is similar
 as if working with pipes.
 \item Example: \label{CONNECT_C} \example{tcp/connect.c}
-
-\item For connection-less services (UDP), \funnm{connect}() may be used as well.
-However, it will only set the remote address so that \funnm{send}() and
-\funnm{recv}() which do not have a remote address parameter can be used.
+\item \label{CONNECT_FOR_UDP} For connection-less services (UDP),
+\funnm{connect}() may be used as well.  However, it will only set the remote
+address so that \funnm{send}() and \funnm{recv}() which do not have a remote
+address parameter can be used.
 \item We may also call \funnm{connect}() multiple times for a connection-less
 service in which case each call sets the remote address again.  If we use
 \texttt{NULL} for the remote address, the present address is reset.
@@ -545,23 +546,21 @@ The way a client works does not depend on which approach the server choses.
 \end{itemize}
 
 \begin{slide}
-\sltitle{Datagramové slu¾by (UDP)}
+\sltitle{Datagram services (UDP)}
 \input{img/tex/udp.tex}
 \end{slide}
 
 \begin{itemize}
-\item z pohledu volaných sí»ových funkcí je funkce serveru a klienta shodná.
-Klient je zde ten, kdo po¹le první datagram.
-\item stejnì jako v pøípadì TCP, klient nemusí dìlat \texttt{bind}, jestli¾e
-mu nezále¾í na tom, jaké èíslo portu bude pou¾ívat. Server zjistí port klienta z
-obsahu adresní èásti datagramu.
-\item výhodou nespojované slu¾by je men¹í re¾ie a to, ¾e pøes jeden soket lze
-komunikovat s~více procesy (pøi spojované komunikaci je spojení v¾dy navázáno s
-jedním procesem).
-\item pro UDP je mo¾né volat \texttt{connect}. Tím se nenavá¾e spojení, ale
-soket se nastaví tak, ¾e mù¾e nadále komunikovat pouze s adresou a portem
-specifikovanými ve volání \texttt{connect}. Místo \texttt{sendto} a
-\texttt{recvfrom} se pak pou¾ívají funkce \texttt{send} a \texttt{recv}.
+\item Both the client and server use the same functions, the client is one that
+sends the first datagram.
+\item As in TCP, a client does not need \funnm{bind}() unless it requires a
+specific local address to bind to.  The server gets the client address from the
+received datagram.
+\item In contrast to connection-oriented service, the connectionless one has
+less overhead and one can use the same socket to communicate with multiple
+remote processes.
+\item You can use \funnm{connect}() for UDP as well, see page
+\pageref{CONNECT_FOR_UDP} for more information.
 \end{itemize}
 
 %%%%%
