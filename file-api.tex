@@ -3,39 +3,40 @@ changequote([[[, ]]])
 \pdfbookmark[1]{standard file descriptors}{stdfds}
 
 \begin{slide}
-\sltitle{API pro soubory}
+\sltitle{File API}
 \begin{itemize}
-\item pøed pou¾itím musí proces ka¾dý soubor nejprve otevøít voláním
-\texttt{open()} nebo \texttt{creat()}. 
-\item otevøené soubory jsou dostupné pøes \emsl{deskriptory souborù} (file
-descriptors), èíslované od 0, více deskriptorù mù¾e sdílet jedno
-\emsl{otevøení souboru} (mód ètení/zápis, ukazatel pozice) 
-\item standardní deskriptory: 
+\item before working with a file, it must be first open via
+\funnm{open}() or \funnm{creat}()
+\item open files are accessible via \emph{file descriptors}, numbered from 0.
+More descriptors can share the same file opening (read/write mode, position).
+\item standard file descriptors
     \begin{itemize}
-    \item 0 \dots{} standardní vstup (jen pro ètení) 
-    \item 1 \dots{} standardní výstup (jen pro zápis) 
-    \item 2 \dots{} chybový výstup (jen pro zápis) 
+    \item 0 \dots{} standard input (read only) 
+    \item 1 \dots{} standard output (write only) 
+    \item 2 \dots{} unbuffered error output (write only) 
     \end{itemize}
-\item ètení a zápis z/do souboru: \texttt{read()}, \texttt{write()}
-\item zmìna pozice: \texttt{lseek()}, zavøení: \texttt{close()},
-informace: \texttt{stat()}, øídicí funkce: \texttt{fcntl()},
-práva: \texttt{chmod()}, \dots
+\item for reading and writing a file: \funnm{read}(), \funnm{write}()
+\item position change: \funnm{lseek}(), close: \funnm{close}(),
+information: \funnm{stat}(), file control: \funnm{fcntl}(),
+access rights: \funnm{chmod}(), \dots
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item ka¾dá funkce, která alokuje deskriptory (nejen \texttt{open}
-a \texttt{creat}, ale napø. i \texttt{pipe}, \texttt{dup},
-\texttt{socket}) alokuje v¾dy volné deskriptory s nejni¾¹ím
-èíslem.
-\item proces dìdí otevøené soubory od rodièe, tyto soubory nemusí
-znovu otvírat. Obvykle (ale ne v¾dy) proces dostane otevøené alespoò
-deskriptory 0, 1 a 2.
-\item funkce ze souboru \texttt{stdio.h} (napø. \texttt{fopen},
-\texttt{fprintf}, \texttt{fscanf}) a odkazy na soubory pomocí ukazatele na
-\texttt{FILE} jsou definovány ve standardní knihovnì a pro svojí èinnost
-pou¾ívají volání jádra (napø. \texttt{open}, \texttt{write},
-\texttt{read}). My se nebudeme knihovnou \texttt{stdio} zabývat.
+\item Every function that allocates file descriptors (not just \funnm{open}() or
+\funnm{creat}() but also \funnm{pipe}(), see page \pageref{PIPEREADWRITE}, and
+\funnm{dup}(), see page \pageref{DUP_CALL}, for example), always uses the first
+available descriptor number.  That is very important and will be later used when
+we work with pipes and redirect process input and output.
+\item A process inherits file descriptors from its parent so it does not have to
+open already open files.  Usually at least file descriptors 0, 1, and 2 are
+provided.
+\item Functions from a header file \texttt{stdio.h} (eg. \funnm{fopen}(),
+\funnm{fprintf}(), and \funnm{fscanf}()), and their file handle \texttt{FILE}
+are defined in the standard libc library and use standard system calls like
+\funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions, we
+will only use functions for printing to the terminal output like
+\funnm{fprintf}().
 \end{itemize}
 
 %%%%%
@@ -391,7 +392,6 @@ bash$ kill -l 141
 PIPE
 \end{verbatim}
 
-
 \item v pøípadì otevírání pouze pro zápis s \texttt{O\_NONBLOCK} bez
 existujícího ètenáøe se vrátí chyba a \texttt{errno} se nastaví na
 \texttt{ENXIO}. Tato asymetrie je snahou, aby v rouøe nebyla data, která nebudou
@@ -407,7 +407,6 @@ pojmenované rouøe a vykonává po¾adavky od rùzných procesù-zapisovatelù
 zablokování v \texttt{open} pøi èekání na otevøení roury zapisovatelem by
 dal¹í volání \texttt{read} pro akceptování dal¹ího po¾adavku typicky vrátilo
 0, pokud by náhodou roura nebyla mezitím pro zápis otevøena dal¹ím procesem.
-
 
 \item zápis maximální velikosti \texttt{PIPE\_BUF} (\texttt{limits.h}) je
 zaruèený jako atomický, tj. data nesmí být prolo¾ena daty jiných zapisujících
@@ -555,6 +554,8 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \texttt{close(fildes2);\\ fcntl(fildes, F\_DUPFD, fildes2);}
 \end{itemize}
 \end{slide}
+
+\label{DUP_CALL}
 
 \begin{itemize}
 \item první volný deskriptor se pou¾ije i u otevírání a vytváøení souborù,
