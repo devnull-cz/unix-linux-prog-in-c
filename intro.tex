@@ -105,6 +105,9 @@ compliant with the the previous version SUSv3
 \item \emsl{NetBSD}
 \item \emsl{OpenBSD}
 \item \emsl{DragonflyBSD}
+\begin{itemize}
+\item all BSD variants are based on 4.4 BSD Lite source code
+\end{itemize}
 \item huge number of \emsl{Linux} distributions
 \item Minix, micro-kernel based
 \item OpenSolaris, discontinued
@@ -2534,25 +2537,25 @@ nemìli byste ji potøebovat.
 \end{itemize}
 
 \begin{slide}
-\sltitle{Skupina funkcí z \texttt{err(3)}}
+\sltitle{Formatted error messages: \texttt{err(3)}}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item pomocné funkce pro výpis chybových hlá¹ení a pøípadné ukonèení programu
-\item místo \texttt{perror()} a \texttt{exit()} vám staèí jedna funkce
+\item functions to display a formatted error message and optionally exit
+\item instead of \funnm{perror}() and \funnm{exit}(), one function suffices
 \item
 \texttt{void \funnm{err}(int \emph{status}, const char *\emph{fmt}, ...);}
 \begin{itemize}
-\item vypí¹e jméno programu, formátovaný øetìzec, a chybu podle aktuální hodnoty
+\item prints a program name, formatted string, and error based on
 \texttt{errno}
-\item ukonèí program s návratovou hodnotou ze \texttt{\emph{status}}
+\item exits the program with \emph{status} return value
 \end{itemize}
 \item
 \texttt{void \funnm{warn}(const char *\emph{fmt}, ...);}
 \begin{itemize}
-\item stejné jako \funnm{err}(), ale program neukonèí
+\item same as \funnm{err}() but does not exit
 \end{itemize}
-\item existují dal¹í podobné funkce, viz manuálová stránka
-\item funkce pocházejí ze 4.4BSD
+\item see the manual page for other functions from the same family
+\item originated in 4.4BSD
 \end{itemize}
 \end{slide}
 
@@ -2560,17 +2563,14 @@ nemìli byste ji potøebovat.
 
 \begin{itemize}
 \label{ERR}
-\item vìt¹í programy podobné funkce èasto nepou¾ívají, napøíklad proto, ¾e
-stejnì potøebují provést rùzné ukonèovací práce pøed skonèením programu, tak¾e
-mají podobné funkce vlastní. Pro jiné programy jsou ale tyto funkce ideální,
-proto¾e mají rozumný výstup a ¹etøí øádky va¹eho kódu.
-\item tyto funkce nemusí být v¹ude, napøíklad nejsou v \texttt{libc.so} pro
-Solaris 10 (ale jsou v Solarisu 11). Jsou na BSD systémech a v linuxových
-distribucích. Tyto funkce nejsou souèástí SUS, tak¾e ani na certifikovaných
-UNIX systémech se nelze spolehnout na jejich pøítomnost. Øe¹ením je kontrolovat
-jejich existenci v pøedkompilaèním skriptu a pøípadnì mít jejich verzi souèástí
-zdrojových kódù programu pro pøípad ¾e nebudou na cílovém systému nalezeny.
-\item pøíklad (viz také \example{err/err.c}):
+\item The third widely used function is \funnm{errx}() which behaves as
+\funnm{err}() but does not use \texttt{errno}.  Similarly, \funnm{warnx}().
+\item These functions are very handy especially for smaller programs as they are
+easy to work with and save you some lines of code.  More complex
+app\-li\-ca\-tions often use their own logging functions.
+\item Not part of the UNIX specification but in general you can find them almost
+everywhere.
+\item Example (and also in \example{err/err.c}):
 
 \begin{verbatim}
 #include <errno.h>
