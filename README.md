@@ -1,3 +1,5 @@
+Build status: [![Build Status](https://travis-ci.org/devnull-cz/unix-prog-in-c.svg?branch=master)](https://travis-ci.org/devnull-cz/unix-prog-in-c)
+
 This project contains source code for the material that is used to lecture "Unix
 Programming in C" (NSWI015) class at the Faculty of Mathematics and Physics,
 Charles University in Prague.
