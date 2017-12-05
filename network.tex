@@ -725,29 +725,29 @@ The remote side will get \texttt{EOF} while reading however it can still write.
 \pdfbookmark[1]{inet\_pton, inet\_ntop}{ipaddrfncs}
 
 \begin{slide}
-\sltitle{Práce s IPv4 a IPv6 adresami}
+\sltitle{Working with IPv4 and IPv6 addresses}
 \begin{itemize}
-\item binární reprezentace adresy se nám ¹patnì ète
-\item a reprezentaci adresy øetìzcem nelze pou¾ít pøi práci se \texttt{sockaddr}
-strukturami
+\item binary representation of IP address is hard to read
+\item string representation of IP address cannot be used when working with
+\texttt{sockaddr} structures
 \end{itemize}
 
 \texttt{int \funnm{inet\_pton}(int \emph{af}, const char *\emph{src},
 void *\emph{dst});}
 \begin{itemize}
-\item pøevede øetìzec na binární adresu, tj. to co je mo¾né pou¾ít v
-\texttt{in\_addr} nebo \texttt{in6\_addr} polo¾kách \texttt{sockaddr} struktur
-\item vrací 1 (OK), 0 (chybnì zadaná adresa) nebo -1 (a nastaví \texttt{errno})
+\item converts string to binary representation, i.e. something usable for
+\texttt{in\_addr} or \texttt{in6\_addr} members of \texttt{sockaddr} structures
+\item returns 1 (OK), 0 (wrong address) or -1 (and sets \texttt{errno})
 \end{itemize}
 
 \funml{cont char *\funnm{inet\_ntop}(\=int \emph{af}, const void *\emph{src},
 \\\>char *\emph{dst}, size\_t \emph{size});}
 \begin{itemize}
-\item opak k \texttt{inet\_pton}; vrací \emph{\texttt{dst}} nebo \texttt{NULL}
-(a nastaví \texttt{errno})
+\item counterpart to \texttt{inet\_pton}; returns \emph{\texttt{dst}} or
+\texttt{NULL} (and sets \texttt{errno})
 \end{itemize}
 \begin{itemize}
-\item pro obì volání platí, ¾e \texttt{af} je \texttt{AF\_INET} nebo
+\item for both functions \texttt{af} is either \texttt{AF\_INET} or
 \texttt{AF\_INET6}
 \end{itemize}
 \end{slide}
@@ -755,30 +755,30 @@ void *\emph{dst});}
 \label{IPv4_IPv6_ADDRESSES}
 
 \begin{itemize}
-\item Funkce jsou deklarované v \texttt{arpa/inet.h}.
-\item \texttt{inet\_pton} vrací 1 pokud konverze probìhla, 0 pokud daný øetìzec
-není adresa dané adresní rodiny, a -1 pokud \emph{af} není podporováno
-(\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} vrací \texttt{dst} pokud je v¹e OK
-a \texttt{NULL} s nastaveným \texttt{errno} pokud ne.
-\item Adresy i porty v binární podobì jsou v sí»ovém poøadí bajtù, jak lze
-oèekávat.
-\item \texttt{dst} musí být dostateènì velké, proto¾e zde není parametr
-specifikující velikost. To ale není problém, podle nastavení \texttt{af}
-pou¾ijete konkrétní adresní strukturu nebo øetìzec. Pro maximální postaèující
-velikost øetìzcù pro adresy norma definuje dvì makra,
-\texttt{INET\_ADDRSTR\-LEN} (16) a \texttt{INET6\_ADDRSTRLEN} (48). Je to vèetnì
-místa pro ukonèující \texttt{\bs{}0}.
-\item \texttt{size} je velikost øetìzce \texttt{dst}. Pokud není dostateèná,
-volání sel¾e s chybou \texttt{ENOSPC}.
-\item \texttt{n} je \texttt{network}, \texttt{p} je \texttt{presentable}
-\item Pro IPv4 adresy se pou¾ívala volání \texttt{inet\_aton} a
-\texttt{inet\_ntoa} (\texttt{a} jako \texttt{ascii}). Díky novým voláním ji¾
-tyto funkce není potøeba pou¾ívat. V¹echna tato volání bývají zdokumentována v
-manuálové stránce \texttt{inet}.
-\item \label{ADDRESSES} Uvìdomte si, ¾e pomocí tìchto funkcí mù¾ete
-pøevést najednou jen jeden typ, to je buï IPv4, anebo IPv6 adresu. Kdy¾
-nevíte, co èekat, zkusíte jednu a pokud to nevyjde, zkusíte druhou.
-Pøíklad: \example{resolving/addresses.c}.
+\item The functions are declared in \texttt{arpa/inet.h}.
+\item \texttt{inet\_pton} returns 1 if the conversion successfully happened,
+0 if given string is not an address or -1 if \emph{af} is not supported
+(\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} returns \texttt{dst} if everything
+is OK otherwise returns \texttt{NULL} with \texttt{errno} set.
+\item Addresses and ports in binary form are stored as big endian.
+\item \texttt{dst} has to be suffciently sized because there is no parameter
+specifying the size. This is not a problem since according to the value of
+\texttt{af} appropriate address structure or character array can be passed in.
+For maximal lenghts of strings for addresses, 2 macros can be used --
+\texttt{INET\_ADDRSTR\-LEN} (16) or \texttt{INET6\_ADDRSTRLEN} (48). 
+These values contain space for terminating \texttt{\bs{}0}.
+\item \texttt{size} is string size of \texttt{dst}. If not sufficient, the call
+will fail and \texttt{ENOSPC} will be set.
+\item \texttt{n} stands for \texttt{network}, \texttt{p} stands for
+\texttt{presentable}
+\item In the past \texttt{inet\_aton} and \texttt{inet\_ntoa} (\texttt{a} as
+\texttt{ascii}) were used for IPv4 addresses. Thanks for the functions above
+these are now legacy. All these calls are usually documented in the
+\texttt{inet} man page.
+\item \label{ADDRESSES} Do realize that using these functions it is only
+possible to convert one address family once, either IPv4 or IPv6.
+When the output can be either, try one and if that fails, fallback to another.
+Example: \example{resolving/addresses.c}.
 \end{itemize}
 
 %%%%%
