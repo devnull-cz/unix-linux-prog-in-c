@@ -222,11 +222,11 @@ might make a better sense, the UNIX specification only defines \verb#AF_#
 constants.  And if \verb#PF_# constants exist on a system, they are defined via
 corresponding \verb#AF_# constants.  We do recommend to use only \verb#AF_#
 constants.
-\item There are other socket types, see the \texttt{socket(2)} man page.  For
-example, \texttt{SOCK\_RAW} for full protocol access or to work with a routing
-table.  In order to use \texttt{SOCK\_RAW} you usually need additional
-privileges.  That is a reason why a command \texttt{ping}, which works with ICMP
-headers of sent packets, might need an SUID privilege:
+\item There are other domains, see the \texttt{socket(2)} manual page.
+\item There are also other socket types, for example \texttt{SOCK\_RAW}, for
+full protocol access. In order to use \texttt{SOCK\_RAW} you usually need
+additional privileges.  That is a reason why a command \texttt{ping}, which
+works with ICMP headers of sent packets, might need an SUID privilege:
 
 \begin{verbatim}
 $ ls -l /usr/sbin/ping
@@ -319,9 +319,8 @@ More information is on page \pageref{HTON}.
 \begin{verbatim}
 
 #include <netinet/in.h>
-struct sockaddr_in in; /* IPv4 */
+struct sockaddr_in in = { 0 }; /* IPv4 */
 
-bzero(&in, sizeof (in));
 in.sin_family = AF_INET;
 in.sin_port = htons(2222);
 in.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -568,25 +567,25 @@ remote processes.
 \pdfbookmark[1]{recvfrom}{recvfrom}
 
 \begin{slide}
-\sltitle{Pøijetí zprávy: \texttt{recvfrom()}}
+\sltitle{Receiving message: \texttt{recvfrom()}}
 \setlength{\baselineskip}{0.8\baselineskip}
 \funml{ssize\_t \funnm{recvfrom}(\=int \emph{sock}, void *\emph{buf},
 size\_t \emph{l{}en}, \\\>int \emph{flg}, struct sockaddr *\emph{address},
 \\\>socklen\_t *\emph{address\_len});}
 \begin{itemize}
-\item pøijme zprávu ze soketu \texttt{sock}, ulo¾í ji do bufferu \texttt{buf}
-o velikosti \texttt{l{}en}, do \texttt{address} dá adresu odesílatele
-zprávy, do \texttt{address\_len} délku adresy. Vrátí délku zprávy.
-Kdy¾ je zpráva del¹í ne¾ \texttt{l{}en}, nadbyteèná data se zahodí
-(\texttt{SOCK\_STREAM} nedìlí data na zprávy, data se nezahazují).
-\item ve \texttt{flg} mohou být pøíznaky: 
+\item receives a message from \emph{sock}, stores it to \emph{buf}
+of size \emph{l{}en}, puts the sender's address to \emph{address},
+and address length to \emph{address\_len}.  Returns message length.
+If the message does not fit \emph{l{}en}, extra data is discarded
+(\texttt{SOCK\_STREAM} does not divide data, nothing is discarded).
+\item flags \emph{flg} can be:
     \begin{itemize}
-    \item \texttt{MSG\_PEEK} \dots{} zpráva se bere jako nepøeètená,
-    dal¹í \texttt{recvfrom} ji vrátí znovu 
-    \item \texttt{MSG\_OOB} \dots{} pøeète urgentní (out-of-band)
+    \item \texttt{MSG\_PEEK} \dots{} message it considered not read, next
+    \texttt{recvfrom} will return it again
+    \item \texttt{MSG\_OOB} \dots{} reads urgent (out-of-band)
     data 
-    \item \texttt{MSG\_WAITALL} \dots{} èeká, dokud není naèten plný
-    objem dat, tj. \texttt{l{}en} bajtù
+    \item \texttt{MSG\_WAITALL} \dots{} waits for the buffer to fill up
+    ie. \emph{l{}en} bytes
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -615,20 +614,18 @@ spojovanou slu¾bu. Získat adresu protistrany je ale asi jednodu¹¹í pøes volání
 \pdfbookmark[1]{sendto}{sendto}
 
 \begin{slide}
-\sltitle{Poslání zprávy: \texttt{sendto()}}
+\sltitle{Sending message: \texttt{sendto()}}
 \funml{ssize\_t \funnm{sendto}(\=int \emph{socket}, void *\emph{msg},
 size\_t \emph{l{}en},\\\>int \emph{flags}, struct sockaddr *\emph{addr},
 \\\>socklen\_t \emph{addr\_len});}
 \begin{itemize}
-\item prostøednictvím soketu \texttt{socket} po¹le zprávu
-\texttt{msg} o délce \texttt{l{}en} na adresu \texttt{addr} (o délce
-\texttt{addr\_len}). 
-\item parametr \texttt{flags} mù¾e obsahovat pøíznaky: 
+\item sends a message \emph{msg} via \emph{socket} of \emph{l{}en} bytes to
+address \emph{addr} (of \emph{addr\_len} length). 
+\item \emph{flags} can carry:
     \begin{itemize}
-    \item \texttt{MSG\_EOB} \dots{} ukonèení záznamu (pokud je
-    podporováno protokolem) 
-    \item \texttt{MSG\_OOB} \dots{} poslání urgentních (out-of-band)
-    dat, jejich¾ význam je závislý na protokolu
+    \item \texttt{MSG\_EOB} \dots{} finish a record (if supported by the
+    protocol)
+    \item \texttt{MSG\_OOB} \dots{} send urgent (out-of-band) data
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -658,24 +655,23 @@ mo¾nost pou¾ít flagy. V tom pøípadì je ale jednodu¹¹í pou¾ít \texttt{send}.
 \pdfbookmark[1]{close}{close}
 
 \begin{slide}
-\sltitle{Uzavøení soketu: \texttt{close()}}
+\sltitle{Closing socket: \texttt{close()}}
 \setlength{\baselineskip}{0.8\baselineskip}
-\texttt{int \funnm{close}(int fildes);}
+\texttt{int \funnm{close}(int \emph{sock});}
 \begin{itemize}
-\item zru¹í deskriptor, pøi zru¹ení posledního deskriptoru soketu
-zavøe soket. 
-\item pro \texttt{SOCK\_STREAM} soket zále¾í na nastavení pøíznaku
-\texttt{SO\_LINGER} (default je \texttt{l\_onoff~==~0}, mìní se
-funkcí \texttt{setsockopt}).
+\item close descriptor \emph{sock}, after the last descriptor is closed, close
+the socket in kernel
+\item for the \texttt{SOCK\_STREAM} socket,
+\texttt{SO\_LINGER} flag is important (default is \texttt{.l\_onoff~==~0}, use
+\funnm{setsockopt}() with \texttt{struct linger} to change that).
     \begin{itemize}
-    \item \texttt{l\_onoff~==~0} \dots{} volání \texttt{close} se
-    vrátí, ale jádro se sna¾í dál pøenést zbylá data
-    \item \texttt{l\_onoff~==~1~\&\&~l\_linger~!=~0} \dots{} jádro
-    se sna¾í pøenést zbylá data do vypr¹ení timeoutu
-    \texttt{l\_linger} v sekundách, kdy¾ se to nepovede, \texttt{close} vrátí
-    chybu, jinak vrátí OK po pøenesení dat.
-    \item \texttt{l\_onoff~==~1~\&\&~l\_linger~==~0} \dots{} provede
-    se reset spojení
+    \item \texttt{.l\_onoff~==~0} \dots{} \funnm{close}() returns but system
+    tries to transfer rest of the data
+    \item \texttt{.l\_onoff~==~1~\&\&~.l\_linger~!=~0} \dots{} system tries to
+    transfer data until timeout \texttt{l\_linger} expires (in seconds), if it
+    fails, return error, otherwise return OK after transferring data.
+    \item \texttt{.l\_onoff~==~1~\&\&~.l\_linger~==~0} \dots{} reset the
+    connection
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -699,14 +695,14 @@ reset zpùsobí chybu \texttt{ECONNRESET}. Pøíklad \example{tcp/linger.c}.
 \pdfbookmark[1]{shutdown}{shutdown}
 
 \begin{slide}
-\sltitle{Uzavøení soketu: \texttt{shutdown()}}
+\sltitle{Shut down part of a connection: \texttt{shutdown()}}
 \texttt{int \funnm{shutdown}(int \emph{socket}, int \emph{how});}
 \begin{itemize}
-\item Uzavøe soket (ale neru¹í deskriptor) podle hodnoty \texttt{how}: 
+\item shuts down a socket but does not close the descriptor, \emph{how} can be: 
     \begin{itemize}
-    \item \texttt{SHUT\_RD} \dots{} pro ètení 
-    \item \texttt{SHUT\_WR} \dots{} pro zápis 
-    \item \texttt{SHUT\_RDWR} \dots{} pro ètení i zápis
+    \item \texttt{SHUT\_RD} \dots{} shut it down for reading
+    \item \texttt{SHUT\_WR} \dots{} for writing
+    \item \texttt{SHUT\_RDWR} \dots{} for both
     \end{itemize}
 \end{itemize}
 \end{slide}
