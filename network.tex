@@ -591,21 +591,23 @@ If the message does not fit \emph{l{}en}, extra data is discarded
 \end{slide}
 
 \begin{itemize}
-\item pou¾ívá se hlavnì pro sokety typu \texttt{SOCK\_DGRAM}. V takové situaci
-opìt èeká na celou zprávu, tj. nevrátí vám pùlku datagramu. Opìt je mo¾né
-nastavit socket jako neblokující.
-\item \texttt{address\_len} \emsl{musí} být inicializovaná velikostí bufferu,
-pokud není adresa \texttt{NULL}, èím¾ øíkáte, ¾e vás adresa protistrany
-nezajímá -- tomu tak ale u datagramù vet¹inou není.
-\item místo \texttt{recvfrom} se dá pou¾ít obecnìj¹í funkce \texttt{recvmsg}.
-\item pro sokety, na které bylo voláno \texttt{connect}, se místo funkce
-\texttt{recvfrom} volá \texttt{recv}.
-\item po úspe¹ném návratu z \texttt{recvfrom} je mo¾né \texttt{address} a
-\texttt{address\_len} beze zmìny pou¾ít pro následné volání \texttt{sendto}.
-\item stejnì jako \texttt{sendto}, je i \texttt{recvfrom} mo¾né pou¾ít pro
-spojovanou slu¾bu. Získat adresu protistrany je ale asi jednodu¹¹í pøes volání
-\texttt{getpeername}, viz strana \pageref{GETPEERNAME}.
-\item pøíklad: \label{UDP_SERVER_C} \example{udp/udp-server.c}
+\item Mainly for \texttt{SOCK\_DGRAM} sockets. Waits for the whole message,
+does not return datagram portion. Again, it is possible to set the socket
+as non-blocking.
+\item \texttt{address\_len} \emsl{must} byt initialized with buffer size if
+the address is not \texttt{NULL}. \texttt{NULL} address is used to express that
+the caller is not interested in remote's address -- however that is usually
+not the case when working with datagrams.
+\item Instead of using \texttt{recvfrom} it is possible to use
+\texttt{recvmsg} which is more generic.
+\item If \texttt{connect} was used then \texttt{recv} can be used instead of
+\texttt{recvfrom}.
+\item After successful return from \texttt{recvfrom} it is possible to reuse
+\texttt{address} and \texttt{address\_len} unchanged for a \texttt{sendto} call.
+\item Like \texttt{sendto}, \texttt{recvfrom} is possible to use for connected
+service. That said, getting remote's address is better via
+\texttt{getpeername}, see page \pageref{GETPEERNAME}.
+\item example: \label{UDP_SERVER_C} \example{udp/udp-server.c}
 \end{itemize}
 
 
@@ -631,23 +633,24 @@ address \emph{addr} (of \emph{addr\_len} length).
 \end{slide}
 
 \begin{itemize}
-\item Pou¾ívá se hlavnì pro sokety typu \texttt{SOCK\_DGRAM}, proto¾e v této
-situaci máme pouze socket reprezentující na¹i stranu spojení; viz poznámka u
-slajdu k \texttt{accept}. Musíme proto specifikovat adresu protistrany, co¾
-voláním \texttt{write} nedoká¾eme. Pro \emsl{datagramovou} slu¾bu se navíc data
-berou jako nedìlitelná, tj. buï se akceptují celá, nebo se volání zablokuje --
-neexistuje èásteèný zápis. Stejnì jako je tomu u souborových deskriptorù, je i
-zde mo¾né socket nastavit jako neblokující, viz strana \pageref{FCNTL}.
-\item Místo \texttt{sendto} se dá pou¾ít obecnìj¹í funkce \texttt{sendmsg}.
-\item Pro sokety, na které bylo voláno \texttt{connect}, se místo
-\texttt{sendto} mù¾e pou¾ít \texttt{send}.
-\item Úspì¹ný návrat z libovolné funkce zapisující data do soketu
-\emsl{neznamená úspì¹\-né doruèení zprávy protistranì}, ale pouze ulo¾ení dat do
-lokálního bufferu o\-de\-sí\-la\-ných dat.
-\item Pokud pou¾ijete \texttt{sendto} na streamovanou slu¾bu, je to mo¾né, ale
-adresa se ignoruje. Jediný dùvod proè nepou¾ít pøímo \texttt{write} by tak byla
-mo¾nost pou¾ít flagy. V tom pøípadì je ale jednodu¹¹í pou¾ít \texttt{send}.
-\item Pøíklad: \label{UDP_CLIENT_C} \example{udp/udp-client.c}.
+\item Used mainly for \texttt{SOCK\_DGRAM} sockets, because in such situation
+we only have socket representing our side of the connection; see the note
+for \texttt{accept}. The remote address has to be specified which cannot be
+done with \texttt{write}. Moreover, for \emsl{datagram} service the data sent
+is considered as whole, i.e. either it is accepted completely or the call
+will block -- partial write does not exist. Like with file descriptors, it is
+possible to set the socket as non-blocking, see page \pageref{FCNTL}.
+\item Instead of using \texttt{sendto} more generic function \texttt{sendmsg}
+can be used.
+\item If \texttt{connect} was used then \texttt{send} can be used instead of
+\texttt{sendto}.
+\item Successful return from either \emsl{does not mean successful delivery of
+the message to the remote side}, but only instertion of the data to local buffer
+which is yet to be sent out.
+\item It is possible to use \texttt{sendto} for stream service, however the
+address will be ignored. The only reason not to use \texttt{write} would be to
+use flags. In this case it is simpler to use \texttt{send}.
+\item Example:\label{UDP_CLIENT_C} \example{udp/udp-client.c}.
 \end{itemize}
 
 %%%%%
@@ -679,15 +682,15 @@ the socket in kernel
 \label{CLOSESOCKET}
 
 \begin{itemize}
-\item po uzavøení mù¾e TCP soket zùstat po nìjakou dobu v pøechodném stavu,
-který je definován protokolem TCP pøi ukonèování spojení. Ne¾ je soket zcela
-zru¹en, nelze pou¾ít jiný soket na stejném portu, pokud toto nebylo pøedtím
-povoleno nastavením pøíznaku \texttt{SO\_REUSEADDR} pomocí funkce
-\texttt{setsockopt}, viz strana \pageref{SETSOCKOPT}.
-\item reset spojení je abnormální ukonèení spojení. V TCP se pou¾ije
-paket s nastaveným pøíznakem \texttt{RST}. Na druhé stranì se
-normální ukonèení spojení projeví jako konec souboru (pøi ètení),
-reset zpùsobí chybu \texttt{ECONNRESET}. Pøíklad \example{tcp/linger.c}.
+\item Once closed, TCP socket can remain in transitory state which is defined in
+TCP protocol for connection closing. Before the socket is completely destroyed,
+it is not possible to use another socket with the same port, unless this
+behavior was overriden with the \texttt{SO\_REUSEADDR} flag using the
+\texttt{setsockopt} function, see page \pageref{SETSOCKOPT}.
+\item Connection reset is abnormal connection termination. In case of TCP
+a packet with \texttt{RST} flag is used for such termination. The remote side
+will detect this as end of file when reading, the reset will lead to the
+\texttt{ECONNRESET} error. Example: \example{tcp/linger.c}.
 \end{itemize}
 
 %%%%%
@@ -708,13 +711,13 @@ reset zpùsobí chybu \texttt{ECONNRESET}. Pøíklad \example{tcp/linger.c}.
 \end{slide}
 
 \begin{itemize}
-\item Po uzavøení soketu pomocí \texttt{shutdown} je nutné zavøít i
-deskriptor pomocí \texttt{close}.
-\item Pøi normálním ukonèení spojení na úrovni protokolu TCP ka¾dá strana
-signalizuje, ¾e u¾ nebude nic zapisovat. To platí i v pøípadì pou¾ití
-\texttt{close} nebo \texttt{shutdown(fd, SHUT\_RDWR)}. Pøi pou¾ití
-\texttt{shutdown(fd, SHUT\_WR)} lze ze soketu dál èíst. Druhá strana dostane
-\texttt{EOF} pøi ètení, ale mù¾e dál zapisovat.
+\item After using \texttt{shutdown} it is still necessary to close the
+descriptor using \texttt{close}.
+\item Normal TCP connection termination each side will signal that no subsequent
+writes will follow. This is valid for either \texttt{close} or
+\texttt{shutdown(fd, SHUT\_RDWR)}. When using
+\texttt{shutdown(fd, SHUT\_WR)} it is still possible to read from the socket.
+The remote side will get \texttt{EOF} while reading however it can still write.
 \end{itemize}
 
 %%%%%
