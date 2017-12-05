@@ -786,28 +786,28 @@ Example: \example{resolving/addresses.c}.
 \pdfbookmark[1]{setsockopt, getsockopt, getsockname, getpeername}{socketfncs}
 
 \begin{slide}
-\sltitle{Dal¹í funkce pro sokety}
+\sltitle{More socket functions}
 \funml{int \funnm{setsockopt}(\=int \emph{socket}, int \emph{level},
 int \emph{opt\_name}, \\\>const void *\emph{opt\_value},
 socklen\_t \emph{option\_len});}
 \begin{itemize}
-\item nastavení parametrù soketu
+\item sets socket parameters
 \end{itemize}
 \funml{int \funnm{getsockopt}(\=int \emph{socket}, int \emph{level},
 int \emph{opt\_name},\\\>void *\emph{opt\_value},
 socklen\_t *\emph{option\_len});}
 \begin{itemize}
-\item pøeètení parametrù soketu
+\item reads socket parameters
 \end{itemize}
 \funml{int \funnm{getsockname}(\=int \emph{socket},
 struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
 \begin{itemize}
-\item zji¹tìní (lokální) adresy soketu
+\item get local socket address
 \end{itemize}
 \funml{int \funnm{getpeername}(\=int \emph{socket},
 struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
 \begin{itemize}
-\item zji¹tìní adresy vzdál{}eného soketu (druhého konce spojení)
+\item get address of the remote end
 \end{itemize}
 \end{slide}
 
@@ -845,22 +845,22 @@ sebou se podaøí i tak.
 \pdfbookmark[1]{htonl, ntohl, htons, ntohs}{byteorderfncs}
 
 \begin{slide}
-\sltitle{Poøadí bajtù}
+\sltitle{Byte order}
 \begin{itemize}
-\item sí»ové slu¾by pou¾ívají poøadí bajtù, které se mù¾e li¹it od poøadí
-pou¾ívaného na lokálním systému. Pro pøevod lze pou¾ít funkce (makra): 
+\item network services can use byte ordering that differs from the native
+one on the system. Conversion functions (macros):
     \begin{itemize}
     \item\texttt{uint32\_t \funnm{htonl}(uint32\_t \emph{hostlong});}\\
-    host $\rightarrow$ sí», 32 bitù 
+    host $\rightarrow$ network, 32 bits
     \item\texttt{uint16\_t \funnm{htons}(uint16\_t \emph{hostshort});}\\
-    host $\rightarrow$ sí», 16 bitù 
+    host $\rightarrow$ network, 16 bits
     \item \texttt{uint32\_t \funnm{ntohl}(uint32\_t \emph{netlong});}\\
-    sí» $\rightarrow$ host, 32 bitù
+    network $\rightarrow$ host, 32 bits
     \item \texttt{uint16\_t \funnm{ntohs}(uint16\_t \emph{netshort});}\\
-    sí» $\rightarrow$ host, 16 bitù 
+    network $\rightarrow$ host, 16 bits 
     \end{itemize}
-\item sí»ové poøadí bajtù je big-endian, tj. nejprve vy¹¹í bajt. Pou¾ívá se
-hlavnì ve funkcích pracujících s adresami a èísly portù.
+\item network byte order is big-endian, i.e. most significant byte first.
+Both network addresses and port numbers are multibyte values.
 \end{itemize}
 \end{slide}
 
@@ -881,22 +881,23 @@ architekturách s rozdílným uspoøádáním bajtù.
 \pdfbookmark[1]{getprotobyname, getservbyname}{protonumfncs}
 
 \begin{slide}
-\sltitle{Èísla protokolù a portù}
+\sltitle{Protocol and port numbers}
 \texttt{struct protoent *\funnm{getprotobyname}(const char *\emph{name});}
 \begin{itemize}
-\item v polo¾ce \texttt{p\_proto} vrátí èíslo protokolu se jménem \emph{name}
-(napø. pro \texttt{"tcp"} vrátí 6). 
-\item èísla protokolù jsou ulo¾ena v souboru \texttt{/etc/protocols}. 
+\item returns protocol number in \texttt{p\_proto} with \emph{name}
+(e.g. for \texttt{"tcp"} returns 6). 
+\item protocol numbers are stored in the \texttt{/etc/protocols} file.
 \end{itemize}
 \funml{struct servent *\funnm{getservbyname}(\=const char *\emph{name},
 \\\>const char *\emph{proto});}
 \begin{itemize}
-\item pro zadané jméno slu¾by \texttt{name} a jméno protokolu \texttt{proto}
-vrátí v~polo¾ce \texttt{s\_port} èíslo portu. 
-\item èísla portù jsou ulo¾ena v souboru \texttt{/etc/services}. 
+\item for service name \texttt{name} and protocol name \texttt{proto}
+returns port number in \texttt{s\_port}.
+\item port numbers are stored in the \texttt{/etc/services} file.
 \end{itemize}
 
-funkce vrací \texttt{NULL}, kdy¾ v databázi není odpovídající polo¾ka.
+The functions return \texttt{NULL}, if matching entry cannot be find in the
+database.
 \end{slide}
 
 \begin{itemize}
@@ -923,23 +924,23 @@ OSPF, GRE apod., tedy to, co je pøená¹eno v IP paketu v polo¾ce
 \label{GETADDRINF}
 
 \begin{slide}
-\sltitle{Pøevod hostname na adresy: \texttt{getaddrinfo()}}
+\sltitle{Convert hostnam to addresses: \texttt{getaddrinfo()}}
 
 \begin{itemize}
-\item ze zadaných parametrù pøímo generuje \texttt{sockaddr} struktury
-\item pracuje s adresami i s porty
-\item její chování je ovlivnitelné pomocí tzv. \emph{hintù}
+\item generates \texttt{sockaddr} structures from given parameters
+\item works with both IP addresses and ports
+\item can influence the behavior with \emph{hints}
 
 \funml{int \funnm{getaddrinfo}(\=const char *\emph{nodename},
 \\\>const char *\emph{servicename},
 \\\>const struct addrinfo *\emph{hint},
 \\\>struct addrinfo **\emph{res});}
-\item polo¾ky struktury \texttt{addrinfo}:
-\texttt{ai\_flags} (pro hinty), \texttt{ai\_family} (address family),
+\item \texttt{addrinfo} structure members:
+\texttt{ai\_flags} (for hints), \texttt{ai\_family} (address family),
 \texttt{ai\_socktype}, \texttt{ai\_protocol}, \texttt{ai\_addrlen},
-\texttt{struct sockaddr *ai\_addr} (výsledné adresy),
+\texttt{struct sockaddr *ai\_addr} (resulting addresses),
 \texttt{char *ai\_canonname},
-\texttt{struct addrinfo *ai\_next} (dal¹í prvek v seznamu)
+\texttt{struct addrinfo *ai\_next} (next item in the list)
 \end{itemize}
 \end{slide}
 
@@ -987,12 +988,12 @@ vá¾ného dùvodu) pùjde u zkou¹ky hodnocení dolù.
 \pdfbookmark[1]{getnameinfo}{getnameinfo}
 
 \begin{slide}
-\sltitle{Pøevod adresy na hostname: \texttt{getnameinfo()}}
+\sltitle{Convert address to hostname: \texttt{getnameinfo()}}
 
 \begin{itemize}
-\item protìj¹ek k funkci \texttt{getaddrinfo}
-\item jako vstup pracuje s celými \texttt{sockaddr} strukturami, tedy funguje s
-IPv4 i IPv6 adresami, narozdíl od funkce \texttt{gethostbyaddr}.
+\item counterpart to \texttt{getaddrinfo}
+\item gets \texttt{sockaddr} structures, therefore works with both
+IPv4 and IPv6 addresses, as opposed to the \texttt{gethostbyaddr} function.
 \end{itemize}
 
 \funml{int \funnm{getnameinfo}(\=const struct sockaddr *\emph{sa},
@@ -1026,7 +1027,7 @@ a hodí se tedy pro pou¾ití v prostøedí s thready (alespoò na vìt¹inì systémù).
 \label{TCPSRVEXAMPLE}
 
 \begin{slide}
-\sltitle{Pøíklad: TCP server}
+\sltitle{Example: TCP server}
 \setlength{\baselineskip}{0.9\baselineskip}
 \begin{alltt}
 struct sockaddr\_storage ca; int nclients = 10, fd, nfd;
@@ -1042,7 +1043,7 @@ for (r = rorig; r != NULL; r = r->ai\_next) \{
 \emprg{freeaddrinfo}(rorig); \emprg{listen}(fd, nclients);
 for (;;) \{ sz = sizeof(ca);
     nfd = \emprg{accept}(fd, (struct sockaddr *)&ca, &sz);
-    /* Komunikace s klientem */
+    /* communication with the client */
     close(newsock);
 \}
 \end{alltt}
@@ -1118,27 +1119,27 @@ je to file descriptor leak.
 \pdfbookmark[1]{select}{select}
 
 \begin{slide}
-\sltitle{Èekání na data: \texttt{select()}}
+\sltitle{Waiting for data: \texttt{select()}}
 \setlength{\baselineskip}{0.9\baselineskip}
 \funml{int \funnm{select}(\=int \emph{nfds}, fd\_set *\emph{readfds},
 \\\>fd\_set *\emph{writefds}, fd\_set *\emph{errorfds},
 \\\>struct timeval *\emph{timeout});}
 \begin{itemize}
-\item zjistí, které ze zadaných deskriptorù jsou pøipraveny pro
-ètení, zápis, nebo na kterých do¹lo k výjimeènému stavu. Pokud ¾ádný
-takový deskriptor není, èeká do vypr¹ení èasu \texttt{timeout}
-(\texttt{NULL} \dots èeká se libovolnì dlouho). Parametr \texttt{nfds}
-udává rozsah testovaných deskriptorù (\texttt{0,~...,~\emsl{nfds-1}}). 
-\item pro nastavení a test masek deskriptorù slou¾í funkce: 
+\item determines which out of given file descriptors are ready for reading,
+writing or which experienced exceptional state. If none such descriptor is
+found, waits till \texttt{timeout} expires.
+(\texttt{NULL} \dots means arbitrarily long wait). The \texttt{nfds} parameter
+sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
+\item functions for setting file descriptor masks:
     \begin{itemize}
     \item \texttt{void \funnm{FD\_ZERO}(fd\_set *\emph{fdset})} \dots{}
-    inicializace 
+    initialization
     \item \texttt{void \funnm{FD\_SET}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots nastavení  
+    \dots set
     \item \texttt{void \funnm{FD\_CLR}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots{} zru¹ení
+    \dots{} unset
     \item \texttt{int \funnm{FD\_ISSET}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots{} test 
+    \dots{} test
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -1226,10 +1227,10 @@ dozvíte z funkce \texttt{getsockopt} s \texttt{opt\_name} nastaveným na
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad: pou¾ití \texttt{select()}}
+\sltitle{Example: \texttt{select()}}
 \begin{itemize}
-\item Deskriptor \texttt{fd} odkazuje na soket, pøepisuje sí»ovou
-komunikaci na terminál a naopak.
+\item The \texttt{fd} descriptor is a socket, converts socket communication
+to terminal and vice versa.
 \end{itemize}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
@@ -1273,20 +1274,21 @@ Viz pøíklad a komentáø v \example{select/write-select.c}.
 \pdfbookmark[1]{poll}{poll}
 
 \begin{slide}
-\sltitle{Èekání na data: \texttt{poll()}}
+\sltitle{Waiting for data: \texttt{poll()}}
 \texttt{int \funnm{poll}(struct pollfd \emph{fds}[], nfds\_t \emph{nfds},
 int \emph{timeout});}
 \begin{itemize}
-\item èeká na událost na nìkterém z deskriptorù v poli \texttt{fds}
-o \texttt{nfds} prvcích po dobu \texttt{timeout} ms (\texttt{0}
-\dots{} vrátí se hned, \texttt{-1} \dots{} èeká se libovolnì dlouho). 
-\item prvky struktury \texttt{pollfd}:
+\item waits for event on one of the descriptors in the \texttt{fds} array
+of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
+\dots{} returns immediately, \texttt{-1} \dots{} waits arbitrarily long).
+\item \texttt{pollfd} structure members:
     \begin{itemize}
-    \item \texttt{fd} \dots{} èíslo deskriptoru 
-    \item \texttt{events} \dots{} oèekávané události, OR-kombinace
-    \texttt{POLLIN} (lze èíst), \texttt{POLLOUT} (lze psát), atd. 
-    \item \texttt{revents} \dots{} události, které nastaly, pøíznaky jako
-    v \texttt{events}, navíc napø. \texttt{POLLERR} (nastala chyba)
+    \item \texttt{fd} \dots{} descriptor number
+    \item \texttt{events} \dots{} events to wait for, OR-combination of
+    \texttt{POLLIN} (can read), \texttt{POLLOUT} (can write), etc. 
+    \item \texttt{revents} \dots{} events that happened on the descriptor,
+    same indications as in \texttt{events}, plus e.g. \texttt{POLLERR}
+    (error happened)
     \end{itemize}
 \end{itemize}
 \end{slide}
