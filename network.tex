@@ -514,7 +514,10 @@ served in parallel.
 child may \funnm{exec}() -- that is how \texttt{inetd} works, see page
 \pageref{INETD}.
 \item As you already know, by calling \funnm{waitpid}() you are getting rid of
-zombies.  Another way is to set to ignore \texttt{SIGCHLD} in which case you
+zombies. This only works because the \texttt{WNOHANG} flag is used,
+otherwise the parent would be blocked and the next connection would only be
+accepted after one of the children exited.
+Another way is to set to ignore \texttt{SIGCHLD} in which case you
 completely avoid the grave danger of the living dead attack (see page
 \pageref{IGNORE_SIG_CHLD}).  You could also catch the signal and call
 one of the \funnm{wait}() calls from the handler itself which is fine as the
