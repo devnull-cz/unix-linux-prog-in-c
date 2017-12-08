@@ -12,9 +12,9 @@ deploy:
   api_key:
     secure: i/o64l7++nO4OO5pEaj6FuP7FJyR8lyOPdgdEXhFx6hhHLFh1JMJm9lSotY3gEMRDBB20T8BF1Oby17YsB437ZbBXoMl8KYheEdr88kSkNJXhML7NxOrzHVb0BrqwUeUYGUDdH669hf3OKZKZ+ptItNPl1SO+p8f26HupW6YAxgqR8kx2td8b4AqjewAzGQ7I1lW+yCu/0PD/5wV8Zf5OlWdD7umvPiF8TGoKdjFNh0ntC3ROg1fmR32Pn5TWuagVqwPTrQPYjGQVN2mlrQp0MtGVR9uAnhGu4PLbOQ6GtDrGzrhIgMXH9eBPMahrCNeQdHd6cQmqTqa1BcoNdveyon/raI4Nn1QSIUN1C4aV4P2xDILQiHk0tTWxf6AKWKlGSo+Ywln607ZGbUHyySSPgHfEbQxnuxKt0vS/oL4bj8mYVyo4TG9d/jgJHjU+73LuUahyeE/GHFHkvtCRQLtknucUbCs2Oo2X/h0S/lb2opo/1lLrGqmVNHO1NBn8hL/zxA0uoUa0jacpz2z+wCftr1pLS7Polcscba6aWYlO0y/cPJuJwUQHiuVN9qRGw/vo2oWCXdjzOEgQLaQ3QbPrjOqKl56ZUxrFjGy0AU45CSb7hw0EsM4qtJNzV8zq03F/6Mrrpmm5zhYZQJ8fJMtAuAAJVsre6lqvP94sBaffVw=
   file:
-    - unix-programming-in-c.pdf
-    - unix-programming-in-c_slides-only.pdf
+    - unix-linux-prog-in-c.pdf
+    - unix-linux-prog-in-c_slides-only.pdf
   skip_cleanup: true
   on:
-    repo: devnull-cz/unix-prog-in-c
+    repo: devnull-cz/unix-linux-prog-in-c
     tags: true

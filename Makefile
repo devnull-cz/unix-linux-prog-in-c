@@ -15,15 +15,15 @@
 LATEX=		pdflatex
 M4=		m4
 
-SLIDE=		unix-programming-in-c_slides-only.tex
-NOTE=		unix-programming-in-c.tex
+SLIDE=		unix-linux-prog-in-c_slides-only.tex
+NOTE=		unix-linux-prog-in-c.tex
 
 SLIDE_PDF=	$(SLIDE:tex=pdf)
 NOTE_PDF=	$(NOTE:tex=pdf)
 SLIDE_NEW=	$(SLIDE_PDF:pdf=pdf.new)
 NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
-TEX=		unix-programming-in-c.common.tex \
+TEX=		common.tex \
 		intro.tex \
 		file-api.tex \
 		user-access.tex \
