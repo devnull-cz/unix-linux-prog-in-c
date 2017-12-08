@@ -116,13 +116,13 @@ tested on macOS and Linux.
 \end{slide}
 
 \begin{itemize}
-\item Note that \emsl{Linux is just a kernel}, not the whole system.  In
-contrast to FreeBSD, for example, which covers both the kernel and the userland.
-It is better to say a ``Linux distribution'' if you discuss a whole system that
-is built around the Linux kernel.
+\item Note that \emsl{Linux is a kernel}, not the whole system.  In contrast to
+FreeBSD, for example, which covers both the kernel and the userland.  It is
+better to say a ``Linux distribution'' if you discuss a whole system that is
+built around the Linux kernel.
 \item FreeBSD and NetBSD forked from 386BSD (now defunct) in 1993, OpenBSD
 forked from NetBSD in 1995, and DragonflyBSD forked from FreeBSD in 2003.
-386BSD itself was based on 4.3BSD-Lite.  However, the history is much
+386BSD itself was based on 4.3BSD-Lite.  However, the history is much more
 complicated, as usual.
 \item Presently, the ``UNIX'' trademark can be only used by systems that passed
 conformance tests defined in the Single UNIX Specification (SUS).
@@ -721,7 +721,7 @@ pokud ne, zachovat se podle toho. Více na stranì \pageref{DLOPEN}.
 %%%%%
 
 \begin{slide}
-\sltitle{Pøeklad jednoho modulu (preprocesor)}
+\sltitle{Compilation of one file (preprocesor)}
 \begin{center}
 \input{img/tex/preprocesor.pstex_t}
 \end{center}
@@ -750,31 +750,32 @@ vkládaných hlavièkových souborù.
 %%%%%
 
 \begin{slide}
-\sltitle{Pøeklad jednoho modulu (kompilátor)}
+\sltitle{Compilation of one file (compiler)}
 \begin{center}
-\input{img/tex/kompilator.tex}
+\input{img/tex/kompilator.tex
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item obrázek vý¹e je pøíklad výstupu pro i386 platformu (32-bit, AT\&T syntax).
-\item pøeklad z C do assembleru
-\item výstup této fáze pøekladu lze získat pomocí \texttt{cc -S}.
+\item The picture is an example output for the x86 platform, 32-bit, with AT\&T
+syntax.
+\item Compilation from the C language into assembler.
+\item The assembler output file is the result of \texttt{cc -S}.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøeklad jednoho modulu (assembler)}
+\sltitle{Compilation of one file (assembler)}
 \begin{center}
 \input{img/tex/assembler.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item opìt pøíklad výstupu pro i386 platformu (32-bit).
-\item pøeklad z assembleru do strojového kódu
-\item objektový modul je výsledkem pøíkazu \texttt{cc -c}.
+\item Again an example for x86 platform, 32-bit.
+\item Compilation from the assembler language into the object code.
+\item The output file is the result of \texttt{cc -c}.
 \end{itemize}
 
 %%%%%
