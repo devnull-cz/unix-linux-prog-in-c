@@ -597,7 +597,15 @@ If the message does not fit \emph{l{}en}, extra data is discarded
 \item Mainly for \texttt{SOCK\_DGRAM} sockets. Waits for the whole message,
 does not return datagram portion. Again, it is possible to set the socket
 as non-blocking.
-\item \texttt{address\_len} \emsl{must} byt initialized with buffer size if
+\item There does not seem to be a portable way how to get the size of the
+UDP datagram before reading it out from kernel buffer. On Linux the
+\texttt{MSG\_TRUNC|MSG\_PEEK} flags can be used for \texttt{recvfrom} to get the
+size. On other systems the generic \texttt{recvmsg} syscall can be used to at
+least provide awareness of the truncation (\texttt{MSG\_TRUNC} flag in the
+\texttt{msghdr} struct).
+Depending on the application, using large buffer (based on lower network layer
+constraints) might be the answer (at the cost of wasting memory).
+\item \texttt{address\_len} \emsl{must} be initialized with buffer size if
 the address is not \texttt{NULL}. \texttt{NULL} address is used to express that
 the caller is not interested in remote's address -- however that is usually
 not the case when working with datagrams.
