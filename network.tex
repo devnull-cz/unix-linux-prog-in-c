@@ -827,28 +827,30 @@ struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
 \label{GETSOCKOPT}
 
 \begin{itemize}
-\item hodnota \texttt{level} v \texttt{getsockopt} a \texttt{setsockopt}
-je obvykle \verb#SOL_SOCKET#. U \texttt{get\-sock\-opt}, \texttt{option\_len}
-\emsl{musí} být inicializována na velikost \texttt{opt\_value}.
-\item funkce \texttt{getsockname} se pou¾ívá, kdy¾ nevoláme \texttt{bind}
-a potøebujeme zjistit, jaká (lokální!) adresa byla jádrem soketu pøidìlena. 
-\item volání \verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)# vrátí
-(a vyma¾e) pøíznak chyby na soketu. Asi neju¾iteènìj¹í je pøi zji¹»ování, jak
-dopadl neblokující \texttt{connect}, viz strana \pageref{CONNECT}.
-\item pøi pou¾ití \verb#SO_REUSEADDR# se dá po uzavøení poslouchajícího
-serverového soketu znovu spustit server -- volat \texttt{socket},
-\texttt{bind}, \texttt{listen} a \texttt{accept} na stejné adrese a portu
--- i kdy¾ je¹tì dobíhají spojení vytvoøená pøedchozí instancí serveru:
+\item The \texttt{level} value for \texttt{getsockopt} and \texttt{setsockopt}
+is usually \verb#SOL_SOCKET#. For \texttt{get\-sock\-opt},
+the \texttt{option\_len} value \emsl{must} be initialized to
+the size of \texttt{opt\_value}.
+\item \texttt{getsockname} is used when not using \texttt{bind} syscall
+to determine what is the (local !) address assigned to the socket by the kernel.
+\item \verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)# returns
+(and erases) error indication for given socket. This is mainly useful to
+get result of non-blocking \texttt{connect}, see page \pageref{CONNECT}.
+\item When using \verb#SO_REUSEADDR# it is possible to immediately create
+new server (i.e. to successfully call \texttt{socket},
+\texttt{bind}, \texttt{listen} and \texttt{accept}) listening on address and
+port previously used even though there are still TCP connections in their final
+stage from the previous instance of the server:
 
 \begin{verbatim}
 int opt = 1;
 setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 \end{verbatim}
 
-\item Pou¾ití \texttt{setsockopt} s \verb#SO_REUSEADDR# je vidìt napø. v
-pøíkladu \example{tcp/reuseaddr.c}. Pozor na to, ¾e musíte udìlat alespoò
-jedno spojení, jinak systém nemá na co èekat a opakovaný \texttt{bind} za
-sebou se podaøí i tak.
+\item See \verb#SO_REUSEADDR# being used in example \example{tcp/reuseaddr.c}.
+For the demonstration it is necessary to establish at least once connection,
+otherwise there is nothing to wait for and repeated \texttt{bind} will succeed
+anyway.
 \end{itemize}
 
 %%%%%
@@ -878,11 +880,10 @@ Both network addresses and port numbers are multibyte values.
 \label{HTON}
 
 \begin{itemize}
-\item pokud lokální systém pou¾ívá stejné poøadí bajtù jako sí», nedìlají
-pøevodní funkce nic.
-\item jednoduchý a pøitom vìt¹inou postaèující test na to, zda správnì pøevádíte
-poøadí bajtù, je spustit va¹ program proti sobì (pokud to tak lze) na
-architekturách s rozdílným uspoøádáním bajtù.
+\item If the local system uses the network byte order natively, the functions
+become no-ops.
+\item Simple and sufficient test is to run your program in 2 instances 
+against each other (if possible) on two systems with different endianess.
 
 
 \end{itemize}
