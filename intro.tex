@@ -728,23 +728,36 @@ pokud ne, zachovat se podle toho. Více na stranì \pageref{DLOPEN}.
 \end{slide}
 
 \begin{itemize}
-\item preprocesor provádí expanzi maker, ètení vlo¾ených (inc{}lude) souborù a
-vynechává komentáøe.
-\item výstup preprocesoru lze získat pomocí \texttt{cc -E} pøípadnì pøímo
-zavoláním \texttt{cpp}, nemusí to být ale v¾dy toté¾ proto¾e nìkteré
-pøekladaèe mají preprocesor integrován v sobì. Preprocesor mù¾ete samozøejmì
-pou¾ívat i pro jiné projekty, které s pøe\-kla\-dem zdrojových souborù v
-jazyce C nemusí mít vùbec nic spoleèného.
-\item pou¾ití preprocesoru se mù¾e velmi hodit v situaci, kdy potøebujete
-zasáhnout do cizího kódu, plného podmíneèných vkládání rùzných hlavièkových
-souborù a rùzných definic závislých na daných podmínkách. Pøi hledání pùvodce
-chyby vám právì mù¾e hodnì pomoci samostatného zpracování vstupního souboru
-pomocí preprocesuru, kde problém ji¾ vìt¹inou rozpoznáte snadno.
-\item \texttt{cpp} (nebo \texttt{cc -E} vám doká¾e na standardní chybový výstup
-zobrazit i celý strom vklá\-da\-ných souborù, co¾ opìt pøi podmíneèných
-pøekladech mù¾e být velmi u¾iteèná vìc. Staèí pro to pou¾ít volbu \texttt{-H} a
-pøesmìrovat výstup do \texttt{/dev/null} èím¾ dostanete pouze hierarchii
-vkládaných hlavièkových souborù.
+\item The preprocessor performs macro expansion, inserts included files, and
+conditional compilation.  It also removes comments.
+
+\item The preprocessor output can be provided via \texttt{cc -E} or calling
+\texttt{cpp} directly.  However, some compilers have the preprocessor
+functionality built in so calling the external preprocessor may not get the same
+results.  You can of course use the preprocessor for anything else where its
+functionality comes in handy, not just for C source code.
+\item In a situation where you need to fix code full of includes and conditional
+compilation, the output after the preprocessor phase may be very helpful to
+locate the problem.
+\item \texttt{cpp} (or \texttt{cc -E}) also allow you to see the whole tree of
+included files, printed on the standard error output.  For that, use a separate
+\texttt{-H} option (not \texttt{-EH}) and redirect the output to
+\texttt{/dev/null}:
+
+\begin{verbatim}
+$ gcc -E -H tcp/connect.c >/dev/null
+. /usr/include/stdio.h
+.. /usr/include/sys/cdefs.h
+... /usr/include/sys/_symbol_aliasing.h
+... /usr/include/sys/_posix_availability.h
+.. /usr/include/Availability.h
+... /usr/include/AvailabilityInternal.h
+.. /usr/include/_types.h
+... /usr/include/sys/_types.h
+.... /usr/include/machine/_types.h
+..... /usr/include/i386/_types.h
+etc...
+\end{verbatim}
 \end{itemize}
 
 %%%%%

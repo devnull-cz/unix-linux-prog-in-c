@@ -10,7 +10,7 @@
   \selectfont}%
 \fi\endgroup%
 \begin{picture}(4704,2562)(-11,-1828)
-\put(2348,-1066){\rotatebox{90.0}{\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}preprocesor}%
+\put(2348,-1066){\rotatebox{90.0}{\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}preprocessor}%
 }}}}
 \put( 91,614){\makebox(0,0)[lb]{\smash{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}main.c}%
 }}}
