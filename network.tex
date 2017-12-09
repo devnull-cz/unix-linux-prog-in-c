@@ -1056,26 +1056,27 @@ for (;;) \{ sz = sizeof(ca);
 \end{slide}
 
 \begin{itemize}
-\item Toto je obecná kostra serveru. Argument \texttt{portstr} je jediný
-vstupní parametr. První úspì¹ný bind ukonèí procházení seznamu adres.
-\item Takto napsaný server bude na systému, který podporuje IPv6 i IPv4
-pøijímat spojení v obou adresních rodinách na tomté¾ socketu. Spojení
-z IPv4 klientù budou mít jako zdrojovou adresu tzv. \emph{IPv4-mapped IPv6
-adresu}, která v sobì obsahuje IPv4 adresu
-(napø. \texttt{::FFFF:78.128.192.1}).
-\item V¹imnìte si, ¾e není nutné témìø nic pøetypovávat na pointer na
-strukturu \texttt{sockaddr}. Jedinou výjimkou je volání \texttt{accept}.
-Pro volání \texttt{accept} se pou¾ívá struktura typu
-\texttt{sockaddr\_storage} co¾ je obecný "kontejner" schopný pojmout prvky
-struktury \texttt{sockaddr\_in} i \texttt{sockaddr\_in6}.
-\item \texttt{socket} a \texttt{bind} se volají pro v¹echny vrácené
-\texttt{sockaddr} struktury dokud pro jednu z nich \texttt{bind} neuspìje
-nebo se seznam nevyèerpá.
-\item Problém: nekontrolují se nìkteré návratové hodnoty a neobsahuje
-volání uvolòující alokované entity, napø. uzavøení socketu v pøípadì chyby
-volání \texttt{bind}. Stejnì tak se neøe¹í situace kdy se vyèerpá seznam
-bez toho aby \texttt{bind} uspìl (to lze detekovat pomocí kontroly
-nenulovosti pointeru \texttt{r} za koncem prvního cyklu).
+\item This is generic skeleton of TCP server. The \texttt{portstr} parameter
+is the only input value of the program. First successful \texttt{bind} will
+finish traversal of the IP address list.
+\item Program written in such a way will work on system with IPv6 and IPv4
+addresses, i.e. it will be able to accept connections for both address families
+on the same socket. The remote address of IPv4 clients will be represented as
+\emph{IPv4-mapped IPv6 address}, (i.e. it contains embedded IPv4 address, e.g.
+napø. \texttt{::FFFF:78.128.192.1}).
+\item Note that it is mostly not necessary to cast to the \texttt{sockaddr}
+structure. The only exception is the \texttt{accept} call.
+For the \texttt{accept} call the \texttt{sockaddr\_storage} is used which is
+generic "container" able to store members of both \texttt{sockaddr\_in} and
+\texttt{sockaddr\_in6} structures.
+\item \texttt{socket} and \texttt{bind} are called for all returned
+\texttt{sockaddr} structures until \texttt{bind} succeeds for one of them
+or the list is not finished.
+\item The code on the slide does not check all return values and does not
+free all the allocated entities, e.g. socket closing in case of \texttt{bind}
+error. Also, it does not deal with the situation when the list of addresses
+is traversed without successful \texttt{bind} (this can be detected
+with \texttt{r} NULL check after the end of the first cycle).
 \end{itemize}
 
 %%%%%
@@ -1104,20 +1105,19 @@ close(fd);
 \end{slide}
 
 \begin{itemize}
-\item Toto je obecná kostra TCP klienta. Argumenty \texttt{hoststr} a
-\texttt{portstr} jsou jediné vstupní parametry. První úspì¹ný
-\texttt{connect} ukonèí procházení adres pro daný host.
-\item V pøíkladu vyu¾íváme automatického pøidìl{}ení volného portu systémem
-pøi volání \texttt{connect} (nepøedcházelo mu volání \texttt{bind}).
-\item postupnì se volá \texttt{connect} na v¹echny vrácené
-\texttt{sockaddr} struktury (v \texttt{addrinfo} strukturách) pro daný
-host do té doby, ne¾ se podaøí spojit.
-\item Problém: neobsahuje kontrolu návratových hodnot volání.
-Stejnì tak se neøe¹í situace kdy se vyèerpá seznam
-bez toho aby \texttt{connect} uspìl (to lze detekovat pomocí kontroly
-nenulovosti pointeru \texttt{r} za koncem prvního cyklu). Nebo se
-neuzavírá socket pøi neúspì¹ném volání \texttt{connect}, tj.
-je to file descriptor leak.
+\item This is generic TCP client skeleton. The \texttt{hoststr} and
+\texttt{portstr} arguments are the only input data of the program.
+First successful \texttt{connect} will terminate the address traversal
+for given host.
+\item In the example we let the kernel will choose local port.
+(there is no \texttt{bind} before the \texttt{connect}).
+\item \texttt{connect} is called sequentially on all returned
+\texttt{sockaddr} structures (embedded in the \texttt{addrinfo} structures)
+for given host until a connection succeeds or the list is exhausted.
+\item Same lack of error checking and freeing or resources as for the TCP
+server example, i.e. in situation when the list is exhausted without successful
+\texttt{connect}. Also the socket is not closed when \texttt{connect} is not
+successful.
 \end{itemize}
 
 %%%%%
