@@ -728,9 +728,8 @@ pokud ne, zachovat se podle toho. Více na stranì \pageref{DLOPEN}.
 \end{slide}
 
 \begin{itemize}
-\item The preprocessor performs macro expansion, inserts included files, and
-conditional compilation.  It also removes comments.
-
+\item The preprocessor performs macro expansion, conditional compilation, and
+inserts included files.  It also removes comments.
 \item The preprocessor output can be provided via \texttt{cc -E} or calling
 \texttt{cpp} directly.  However, some compilers have the preprocessor
 functionality built in so calling the external preprocessor may not get the same
@@ -757,6 +756,21 @@ $ gcc -E -H tcp/connect.c >/dev/null
 .... /usr/include/machine/_types.h
 ..... /usr/include/i386/_types.h
 etc...
+\end{verbatim}
+
+\item You cannot nest comments in C so in order to temporarily disable code with
+comments without deleting it, wrapping it in another comment will not work.
+So, the preprocessor to your rescue -- use the conditional compilation feature:
+
+\begin{verbatim}
+...
+#if 0
+        /* some comment */
+        some_function();
+        /* another comment */
+        another_function();
+#endif
+...
 \end{verbatim}
 \end{itemize}
 
