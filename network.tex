@@ -913,20 +913,20 @@ database.
 \end{slide}
 
 \begin{itemize}
-\item výsledek \funnm{getprotobyname} se hodí pro volání \texttt{socket},
-výsledek \funnm{getservbyname} pro volání \texttt{bind}.
-\item kromì \texttt{getservbyname} existuje je¹tì \texttt{getservbyport}
-umo¾òující hledat slu¾bu pomocí èísla portu (pozor, v network byte order !)
-a funkce \texttt{getservent} a spol. pro ruèní procházení záznamù.
-\item v¹echny tyto funkce prohledávají pouze "oficiální" seznamy slu¾eb
-a protokolù, které se nacházejí vìt¹inou v souborech zmínìných na slajdu. 
-\item v uvedených souborech je definováno mapování mezi jmény a èísly pro
-standardní protokoly a slu¾by.
-\item pozor na to, ¾e protokolem zde nemyslíme HTTP, SSH, telnet nebo FTP -- to
-jsou zde \emph{slu¾by}, reprezentované èísly portù. Protokol je TCP, UDP,
-OSPF, GRE apod., tedy to, co je pøená¹eno v IP paketu v polo¾ce
-\texttt{Protocol}, viz strany 11 a 14 v RFC~791.
-\item \label{GETBYNAME} pøíklad: \example{resolving/getbyname.c}
+\item The result of \funnm{getprotobyname} is handy for calling \texttt{socket},
+the result of \funnm{getservbyname} is for \texttt{bind}.
+\item Next to \texttt{getservbyname} there is also \texttt{getservbyport}
+that finds service entry according to port number (in network byte order !)
+and function \texttt{getservent} et al. for entry traversal.
+\item All these functions search only "official" lists of services and
+protocols, which are located in the files mentioned on the slide.
+\item These files define the mapping for names and numbers for standard
+protocols and services.
+\item Keep in mind that protocol is the upper layer protocol as specified in
+the IP packet header, (e.g. TCP, UDP, OSPF, GRE etc., see pages 11 and 14 in
+RFC~791), not HTTP, SSH, telnet or FTP -- these are \emph{services}, represented
+by port numbers.
+\item \label{GETBYNAME} example: \example{resolving/getbyname.c}
 \end{itemize}
 
 %%%%%
@@ -957,41 +957,36 @@ OSPF, GRE apod., tedy to, co je pøená¹eno v IP paketu v polo¾ce
 \end{slide}
 
 \begin{itemize}
-\item Pøi vyhodnocování dotazù na adresy a jména se pou¾ívají
-jmenné slu¾by podle konfigurace v souboru \texttt{/etc/nsswitch.conf}.
-\item struktura \texttt{addrinfo} je definována v \texttt{netdb.h}
-\item \texttt{getaddrinfo} umí do struktur \texttt{sockaddr} pøevádìt jak
-øetìzec který obsahuje hostname, tak øetìzec obsahující IP adresu. Stejnì
-je tomu i pro porty.
-\item funkce \texttt{getaddrinfo} vrací parametrem \emph{res} seznam
-struktur \texttt{sockaddr}, ve kterých jsou ulo¾eny adresy korespondující
-k danému vstupu.
-\item je rozdíl zda budou adresní struktury dále pou¾ity pro server nebo klient;
-pro server napø. staèí jako \emph{nodename} dát \texttt{NULL} (wildcard
-socket). Podobnì pro pro polo¾ku \texttt{ai\_flags} struktury
-\texttt{addrinfo} pou¾ité pro parametr \emph{hint} a její hodnotu
-\texttt{AI\_PASSIVE}.
-\item Po skonèení práce s výsledky nezapomeòte zavolat funkci
-\texttt{freeaddrinfo}, která uvolní naalokovanou pamìt.
-\item \label{GETADDRINFO} pøíklad: \example{resolving/getaddrinfo.c}
-\item Døíve se hodnì pou¾ívaly funkce \funnm{gethostbyname} a
-\funnm{gethostbyaddr}.  Tyto funkce pracují pouze s IPv4 adresami a jmény,
-jsou tak \emsl{pova¾ovány za zastaralé} a jejich pou¾ití se nedoporuèuje.
-Místo nich se doporuèuje pou¾ívat obecnìj¹í volání
-\texttt{getipnodebyname} a \texttt{getipnodebyaddr} (\texttt{getipnode*}
-funkce se nachází v rùzných systémech, nicménì byly nedávno vyjmuty z GNU libc,
-tak¾e se na jejich pøítomnost nelze univerzálnì spolehnout. Navíc nejsou
-souèástí UNIX standardu.) resp. \texttt{get\-addr\-info}, \texttt{getnameinfo}.
-Z tìchto funkcí pouze \texttt{get\-addr\-info} a \texttt{getnameinfo} splòují
-standard (POSIX.1-2001).
-\item Pochopitelnì, je nutné dobøe uvá¾it, zda existující kód pou¾ívající 
-legacy/obsolete funkce je potøeba
-pøepisovat. Pokud takovému programu bude IPv4 staèit i nadále, mìnit existující
-a funkèní kód nemusí být v¾dy rozumné. \emsl{Nový kód ale v¾dy pi¹te pomocí
-nových funkcí}, které podporují IPv4 i IPv6, i pokud byste si mysleli, ¾e vá¹
-program nebude IPv6 nikdy pou¾ívat. Za pou¾ití \texttt{gethostbyname},
-\texttt{gethostbyaddr} nebo struktur specifických pro IPv4 resp. IPv6 (bez
-vá¾ného dùvodu) pùjde u zkou¹ky hodnocení dolù.
+\item When evaluating queries for addresses and names, the naming services
+are consulted according to the specification in the \texttt{/etc/nsswitch.conf}
+file.
+\item The structure \texttt{addrinfo} is defined in \texttt{netdb.h}.
+\item \texttt{getaddrinfo} is able to convert both string containing hostname
+and IP address. Similarly for ports.
+\item The \texttt{getaddrinfo} function returns the results in the \emph{res}
+parameter. The result is a list of structures \texttt{sockaddr}, that correspond
+to given inputs.
+\item There is a difference whether the address structures are to be used for
+server or client; e.g. for server it is sufficient to specify \emph{nodename} as
+\texttt{NULL} (wildcard socket). Simiarly for the member \texttt{ai\_flags} of
+the \texttt{addrinfo} structure used for the \emph{hint} parameter -- for server
+it is usually set to \texttt{AI\_PASSIVE}.
+\item After the results are no longer needed, it is prudent to call
+\texttt{freeaddrinfo}, that will free the memory allocated by
+\texttt{getaddrinfo}.
+\item \label{GETADDRINFO} example: \example{resolving/getaddrinfo.c}
+\item In the past the functions \funnm{gethostbyname} and
+\funnm{gethostbyaddr} were used. These only work with IPv4 addresses and are
+therefore considered legacy and not recommended to use. The functions
+\texttt{getipnodebyname} and \texttt{getipnodebyaddr} can be used instead
+(\texttt{getipnode*} is found in many systems, nevertheless they were removed
+from GNU libc, so cannot be relied on universally). Moreover they are not
+part of UNIX standards.
+\texttt{get\-addr\-info} and \texttt{getnameinfo} are part of the POSIX.1-2001
+standard.
+\item It is not strictly necessary to convert old IPv4 specific code to the
+generic APIs. However when writing new code, always use them even when you
+think the program will only use IPv4.
 \end{itemize}
 
 
@@ -1018,17 +1013,16 @@ IPv4 and IPv6 addresses, as opposed to the \texttt{gethostbyaddr} function.
 \end{slide}
 
 \begin{itemize}
-\item \texttt{getnameinfo} provádí v jednom volání funkce konverzi adresy
-a èísla portu ulo¾ených ve struktuøe \texttt{sockaddr} na stringy v
-závislosti na namingových slu¾bách (tedy standardní cesta pøes naming
-backendy v \texttt{/etc/nsswitch.conf}) a hodnotì \texttt{flags}.
-Tedy to, co by bylo postaru nutné provádìt pomocí volání \texttt{gethostbyaddr}
-a \texttt{getservbyport}.
-\item Tato funkce je narozdíl od vý¹e zmínìných legacy funkcí reentrantní
-a hodí se tedy pro pou¾ití v prostøedí s thready (alespoò na vìt¹inì systémù).
-\item manuálová stránka obsahuje seznam pou¾itelných \texttt{NI\_} flagù pro
-\texttt{\emph{flags}} a jejich význam 
-\item \label{GETNAMEINFO} pøíklad: \example{resolving/getnameinfo.c}
+\item \texttt{getnameinfo} converts IP address and port number from the
+\texttt{sockaddr} structure to strings according to configured name services
+(\texttt{/etc/nsswitch.conf}) and the \texttt{flags} value.
+It performs the actions that would have to be otherwise done by
+\texttt{gethostbyaddr} and \texttt{getservbyport}.
+\item Unlike the above mentioned legacy functions \texttt{getnameinfo} is
+reentrant and is therefore safe to use with threads.
+\item The man page for \texttt{getnameinfo} contains the list of usable
+\texttt{NI\_} flags for the \texttt{\emph{flags}} parameter.
+\item \label{GETNAMEINFO} example: \example{resolving/getnameinfo.c}
 
 
 \end{itemize}
