@@ -1153,79 +1153,74 @@ sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
 \label{SELECT}
 
 \begin{itemize}
-\item \emsl{Motivace:} jestli¾e chceme èíst data z více deskriptorù, je mo¾né,
-pokud jde o soubor, rovnou jej otevøít s pøíznakem \texttt{O\_NONBLOCK}, anebo
-tento pøíznak kdykoli nastavit na deskriptoru pomocí volání \texttt{fncnl} s
-druhým parametrem \texttt{O\_SETFL} (ne \texttt{O\_SETFD}, viz strana
-\pageref{FCNTL}). Neblokujícím \texttt{read} pak støídavì testujeme jednotlivé
-deskriptory, a mezi ka¾dým kolem testù tøeba pou¾ít \texttt{sleep(1)}. Nevýhody
-jsou aktivní èekání, re¾ie pøepínání mezi módem u\-¾i\-va\-tel\-ským a jádra,
-mo¾ná prodleva (a¾ do délky va¹eho èekání mezi jednotlivými koly), a také to, ¾e
-neslo¾íte zkou¹ku (viz strana \pageref{SLEEP1}). Správné øe¹ení této situace je
-pou¾ít napøíklad \texttt{select} a následnì zavolat \texttt{read} na ty
-deskriptory, které volání \texttt{select} ohlásí jako \emph{pøipravené}.
-\item \label{BUSY_WAITING_C} Pøíklad na busy waiting:
-\example{select/busy-wait.c}. V¹imnìte si, ¾e novì vytvoøený soket v pøíkladu
-je bez flagu \texttt{O\_NONBLOCK}, viz strana \pageref{ACCEPT}, tak¾e je nutné
-flag nastavit.
-
-
-\item \emph{Pøipravený} (\emph{ready}) znamená, ¾e \texttt{read} nebo
-\texttt{write} s vynulovaným pøíznakem \texttt{O\_NONBLOCK} by se
-\emsl{ne}zablokovalo, tedy ne nutnì ¾e nìjaká data jsou pøi\-pra\-ve\-na
-(\texttt{read} napø. mù¾e vrátit 0 pro end-of-file nebo -1 pro chybu)
-\item Mno¾ina \texttt{errorfds} je pro výjímky v závislosti na typu deskriptoru;
-pro socket to je napøíklad pøíchod urgentních dat (flag \texttt{URG} v TCP
-hlavièce).
-Neznamená to, ¾e na daném deskriptoru do¹lo k chybì ! Chyba s nastaveným
-\texttt{errno} se zjistí z ostatních mno¾in po návratovém kódu -1
-provedeného volání, tj. napøíklad \texttt{read}.
-\item Pøi volání jsou v mno¾inách deskriptory, které chceme testovat, po návratu
-zùstanou nastavené jen ty deskriptory, na kterých nastala testovaná událost.
-\emsl{Je nutné je tedy pøed dal¹ím voláním \texttt{select} znovu nastavit.}
-Typicky to jsou bitové masky, ale nemusí tomu být tak; z pozice programátora je
-to samozøejmì jedno. Procházení pøes vrácené mno¾iny je nutné dìlat po jednom
-deskriptoru, pøes \texttt{FD\_ISSET}.
-\item Funkce \texttt{select} je pou¾itelná i pro èekání na mo¾nost zápisu do
-roury nebo soketu -- èeká se, a¾ druhá strana nìco pøeète a uvolní se místo v
-bufferu pro dal¹í data.
-\item Místo mno¾iny pro deskriptory je mo¾né uvést NULL, speciální pøípad pøi
-nastavení v¹ech mno¾in na NULL je volání, které se pouze zablokuje do pøíchodu
-signálu nebo do vypr¹ení time-outu.
-\item Po návratu je nutné otestovat ka¾dý deskriptor zvlá¹», není k dispozici
-volání, které by vám vytvoøilo mno¾inu pøipravených deskriptorù.
-\item Pokud obsluhuje sí»ový server více portù, mù¾e volat \texttt{select}
-na pøíslu¹né deskriptory soketù a následnì \texttt{accept} na deskriptory,
-pro které \texttt{select} ohlásil pøíchod ¾ádosti klienta (pøipravenost ke
-ètení).
-\item Volání \texttt{connect} na neblokujícím soketu se hned vrátí, navázání
-spojení ohlásí následný \texttt{select} jako pøipravenost k zápisu. Více viz
-strana \pageref{CONNECT}.
-\item Dal¹í mo¾nost pou¾ití \texttt{select} je sí»ový server, který v jednom
-procesu obsluhuje paralelnì nìkolik klientù. Pomocí \texttt{select} se
-testuje stav deskriptorù odpovídajících spojení s jednotlivými klienty a pøes
-deskriptory pøi\-pra\-ve\-né pro ètení/zápis se komunikuje. Aby se mohli
-pøipojovat noví klienti, testuje se i deskriptor soketu, který se pou¾ívá pro
-\texttt{accept}. Vyu¾ívá se toho, ¾e \texttt{select} ohlásí deskriptor s
-èekající ¾ádostí klienta o spojení jako pøipravený pro ètení. Na takový
-deskriptor je mo¾né volat \texttt{accept}.
-\item Pozor na to, ¾e \texttt{select} \emsl{mù¾e} zmìnit strukturu
-\texttt{timeval}, existuje nové volání \texttt{pselect}, které kromì dal¹ích
-zmìn strukturu pro timeout nezmìní.
-\item Pro \emsl{nfds} je mo¾né pou¾ít \texttt{FD\_SETSIZE}, co¾ je systémová
-konstanta pro maximální poèet deskriptorù. Není to ale nejlep¹í øe¹ení, proto¾e
-tato konstanta je sice vìt¹inou jen 1024 na 32-bitových systémech, na Solarisu
-to v¹ak pro 64-bitové architektury je u¾ 65536. Pøedpokládám podobné chování i
-pro ostatní systémy.
-\item Pokud se èas nastaví na 0, tedy teï nemluvíme o nastavení ukazatele na
-\texttt{NULL}, \texttt{select} se dá pou¾ít pro tzv. \emph{polling} -- zjistí
-souèasný stav a hned se vrátí.
-\item Pøíklad: \label{SELECT_C} \example{select/select.c}
-\item \texttt{select} lze pou¾ít na zji¹»ování stavu po volání
-\texttt{connect} na neblokující socket. Zda spojení probìhlo úspì¹nì se
-dozvíte z funkce \texttt{getsockopt} s \texttt{opt\_name} nastaveným na
-\texttt{SO\_ERROR}, viz strana \pageref{GETSOCKOPT}.
-\label{NON_BLOCKING_CONNECT} Pøíklad: \example{tcp/non-blocking-connect.c}.
+\item \emsl{Motivation:} to read data from multiple file descriptors, it is
+possible to open respective files with the \texttt{O\_NONBLOCK} flag
+(or set the flag after \texttt{open} with \texttt{fncnl} -- with second
+parameter \texttt{O\_SETFL}, not \texttt{O\_SETFD}, see page \pageref{FCNTL}).
+Non-blocking \texttt{read} is then called on all descriptors (sleeping in
+between is needed in order not to hammer the kernel with syscalls).
+The disadvantages are: active waiting, frequent user-kernel mode switching,
+possible delay (up to the wait period between the iterations of the cycle).
+Correct solution of this situation is to use e.g. \texttt{select} and then
+call \texttt{read} only for those descriptors, which \texttt{select} marked as
+\emph{ready}.
+\item \label{BUSY_WAITING_C} busy waiting example:
+\example{select/busy-wait.c}. Notice that newly created socket does not have the
+\texttt{O\_NONBLOCK} flag, see page \pageref{ACCEPT}, so it is necessart to set
+it.
+\item \emph{Ready} means that \texttt{read} or \texttt{write} with nullified
+\texttt{O\_NONBLOCK} flag would not block, therefore there has to be some data
+ready (\texttt{read} can e.g. return 0 for end-of-file or -1 for error).
+\item The set \texttt{errorfds} is for exceptions depending on descriptor type;
+for socket it is the reception of urgent data (the \texttt{URG} flag in TCP
+header). It does not mean that there was an error on given descriptor.
+The error is determined by checking \texttt{errno} after given syscall returns
+-1.
+\item Before calling \texttt{select} the sets contain descriptors of interest,
+after the syscall returns the sets contain only those descriptors for which 
+specified event happened.
+\emsl{It is therefore necessary to refresh the sets before next call to
+\texttt{select}.}
+Typically the sets are implemented as bit masks however it does not have to be
+so. The programmer does not have to deal with that. Traversing the sets is
+only possible one bit at a time and using \texttt{FD\_ISSET}.
+\item \texttt{select} is handy also for the possibility to write into pipe or
+socket -- waiting for the other side to consume part of the buffer and thus free
+space for more incoming data.
+\item It is possible to use NULL instead of descriptor set. Special case is to
+use NULL for all the sets in which case the syscall will block until the timeout
+expires or a signal is delivered.
+\item After returning it is necessary to test each descriptor individually,
+there is no call that would create a set of ready descriptors.
+\item If networking server handles multiple ports, it is possible to call
+\texttt{select} with respective socket descriptors and then \texttt{accept}
+for descriptors that \texttt{select} marked as ready, i.e. there is a client
+connection waiting (reading readiness).
+\item \texttt{connect} on non-blocking socket will return immediately, the
+actual connection establishment will be reported by \texttt{select} as readiness
+for writing. See page \pageref{CONNECT}.
+\item Another possibility to use \texttt{select} is networking server that
+handles multiple clients in single process. Using \texttt{select} the client
+descriptors are tested and those which are ready are then used for
+communication. To allow new clients, the descriptor used for \texttt{accept} is
+tested as well.
+\item Beware that \texttt{select} \emsl{can} change the \texttt{timeval}
+structure; there is a call \texttt{pselect}, that will not change the structure
+(besides having other properties).
+\item It is possible to use \texttt{FD\_SETSIZE} for the \emsl{nfds} parameter
+which is system constant for maximal file descriptor count. This is not the best
+solution since this constant is only 1024 on 32-bit systrems however for 64-bit
+programs it can be significantly bigger (e.g. 65536 on Solaris), leading to more
+time spent in the syscall.
+\item If the time argument is set to 0 (not NULL), then \texttt{select} can be
+used for so called \emph{polling} -- it will check the current state and return
+immediately.
+\item Example: \label{SELECT_C} \example{select/select.c}
+\item \texttt{select} can also be used to determine the state after
+\texttt{connect} for non-blocking socket. Use \texttt{getsockopt} with
+\texttt{opt\_name} set to \texttt{SO\_ERROR}, (see page \pageref{GETSOCKOPT}) to
+see if the connection was successful.
+\label{NON_BLOCKING_CONNECT} Example: \example{tcp/non-blocking-connect.c}.
 
 
 \end{itemize}
@@ -1246,9 +1241,9 @@ for(;;) \{
     \emprg{FD\_SET}(fd, &rfdset); efdset = rfdset;
     \emprg{select}(fd+1, &rfdset, NULL, &efdset, NULL);
     if(\emprg{FD\_ISSET}(0, &efdset))
-        /* Výjimka na stdin */ ;
+        /* exception on stdin */ ;
     if(\emprg{FD\_ISSET}(fd, &efdset))
-        /* Výjimka na fd */ ;
+        /* exception on fd */ ;
     if(\emprg{FD\_ISSET}(0, &rfdset)) \{
         sz = read(0, buf, BUFSZ); write(fd, buf, sz); \}
     if(\emprg{FD\_ISSET}(fd, &rfdset)) \{
@@ -1258,21 +1253,18 @@ for(;;) \{
 \end{slide}
 
 \begin{itemize}
-\item Zde je typické pou¾ití \texttt{select}, kdy je tøeba èíst data
-souèasnì ze dvou zdrojù. Tento pøíklad pøedpokládá, ¾e deskriptory
-\texttt{0} a \texttt{fd} jsou nastaveny jako neblokující.
-\item Pøed ka¾dým voláním \texttt{select} se musí znovu nastavit mno¾iny
-deskriptorù.
-\item Lep¹í øe¹ení je pou¾ít \texttt{select} i na zápis. Logika øízení je pak
-taková, ¾e pro ka¾dý smìr datové komunikace máme samostatný buffer. Pøíslu¹ný
-ètecí deskriptor bude v mno¾inì pro ètení v \texttt{select}, právì kdy¾ je
-buffer prázdný. Naopak zápisový deskriptor bude v mno¾inì pro zápis, právì kdy¾
-je buffer neprázdný.
-\item \label{WRITE_SELECT_C} \texttt{select} uspí proces i pøi kontrole
-pøipravenosti k zápisu, pokud data nejsou z druhé strany ètena.
-To jde jednodu¹e nasimulovat pomocí programu, který se jen pøipojí
-(provede TCP handshake), ale nic neète.
-Viz pøíklad a komentáø v \example{select/write-select.c}.
+\item Here is typical use of \texttt{select}, when it is necessary to read the
+data from two sources. This example assumes that the descriptors
+\texttt{0} and \texttt{fd} are set as non-blocking.
+\item Better solution would be to use \texttt{select} also for testing writing
+readiness. For this two buffers are required -- one for each direction of
+communication. Respective read descriptor will be present in the read set for
+\texttt{select} when the buffer is empty. The write descriptor will be in the
+write set when the buffer is non-empty.
+\item \label{WRITE_SELECT_C} \texttt{select} will put the process to sleep
+when the data is not read from the remote side if only testing write readiness.
+This can be simply simulated by a program that merely connects (TCP handshake)
+however does not read anything. Example: \example{select/write-select.c}.
 \end{itemize}
 
 %%%%%
@@ -1302,26 +1294,24 @@ of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
 \label{POLL}
 
 \begin{itemize}
-\item Tato funkce je obdoba volání \texttt{select}.
-\item argument \emph{timeout} je v milisekundách
-\item Existujících pøíznakù pro pou¾ití je mnohem více, viz manuálová stránka.
-\item Na Solarisu je \texttt{poll} systémové volání, \texttt{select} pak
-knihovní funkce implementovaná pomocí \texttt{poll}, a \texttt{poll} je
-tam preferováno.
-\texttt{poll} je nutné pou¾ít v pøípadì, ¾e chcete testovat deskriptor
-vìt¹í nebo rovný \texttt{FD\_SETSIZE}. \emsl{To je hlavní rozdíl mezi voláními
-\texttt{select} a \texttt{poll}.} Dal¹í rozdíl je ten, ¾e není tøeba nastavovat
-deskriptory po ka¾dém volání \texttt{poll}, ani nulovat \texttt{revents}.
-\item Èas nastavený na -1 je to samé jako \texttt{NULL} u \texttt{select}.
-\item Pokud nastavíte poèet deskriptorù na 0 (a mìli byste pak pro \texttt{fds}
-pou¾ít \texttt{NULL}), mù¾ete \texttt{poll} jednodu¹e vyu¾ít pro èekání s men¹í
-granularitou ne¾ po sekundách nabízené voláním \texttt{sleep}. Pøíklad:
-\label{POLL_SLEEP_C} \example{sleep/poll-sleep.c} Tento "trik" ov¹em nefunguje
-na macOS, tak¾e se na nìj nelze spoléhat.
+\item Alternative to \texttt{select}.
+\item The \emph{timeout} argument is in miliseconds.
+\item There are many more flags, see the man page.
+\item On Solaris \texttt{poll} is system call, \texttt{select} then
+library called implemented as \texttt{poll} wrapper.
+\item \texttt{poll} is necessary to use to test descriptor equal or higher than
+\texttt{FD\_SETSIZE}. 
+\item Unlike \texttt{select} it is not necessary to refresh descriptor sets
+after each call or nullify \texttt{revents}.
+\item Time set to -1 has the same effect as \texttt{NULL} for \texttt{select}.
+\item If the number of descriptors is set to 0 (\texttt{fds} should be then
+\texttt{NULL}), \texttt{poll} can be simple used to sleep with less than second
+granularity. Example: \label{POLL_SLEEP_C} \example{sleep/poll-sleep.c} That
+said, this "trick" does not work on macOS.
 \begin{itemize}
-\item Mimochodem, jiný zpùsob, jak dosáhnout men¹í granularity ne¾ je jedna
-sekunda je volání \texttt{nanosleep}, které je ale definované roz¹íøením POSIX.4
-a tedy nemusí být v¾dy k dispozici. Pøíklad: \example{sleep/nanosleep.c}.
+\item Another way is to use \texttt{nanosleep}, that is part of POSIX.4
+extension and therefore does not have to be always available.
+Example: \example{sleep/nanosleep.c}.
 \end{itemize}
 \end{itemize}
 
