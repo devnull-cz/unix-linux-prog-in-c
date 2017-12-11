@@ -1132,9 +1132,9 @@ successful.
 \\\>struct timeval *\emph{timeout});}
 \begin{itemize}
 \item determines which out of given file descriptors are ready for reading,
-writing or which experienced exceptional state. If none such descriptor is
+writing or which experienced exceptional state. If no such descriptor is
 found, waits till \texttt{timeout} expires.
-(\texttt{NULL} \dots means arbitrarily long wait). The \texttt{nfds} parameter
+(\texttt{NULL} \dots means arbitrary long wait). The \texttt{nfds} parameter
 sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
 \item functions for setting file descriptor masks:
     \begin{itemize}
