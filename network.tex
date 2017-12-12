@@ -1158,19 +1158,20 @@ sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
 \begin{itemize}
 \item \emsl{Motivation:} to read data from multiple file descriptors, it is
 possible to open respective files with the \texttt{O\_NONBLOCK} flag
-(or set the flag after \texttt{open} with \texttt{fncnl} -- with second
-parameter \texttt{O\_SETFL}, not \texttt{O\_SETFD}, see page \pageref{FCNTL}).
-Non-blocking \texttt{read} is then called on all descriptors (sleeping in
-between is needed in order not to hammer the kernel with syscalls).
-The disadvantages are: active waiting, frequent user-kernel mode switching,
-possible delay (up to the wait period between the iterations of the cycle).
-Correct solution of this situation is to use e.g. \texttt{select} and then
-call \texttt{read} only for those descriptors, which \texttt{select} marked as
-\emph{ready}.
-\item \label{BUSY_WAITING_C} busy waiting example:
-\example{select/busy-wait.c}. Notice that newly created socket does not have the
-\texttt{O\_NONBLOCK} flag, see page \pageref{ACCEPT}, so it is necessart to set
-it.
+(or set the flag after \texttt{open} with \texttt{fncnl} -- with the second
+parameter being \texttt{O\_SETFL}, not \texttt{O\_SETFD}, see page
+\pageref{FCNTL}).  Repetitious \texttt{read} (which is non-blocking, see page
+\pageref{OPEN}) is then called on all descriptors.  Sleeping in every loop is
+needed in order not to hammer the kernel with syscalls.  For every invocation,
+you either read some data or get \texttt{-1} with \texttt{errno} set to
+\texttt{EAGAIN}.  However, the disadvantages are: active waiting, frequent
+user-kernel mode switching, possible delay (up to the wait period between the
+iterations of the cycle).  Correct solution of this situation is to use e.g.
+\texttt{select} and then call \texttt{read} only for those descriptors
+marked as \emph{ready}.
+\item \label{BUSY_WAITING_C} busy waiting example: \example{select/busy-wait.c}.
+Notice that newly created socket does not have the \texttt{O\_NONBLOCK} flag,
+see page \pageref{ACCEPT}, so it is necessart to set it.
 \item \emph{Ready} means that \texttt{read} or \texttt{write} with nullified
 \texttt{O\_NONBLOCK} flag would not block, therefore there has to be some data
 ready (\texttt{read} can e.g. return 0 for end-of-file or -1 for error).
