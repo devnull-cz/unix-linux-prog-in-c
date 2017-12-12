@@ -968,9 +968,10 @@ parameter. The result is a list of structures \texttt{sockaddr}, that correspond
 to given inputs.
 \item There is a difference whether the address structures are to be used for
 server or client; e.g. for server it is sufficient to specify \emph{nodename} as
-\texttt{NULL} (wildcard socket). Simiarly for the member \texttt{ai\_flags} of
+\texttt{NULL} (wildcard socket). Similarly for the member \texttt{ai\_flags} of
 the \texttt{addrinfo} structure used for the \emph{hint} parameter -- for server
-it is usually set to \texttt{AI\_PASSIVE}.
+it is usually set to \texttt{AI\_PASSIVE}. (Otherwise it would contain loopback
+address if \texttt{NULL} address is specified.)
 \item After the results are no longer needed, it is prudent to call
 \texttt{freeaddrinfo}, that will free the memory allocated by
 \texttt{getaddrinfo}.
