@@ -1019,6 +1019,8 @@ IPv4 and IPv6 addresses, as opposed to the \texttt{gethostbyaddr} function.
 (\texttt{/etc/nsswitch.conf}) and the \texttt{flags} value.
 It performs the actions that would have to be otherwise done by
 \texttt{gethostbyaddr} and \texttt{getservbyport}.
+\item Either \texttt{host} or \texttt{port} can be \texttt{NULL} that
+means the caller is not interested in its resolution.
 \item Unlike the above mentioned legacy functions \texttt{getnameinfo} is
 reentrant and is therefore safe to use with threads.
 \item The man page for \texttt{getnameinfo} contains the list of usable
