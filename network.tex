@@ -618,9 +618,8 @@ not the case when working with datagrams.
 \item Like \texttt{sendto}, \texttt{recvfrom} is possible to use for connected
 service. That said, getting remote's address is better via
 \texttt{getpeername}, see page \pageref{GETPEERNAME}.
-\item example: \label{UDP_SERVER_C} \example{udp/udp-server.c}
+\item Example: \label{UDP_SERVER_C} \example{udp/udp-server.c}
 \end{itemize}
-
 
 %%%%%
 
@@ -1169,31 +1168,32 @@ user-kernel mode switching, possible delay (up to the wait period between the
 iterations of the cycle).  Correct solution of this situation is to use e.g.
 \texttt{select} and then call \texttt{read} only for those descriptors
 marked as \emph{ready}.
-\item \label{BUSY_WAITING_C} busy waiting example: \example{select/busy-wait.c}.
+\item \label{BUSY_WAITING_C} Busy waiting example: \example{select/busy-wait.c}.
 Notice that newly created socket does not have the \texttt{O\_NONBLOCK} flag,
 see page \pageref{ACCEPT}, so it is necessart to set it.
-\item \emph{Ready} means that \texttt{read} or \texttt{write} with nullified
-\texttt{O\_NONBLOCK} flag would not block, therefore there has to be some data
-ready (\texttt{read} can e.g. return 0 for end-of-file or -1 for error).
+\item A descriptor marked as \emph{ready} means that \texttt{read} or
+\texttt{write} on this descriptor with a cleared \texttt{O\_NONBLOCK} flag would
+not block, therefore there has to be some data ready or some other condition is
+pending (\texttt{read} can e.g. return 0 for end-of-file or \texttt{-1} for
+error).
 \item The set \texttt{errorfds} is for exceptions depending on descriptor type;
 for socket it is the reception of urgent data (the \texttt{URG} flag in TCP
-header). It does not mean that there was an error on given descriptor.
-The error is determined by checking \texttt{errno} after given syscall returns
--1.
+header). It does not mean that there was an error on given descriptor.  The
+error is determined by checking \texttt{errno} after given syscall returns
+\texttt{-1}.
 \item Before calling \texttt{select} the sets contain descriptors of interest,
 after the syscall returns the sets contain only those descriptors for which 
-specified event happened.
-\emsl{It is therefore necessary to refresh the sets before next call to
-\texttt{select}.}
-Typically the sets are implemented as bit masks however it does not have to be
-so. The programmer does not have to deal with that. Traversing the sets is
-only possible one bit at a time and using \texttt{FD\_ISSET}.
-\item \texttt{select} is handy also for the possibility to write into pipe or
+specified event happened.  \emsl{It is therefore necessary to refresh the sets
+before next call to \texttt{select}.} Typically the sets are implemented as bit
+masks however it does not have to be so. The programmer does not have to deal
+with that. Traversing the sets is only possible one bit at a time and using
+\texttt{FD\_ISSET}.
+\item \texttt{select} is handy also for the possibility to write into a pipe or
 socket -- waiting for the other side to consume part of the buffer and thus free
 space for more incoming data.
-\item It is possible to use NULL instead of descriptor set. Special case is to
-use NULL for all the sets in which case the syscall will block until the timeout
-expires or a signal is delivered.
+\item It is possible to use \texttt{NULL} instead of descriptor set. Special
+case is to use \texttt{NULL} for all the sets in which case the syscall will
+block until the timeout expires or a signal is delivered.
 \item After returning it is necessary to test each descriptor individually,
 there is no call that would create a set of ready descriptors.
 \item If networking server handles multiple ports, it is possible to call
