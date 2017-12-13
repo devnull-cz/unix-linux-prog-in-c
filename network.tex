@@ -1301,8 +1301,9 @@ of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
 \item Alternative to \texttt{select}.
 \item The \emph{timeout} argument is in miliseconds.
 \item There are many more flags, see the man page.
-\item On Solaris \texttt{poll} is system call, \texttt{select} then
-library called implemented as \texttt{poll} wrapper.
+\item Often either \texttt{select} or \texttt{poll} is implemented using the
+other one.  On Solaris, for example, \texttt{poll} is a system call, and
+\texttt{select} is then a library call implemented as a \texttt{poll} wrapper.
 \item \texttt{poll} is necessary to use to test descriptor equal or higher than
 \texttt{FD\_SETSIZE}. 
 \item Unlike \texttt{select} it is not necessary to refresh descriptor sets
