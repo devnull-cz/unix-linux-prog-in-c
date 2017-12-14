@@ -101,22 +101,23 @@ system calls.  Example: \example{pthreads/setjmp.c}.
 \end{itemize}
 
 \begin{slide}
-\sltitle{POSIX vlákna (pthreads)}
+\sltitle{POSIX threads (pthreads)}
 
 \begin{itemize}
-\item definované roz¹íøením POSIX.1c
-\item volání týkající se vláken zaèínají prefixem \texttt{pthread\_}
-\item tyto funkce vrací 0 (OK) nebo pøímo èíslo chyby 
+\item first came with IEEE Std 1003.1c-1995
+\item POSIX thread API uses a prefix \texttt{pthread\_}
+\item these functions return 0 (= OK) or an error number (values as for
+\texttt{errno})
 \begin{itemize}
-\item \dots{}a nenastavují \texttt{errno}!
-\item nelze s nimi proto pou¾ít funkce \texttt{perror} nebo \texttt{err}
+\item \dots{} functions do \emsl{not} set \texttt{errno}
+\item so you cannot use functions \funnm{perror}() or \funnm{err}()
 \end{itemize}
-\item POSIX.1c definuje i dal¹í funkce, napøíklad nové verze k tìm, které nebylo
-mo¾né upravit pro pou¾ití ve vláknech bez zmìny API, napø \texttt{readdir\_r},
-\texttt{strtok\_r}, atd.
+\item the standard also defines other functions, for example those that could
+not be possible to adjust for the use with threads without changing its API (eg.
+\texttt{readdir\_r}, \texttt{strtok\_r}, etc.)
 \begin{itemize}
-\item \texttt{\_r} znamená \emph{reentrant}, tedy ¾e funkci mù¾e volat
-více vláken najednou bez vedlej¹ích efektù
+\item \texttt{\_r} means \emph{reentrant}, ie. the function can be called by
+multiple threads without any side effects
 \end{itemize}
 \end{itemize}
 
@@ -125,66 +126,56 @@ více vláken najednou bez vedlej¹ích efektù
 \label{POSIXTHREADS}
 
 \begin{itemize}
-\item Obecné informace o POSIXu jsou na stranì \pageref{POSIX}.
-\item Existují i dal\-¹í implementace vláken podporující rozdílná API, napø.
-sys\-té\-mo\-vé volání \texttt{sproc()} v IRIXu, Cthreads, Solaris threads,
-\dots
-\item API pro POSIX vlákna jsou na rùzných systémech k dispozici v rùzných
-knihovnách. Napø. na Linuxu je nutné programy pou¾ívající POSIX threads
-API linkovat s \texttt{-lpthread}, na Solarisu jsou funkce souèástí
-\texttt{libc}.
-\item Implementace POSIX threads je vìt¹inou postavena nad nativní
-implementací threadù na daném systému, napø. na Solarisu nad funkcemi
-s prefixem \texttt{thr\_}.
-\item O reentrantních funkcích ve spojení s vlákny více na stranì
-\pageref{THREADSAFE}
-\item Co se týká o¹etøení návratových hodnot \texttt{pthread\_} funkcí, tak
-vzhledem k tomu, ¾e nenastavují \texttt{errno}, není následující kód napsán
-korektnì:
+\item General information on POSIX is on page \pageref{POSIX}.
+\item There are more threading API, the POSIX thread API is just one of them.
+For example, there is a system call \texttt{sproc()} on IRIX, then Cthreads,
+Solaris threads, GNU Ptr threads (= portable), \dots
+\item The POSIX thread API is available in different libraries on different
+systems.  For example, on Linux you usually need \texttt{-lpthread} but on
+Solaris the API is part of standard \texttt{libc}.  With \texttt{gcc}, instead
+of \texttt{-lpthread}, you can use \texttt{-pthread} and the compiler will do
+what is needed for the specific system (which does not have to be Linux).
+\item Each POSIX thread API implementation is usually built on top of the native
+threading library.  For example, on Solaris, it's the \texttt{thr\_} API
+functions.
+\item We will talk more on reentrant functions in connection with threads on
+page \pageref{THREADSAFE}.
+\item As already mentioned, given that the POSIX thread API uses \texttt{errno}
+codes directly as return values, the following piece of code is not correct:
 
 \begin{verbatim}
 if (pthread_create(&thr, NULL, thrfn, NULL) != 0)
         err(1, "pthread_create");
 \end{verbatim}
 
-proto¾e program vám pøi chybì vypí¹e nìco jako:
+as it will print possibly something like the following on error (unless
+\texttt{errno} was set by previous code which would make it even more
+confusing):
 
 \begin{itemize}
-\item ``\texttt{a.out: pthread\_create: Error 0}'' na Solarisu
-\item ``\texttt{a.out: pthread\_create: Success}'' na Linuxových distribucích
-\item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' na FreeBSD
-\item nebo nìco jiného, podle systému, který zrovna pou¾íváte
+\item ``\texttt{a.out: pthread\_create: Success}'' on Linux distros
+\item ``\texttt{a.out: pthread\_create: Error 0}'' on Solarisu
+\item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' on FreeBSD
+\item or something else based on the system and the concrete message it uses for
+\texttt{errno} equal to 0, unless \texttt{errno} is already set otherwise.
 \end{itemize}
 
-Trochu matoucí mi pøijde pøístup Linuxu, proto¾e na první pohled není jasné, co
-se vlastnì stalo a ¾e \texttt{errno} bylo nulové. Nicménì, správnì napsaný kód
-je napøíklad tento:
+The Linux approach does not seem to be the best as leaving \texttt{errno} zero
+does not have to mean the function did not fail, as we just showed.  FreeBSD
+makes it obvious that something is not entirely right.  The correct code could
+look like this:
 
 \begin{verbatim}
 int e;
+
 if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
         errx(1, "pthread_create: %s", strerror(e));
 \end{verbatim}
 
-V¹imnìte si nutnosti pou¾ít \texttt{err\emsl{x}} funkci, ne \texttt{err},
-proto¾e ta internì pracuje s \texttt{errno}. Pozor na to, ¾e promìnná
-\texttt{errno} by vùbec nemusela být nulová, pokud by ji nastavila jiná funkce
-volaná pøed \texttt{pthread\_create}, co¾ by mohlo u¾ivatele nebo programátora
-zmást je¹tì více.
-\item \label{ERRNO_IN_THREADS} Ostatní funkce, které \texttt{errno} nastavují,
-fungují stejnì i s vlákny, tj. ka¾dé vlákno má svojí \texttt{errno}. Pozor je
-ale tøeba dát na to, ¾e rùzné systémy se chovají rùznì. Na Linuxu je
-\texttt{errno} automaticky thread-safe proto¾e tam musíte specifikovat vláknovou
-knihovnu, na Solarisu ale musíte u Sun Studia pou¾ít pøepínaè
-\texttt{-mt} nebo \texttt{-D\_REENTRANT}, viz
-manuálová stránka \texttt{threads(5)}. Pokud tak neudìláte, nebude
-\texttt{errno} nastaveno korektnì. Podívejte se na definici \texttt{errno} v
-\texttt{/usr/include/errno.h} a pochopíte, jak to funguje. Dal¹í rozdíl je ten,
-¾e Solaris má vlákna pøímo v \texttt{libc}, u ostatních systémù musíte vìt¹inout
-specifikovat vláknovou knihovnu. U \texttt{gcc} staèí na jakémkoli systému
-pou¾ít pøepínaè \texttt{-pthreads}, potøebnou knihovnu si pøekladaè u¾ najde
-sám, a zároveò nastaví \texttt{errno} jako thread-safe. Stejnì jako u
-\texttt{cc} je ale na Solarisu mo¾né pou¾ít jen \texttt{-D\_REENTRANT}.
+\item \label{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
+same with POSIX threads as each thread has its own \texttt{errno}.  In that
+case, it's redefined as a function.  Check \texttt{/usr/include/bits/errno.h} on
+Linux if interested.
 \end{itemize}
 
 %%%%%
