@@ -749,48 +749,50 @@ if \texttt{attr} is \texttt{NULL}, defaultní attributes will be used)
 
 \begin{itemize}
 \item Mutex = \emph{mutual exclusion}
-\item Je to speciální forma Dijkstrových semaforù -- rozdíl mezi mutexy a
-binárními semafory je ten, ¾e \emsl{mutex má majitele a zamèený mutex musí
-odemknout pouze to vlákno, které ho zamknulo.} To u semaforù neplatí. Pozor na
-to, ¾e abyste zjistili, ¾e napøíklad zkou¹íte odemknout mutex, který dané vlákno
-nezamknulo, je nutné jednak testovat návratovou hodnotu volání
-\texttt{p\-thread\_mutex\_lock}, a také je nutné ovìøit, ¾e máte nastavenou
-kontrolu zamykání; viz dále.
-\item Mutexy jsou urèené pouze ke krátkodobému dr¾ení a mìly by fungovat rychle.
-Slou¾í pro implementaci kritických sekcí (definice je na stranì
-\pageref{CRITICALSECTION}), podobnì jako lock-soubory nebo semafory (pou¾ité
-jako zámky).
-\item Kontrola zamykání u mutexù -- defaultnì je typ mutexu
-\texttt{PTHREAD\_MUTEX\_DEF\-AULT}. V tomto nastavení nejsou normou definovány
-výsledky zamknutí ji¾ zamknu\-té\-ho mutexu, odemknutí mutexu zamknutého jiným
-vláknem ani odemknutí o\-demknu\-té\-ho mutexu. Implementace si namapují toto
-makro na normou definované \texttt{PTHREAD\_MUTEX\_NORMAL} nebo
-\texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK}. Mù¾e se vám proto v závislosti na
-konkrétní implementaci stát, ¾e pokud v defaultní konfiguraci zamknete ji¾
-jednou zamknutý mutex, nastane deadlock (normal), a nebo také ne (errorcheck). V
-tom druhém pøípadì dostanete návratovou hodnotu o chybì a pokud ji netestujete,
-budete se mylnì domnívat, ¾e jste mutex zamknuli. U normal není výsledek zbylých
-dvou situací definován, u errorcheck se vám vrátí chyba. ``Nedefinováno'' u
-normal znamená, ¾e vlákno odemykající mutex, který nezamknulo, ho klidnì mù¾e
-odemknout, nebo také ne -- v¹e závisí na konkrétní implementaci.
-``Nedefinováno'' ale také znamená, ¾e skuteèný výsledek takovýchto situací by
-vás nemìl zajímat, proto¾e byste se jim v¾dy mìli vyhnout. Více informací viz
-norma nebo manuálová stránka k \texttt{pth\-read\_mutex\-attr\_set\-ty\-pe}.
-Mnì osobnì pøijde testování mutexových funkcí jako nadbyteèné a trochu
-znepøehledòující kód, ale mù¾e být dobrý nápad je pou¾ívat pøi vývoji kódu, a
-pøed odevzdáním finální verze pak testy odstranit. Solaris a Linux defaultnì
-pou¾ívají nastavení normal, FreeBSD pou¾ívá errorcheck. \label{NOTMYLOCK}
-Pøíklad: \example{mutexes/not-my-lock.c}.
-\item dal¹í typ je \texttt{PTHREAD\_MUTEX\_RECURSIVE} které dr¾í poèet zamèení
-daným threadem. Ostatní thready dostanou pøístup jedinì tehdy kdy¾ poèet
-dosáhne 0. Tento typ mutexu nelze sdílet mezi procesy.
-\item K èemu jsou dobré rekurzivní mutexy ? Napø. máme-li knihovní funkci
-A:foo(), která získá mutex a zavolá B:bar() která ale mù¾e zavolat A:bar(),
-která se pokusí získat ten samý mutex. Bez rekurzivních zámkù by do¹lo k
-deadlocku. S rekurzivními mutexy je to ok pokud tyto volání provádí ten samý
-thread (jiný thread by se zablokoval), pokud si tedy A:foo() a A:bar() jsou
-vìdomy, ¾e ten samý thread u¾ mù¾e být v kritické sekci.
-\item \label{MUTEXTAB} Chování v jednotlivých pøípadech podle typu mutexù
+\item Special form of Dijkstra semaphores -- the difference between mutexes and
+binary semaphores is that \emsl{mutex has an owner and locked mutex must be
+unlocked only by the thread that acquied it.} This is not the case with
+semephores. In order to check whether given mutex was locked by different thread
+when acquiring it, it is necessary to test return value of
+\texttt{p\-thread\_mutex\_lock}, and also have the lock checking set, see below.
+\item Mutexes are meant to be held for short time only. They are used for
+critical section (see the definition on page \pageref{CRITICALSECTION}),
+implementation, similarly to lock-files or semaphores (used like locks).
+\item Lock checking is governed by mutex type. By default the mutex type is set to
+\texttt{PTHREAD\_MUTEX\_DEF\-AULT}. This type does not define the result of
+locking a locked mutex, unlocking a mutex locked by different thread or
+unlocking an unlocked mutex. Concrete Unix implementations will map this define
+to \texttt{PTHREAD\_MUTEX\_NORMAL} or \texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK}.
+Thus, depending on correct implementation, that locking already locked mutex
+will result in deadlock (\texttt{NORMAL}) or not (\texttt{ERRORCHECK}).
+In the second case, return value will contain information about the error.
+If not tested, the program will wrongly assume that the mutex is locked.
+For the \texttt{NORMAL} type the result of the remaining two situations is not
+define, for \texttt{ERRORCHECK} an error will be returned. ``Not defined``
+means that the thread unlocking a mutex locked by different thread can succeed.
+Or not -- everything depends on the implementation at hand. It also means that
+the result of such operations is of no interest because these should be avoided.
+More info can be found in the POSIX standard or the
+\texttt{pth\-read\_mutex\-attr\_set\-ty\-pe} man page.
+Checking return values of mutex functions can make the code slightly less
+readable however it can be wrapped in a macro. Alternatively, the checks can be
+used during development only.
+Solaris and Linux use \texttt{NORMAL} type by default, FreeBSD uses
+\texttt{ERRORCHECK}.
+\label{NOTMYLOCK}
+Example: \example{mutexes/not-my-lock.c}.
+\item Another type is \texttt{PTHREAD\_MUTEX\_RECURSIVE} that holds count of
+lock actions done by given thread. The remaining threads will be granted access
+only if the count reaches 0. This mutex cannot be shared between processes.
+\item What are recursive mutexes good for ? Let's assume there are two
+libraries, \texttt{A} and \texttt{B}. There is a library
+function \texttt{A:foo()}, that will acquire a mutex and calls \texttt{B:bar()}
+that can in turn call \texttt{A:bar()}, which will try to acquire the same
+mutex. Without recursive locks a deadlock will ensue. With recursive mutexes
+that's fine if these two calls are done by the same thread (another thread will
+get blocked). That is, assuming \texttt{A:foo()} and \texttt{A:bar()} are aware
+that the same thread can be already in the critical section.
+\item \label{MUTEXTAB} The behavior according to mutex types:
 shrnuje tabulka:\\
 \\
 \raisetab{
@@ -798,30 +800,27 @@ shrnuje tabulka:\\
 % \cline{2-4}
 &\texttt{NORMAL}&\texttt{ERRORCHECK}&\texttt{RECURSIVE}\\
 % \cline{2-4}
-detekuje deadlock&N&Y&N/A\\
-vícenásobné zamykání&deadlock&error&success\\
-odemèení jiným vláknem&undefined&error&error\\
-odemykání odemèeného&undefined&error&error\\
-lze sdílet mezi procesy&Y&Y&N
+detects deadlock&N&Y&N/A\\
+multi locking&deadlock&error&success\\
+unlock by different thread&undefined&error&error\\
+unlock unlocked&undefined&error&error\\
+can be shared between processes&Y&Y&N
 % \cline{2-4}
 \end{tabular}}
-\item Inicializace statického mutexu pomocí zmínìného makra nastaví pro mutex
-jeho defaultní atributy. Je mo¾né pou¾ít inicializaèní funkci i pro staticky
-alokované mutexy. Pokud je mutex alokován dynamicky, je v¾dy nutné pou¾ít
-\texttt{pthread\_mutex\_init} funkci, a» ji¾ budeme pou¾ívat defaultní atributy
-nebo ne.
-
-
-\item Dynamické mutexy mù¾eme potøebovat napøíklad v situaci, kdy dynamicky
-alokujeme datovou strukturu, její¾ souèástí je i mutex, který sdíl{}ená data
-struktury chrání. I zde, pøed zavoláním funkce \texttt{free} na datovou
-strukturu, je potøeba pou¾ít volání pro zru¹ení mutexu, proto¾e mutex sám mù¾e
-mít napøíklad alokovanou nìjakou pamì». Výsledek zru¹ení zamknutého mutexu není
-normou definován.
-\item Kopírovat mutexy není normou definováno -- výsledek takové operace závisí
-na implementaci. Je mo¾né samozøejmì zkopírovat ukazatel na mutex a s tímto
-ukazatelem pak dále pracovat.
-\item Zru¹ení mutexu znamená jeho deinicializaci.
+\item Static mutex initialization using before mentioned macro will set default
+attributes. It is possbile to use initializer function also for statically
+allocated mutex. If a mutex is dynamically allocated, it is always necessary to
+use \texttt{pthread\_mutex\_init}, even if the default attributes are desired or
+not.
+\item Dynamic mutexes are needed e.g. when a data structure which contains a
+mutex protecting it, is dynamically allocated.
+In such case before calling \texttt{free} with the data structure, it is first
+necessary to properly destroy the mutex (that can also have some memory
+allocated). Destroying locked mutex is not defined by the standard.
+\item Copying mutexes is also not defined by the standard -- the result of such
+operation depends on implementation. It is possible to copy pointer to mutex
+and work with that.
+\item Mutex destroy means its de-initialization.
 \end{itemize}
 
 %%%%%
@@ -830,57 +829,55 @@ ukazatelem pak dále pracovat.
 pthread\_mutex\_trylock}{pthreadmutexfncs}
 
 \begin{slide}
-\sltitle{Mutexy (2)}
+\sltitle{Mutexes (2)}
 
 \begin{itemize}
-\item pro zamèení a odemèení mutexu pou¾ijeme volání:
+\item to lock and unlock mutex:
 \end{itemize}
 
 \texttt{int \funnm{pthread\_mutex\_lock}(pthread\_mutex\_t *\emph{mx});}
 \linebreak
-a
+and
 \linebreak
 \texttt{int \funnm{pthread\_mutex\_unlock}(pthread\_mutex\_t *\emph{mx});}
 
 \begin{itemize}
-\item pokud je mutex ji¾ zamèený, pokus o zamknutí vyústí v zablokování vlákna.
-Je mo¾né pou¾ít i volání:
+\item If a mutex is already locked, the attempt to acquire it will result on the
+thread being locked (depending on mutex type).
+It is possible to use:
 \end{itemize}
 
 \texttt{int \funnm{pthread\_mutex\_trylock}(pthread\_mutex\_t *\emph{mx});}
 
 \begin{itemize}
-\item[\dots] které se pokusí zamknout mutex, a pokud to nelze
-provést, skonèí s chybou
+\item[\dots] that will attempt to acquire the mutex and if that fails it will
+return error
 \end{itemize}
 \end{slide}
 
 \label{MUTEXES2}
 
 \begin{itemize}
-\item zamknout mutex, pokud ho dané vlákno ji¾ zamèené má, není korektní. Nìkdy
-mù¾e dojít i k self dead-locku, viz pøedchozí strana. Pokud potøebujete
-odemknout mutex, který zamknulo jiné vlákno, pou¾ijte místo toho binární
-semafor; opìt viz pøedchozí strana.
-\item pøi vytváøení aplikace, kde je efektivita klíèovým faktorem, je nutné
-rozmyslet, jak, kde a kolik mutexù pou¾ívat. Z knihovny, která nebyla napsaná
-pro pou¾ití v aplikacích pou¾ívající vlákna, je mo¾né udìlat thread-safe (viz
-také strana \pageref{THREADSAFE}) knihovnu tak, ¾e pøed zavoláním jakékoli
-funkce knihovny zamknu jeden, tzv. ``giant'' mutex a po skonèení funkce ho
-odemknu. Mám tedy pouze jeden mutex, ale vlákna pou¾ívající tuto knihovnu èasto
-spí pøi èekání na pøístup do knihovny. Na druhou stranu, pokud zamykám pøístup
-ke konkrétním, malým sekcím, mohu potøebovat mnoho mutexù a znaèné mno¾ství èasu
-tak mohu strávit ve funkcích, které mutexy implementují. Je proto vhodné podle
-situace zvolit rozumný kompromis. Také nezapomeòte, ¾e je mo¾né explicitnì
-nastavit, zda chcete error checking u mutexù nebo ne. Mù¾e být dobré øe¹ení
-kontrolu zamykání/odemykání vypnout tehdy, kdy¾ u¾ máte v¹e otestované a vìøíte,
-¾e error checking kód dále nepotøebujete.
-\item \label{MUTEX_RACE} pøíklady: \example{mutexes/race.c} a
+\item Locking a mutex that is being held by another thread is not correct.
+Sometimes a (self)deadlock can ensue, see the previous page. If you need to
+unlock a mutex locked by different thread, use binary semaphores instead.
+\item When creating a program where effectivity is paramount, it is necessary to
+think about how many mutexes will be needed and how exactly will be used.
+Even a library that was not written with threads in mind can be converted to be
+thread-safe (see page \pageref{THREADSAFE}) by inserting arbitrary function from
+the library a lock will be acquired and released before the function exits.
+Such locked can be called ``giant'' mutex, i.e. there will be lock contention
+for every consumer of such library in given program. On the other hand, if using
+many mutexes to synchronize access to concrete small sections, lots of time can
+be spent in the functions implementing the locking. It is therefore desired to
+search for a compromise. (Or use an algorithm that does not require locks at
+all)
+\item \label{MUTEX_RACE} Examples: \example{mutexes/race.c},
 \example{mutexes/race-fixed.c}
-\item mutexy je mo¾né nastavit i pro fungovaní mezi vlákny rùzných procesù.
-Funguje to tak, ¾e funkce implementující mutexy vyu¾ijí sdílenou pamì», její¾
-odkaz se nastaví jako jeden z atributù mutexu. Více viz manuálová stránka pro
-\texttt{pthread\_mutexattr\_setpshared}.
+\item Mutexes can be shared between processes so that their threads will
+synchronize on them. This is done by using shared memory that will be set as an
+attribute of such mutexes. See the
+\texttt{pthread\_mutexattr\_setpshared} man page.
 \end{itemize}
 
 
