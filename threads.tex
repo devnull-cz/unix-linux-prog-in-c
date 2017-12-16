@@ -681,20 +681,19 @@ být v¾dy mo¾né zachytit (pøed zavoláním \texttt{exit}), viz strana
 %%%%%
 
 \begin{slide}
-\sltitle{Synchronizace vláken obecnì}
+\sltitle{Thread synchronization in general}
 
 \begin{itemize}
-\item vìt¹ina programù pou¾ívajících vlákna mezi nimi sdílí data
-\item nebo vy¾aduje, aby rùzné akce byly provádìny v jistém poøadí
-\item \dots{}toto v¹e potøebuje \emsl{synchronizovat} aktivitu bì¾ících vláken
-\item jak bylo zmínìno u implementace vláken, u procesù je pro sdíl{}ení dat
-nutné vynalo¾it jisté úsilí, u vláken naopak musíme investovat do toho,
-abychom pøirozené sdíl{}ení dat uhlídali
-\item my se vzhledem k vláknùm budeme zabývat:
+\item most of the programs employing threads needs to share data between them
+\item or needs to execute given actions in certain order
+\item \dots{}all of this needs to \emsl{synchronize} running threads activity
+\item for processes it is necessary to make some effort to actually share data,
+for threads on the other hand it is necessary to maintain natural data sharing.
+\item will describe:
 \begin{itemize}
-\item mutexy
-\item podmínkovými promìnnými
-\item read-write zámky
+\item mutexes
+\item conditional variables
+\item read-write locks
 \end{itemize}
 \end{itemize}
 \end{slide}
@@ -702,16 +701,16 @@ abychom pøirozené sdíl{}ení dat uhlídali
 \label{THREADSYNCHRONIZATION}
 
 \begin{itemize}
-\item pro pøipomenutí, synchronizací procesù jsme se ji¾ zabývali na
-stranách \pageref{SYNCHRONIZATION} a¾ \pageref{SYNCHRONIZATIONEND}.
-\item pomocí mutexù a podmínkových promìnných je mo¾né postavit jakýkoli jiný
-synchronizaèní model.
-\item na tom jakým zpùsobem budou fungovat synchronizaèní primitiva se
-velkou èástí podílí scheduler, který napø. rozhoduje které z vláken
-èekajících na odemèení bude po odemèení probuzeno. S tím souvisí klasické
-problémy, napø. \emph{thundering horde} (na odemèení èeká velké mno¾ství
-vláken) nebo \emph{priority inversion} (vlákno, které dr¾í zámek, má men¹í
-prioritu ne¾ vlákno, které èeká na tento zámek).
+\item Process synchronization is described on pages
+\pageref{SYNCHRONIZATION} to \pageref{SYNCHRONIZATIONEND}.
+\item Using mutexes and conditional variables it is possible to construct any
+other synchronization model.
+\item The exact behavior of synchronization primitives is largely determined by
+the scheduler, that decides which of the threads waiting for unlock will be
+waked up after the unlock happens. This leads to classical problems such as
+\emph{thundering horde} (lots of threads waiting for unlock)
+or \emph{priority inversion} (thread holding a lock has lower priority than
+the thread waiting for the lock).
 \end{itemize}
 
 %%%%%
@@ -720,27 +719,27 @@ prioritu ne¾ vlákno, které èeká na tento zámek).
 \pdfbookmark[1]{pthread\_mutex\_init, pthread\_mutex\_destroy}{pthreadinit}
 
 \begin{slide}
-\sltitle{Synchronizace vláken: mutexy (1)}
+\sltitle{Thread synchronization: mutexes (1)}
 
 \begin{itemize}
-\item nejjednodu¹¹í zpùsob zaji¹tìní synchronizovaného pøístupu ke
-sdíl{}eným datùm mezi vlákny je pou¾itím mutexu
-\item inicializace staticky definovaného mutexu:
+\item the simplest way how to ensure synchronized access to shared data between
+threads
+\item inicialization of statically defined mutex:
 \end{itemize}
 
 \texttt{pthread\_mutex\_t mutex = PTHREAD\_MUTEX\_INITIALIZER;}
 
 \begin{itemize}
-\item inicializace dynamicky alokovaného mutexu \texttt{mx} s atributy
-\texttt{attr} (nastavují se pomocí \texttt{pthread\_mutexattr\_...}; a je-li
-místo \texttt{attr} pou¾it \texttt{NULL}, vezmou se defaultní atributy)
+\item inicialization of dynamically allocated mutex \texttt{mx} with attributes
+\texttt{attr} (these are set using \texttt{pthread\_mutexattr\_...};
+if \texttt{attr} is \texttt{NULL}, defaultní attributes will be used)
 \end{itemize}
 
 \funml{int \funnm{pthread\_mutex\_init}(\=pthread\_mutex\_t *\emph{mx},
 \\\>const pthread\_mutexattr\_t *\emph{attr});}
 
 \begin{itemize}
-\item po skonèení pou¾ívání mutexu je mo¾né ho zru¹it:
+\item after done using the mutex it is possible to destroy it:
 \end{itemize}
 
 \texttt{int \funnm{pthread\_mutex\_destroy}(pthread\_mutex\_t *\emph{mx});}
@@ -749,7 +748,7 @@ místo \texttt{attr} pou¾it \texttt{NULL}, vezmou se defaultní atributy)
 \label{MUTEXES}
 
 \begin{itemize}
-\item Mutex = \emph{mutual exclusion} (vzájemné vylouèení)
+\item Mutex = \emph{mutual exclusion}
 \item Je to speciální forma Dijkstrových semaforù -- rozdíl mezi mutexy a
 binárními semafory je ten, ¾e \emsl{mutex má majitele a zamèený mutex musí
 odemknout pouze to vlákno, které ho zamknulo.} To u semaforù neplatí. Pozor na
