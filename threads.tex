@@ -200,39 +200,36 @@ total.
 
 \begin{slide}
 \label{PTHREAD_T}
-\sltitle{Vytvoøení vlákna}
+\sltitle{Thread creation}
 \funml{int \funnm{pthread\_create}(\=pthread\_t *\emph{thread},
 \\\>const pthread\_attr\_t *\emph{attr},
 \\\>void *(*\emph{start\_fun})(void*), void *\emph{arg});}
 \begin{itemize}
-\item vytvoøí nové vlákno, do \texttt{thread} ulo¾í jeho ID.
-\item podle \texttt{attr} nastaví jeho atributy, napø. velikost zá\-sob\-ní\-ku
-èi plánovací politiku. \texttt{NULL} znamená pou¾ít implicitní atributy.
-\item ve vytvoøeném vláknu spustí funkci \texttt{start\_fun}() s
-argumentem \texttt{arg}. Po návratu z této funkce se zru¹í vlákno. 
-\item s objekty \texttt{pthread\_attr\_t} lze manipulovat funkcemi
-\texttt{pthread\_attr\_init()}, \texttt{pthread\_attr\_destroy()},
-\texttt{pthread\_attr\_setstackaddr()}, atd\dots{}
+\item creates a new thread, puts its ID to \emph{thread}
+\item with attributes from \texttt{attr}, eg. its stack size,
+\texttt{NULL} means default attributes
+\item function \emph{start\_fun}() will be started in the thread using argument
+\emph{arg}.  After the function returns, the thread ceizes to exist.
+\item with the \texttt{pthread\_attr\_t} objects can be manipulated using
+\funnm{pthread\_attr\_init}(), \funnm{pthread\_attr\_destroy}(),
+\funnm{pthread\_attr\_setstackaddr}(), etc\dots{}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Pozor na konstrukce typu:
+\item Be careful not to use this:
 \begin{alltt}
 for (i = 0; i < N; i++)
     pthread\_create(&tid, attr, start\_routine, &i);
 \end{alltt}
 
-Na první pohled takto pøedáme ka¾dému vláknu jeho in{}dex. Jen¾e plánovaè mù¾e
-zpùsobit to, ¾e ne¾ si novì spu¹tìné vlákno staèí pøeèíst hodnotu \texttt{i},
-pøíkaz \texttt{for} provede dal¹í iteraci a hodnota se zmìní. Obecnì vlákno mù¾e
-dostat místo správné hodnoty \texttt{i} libovolnou vìt¹í.
-\item \label{WRONG_USE_OF_ARG} Pøíklady:
-\example{pthreads/wrong-use-of-arg.c}, \example{pthreads/correct-use-of-arg.c}.
-
-\item Co je mo¾né pou¾ít, pokud potøebujeme pøedat pouze jednu hodnotu
-(\textbf{podle C standardu je to ale implementaènì závislé a tedy
-ne\-pøe\-no\-si\-tel\-né}):
+It looks like we pass each thread its index.  However, before the started thread
+gets scheduled to run, a next iteration might happen, modifying \texttt{i}.
+\item \label{WRONG_USE_OF_ARG} Examples: \example{pthreads/wrong-use-of-arg.c},
+\example{pthreads/correct-use-of-arg.c}.
+\item If you need to pass only one value, you could use the following
+(\textbf{note that it is implementation specific in the C standard so it is not
+portable});
 
 \begin{alltt}
 assert(sizeof (void *) >= sizeof (int));
@@ -240,32 +237,25 @@ for (i = 0; i < N; i++)
     pthread\_create(&tid, attr, start\_routine, (void *)(intptr\_t)i);
 \end{alltt}
 
-\dots a ve funkci \texttt{void *start\_routine(void *arg)} pak
-pøetypovat ukazatel zpátky na integer a máme potøebný identifikátor
-vlákna:
+\dots and in function \texttt{void *start\_routine(void *arg)} cast the pointer
+back to integer.
 
 \begin{alltt}
 printf("thread \%d started\bs{}n", (int)arg);
 \end{alltt}
 
-\label{INT_AS_ARG} Pøíklad: \example{pthreads/int-as-arg.c}
-\item Pokud potøebujeme pøedat více bajtù ne¾ je velikost ukazatele, tak u¾
-opravdu musíme pøedat ukazatel na pamì» s pøíslu¹nými pøedávanými daty nebo
-pou¾ít globální promìnné; pøístup k nim je pak ale samozøejmì nutné
-synchronizovat.
-
-\item \label{PTHREAD_CREATE_CYCLE} \texttt{pthread\_t} je "prùhledný" typ,
-do kterého program nevidí
-a ani by nemìl, jeho implementace se mù¾e li¹it systém od systému; nicménì
-vìt¹inou jde o celoèíselný typ, který se pou¾ívá k mapování na nativní thready
-na daném systému. Pøi vytváøení nìkolika threadù v cyklu je tedy nutné pøedat
-funkci \texttt{pthread\_create} poka¾dé adresu jiné promìnné
-\texttt{pthread\_t}, jinak u¾ nepùjde s tìmito vlákny nadále manipulovat
-z hlavního vlákna, napø. èekat na jejich dokonèení (aèkoliv bì¾et budou
-normálnì), jejich identifikace se ztratí. Toto je øe¹itelné napø. pøes
-pole \texttt{pthread\_t} nebo dynamickou alokací.
+\label{INT_AS_ARG} Example: \example{pthreads/int-as-arg.c}
+\item If we need to pass more bytes than it is the size of the pointer, you must
+pass a pointer to memory where the passed data is stored, or use global
+variables.  Accessing global variables must be synchronized, of course.  More on
+that on page \pageref{THREADSYNCHRONIZATION}.
+\item \label{PTHREAD_CREATE_CYCLE} \texttt{pthread\_t} is a transparent type and
+its implementation is not of your concern.  Usually it is an integer though used
+to map to the native threads provided by the system.  If you create several
+threads, you need to pass a different address for a \texttt{pthread\_t} variable
+otherwise you will not be able to further manipulate with the threads from the
+main thread, eg. waiting for them to finish.
 \end{itemize}
-
 
 %%%%%
 
@@ -273,36 +263,36 @@ pole \texttt{pthread\_t} nebo dynamickou alokací.
 \label{THREAD_ATTRS}
 
 \begin{slide}
-\sltitle{Soukromé atributy vláken}
+\sltitle{Thread private attributes}
 \begin{itemize}
-\item èítaè instrukcí 
-\item zásobník (automatické promìnné) 
-\item thread ID, dostupné funkcí\\
+\item instruction pointer
+\item stack (automatic variables)
+\item thread ID, available through\\
 \texttt{pthread\_t \funnm{pthread\_self}(void);}
-\item plánovací priorita a politika 
-\item hodnota \texttt{errno}
-\item klíèované hodnoty -- dvojice
+\item scheduling priority and policy
+\item value of \texttt{errno}
+\item thread specific data -- a pair of
 \texttt{(pthread\_key\_t \emph{key}, void *\emph{ptr})} 
     \begin{itemize}
-    \item klíè vytvoøený voláním \texttt{pthread\_key\_create()} je
-    viditelný ve v¹ech vláknech procesu. 
-    \item v ka¾dém vláknu mù¾e být s klíèem asociována jiná hodnota
-    voláním \texttt{pthread\_setspecific()}.
+    \item a key created by \funnm{pthread\_key\_create}() is visible from all
+    threads
+    \item in every thread the key may be associated with a different value via
+    \funnm{pthread\_setspecific}()
     \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Ka¾dé vlákno má zásobník pevné velikosti, \emsl{který se automaticky
-ne\-zvìt\-¹u\-je.} Bývá to kolem 64-512 KB, tak¾e pokud si ve funkci alokujete
-pole o velikosti 256KB a pou¾ijete ho, je dost mo¾né, ¾e skonèíte s core
-dumpem. Pokud chcete zásobník vìt¹í ne¾ je systémový default, musíte pou¾ít
-argument \emph{attr} pøi vytvoøení vlákna.
-Pøíklad: \example{pthreads/pthread-stack-overflow.c}
-\item O soukromých klíèovaných atributech vlákna více na stranì
+\item Each thread has a fixed size thread which \emsl{does not automatically
+increase.}  It is usually around 64-512 kilobytes so if you use an automatic
+array of 256 KB, it is possible that you end up with a core dump.
+If you want a stack of a greate size than it is the system default, you have to
+use \emph{attr} when creating a thread.
+Example: \example{pthreads/pthread-stack-overflow.c}
+\item You can read more about thread specific data is on page
 \pageref{THREAD_SPECIFIC_DATA}.
-\item Ka¾dé vlákno má je¹tì vlastní signálovou masku, k tomu se také dostaneme,
-viz strana \pageref{PTHREADSIGMASK}.
+\item Each thread also has its own signal mask.  More on that on page
+\pageref{PTHREADSIGMASK}.
 \end{itemize}
 
 %%%%%
