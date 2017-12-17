@@ -389,52 +389,48 @@ have an expected value.
 \pdfbookmark[1]{pthread\_cancel, pthread\_setcancelstate, pthread\_setcanceltype}{pthreadcancel}
 
 \begin{slide}
-\sltitle{Zru¹ení vlákna}
+\sltitle{Cancel execution of a thread}
 \setlength{\baselineskip}{0.9\baselineskip}
 \texttt{int \funnm{pthread\_cancel}(pthread\_t \emph{thread});}
 \begin{itemize}
-\item po¾ádá o zru¹ení vlákna \texttt{thread}. Závisí na nastavení 
+\item cancel \emph{thread}.  Depends on:
 \end{itemize}
 \texttt{int \funnm{pthread\_setcancelstate}(int \emph{state},
 int *\emph{old});}
 \begin{itemize}
-\item nastaví nový stav a vrátí starý:
+\item sets new state and returns the old value:
     \begin{itemize}
-    \item \texttt{PTHREAD\_CANCEL\_ENABLE} \dots{} povoleno zru¹it 
-    \item \texttt{PTHREAD\_CANCEL\_DISABLE} \dots{} nelze zru¹it, ¾ádost bude
-    èekat na povolení 
+    \item \texttt{PTHREAD\_CANCEL\_ENABLE} \dots{} cancelation allowed
+    \item \texttt{PTHREAD\_CANCEL\_DISABLE} \dots{} cancellation requests
+    against the target thread are held pending
     \end{itemize}
 \end{itemize}
 \texttt{int \funnm{pthread\_setcanceltype}(int \emph{type}, int *\emph{old});}
 \begin{itemize}
-\item \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} \dots{} okam¾ité zru¹ení 
-\item \texttt{PTHREAD\_CANCEL\_DEFERRED} \dots{} ¾ádost èeká na vstup do
-urèitých funkcí (napø. \texttt{open()}, \texttt{read()}, \texttt{wait()}),
-nebo na volání
+\item \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} \dots{} immediate cancellation
+\item \texttt{PTHREAD\_CANCEL\_DEFERRED} \dots{} cancellation requests are held
+pending until a cancellation point is reached.
 \end{itemize}
-\texttt{void \funnm{pthread\_testcancel}(void);}
 \end{slide}
 
 \begin{itemize}
-\item Vlákna je mo¾né zvenku \uv{násilnì} ru¹it (obdoba ukonèení procesu pomocí
-signálu) buï okam¾itì, nebo jen v urèitých voláních (tzv. \emph{cancellation
-points}). To znamená, ¾e v takovém pøípadì je mo¾né vlákno zru¹it v èase, kdy je
-vlákno vykonává danou funkci. Pokud vlákno zrovna takovou funkci nevykonává,
-informace o zru¹ení se ``doruèí'' bìhem vykonání první takové funkce od té doby.
-\item Funkce \verb#pthread_cancel# se podobá zru¹ení procesu signálem poslaným
-vo\-lá\-ním \texttt{kill}.
-\item Pøi zru¹ení vlákna se zavolají úklidové handlery, viz strana
-\pageref{PTHREAD_CLEANUP}. Pokud se rozhodnete ru¹ení vláken pou¾ívat,
-\emsl{buïte velmi opatrní}. Napøíklad, pokud budete ru¹it vlákno, které má
-zamknutý mutex, musíte mutex odemknout v úklidových handlerech.
-\item Funkce \verb#pthread_setcancelstate# a \verb#pthread_setcanceltype# jsou
-obdobou zakázání a povolení zru¹ení procesu signálem pomocí manipulace s maskou
-blokovaných signálù (\texttt{sigprocmask}).
-\item \label{PTHREAD_CANCEL} Pøíklad: \example{pthreads/pthread-cancel.c}
-\item Pøi ru¹ení vlákna mù¾e nastat mnoho mo¾ností. Solaris má tøeba samostatnou
-manuálnovou stránku \texttt{cancellation(5)}, která se tomu vìnuje. FreeBSD
-definuje \emph{cancellation points} v manuálové stránce
-\texttt{pthread\_setcanceltype(3)}.
+\item Cancellation points will occur when a thread is executing functions
+specified in the standard, like \funnm{open}(), \funnm{read}(),
+\funnm{accept}(), etc.  The full list is usually in the
+\texttt{pthread\_setcancelstate} man page.
+\item The \funnm{pthread\_testcancel}() function creates a cancellation point in
+the calling thread.  The \funnm{pthread\_testcancel}() function has no effect if
+cancelability is disabled.
+\item Be very careful with the use of \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} as
+it may lead to data inconsitency as the cancellation may happen any time, even
+in your critical sections.
+\item Cleanup functions are called on cancellation, see page
+\pageref{PTHREAD_CLEANUP}.  For example, if cancelling a thread holding a mutex,
+you could use the cleanup function to unlock it.
+\item Functions \funnm{pthread\_setcancelstate}()
+\funnm{pthread\_setcanceltype}() provides similar functionality to threads as is
+manipulating a signal mask to processes.
+\item \label{PTHREAD_CANCEL} Example: \example{pthreads/pthread-cancel.c}
 \end{itemize}
 
 %%%%%
@@ -443,55 +439,51 @@ definuje \emph{cancellation points} v manuálové stránce
 pthread\_setspecific, pthread\_getspecific}{pthreadglobals}
 
 \begin{slide}
-\sltitle{Globální promìnné pro vlákno}
+\sltitle{Global variables per thread}
 \funml{int \funnm{pthread\_key\_create}(\=pthread\_key\_t *\emph{key},
 \\\>void (*\emph{destructor})(void *));}
 \begin{itemize}
-\item vytvoøí klíè, který lze asociovat s hodnotou typu
-\texttt{(void *)}.  Funkce \texttt{destructor()} se volají opakovanì
-pro v¹echny klíèe, jejich¾ hodnota není \texttt{NULL}, pøi ukonèení
-vlákna. 
+\item creates a key that can be associated with a value of
+\texttt{(void *)} type.  Function \emph{destructor()} are called for all keys
+whose value is not \texttt{NULL} on thread termination.
 \end{itemize}
 \texttt{int \funnm{pthread\_key\_delete}(pthread\_key\_t \emph{key});}
 \begin{itemize}
-\item zru¹í klíè, nemìní asociovaná data. 
+\item deletes the key, does not change the associated data
 \end{itemize}
 \funml{int \funnm{pthread\_setspecific}(\=pthread\_key\_t \emph{key},
 \\\>const void *\emph{value});}
 \begin{itemize}
-\item pøiøadí ukazatel \texttt{value} ke klíèi \texttt{key}.
+\item sets pointer \emph{value} to \emph{key}
 \end{itemize}
 \texttt{void *\funnm{pthread\_getspecific}(pthread\_key\_t \emph{key});}
 \begin{itemize}
-\item vrátí hodnotu ukazatele pøíslu¹ného ke klíèi \texttt{key}.
+\item returns the value of \emph{key}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \label{THREAD_SPECIFIC_DATA} Bì¾né globální promìnné (a také dynamicky
-alokovaná data) jsou spoleèné pro v¹echna vlákna. Klíèované hodnoty pøedstavují
-zpùsob, jak vytvoøit glo\-bál\-ní promìnné v rámci vláken. Uvìdomte si rozdíl
-proti lokální promìnné definované ve vláknové funkci - taková promìnná není
-vidìt v dal¹ích volaných funkcích ve stejném vláknì. Vyu¾itelnost soukromých
-atributù vláken se mù¾e zdát malá, ale obèas se to velmi dobøe hodí. Já to
-jednou pou¾il v existujícím kódu, kde jsem potøeboval nahradit práci s globálním
-spojovým seznamem na lokální seznamy specifické pro ka¾dé vlákno. Nejjednodu¹¹í,
-tj. nejménì zmìn v existujícím kódu bylo pøevést práci s globální promìnnou na
-práci se soukromým atributem vlákna.
-\item Pøi vytvoøení klíèe je s ním asociována hodnota \texttt{NULL}. Ukazatel na
-destruktor funkci není povinný, pokud není potøeba, pou¾ijte \texttt{NULL}.
-\item Pøi ukonèení nebo zru¹ení vlákna se volají destruktory (v nespecifikovaném
-poøadí) pro v¹echny klíèe s hodnotou rùznou od \texttt{NULL}.  Aktuální hodnota
-je destruktoru pøedána v parametru. Jestli¾e po skonèení v¹ech destruktorù
-zbývají klíèe s hodnotou rùznou od \texttt{NULL}, znovu se volají destruktory.
-Implementace mù¾e (ale nemusí) zastavit volání destruktorù po
-\texttt{PTHREAD\_DESTRUC\-TOR\_ITERATIONS} iteracích. Destruktor by tedy mìl
-nastavit hodnotu na \texttt{NULL}, jinak hrozí nekoneèný cyklus.
-\item Destruktor si musí sám zjistit klíè polo¾ky, ke které patøí, a zru¹it
-hodnotu voláním \texttt{pthread\_setspecific(key,~NULL)}.
-\item SUSv3 tento nesmyslný po¾adavek odstraòuje, proto¾e definuje, ¾e pøed
-vstupem do destruktoru je hodnota automaticky nastavená na \texttt{NULL};
-destruktor se následnì vyvolá s pøedchozí hodnotou klíèe.
+\item \label{THREAD_SPECIFIC_DATA} Common global variables and dynamically
+allocated data is common to all threads.  Thread specific data provides a way to
+create a global variable per thread.  Note the difference between that and a
+local variable in the thread function.  The local variable is not visible in
+other functions called from the thread function.  Thread specific data is a very
+useful feature.  Imagine you have existing multithreading code using a global
+storage place which suffers from lots of contention.  You can easily create a
+thread specific data to create a storage place per thread with minimal changes
+to the original code.
+\item When you create a key, \texttt{NULL} is associated with it.  If you do not
+need the destructor function, use \texttt{NULL}.
+\item Destructors are called in unspecified order on all keys with a value
+different from \texttt{NULL}.  Its value is set to \texttt{NULL} and the
+original value is used as a parameter to the destructor.  pøedána v parametru.
+If, after all the destructors have been called for all non-\texttt{NULL} values
+with associated destructors, there are still some non-\texttt{NULL} values with
+associated destructors, then the process is repeated.  If, after at least
+\texttt{PTHREAD\_DESTRUCTOR\_ITERATIONS} iterations of destructor calls for
+outstanding non-NULL values, there are still some non-\texttt{NULL} values with
+associated destructors, the implementation may (it usually does otherwise you
+could end up with an infinite loop) stop calling destructors.
 \end{itemize}
 
 %%%%%
@@ -499,33 +491,30 @@ destruktor se následnì vyvolá s pøedchozí hodnotou klíèe.
 \pdfbookmark[1]{pthread\_cleanup\_push, pthread\_cleanup\_pop}{pthreadcleanup}
 
 \begin{slide}
-\sltitle{Úklid pøi ukonèení/zru¹ení vlákna}
+\sltitle{Cleanup functions}
 \begin{itemize}
-\item vlákno má zásobník úklidových handlerù, které se volají pøi
-ukonèení nebo zru¹ení vlákna funkcemi \texttt{pthread\_exit} a
-\texttt{pthread\_cancel} (ale ne pøi \texttt{return}). Handlery se spou¹tí
-v opaèném poøadí ne¾ byly vkládány do zásobníku.
-\item po provedení handlerù se volají destruktory privátních klíèovaných dat
-vlákna (poøadí není specifikované)
+\item each thread has a stack of cleanup routines called when functions
+\funnm{pthread\_exit}() or \funnm{pthread\_cancel}() are called (but not when
+\texttt{return} is used).  Routines are run from the top of the stack down.
+\item after cleanup functions are called, thread specific data destructors are
+called in unspecified order
 \end{itemize}
 \funml{void \funnm{pthread\_cleanup\_push}(\=void (*\emph{routine})(void *),
 \\\>void *\emph{arg});}
 \begin{itemize}
-\item vlo¾í handler do zásobníku. 
+\item add \emph{routine} to the top of the stack
 \end{itemize}
 \texttt{void \funnm{pthread\_cleanup\_pop}(int \emph{execute});}
 \begin{itemize}
-\item vyjme naposledy vlo¾ený handler ze zásobníku. Provede ho,
-pokud je \texttt{execute} nenulové.
+\item removed a routing from the top of the stack.  Will call the routine if
+\emph{execute} is non-zero
 \end{itemize}
 \end{slide}
 
 \label{PTHREAD_CLEANUP}
 
 \begin{itemize}
-\item Handlery se volají jako \texttt{routine(arg)}.
-\item Tyto handlery se dají pou¾ívat napø. na úklid lokálních dat funkcí (obdoba
-volání destruktorù pro automatické promìnné v C++).
+\item Cleanup functions are called as \texttt{routine(arg)}.
 \end{itemize}
 
 %%%%%
@@ -534,38 +523,36 @@ volání destruktorù pro automatické promìnné v C++).
 \sltitle{\texttt{fork()} a vlákna (POSIX)}
 \prgchars
 \begin{itemize}
-\item je nutné definovat sémantiku volání \texttt{fork} v aplikacích
-pou¾ívajících vlákna. Norma definuje, ¾e:
+\item it is necessary to define semantics of \funnm{fork}() in multithreaded
+applications.  The standard says:
 
 \begin{itemize}
 \item nový proces obsahuje pøesnou kopii volajícího vlákna,
 vèetnì pøípadných stavù mutexù a jiných zdrojù
-\item ostatní vlákna v synovském procesu neexistují
-\item pokud taková vlákna mìla naalokovanou pamì», zùstane tato
-pamì» naalokovaná (= ztracená)
-\item obdobnì to platí pro zamèený mutex ji¾ neexistujícího vlákna
+\item the calling process contains the exact copy of the calling thread,
+including all the mutex states
+\item other threads are not propagated to the new process
+\item if such other threads held allocated memory, the memory will remain
+allocated but lost
+\item mutexes locked in other threads will remain locked for ever
 \end{itemize}
-\item vytvoøení nového procesu z multivláknové aplikace má smysl pro
-následné volání \texttt{exec} (tj. vèetnì volání \texttt{popen},
-\texttt{system} apod.)
+\item creating a process from a multithreaded application makes sense for
+subsequent \funnm{exec}(), for example (including \funnm{popen}() or
+\funnm{system}())
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Pokud mìlo ji¾ neexistující vlákno zamèený mutex, tak je pøístup k
-pøí\-slu¹\-ným sdíl{}eným datùm ztracen, proto¾e zamèený mutex mù¾e odemknout
-pouze to vlákno, které ho zamknulo. Zde ale trochu pøedbíhám, mutexy jsou
-pøedstavené a¾ na stranì \pageref{MUTEXES}.
-\item Ostatní vlákna v novém procesu pøestanou existovat, nevolají se ¾ádné
-rutiny jako pøi volání \texttt{pthread\_exit}, \texttt{pthread\_cancel} nebo
-destruktory klíèovaných dat.
-\item \label{FORKALL} Pozor na to, ¾e chování \texttt{fork} také závisí na
-pou¾ité knihovnì a verzi systému, napøíklad na Solarisu pøed verzí 10 znamenalo
-\texttt{fork} v knihovnì \texttt{libthread} (jiná knihovna ne¾
-\texttt{libpthread}) to samé co \texttt{forkall}.
-\item Pøíklady: \example{pthreads/fork.c},
-\example{pthreads/fork-not-in-main.c},
-\example{pthreads/forkall.c}
+\item See page \pageref{MUTEXES} on why mutexes locked in other threads on
+\funnm{fork}() stay locked forever.
+\item No cleanup routines or thread specific data destructors are called for
+threads not propagated to the new process.
+\item \label{FORKALL} Note that who \funnm{fork}() works also depends on the
+system used.  For example, Solaris before version 10 (ie. before 2005)
+\funnm{fork}() in the \texttt{libthread} library (different from
+\texttt{libpthread}) was the same as \funnm{forkall}().
+\item Examples: \example{pthreads/fork.c},
+\example{pthreads/fork-not-in-main.c}, \example{pthreads/forkall.c}
 \item \label{ATFORK} Pomocí funkce \texttt{pthread\_atfork} je mo¾né nastavit
 handlery které se automaticky vykonají pøed pou¾itím \texttt{fork} v rodièi
 a po návratu z \texttt{fork} v rodièi a synovském procesu.  Toto volání se
@@ -583,12 +570,10 @@ nenastane. Tento mechanismus funguje díky tomu, ¾e \emph{pre-fork} handler
 se zavolá ve vláknu, které zavolalo fork, je¹tì pøedtím ne¾ se provede samotný
 fork syscall; ostatní vlákna mezitím dál bì¾í a mohou tedy uvolnit mutexy
 (jednodu¹e tak ¾e ka¾dé vlákno v rozumnì napsaném programu èasem opustí
-kritickou sekci),
-na které se èeká v handleru. Toto samozøejmì pøedpokládá, ¾e zamykání a
-odemykání v handlerech dodr¾uje zamykací pravidla ("protokol") stanovený
-pro celý program a nedojde tedy k deadlocku.
-\example{pthreads/atfork.c}
-Více napø. v [Butenhof].
+kritickou sekci), na které se èeká v handleru. Toto samozøejmì pøedpokládá, ¾e
+zamykání a odemykání v handlerech dodr¾uje zamykací pravidla ("protokol")
+stanovený pro celý program a nedojde tedy k deadlocku.
+\example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
 \end{itemize}
 
 
