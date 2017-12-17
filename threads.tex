@@ -520,15 +520,13 @@ called in unspecified order
 %%%%%
 
 \begin{slide}
-\sltitle{\texttt{fork()} a vlákna (POSIX)}
+\sltitle{\funnm{fork}() and POSIX threads}
 \prgchars
 \begin{itemize}
 \item it is necessary to define semantics of \funnm{fork}() in multithreaded
 applications.  The standard says:
 
 \begin{itemize}
-\item nový proces obsahuje pøesnou kopii volajícího vlákna,
-vèetnì pøípadných stavù mutexù a jiných zdrojù
 \item the calling process contains the exact copy of the calling thread,
 including all the mutex states
 \item other threads are not propagated to the new process
@@ -537,45 +535,38 @@ allocated but lost
 \item mutexes locked in other threads will remain locked for ever
 \end{itemize}
 \item creating a process from a multithreaded application makes sense for
-subsequent \funnm{exec}(), for example (including \funnm{popen}() or
-\funnm{system}())
+subsequent \funnm{exec}(), for example,  including \funnm{popen}() or
+\funnm{system}()
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item See page \pageref{MUTEXES} on why mutexes locked in other threads on
-\funnm{fork}() stay locked forever.
 \item No cleanup routines or thread specific data destructors are called for
 threads not propagated to the new process.
-\item \label{FORKALL} Note that who \funnm{fork}() works also depends on the
-system used.  For example, Solaris before version 10 (ie. before 2005)
+\item \label{FORKALL} Note that the way how \funnm{fork}() works also depends on
+the system used.  For example, in Solaris before version 10 (ie. before 2005),
 \funnm{fork}() in the \texttt{libthread} library (different from
 \texttt{libpthread}) was the same as \funnm{forkall}().
 \item Examples: \example{pthreads/fork.c},
-\example{pthreads/fork-not-in-main.c}, \example{pthreads/forkall.c}
-\item \label{ATFORK} Pomocí funkce \texttt{pthread\_atfork} je mo¾né nastavit
-handlery které se automaticky vykonají pøed pou¾itím \texttt{fork} v rodièi
-a po návratu z \texttt{fork} v rodièi a synovském procesu.  Toto volání se
-velmi hodí pro v¹echny multithreadové programy které volají \texttt{fork}
-a nepou¾ívají ho pouze jako jednoduchý wrapper pro \texttt{exec}.
-Po \texttt{fork} se toti¾ v synovském procesu nacházejí v¹echny promìnné
-ve stejném stavu jako byly v rodièi ve chvíli kdy se zavolal \texttt{fork}
-a tedy pokud mìlo nìjaké jiné vlákno (ne¾ které zavolalo \texttt{fork})
-napø. zamèený mutex (zamykání pomocí mutexù viz strana \pageref{MUTEXES})
-tak bude tento mutex zamèený i v synovském procesu. Pokud se pak vlákno ze
-synovského procesu tento mutex pokusí zamknout, dojde k deadlocku. Pokud
-se v \emph{pre-fork} handleru provede zamèení v¹ech mutexù a v obou (rodiè
-i syn) \emph{post-fork} handlerù odemèení v¹ech mutexù, tato situace
-nenastane. Tento mechanismus funguje díky tomu, ¾e \emph{pre-fork} handler
-se zavolá ve vláknu, které zavolalo fork, je¹tì pøedtím ne¾ se provede samotný
-fork syscall; ostatní vlákna mezitím dál bì¾í a mohou tedy uvolnit mutexy
-(jednodu¹e tak ¾e ka¾dé vlákno v rozumnì napsaném programu èasem opustí
-kritickou sekci), na které se èeká v handleru. Toto samozøejmì pøedpokládá, ¾e
-zamykání a odemykání v handlerech dodr¾uje zamykací pravidla ("protokol")
-stanovený pro celý program a nedojde tedy k deadlocku.
-\example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
+\example{pthreads/fork-not-in-main.c}, and also \example{pthreads/forkall.c}
+\item \label{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
+are executed before \funnm{fork}() is called in the parent, and then after
+\funnm{fork}() is called both in the parent and its child.  Such handlers are
+very useful who use \funnm{fork}() not only for a wrapper around \funnm{exec}().
+After \funnm{fork}(), all variables in the child are in the state as in the
+parent, so if a thread not propagated to the child held a mutex (see page
+\pageref{MUTEXES}), the mutex stays
+locked in the child, and trying to lock in the child will lead to a deadlock.
+However, if the parent in the \emph{pre-fork} handler locks all the mutexes, and
+then unlocks them in the \emph{post-fork} handler (both for the parent and the
+child), you will avoid such deadlocks.  When locking mutexes in the
+pre-fork handler, other threads are still running so the mutexes held by them
+can be released (usually each thread exits a crititcal section in a short time
+in well written code).  Example: \example{pthreads/atfork.c}.  For more on this
+topic, see [Butenhof].
+\item See page \pageref{MUTEXES} on why mutexes locked in other threads on
+\funnm{fork}() stay locked forever.
 \end{itemize}
-
 
 %%%%%
 
