@@ -283,13 +283,13 @@ main thread, eg. waiting for them to finish.
 \end{slide}
 
 \begin{itemize}
-\item Each thread has a fixed size thread which \emsl{does not automatically
+\item Each thread has a fixed size stack which \emsl{does not automatically
 increase.}  It is usually around 64-512 kilobytes so if you use an automatic
-array of 256 KB, it is possible that you end up with a core dump.
-If you want a stack of a greate size than it is the system default, you have to
-use \emph{attr} when creating a thread.
+array of 1~MB, it is very possible that you end up with a core dump.
+If you want a stack of a greater size than what is the system default, you have
+to use \emph{attr} when creating a thread.
 Example: \example{pthreads/pthread-stack-overflow.c}
-\item You can read more about thread specific data is on page
+\item You can read more about thread specific data on page
 \pageref{THREAD_SPECIFIC_DATA}.
 \item Each thread also has its own signal mask.  More on that on page
 \pageref{PTHREADSIGMASK}.
@@ -300,63 +300,59 @@ Example: \example{pthreads/pthread-stack-overflow.c}
 \pdfbookmark[1]{pthread\_exit, pthread\_join, pthread\_detach}{pthreadexit}
 
 \begin{slide}
-\sltitle{Ukonèení vlákna}
+\sltitle{Terminating the calling thread}
 \texttt{void \funnm{pthread\_exit}(void *\emph{val\_ptr});}
 \begin{itemize}
-\item ukonèí volající vlákno, je to obdoba \texttt{exit} pro proces
+\item terminates the calling thread, it is similar to \funnm{exit}() for
+processes
 \end{itemize}
 \texttt{int \funnm{pthread\_join}(pthread\_t \emph{thr},
 void **\emph{val\_ptr});}
 \begin{itemize}
-\item poèká na ukonèení vlákna \texttt{thr} a ve
-\texttt{val\_ptr} vrátí hodnotu ukazatele z \texttt{pthread\_exit} nebo
-návratovou hodnotu vláknové funkce. Pokud vlákno skonèilo døíve, funkce hned vrací
-pøíslu¹nì nastavené \texttt{val\_ptr}.
-\item obdoba èekání na synovský proces pomocí \texttt{wait}
+\item waits for thread \emph{thr} to finish, the value passed to
+\funnm{pthread\_exit}() or the return value is stored in the location referenced
+by \emph{val\_ptr}
 \end{itemize}
 \texttt{int \funnm{pthread\_detach}(pthread\_t \emph{thr});}
 \begin{itemize}
-\item nastaví okam¾ité uvolnìní pamìti po ukonèení vlákna, na vlákno
-nelze pou¾ít \texttt{pthread\_join}.
+\item indicate that storage for the \emph{thr} can be reclaimed when the thread
+terminates.  \funnm{pthread\_join}() can no longer be used.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Pokud se nepou¾ije \texttt{pthread\_exit}, vyvolá se tato funkce pøi
-skonèení vlákna implicitnì, s hodnotou pou¾itou pro \texttt{return}
-\item Norma specifikuje, ¾e stav zásobníku ukonèovaného vlákna není definovaný,
-a proto by se v \texttt{pthread\_exit} nemìly pou¾ívat odkazy na lokální
-promìnné ukonèovaného vlákna pro parametr \texttt{\emph{val\_ptr}}
-\item Pokud nemáme v úmyslu po skonèení vlákna volat \texttt{pthread\_join}, je
-tøeba zavolat \texttt{pthread\_detach}. Jinak po ukonèeném vláknu zùstanou v
-pamìti data nutná pro zji¹tìní jeho výsledku pomocí \texttt{pthread\_join}. To
-je podobná situace, jako kdy¾ rodièovský proces nepou¾ívá \texttt{wait} a v
-systému se hromadí zombie. Ve funkci pro takové vlákno je mo¾né jednodu¹e pou¾ít
-toto:
+\item If \funnm{pthread\_exit}() is not used, it is implicitly called when the
+thread terminates with the value from the function \texttt{return}.
+\item The contents of the stack the finishing thread is undefined so you should
+use pointers to the function local variables anywhere in memory pointer to by
+\emph{val\_ptr}.
+\item If you do not intend to call \funnm{pthread\_join}(), you need to call
+\funnm{pthread\_det\-ach}() or use the attributes (see below).  If you do not, a
+memory needed to carry information for a subsequent \funnm{pthread\_join}() will
+not be freed.  It is a similar situation as with accumulated zombies.  You can
+just call it like this in the thread function:
 \begin{alltt}
 pthread\_detach(pthread\_self());
 \end{alltt}
-\item Jiná mo¾nost jak nastavit, ¾e se na vlákna nemusí èekat, je zavolat funkci
-\texttt{p\-thr\-ead\_attr\_setdetachstate} s hodnotou
-\texttt{PTHREAD\_CREATE\_DETACHED} nad strukturou atributù a tu pak pou¾ít ve
-voláních \texttt{pthread\_create}. Pøíklad: \example{pthreads/set-detachstate.c}
-\item Nastavením \texttt{NULL} do argumentu \emph{\texttt{val\_ptr}} systému
-sdìlujeme, ¾e nás ná\-vra\-to\-vá hodnota ukonèeného vlákna nezajímá.
-\item Èekat na ukonèení vlákna mù¾e libovolné jiné vlákno, nejen to,
-které ho spustilo.
-\item Doporuèuji v¾dy kontrolovat návratovou hodnotu \texttt{pthread\_join}, tím
-si budete jisti, ¾e èekáte správnì, pøi pou¾ití ¹patného ID vlákna funkce hned
-vrá\-tí, co¾ vá¹ program nutnì nemusí negativnì ovlivnit co se týká funkènosti,
-ale mù¾ete pak narazit na limit poètu vláken nebo vyplýtvat pamì».
-\item Na rozdíl od procesù \emsl{nelze èekat na ukonèení kteréhokoli vlákna}. Je
-to z toho dùvodu, ¾e vlákna nemají vztah rodiè--potomek, a proto to nebylo
-pova¾ováno za potøebné. Pro zajímavost, Solaris vlákna toto umo¾ní (jako ID
-vlákna ve funkci \texttt{thr\_join} se pou¾ije 0). Pokud byste tuto funkènost
-potøebovali s POSIXovými vlákny, je jednoduché nastavit vlákna jako
-\emph{detached}, pou¾ít podmínkové promìnné, a pøedávat potøebné informace pøes
-globální promìnnou pod ochranou zámku, který je s podmínkovou promìnnou svázán.
-Více viz strana \pageref{CONDITION_VARIABLES}.
-\item \label{PTHREAD_JOIN} Pøíklady: \example{pthreads/pthread-join.c},
+\item You can also set the thread attributes when creating the thread, using
+\funnm{p\-thr\-ead\_attr\_setdetachstate}() with
+\texttt{PTHREAD\_CREATE\_DETACHED} on the attribute variable and then use that
+in \funnm{pthread\_create}().  Example on setting the attributes:
+\example{pthreads/set-detachstate.c}
+\item You can use \texttt{NULL} as \emph{val\_ptr} in \funnm{pthread\_join}(),
+telling the system you are not interested in the return value.
+\item Any thread can wait for another thread, not just the one that created it.
+\item We recommend to always check the return value of \funnm{pthread\_join}()
+to make sure you wait for the right thread.  If you use an incorrect thread ID,
+the funtion returns immediatelly with an error.
+\item In contrast to waiting for processes to finish, \emsl{one cannot wait for
+any thread to finish}.  The rationale is that since there is not parent--child
+relation, it was not deemed necessary.  However, some system provide that
+functionality, eg.  on Solaris you can use \texttt{0} for a thread ID in
+\funnm{thr\_join}().  If you needed this functionality with POSIX thread API, it
+is easy to set threads as \emph{detached} and use a condition variable together
+with a global variable.  More on that on page \pageref{CONDITION_VARIABLES}.
+\item \label{PTHREAD_JOIN} Examples: \example{pthreads/pthread-join.c},
 \example{pthreads/pthread-detach-join.c}
 \end{itemize}
 
@@ -366,29 +362,26 @@ Více viz strana \pageref{CONDITION_VARIABLES}.
 \pdfbookmark[1]{pthread\_once}{pthreadonce}
 
 \begin{slide}
-\sltitle{Inicializace}
+\sltitle{Initialization}
 \funml{int \funnm{pthread\_once}(\=pthread\_once\_t *\emph{once\_control},
 \\\>void (*\emph{init\_routine})(void));}
 \begin{itemize}
-\item V parametru \texttt{once\_control} se pøedává ukazatel na
-staticky inicializovanou promìnnou\\ \texttt{pthread\_once\_t
+\item in \emph{once\_control} you pass a pointer to statically initialized
+variable \\ \texttt{pthread\_once\_t
 \emph{once\_control} = PTHREAD\_ONCE\_INIT;}
-\item První vlákno, které zavolá \texttt{pthread\_once()}, provede
-inicializaèní funkci \texttt{init\_routine()}. Ostatní vlákna u¾
-tuto funkci neprovádìjí, navíc, pokud inicializaèní funkce je¹tì
-neskonèila, zablokují se a èekají na její dokonèení. 
-\item Lze pou¾ít napø. na dynamickou inicializaci globálních dat
-v~knihovnách, jejich¾ kód mù¾e zavolat více vláken souèasnì, ale je
-tøeba zajistit, ¾e inicializace probìhne jen jednou. 
+\item first thread that calls \funnm{pthread\_once}() calls
+\emph{init\_routine()}.  Other threads will not call the function, and if it has
+not finished yet, will block waiting for it to finish.
+\item you can use it for dynamic initialization of global data in libraries
+where multiple threads may be using the library API at the same time
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item V programu samotném tuto funkci asi potøebovat nebudete. Místo pou¾ití
-\texttt{pthread\_once} staèí danou inicializaèní funkci zavolat pøed tím, ne¾
-vytvoøíte vlákna...
-\item Není definováno, co se má stát, pokud je \texttt{once\_control}
-automatická pro\-mìn\-ná nebo nemá po¾adovanou hodnotu.
+\item In the program itself you probably will not need this function.  You can
+just call the initialization function before you create the first thread.
+\item It is undefined if \emph{once\_control} is a local variable or does not
+have an expected value.
 \end{itemize}
 
 %%%%%
