@@ -1159,15 +1159,17 @@ sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
 possible to open respective files with the \texttt{O\_NONBLOCK} flag
 (or set the flag after \texttt{open} with \texttt{fncnl} -- with the second
 parameter being \texttt{O\_SETFL}, not \texttt{O\_SETFD}, see page
-\pageref{FCNTL}).  Repetitious \texttt{read} (which is non-blocking, see page
-\pageref{OPEN}) is then called on all descriptors.  Sleeping in every loop is
-needed in order not to hammer the kernel with syscalls.  For every invocation,
-you either read some data or get \texttt{-1} with \texttt{errno} set to
-\texttt{EAGAIN}.  However, the disadvantages are: active waiting, frequent
+\pageref{FCNTL}).  Repetitious \texttt{read} (which is non-blocking after we set
+the descriptor as non-blocking, see page \pageref{OPEN}) is then called on all
+descriptors.  Sleeping in every loop is needed in order not to hammer the kernel
+with syscalls.  For every invocation, you either read some data right away or get
+\texttt{-1} with \texttt{errno} set to \texttt{EAGAIN} if no data was ready,
+meaning the call would have blocked if it was not for the non-blocking
+descriptor.  However, the disadvantages are: active waiting, frequent
 user-kernel mode switching, possible delay (up to the wait period between the
 iterations of the cycle).  Correct solution of this situation is to use e.g.
-\texttt{select} and then call \texttt{read} only for those descriptors
-marked as \emph{ready}.
+\texttt{select} and then call \texttt{read} only for those descriptors marked as
+\emph{ready}.
 \item \label{BUSY_WAITING_C} Busy waiting example: \example{select/busy-wait.c}.
 Notice that newly created socket does not have the \texttt{O\_NONBLOCK} flag,
 see page \pageref{ACCEPT}, so it is necessary to set it.

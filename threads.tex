@@ -97,7 +97,8 @@ the whole process will block as the kernel has no knowledge there are more
 threads in the process.  So the threading library is written the way that
 non-blocking calls are used, the thread context is saved after that and the
 library switches to another thread via \funnm{setjmp}() and \funnm{longjmp}()
-system calls.  Example: \example{pthreads/setjmp.c}.
+system calls.  Example: \example{pthreads/setjmp.c}.  Another way is to use a
+non-standard system call \funnm{swapcontext}() if the system provides it.
 \end{itemize}
 
 \begin{slide}
@@ -160,10 +161,11 @@ confusing):
 \texttt{errno} equal to 0, unless \texttt{errno} is already set otherwise.
 \end{itemize}
 
-The Linux approach does not seem to be the best as leaving \texttt{errno} zero
+The Linux approach might confuse the programmer as leaving \texttt{errno} zero
 does not have to mean the function did not fail, as we just showed.  FreeBSD
-makes it obvious that something is not entirely right.  The correct code could
-look like this:
+makes it obvious that something is not entirely right.  Example that shows such
+a situation: \example{pthreads/wrong-err-use.c}. The correct code could look
+like this:
 
 \begin{verbatim}
 int e;
@@ -174,7 +176,8 @@ if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
 
 \item \label{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
 same with POSIX threads as each thread has its own \texttt{errno}.  In that
-case, it's redefined as a function.  Check \texttt{/usr/include/bits/errno.h} on
+case, it is redefined using a function (which can either return the value or an
+address which is dereferenced).  Check \texttt{/usr/include/bits/errno.h} on
 Linux if interested.
 \end{itemize}
 
@@ -203,13 +206,13 @@ total.
 \sltitle{Thread creation}
 \funml{int \funnm{pthread\_create}(\=pthread\_t *\emph{thread},
 \\\>const pthread\_attr\_t *\emph{attr},
-\\\>void *(*\emph{start\_fun})(void*), void *\emph{arg});}
+\\\>void *(*\emph{start\_fn})(void*), void *\emph{arg});}
 \begin{itemize}
 \item creates a new thread, puts its ID to \emph{thread}
 \item with attributes from \texttt{attr}, eg. its stack size,
 \texttt{NULL} means default attributes
-\item function \emph{start\_fun}() will be started in the thread using argument
-\emph{arg}.  After the function returns, the thread ceizes to exist.
+\item function \emph{start\_fn}() will be started in the thread using argument
+\emph{arg}.  After the function returns, the thread ceases to exist.
 \item with the \texttt{pthread\_attr\_t} objects can be manipulated using
 \funnm{pthread\_attr\_init}(), \funnm{pthread\_attr\_destroy}(),
 \funnm{pthread\_attr\_setstackaddr}(), etc\dots{}
@@ -284,11 +287,10 @@ main thread, eg. waiting for them to finish.
 
 \begin{itemize}
 \item Each thread has a fixed size stack which \emsl{does not automatically
-increase.}  It is usually around 64-512 kilobytes so if you use an automatic
-array of 1~MB, it is very possible that you end up with a core dump.
-If you want a stack of a greater size than what is the system default, you have
-to use \emph{attr} when creating a thread.
-Example: \example{pthreads/pthread-stack-overflow.c}
+increase.}  It is usually anywhere from 64 kilobytes to a few megabytes.  If you
+cross that limit, the program will quite probably crash.  If you want a stack of
+a greater size than what is the system default, you have to use \emph{attr} when
+creating a thread.  Example: \example{pthreads/pthread-stack-overflow.c}
 \item You can read more about thread specific data on page
 \pageref{THREAD_SPECIFIC_DATA}.
 \item Each thread also has its own signal mask.  More on that on page
@@ -323,8 +325,8 @@ terminates.  \funnm{pthread\_join}() can no longer be used.
 \begin{itemize}
 \item If \funnm{pthread\_exit}() is not used, it is implicitly called when the
 thread terminates with the value from the function \texttt{return}.
-\item The contents of the stack the finishing thread is undefined so you should
-use pointers to the function local variables anywhere in memory pointer to by
+\item The contents the finishing thread stack is undefined so you should not use
+pointers to the function local variables from memory pointed to by
 \emph{val\_ptr}.
 \item If you do not intend to call \funnm{pthread\_join}(), you need to call
 \funnm{pthread\_det\-ach}() or use the attributes (see below).  If you do not, a
@@ -427,8 +429,8 @@ in your critical sections.
 \item Cleanup functions are called on cancellation, see page
 \pageref{PTHREAD_CLEANUP}.  For example, if cancelling a thread holding a mutex,
 you could use the cleanup function to unlock it.
-\item Functions \funnm{pthread\_setcancelstate}()
-\funnm{pthread\_setcanceltype}() provides similar functionality to threads as is
+\item Functions \funnm{pthread\_setcancelstate}() and
+\funnm{pthread\_setcanceltype}() provide similar functionality to threads as is
 manipulating a signal mask to processes.
 \item \label{PTHREAD_CANCEL} Example: \example{pthreads/pthread-cancel.c}
 \end{itemize}
@@ -476,10 +478,10 @@ to the original code.
 need the destructor function, use \texttt{NULL}.
 \item Destructors are called in unspecified order on all keys with a value
 different from \texttt{NULL}.  Its value is set to \texttt{NULL} and the
-original value is used as a parameter to the destructor.  pøedána v parametru.
-If, after all the destructors have been called for all non-\texttt{NULL} values
-with associated destructors, there are still some non-\texttt{NULL} values with
-associated destructors, then the process is repeated.  If, after at least
+original value is used as a parameter to the destructor.  If, after all the
+destructors have been called for all non-\texttt{NULL} values with associated
+destructors, there are still some non-\texttt{NULL} values with associated
+destructors, then the process is repeated.  If, after at least
 \texttt{PTHREAD\_DESTRUCTOR\_ITERATIONS} iterations of destructor calls for
 outstanding non-NULL values, there are still some non-\texttt{NULL} values with
 associated destructors, the implementation may (it usually does otherwise you
