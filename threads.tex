@@ -845,48 +845,48 @@ attribute of such mutexes. See the
 %%%%%
 
 \begin{slide}
-\sltitle{Podmínkové promìnné (1)}
+\sltitle{Conditional variables (1)}
 \begin{itemize}
-\item mutexy slou¾í pro synchronizaci pøístupu ke sdíl{}eným datùm
-\item podmínkové promìnné pak k pøedání informací o tìchto sdíl{}ených
-datech -- napøíklad ¾e se hodnota dat zmìnila
-\item \dots{}a umo¾ní tak vlákna podle potøeby uspávat a probouzet
-\item z toho plyne, ¾e \emsl{ka¾dá podmínková promìnná je v¾dy
-asociována s právì jedním mutexem}
-\item jeden mutex ale mù¾e být asociován s více podmínkovými promìnnými
-\item spoleènì pomocí mutexù a podmínkových promìnných je mo¾né
-vytváøet dal¹í synchronizaèní primitiva -- semafory, bariéry, \dots
+\item mutexes provide synchronization for shared data
+\item conditional variables pass information about the shared data --
+for example that the value has changed
+\item \dots{}and allows to put threads to sleep and wake them up
+\item therefore \emsl{each condition variable is always associated
+with exactly one mutex}
+\item one mutex can be associated with multiple conditional variables
+\item using mutexes and conditional variables it is possible to construct
+other synchronization primitives -- semaphores, barries, \dots
 \end{itemize}
 \end{slide}
 
 \label{CONDITION_VARIABLES}
 
 \begin{itemize}
-\item jinými slovy -- podmínkové promìnné se pou¾ívají v situaci, kdy vlákno
-potøebuje otestovat stav \emsl{sdíl{}ených} dat (napø. poèet zpráv ve frontì), a
-dobrovolnì se uspat, kdy¾ hledaného stavu nebylo dosa¾eno. Spící vlákno je pak
-probuzeno jiným vláknem, které zmìnilo stav dat tak, ¾e nastala situace, na
-kterou první vlákno èeká (tøeba vlo¾ením prvku do fronty). Druhé vlákno vzbudí
-první vlákno zavoláním k tomu urèené funkce. Pokud ¾ádné vlákno v dané chvíli
-nespí, probouzecí funkce nemá ¾ádný efekt -- nic se nikde neulo¾í, prostì jako
-by se to nikdy nestalo.
-\item není to tak, ¾e pøi deklaraci podmínkové promìnné, co¾ je pro programátora
-zcela transparentní typ, s ní asociujete podmínku napø. ``\emph{\texttt{n} je
-vìt¹í ne¾ 7}''. Pod\-mín\-ko\-vou promìnnou toti¾ mù¾ete pøirovnat k praporu
-nìjaké barvy, a pokud jej zvednete, znamená to, ¾e ta vlákna, která èekají a¾
-touto vlajkou nìkdo zamává nad hlavou, jsou o této situaci informována (=
-vzbuzena) a mohou se podle toho zaøídit. Nìkterá vlákna tak mohou èekat na to,
-a¾ \texttt{n} bude vìt¹í ne¾ 7, jiná mohou èekat pouze na to, a¾ se \texttt{n}
-jakkoli zmìní. Je pouze na programátorovi, zda pro ka¾dou konkrétní situaci
-pou¾ije jednu podmínkovou promìnnou, nebo jednu pro v¹echny situace dohromady.
-Pro druhou situaci platí, ¾e vlákna èekající na \texttt{n == 7} pak musí v¾dy
-\texttt{n} otestovat, proto¾e ví, ¾e je vzbuzeno pøi kazdé zmìnì èítaèe
-\texttt{n}. Pokud není èítaè roven sedmi, znovu se dobrovolnì uspí. Jak je v¹ak
-uvedeno dále, \emsl{test je nutné po probuzení provést v¾dy}, i kdy¾ pro nìj
-pou¾íváte samostatnou podmínkovou promìnnou -- mù¾e se stát, ¾e systém z rùzných
-implementaèních dùvodù vzbudí vlákno uspané nad podmínkovou promìnnou, ani¾ by
-to zpùsobilo jiné vlákno a tedy ani¾ by stav na který vlákno èeká opravdu
-nastal.
+\item in other words -- conditional variables are handy in situation when a 
+thread needs to test the state of \emsl{shared} data (e.g. number of queues
+in queue), and voluntarily put itself to sleep, when desired state has not
+been reached. The sleeping thread is then woken up by another thread that
+changed the state of the data, so the situation which the first thread was
+waiting on actually happened (e.g. by inserting a item into queue).
+The second thread wakes the first one by calling a designated function.
+If no thread is sleeping at the moment, the function will have no effect --
+nothing will be saved anywhere, like it never happened.
+\item A condition variable, which is opaque type for the programmer, is not
+associated with a concrete condition like ``\emph{\texttt{n} is greater than
+7}''. Conditional variable can be in fact compared to a flag of certain color;
+if it is lifted up, it means that the threads waiting for the flag to be waved
+are informed (= woken up) and can use this information according its own
+judgement. Some threads can wait for \texttt{n} to be bigger than 7, the other
+can be waiting solely for \texttt{n} to change anyhow. It is only up to the
+programmer, if for concrete situation uses just one condition variable or
+for all situations. For the second situation, the threads waiting on 
+\texttt{n == 7} have to always test \texttt{n}, because they know that they
+are woken up whenever the variable changed. If the variable is not equal to 7,
+it will voluntarily put itself to sleep. How it is explained further,
+the \emsl{test is necessary to do after wake up}, even if dedicated conditional
+variable is used -- it can happen that the system can wake up the sleeping
+thread (because of various implementation reasons) without being caused by
+another thread.
 \end{itemize}
 
 %%%%%
@@ -897,43 +897,45 @@ nastal.
 pthread\_cond\_wait}{pthreadcondvarfncs}
 
 \begin{slide}
-\sltitle{Podmínkové promìnné (2)}
+\sltitle{Conditional variables (2)}
 \prgchars
 \funml{int \funnm{pthread\_cond\_init}(\=pthread\_cond\_t *\emph{cond},
 \\\>const pthread\_condattr\_t *\emph{attr});}
 \begin{itemize}
-\item Inicializuje podmínkovou promìnnou \texttt{cond} s atributy \texttt{attr}
-(nastavují je funkce \texttt{pthread\_condattr\_...()}), \texttt{NULL} =
-default.
+\item initializes conditional variable \texttt{cond} with attributes \texttt{attr}
+(they are set with the \texttt{pthread\_condattr\_...()} functions),
+\texttt{NULL} = default.
 \end{itemize}
 \texttt{int \funnm{pthread\_cond\_destroy}(pthread\_cond\_t *\emph{cond});}
 \begin{itemize}
-\item zru¹í podmínkovou promìnnou.
+\item destroys conditional variable.
 \end{itemize}
 \funml{int \funnm{pthread\_cond\_wait}(\=pthread\_cond\_t *\emph{cond},
 \\\>pthread\_mutex\_t *\emph{mutex});}
 \begin{itemize}
-\item èeká na podmínkové promìnné dokud jiné vlákno nezavolá
-\funnm{pthread\_cond\_signal()} nebo \funnm{pthread\_cond\_broadcast()}.
+\item waits on conditional variable until another thread calls
+\funnm{pthread\_cond\_signal()} or \funnm{pthread\_cond\_broadcast()}.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item je nutné, aby po té, co vlákno zamkne mutex a døíve, ne¾ vlákno zavolá
-\texttt{pthread\_cond\_wait}, otestovat podmínku. Pokud tuhle operaci vlákno
-neprovede, mohlo by se uspat na neurèitou dobu, proto¾e hlá¹ka o splnìní
-podmínky od jiného vlákna by pro¹la ``bez pov¹imnutí''. Jinak øeèeno, nesmím se
-uspat pøi èekání na situaci, která u¾ mezitím nastala. Nefunguje to jako
-signály, které pro vás systém dr¾í, pokud je máte napøíklad zablokované. Co je
-dùle¾ité je to, ¾e ten test provádíte pod ochranou mutexu, tedy si opravdu
-mù¾ete být jistí daným stavem vìcí pøi zavolání \texttt{pthread\_cond\_wait}.
-\item to, ¾e podmínkové promìnné opravdu fungují je zpùsobeno tím, ¾e pøi vstupu
-do kritické sekce vlákno zamkne mutex a \emsl{funkce \texttt{pthread\_cond\_wait}
-pøed uspáním vlákna mutex odemkne}. Pøed ná\-vra\-tem z této funkce se pak mutex
-opìt zamkne. Mù¾e se tedy stát, ¾e vlákno je probuzeno z èekání nad podmínkovou
-promìnnou, ale nìjaký èas se pak je¹tì uspí pøi pokusu o zamknutí mutexu.
-Nehledejte v tom nic slo¾itého, jde pouze o klasické vzájemné vylouèení procesù
-nad kritickou sekcí.
+\item It is necessary to test the condition after the thread locks the mutex
+and before the \texttt{pthread\_cond\_wait} is called. If the thread does not
+peform this operation, it could be put to sleep indefinitely because the 
+message from another thread about the condition changing could go ``unnoticed''.
+In other words, a thread cannot enter sleep to wait for situation which happened
+in the meantime. It does not work like signals which are ``held'' by the system
+if they are blocked. It is important to perform this under the protection of
+the mutex, to be sure what is the state of the data when calling
+\texttt{pthread\_cond\_wait}.
+\item The conditional variables API works thanks to the fact that when entering
+critical section the mutex is locked by the thread and
+\emsl{funkce \texttt{pthread\_cond\_wait} before putting the thread to sleep will
+unlock the mutex}. Before exiting from the function the mutex is again locked.
+It can therefore happen that the thread is woken while waiting on a conditional
+variable and then sleeps again when waiting for the mutex.
+There is nothing complicated about this, it is merely mutual exclusion of 
+threads in critical section.
 \end{itemize}
 
 %%%%%
