@@ -996,12 +996,12 @@ so that it is not necessary to recompute the time difference after wakeups.
 
 \begin{slide}
 \label{CONDVAR_USE}
-\sltitle{Pou¾ití podmínkových promìnných}
+\sltitle{Using conditional variables}
 \begin{alltt}
 pthread\_cond\_t cond; pthread\_mutex\_t mutex;
 ...
 \emprg{pthread\_mutex\_lock}(&mutex);
-while (!podminka(data))
+while (!condition(data))
     \emblue{pthread\_cond\_wait}(&cond, &mutex);
 process\_data(data, ...);
 \emprg{pthread\_mutex\_unlock}(&mutex);
@@ -1015,25 +1015,26 @@ produce\_data(data, ...);
 
 \begin{itemize}
 \prgchars
-\item První kus kódu èeká na zmìnu podmínky. Pokud k ní dojde, data zmìnila
-a tedy mohou být zpracována. Druhý kus kódu (spu¹tìný v jiném vláknì) data
-pøipravuje ke zpracování. Jakmile jsou pøipravena, zasignalizuje konzumentovi.
-\item pro zopakování -- ke ka¾dé podmínkové promìnné je potøeba mít je¹tì mutex.
-\item funkce \texttt{pthread\_cond\_wait} atomicky odemkne mutex a uspí
-vlákno. Kdy¾ je vlákno probuzeno, nejprve se znovu zamkne mutex (tj. toto
-zamknutí se provede v rámci pøíslu¹né implementace podmínkových promìnných!) a
-teprve pak se volání \texttt{pthread\_cond\_wait} vrátí.
-\item kdy¾ signalizujeme, ¾e se nìco zmìnilo, neznamená to je¹tì, ¾e po zmìnì
-bude platit podmínka. Navíc, jak bylo nìkolikrát zdùraznìno,
-\texttt{pthread\_cond\_wait} mù¾e vrátit, i kdy¾ ¾ádné jiné vlákno nezavolalo
-\texttt{pthread\_cond\_signal} ani \texttt{pthread\_cond\_broadcast}. Dal¹í
-dùvod proè je potøeba znovu otestovat pod\-mín\-ku a pøípadnì obnovit èekání.
-\item Odemknutí zámku následuje v pøíkladu na slajdu a¾ po signalizaci podmínky,
-ale není to nutné.  Mù¾ete signalizovat a¾ po odemknutí a v takovém pøípadì to
-mù¾e být v závislosti na konkrétním systému i efektivnìj¹í, proto¾e probuzené
-vlákno se hned neuspí na zámku, který jinak je¹tì dr¾íte, pokud signalizujete v
-rámci kritické sekce.
-\item \label{QUEUESIMULATION} pøíklad: \example{cond-variables/queue-simulation.c}
+\item The first piece of code is waiting for the condition to change.
+If this happens, the data changed and can therefore be processed.
+The second piece of code (executed in different thread) prepares the
+data so it can be processed. Once ready, it will signal the consumer.
+\item The \texttt{pthread\_cond\_wait} function will automatically unlock mutex
+and put the thread to sleep. Once the thread is woken up, it will lock the
+mutex first (this will be done by the condition variables implementation)
+and only after that \texttt{pthread\_cond\_wait} will return.
+\item When signalling that something has changed, it does not mean that after
+the change the condition will be true. Moreover,
+\texttt{pthread\_cond\_wait} can return even if no thread called
+\texttt{pthread\_cond\_signal} or \texttt{pthread\_cond\_broadcast}.
+This is another reason for testing the condition after wakeup and possibly
+going to sleep again.
+\item The mutex in the example above is unlocked only after the condition
+was signalled however it is not necessary. The signalling can be done
+after unlocking and in such case it can be more efficient (depending on
+given implementation) because the thread that has been woken up will not
+get blocked by the mutex which is held when signalling in critical section.
+\item \label{QUEUESIMULATION} Example: \example{cond-variables/queue-simulation.c}
 \end{itemize}
 
 
