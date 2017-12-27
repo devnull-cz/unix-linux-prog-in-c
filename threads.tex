@@ -944,53 +944,52 @@ threads in critical section.
 pthread\_cond\_timedwait}{pthreadcondunblfncs}
 
 \begin{slide}
-\sltitle{Podmínkové promìnné (3)}
+\sltitle{Conditional variables (3)}
 \prgchars
 \texttt{int \funnm{pthread\_cond\_signal}(pthread\_cond\_t *\emph{cond});}
 \begin{itemize}
-\item probudí jeden proces èekající na podmínkové promìnné
+\item wakes up one thread waiting on conditional variable
 \texttt{cond}.
 \end{itemize}
 \texttt{int \funnm{pthread\_cond\_broadcast}(pthread\_cond\_t *\emph{cond});}
 \begin{itemize}
-\item probudí v¹echny procesy èekající na podmínkové promìnné
+\item wakes all threads waiting on conditional variable
 \texttt{cond}.
 \end{itemize}
 \funml{int \funnm{pthread\_cond\_timedwait}(\=pthread\_cond\_t *\emph{cond}, 
 \\\>pthread\_mutex\_t *\emph{mutex},\\\> const struct timespec *\emph{atime});}
 \begin{itemize}
-\item èeká na \texttt{pthread\_cond\_signal()} nebo
-\texttt{pthread\_cond\_broadcast()}, ale maximálnì do doby ne¾ systémový
-èas dosáhne hodnoty dané \texttt{atime}.
+\item waits for \texttt{pthread\_cond\_signal()} or
+\texttt{pthread\_cond\_broadcast()} or until the system time to reaches the
+\texttt{atime} value.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item jak ji¾ bylo øeèeno, jedna podmínková promìnná mù¾e být pou¾ita pro
-hlá\-¹e\-ní nìkolika rozdílných situací najednou -- napøíklad pøi vlo¾ení prvku do
-fron\-ty i pøi jeho vyjmutí. Z toho dùvodu je nutné po probuzení otestovat
-podmínku, na kterou se èeká. Dal¹í vìc, která z toho vychází je ta, ¾e v takovém
-pøípadì musíte pou¾ít broadcast. Staèí si pøedstavit následující situaci --
-èekáte na podmínku ``zmìnil se stav fronty'', na které èekají ètenáøi i
-zapisovatelé (pøedpokládejme, ¾e jednu frontu pou¾ívá více ètenáøù i více
-zapisovatelù). Pokud po vlo¾ení zprávy pouze vypustíte jednu signalizaci, tak se
-mù¾e stát, ¾e tato signalizace probudí jiného zapisovatele, který ale samozøejmì
-èeká na situaci, kdy ètenáø z fronty zprávu odebere. Tím se stane, ¾e ve frontì
-zùstane zpráva, která mù¾e být vytlaèena a¾ dal¹í signalizací.
-\item vlákno mù¾e být probuzeno jiným vláknem i v pøípadì, ¾e je podmínková
-promìnná svázána pouze s jednou konkrétní událostí, která v¹ak po probuzení
-vlákna ji¾ neplatí. Pøedstavte si, ¾e tìsnì po té, kdy jiné vlákno zahlásí
-splnìní podmínky, mù¾e dal¹í vlákno zamknout mutex a nìjakou akcí, napø.
-vyjmutím prvku z fronty, zru¹it platnost podmínky ``ve frontì je zpráva''. To
-vlákno, které je probuzeno, tak najde frontu prázdnou. Dal¹í dùvod pro to, ¾e
-podmínkové promìnné je nutné \emsl{v¾dy} testovat v cyklu.
-\item v øídkých pøípadech je mo¾né, ¾e se vlákno probudí a podmínka není platná
-i díky konkrétní implementaci. Z toho opìt vyplývá nutnost pou¾ití cyklu.
-\item v parametru \texttt{abstime} funkce \texttt{pthread\_cond\_timedwait} se
-pøedává absolutní èas, tj. timeout vypr¹í, kdy¾ systémový èas dosáhne hodnoty
-vìt¹í nebo rovné \texttt{abstime}. Pro absolutní èas bylo rozhodnuto proto, aby
-programátor nemusel pøi pøípadných probuzeních, kdy následnì zjistí, ¾e daná
-podmínka neplatí, pøepoèítávat èasový rozdíl.
+\item one conditional variable can be used to announce multiple situations
+at once -- e.g. when inserting or removal an item to/from a queue.
+Because of this, it is necessary to test the condition the thread is waiting
+for. Another consequence of this is that it is neccessary to use broadcast
+in such situation. Let's assume that both readers and writers are waiting for
+condition ``state of queue has changed''. If only single wakeup event is made
+after item insertion to the queue, then another writer can be woken up,
+which is however waiting for different event -- item removal. Thus, the message
+will remain in the queue until a reader is woken up.
+\item A thread can be woken up by another thread also in case when a condition
+variable is associated with concrete event, which is no longer true after
+the waiting thread is woken up.
+Let's consider this situation: a thread signals a condition change and right
+after that another thread locks the mutex and do an action which invalidates
+the condition, e.g. removing a item from a queue when the event was
+``there is a messages in the queue''. Thus the thread which is woken up
+finds the queue empty. This is another reason why the condition variable
+\emsl{always} has to be tested in a cycle.
+\item It is also possible that a thread is woken up and the condition is not
+true due to concrete implementation. That's another reason to use the cycle.
+\item The \texttt{abstime} parameter of the \texttt{pthread\_cond\_timedwait}
+function is absolute time, i.e. the timeout expires when system time reaches
+the value greater or equal to \texttt{abstime}. The absolute time is used
+so that it is not necessary to recompute the time difference after wakeups.
 \end{itemize}
 
 %%%%%
