@@ -1121,15 +1121,15 @@ The same is true for mutexes and condition variables.
 \pdfbookmark[1]{atomic\_add}{atomicadd}
 
 \begin{slide}
-\sltitle{Atomické aritmetické operace}
+\sltitle{Atomic arithmetic operations}
 \begin{itemize}
-\item pro architektury, kde operace sèítání není atomická
-\item výraznì rychlej¹í ne¾ jiné mechanismy pro získání exkluzivního pøístupu
-díky pou¾ití instrukcí na dané platformì zaji¹»ujících atomicitu.
-\item nìkteré systémy dodávají funkce pro atomické operace,
-(napø. \texttt{atomic\_add(3c)} v Solarisu), obecnì je lep¹í pou¾ít
-podporu v C11 standardu pøes \emph{stdatomic.h}.
-\item sada volání pro rùzné typy a operace, napø. sèítání:
+\item for architectures where the addition operation is not atomic
+\item significantly faster than other mutual exclusion mechanisms
+thanks to using native CPU instructions ensuring atomicity.
+\item some systems supply functions for atomic operations,
+(e.g. \texttt{atomic\_add(3c)} in Solaris); generally it is better
+to use the routines from C11 standard via \emph{stdatomic.h}.
+\item There is API for miscellaneous types and operations, e.g. addition:
 \end{itemize}
 \begin{verbatim}
     #include <stdatomic.h>
@@ -1140,30 +1140,29 @@ podporu v C11 standardu pøes \emph{stdatomic.h}.
 \end{slide}
 
 \begin{itemize}
-\item \label{ATOMIC_ADD} Pøíklad \example{race/atomic-add.c} demonstruje
-problém se soubìhem pøi sèítání a jeho mo¾ná øe¹ení. Program spustí dvì
-vlákna, ka¾dé vlákno pracuje se stejnou globální promìnnou \emsl{x}, do
-které v cyklu postupnì pøiète èísla od jedné do velikosti parametru
-\emsl{arg}, který program dostane na pøíkazové øádce. Vlákna bì¾í paralelnì,
-ka¾dé z nich provádí toto:
+\item \label{ATOMIC_ADD} Example \example{race/atomic-add.c} demonstrates
+the race condition problem when performing addition and its possible solutions.
+The program spawns two threads, each thread works with the same global variable
+\emsl{x}, into which it adds the numbers from 1 to specified value \emsl{arg}.
+The threads run in parallel, each performs this cycle:
 
 \begin{verbatim}
 for (i = 1; i < arg; ++i)
         x = x + i;
 \end{verbatim}
 
-Poté se sèítání pro kontrolu provede v hlavním vláknu, a dvojnásobek (mìli
-jsme dva thready) se porovná s hodnotou globální promìnné \emsl{x}. Pokud
-nejsou výsledky stejné, do¹lo k soubìhu (pøeteèení promìnné mù¾eme v této
-situaci zcela ignorovat).
+After the cycle the main thread performs check and the double (there were
+2 threads) compares with the value of the \emsl{x} global variable.
+If the results are not identical, race condition was hit (we can ignore
+integer overflow in this case).
 \par
-Výsledky a èasy bìhu se markantnì li¹í pro situace, kdy program pou¾il
-obyèejné sèítání, funkci pro atomickou aritmetiku a zamykání pomocí
-mutexù. Je vidìt nìkolikanásobný rozdíl v dobì bìhu mezi pou¾itím
-funkce pro atomickou aritmetiku a mutexù, zejména na procesorech hardwarovou
-podporou paralelismu.
-\item Podobnì existují dal¹í atomické rutiny pro odeèítání, bitové operace
-AND a OR, pro pøiøazení hodnoty atd.
+The results and times to completion are radically different for situations
+when the program used plain addition, atomic arithmetic functions and locking
+using mutexes. There is difference in completion times between 
+arithmetic operation functions and mutexes is expecially notable on
+CPUs with hardware parallelism support.
+\item Similarly there is API for subtraction, bit operations
+AND and OR, value assignment atd.
 \end{itemize}
 
 
