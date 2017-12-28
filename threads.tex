@@ -1237,38 +1237,38 @@ How would you solve this problem ?
 \begin{slide}
 \sltitle{POSIX Semaphores}
 \begin{itemize}
-\item semafory pochází z POSIX-1003.1b (real-time extensions)
-\item jména funkcí nezaèínají \emsl{pthread\_}, ale \emsl{sem\_}
+\item semaphores come from POSIX-1003.1b (real-time extensions)
+\item the function names do not begin with \emsl{pthread\_}, but \emsl{sem\_}
 (\texttt{sem\_init}, \texttt{sem\_post}, \texttt{sem\_wait}, \dots)
-\item je mo¾né je pou¾ít s vlákny
+\item possible to use them with threads
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item funkce pro semafory se dr¾í klasické UNIXové sémantiky -- pøi
-chybì vracejí -1 a nastaví \texttt{errno}
+\item The semaphore functions adhere to the classical UNIX semantics --
+they return -1 on error and set \texttt{errno}.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Typické pou¾ití vláken}
+\sltitle{Typical use of threads}
 
 \begin{itemize}
 \item \emsl{pipeline}
 \begin{itemize}
-\item ka¾dé z vláken provádí svoji operaci nad daty, která se
-postupnì pøedávají mezi vlákny
-\item ka¾dé vlákno typicky provádí jinou operaci
-\item[\dots] zpracování obrázku, kde ka¾dé vlákno provede jiný filtr
+\item each of the threads performs its own operation on data,
+which is being passed between threads.
+\item each thread performs different operation
+\item[\dots] image processing, each thread will apply different filter
 \end{itemize}
 
 \item \emsl{work crew}
 \begin{itemize}
-\item vlákna provádìjí stejnou operaci, ale nad jinými daty
-\item[\dots] zpracování obrázku dekompozicí -- ka¾dé vlákno
-zpracovává jinou èást obrázku, výsledkem je spojení zpracovaných dat
-ze v¹ech vláken; zde se hodí øe¹ení s bariérou
+\item the threads perform the same operation on different data
+\item[\dots] image processing using decomposition -- each thread
+processes different part of the image, the result is combination of
+the results from all the threads; barrier is useful here.
 \end{itemize}
 
 \item \emsl{client -- server}
@@ -1276,10 +1276,10 @@ ze v¹ech vláken; zde se hodí øe¹ení s bariérou
 \end{slide}
 
 \begin{itemize}
-\item dané rozdìl{}ení je jen orientaèní, pou¾ití vláken je samozøejmì
-neomezené, toto jsou asi ty tøi nejèastìj¹í pou¾ití
-\item V pøípadì modelu klient -- server zpracovává ka¾dé vlákno jeden
-po¾adavek od jednoho klienta.
+\item This differentiation is coarse, threads can be used in many different
+ways, these are the most common cases.
+\item In the case of client -- server model, each server thread processes
+one request from single client.
 \end{itemize}
 
 %%%%%
