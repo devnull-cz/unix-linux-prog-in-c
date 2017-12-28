@@ -1044,44 +1044,44 @@ get blocked by the mutex which is held when signalling in critical section.
 pthread\_rwlock\_tryrdlock}{pthreadrwlockfncs}
 
 \begin{slide}
-\sltitle{Read-write zámky (1)}
+\sltitle{Read-write locks (1)}
 \prgchars
 \funml{int \funnm{pthread\_rwlock\_init}(\=pthread\_rwlock\_t *\emph{l},
 \\\>const pthread\_rwlockattr\_t *\emph{attr}); }
 \begin{itemize}
-\item vytvoøí zámek s atributy podle \texttt{attr} (nastavují se funkcemi
-\texttt{pthread\_rwlockattr\_...()}, \emph{NULL} = default)
+\item creates a lock with attributes according to \texttt{attr}
+(set via \texttt{pthread\_rwlockattr\_...()} functions, \emph{NULL} = default)
 \end{itemize}
 \texttt{int \funnm{pthread\_rwlock\_destroy}(pthread\_rwlock\_t *\emph{l});}
 \begin{itemize}
-\item zru¹í zámek
+\item destroys the mutex
 \end{itemize}
 \texttt{int \funnm{pthread\_rwlock\_rdlock}(pthread\_rwlock\_t *\emph{l});}\\
 \texttt{int \funnm{pthread\_rwlock\_tryrdlock}(pthread\_rwlock\_t *\emph{rwlock});}
 \begin{itemize}
-\item zamkne zámek pro ètení (více vláken mù¾e dr¾et zámek pro
-ètení), pokud má nìkdo zámek pro zápis, uspí volající vlákno
-(\texttt{rdlock()}) resp. vrátí chybu (\texttt{tryrdlock()}).
+\item acquires the lock for reading (more than one thread can hold the lock
+for reading); if anyone holds the lock for writing, the calling thread is put
+to sleep (\texttt{rdlock()}) or returns an error (\texttt{tryrdlock()}).
 \end{itemize}
 \end{slide}
 
 \label{RWLOCKS}
 
 \begin{itemize}
-\item není souèástí POSIXových vláken z POSIX.1c, ale POSIX.1j roz¹íøení,
-naz\-va\-né ``advanced realtime extensions''.
-\item najednou mù¾e mít zámek buï nìkolik vláken zamèeno pro ètení nebo
-maximálnì jedno vlákno zamèeno pro zápis (a nikdo pro ètení).
-\item read-write zámky jsou semanticky podobné zamykání souborù pomocí
+\item Not a part of POSIX threads from POSIX.1c, rather part of extension
+POSIX.1j called ``advanced realtime extensions''.
+\item More than one thread can hold the lock for reading or at most one
+thread for writing (and no one for reading).
+\item Read-write locks are semantically similar to locking files using
 funkce \texttt{fcntl}.
-\item Je bì¾né, ¾e implementace preferuje vlákna, která chtìjí zapisovat
-pøed vlákny, která chtìjí èíst. Napø. pokud je zámek vlastnìný zapisovatelem
-a nìjaké dal¹í vlákno zavolá \funnm{pthread\_rwlock\_rdlock} a existuje aspoò
-jedno vlákno èekající v \funnm{pthread\_rwlock\_wrlock}, dá ètenáø pøednost
-zapisovateli.
-\item Existuje maximální poèet zamèení pro ètení daný implementací (velikostí
-typu reprezentujícího poèet zamèení), po dosa¾ení maxima vrací
-\funnm{pthread\_rwlock\_rdlock} hodnotu \texttt{EAGAIN}.
+\item It is common that given implementation prefers writer threads to
+reader threads. E.g. if a lock is owned by writer and some other thread
+calls \funnm{pthread\_rwlock\_rdlock} and there is at least one thread
+waiting in \funnm{pthread\_rwlock\_wrlock}, the writer will be given 
+precedence.
+\item There is maximal count of locking operations in given implementation
+(inferred from the type that holds the lock count). If the maximum is reached
+\funnm{pthread\_rwlock\_rdlock} returns the \texttt{EAGAIN} error.
 \end{itemize}
 
 
@@ -1091,28 +1091,29 @@ typu reprezentujícího poèet zamèení), po dosa¾ení maxima vrací
 pthread\_rwlock\_unlock}{pthreadrwlockfncsw}
 
 \begin{slide}
-\sltitle{Read-write zámky (2)}
+\sltitle{Read-write locks (2)}
 \prgchars
 \texttt{int \funnm{pthread\_rwlock\_wrlock}(pthread\_rwlock\_t *\emph{rwlock});}
 \begin{itemize}
-\item zamkne zámek pro zápis; pokud má nìkdo zámek pro ètení nebo
-zápis, èeká. 
+\item acquires the lock for writing; Blocks if anyone owns the lock for reading
+or writing.
 \end{itemize}
 \texttt{int \funnm{pthread\_rwlock\_trywrlock}(pthread\_rwlock\_t *\emph{rwlock});}
 \begin{itemize}
-\item jako \texttt{pthread\_rwlock\_wrlock()}, ale kdy¾ nemù¾e
-zamknout, vrátí chybu. 
+\item like \texttt{pthread\_rwlock\_wrlock()}, however if the lock cannot be
+acquired it will return error.
 \end{itemize}
 \texttt{int \funnm{pthread\_rwlock\_unlock}(pthread\_rwlock\_t *\emph{rwlock});}
 \begin{itemize}
-\item odemkne zámek
+\item unlocks the lock
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emph{zvlá¹tnost}: pokud vlákno èekající na zámek dostane signál, po
-návratu z handleru se v¾dy pokraèuje v èekání, tj. nenastane chyba
-\texttt{EINTR}. Takto se chovají i mutexy a podmínkové promìnné.
+\item \emph{Interesting property}: if a thread waiting on a lock receives
+a signal, the signal handler will be invoked and then it will transparently
+continue waiting, i.e. there will be no error \texttt{EINTR}.
+The same is true for mutexes and condition variables.
 \end{itemize}
 
 %%%%%
