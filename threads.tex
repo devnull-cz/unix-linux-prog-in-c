@@ -1358,28 +1358,28 @@ any constraints. The levels are described in the attributes(5) man page.
 \pdfbookmark[1]{pthread\_set\_name\_np, pthread\_main\_np}{threadnpapis}
 
 \begin{slide}
-\sltitle{Nepøenositelná volání}
+\sltitle{Non-portable thread APIs}
 
 \begin{itemize}
-\item nepøenositelná volání konèí øetìzcem \texttt{\_np} (\emph{non-portable}) a
-jednotlivé systémy si takto definují vlastní volání
+\item non-portable APIs have the \texttt{\_np} suffix (\emph{non-portable}) and
+individual systems define their own calls.
 
-\item FreeBSD
+\item FreeBSD + Solaris
 \begin{itemize}
 \item \funnm{pthread\_set\_name\_np}\texttt{(pthread\_t tid, const char *name)}
-\item[$\rightarrow$] umo¾òuje pojmenovat vlákno
+\item[$\rightarrow$] can give a name to a thread
 \end{itemize}
 
 \item Solaris
 \begin{itemize}
 \item \funnm{pthread\_cond\_reltimedwait\_np}\texttt{(\dots)}
-\item[$\rightarrow$] jako timedwait, ale èasový timeout je relativní
+\item[$\rightarrow$] like timedwait, however the timeout is relative
 \end{itemize}
 
 \item OpenBSD
 \begin{itemize}
 \item \texttt{int} \funnm{pthread\_main\_np}\texttt{(void)}
-\item[$\rightarrow$] umo¾òuje zjistit, zda volající vlákno je hlavní
+\item[$\rightarrow$] find out if calling thread is the main one
 (= \texttt{main()})
 \end{itemize}
 
@@ -1387,14 +1387,13 @@ jednotlivé systémy si takto definují vlastní volání
 \end{slide}
 
 \begin{itemize}
-\item Tyto informace jsou pro zajímavost, abyste vìdìli, ¾e se s podobnými vìcmi
-mù¾ete setkat. Nepøenositelná volání by se mìla pou¾ívat spí¹e pro ladící úèely.
-Nikdy nevíte, kdo bude potøebovat vá¹ kód spustit na jiném systému, co¾ se stane
-typicky a neèekanì po té, co zrovna opustíte va¹i spoleènost a nemáte ji¾ èas to
-opravit.
-\item Zjistit, jaká nepøenositelná volání vá¹ systém poskytuje je jednoduché,
-tøeba pomocí \texttt{apropos \_np}, nebo o nìco hrubìji (aplikujte na svùj
-systém podle lokace manuálových stránek):
+\item Non-portable calls should be used either for system programs or
+debugging. You never know when the code will be executed on different system,
+which typically happens once you leave the company and having the time to
+fix it anymore.
+\item To find out which non-portable APIs are available on the system,
+try running \texttt{apropos \_np}, or using brute-force (use the location
+of man pages on given system):
 \begin{verbatim}
 $ cd /usr/share/man
 $ find . -name '*_np\.*'
