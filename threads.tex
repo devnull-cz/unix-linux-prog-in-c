@@ -1284,26 +1284,26 @@ one request from single client.
 
 %%%%%
 
-\pdfbookmark[1]{thread-safe a reentrant functions}{thrsafe}
+\pdfbookmark[1]{thread-safe and reentrant functions}{thrsafe}
 
 \begin{slide}
-\sltitle{Thread-safe versus reentrantní}
+\sltitle{Thread-safe versus reentrant}
 
 \begin{itemize}
-\item \emph{thead-safe} znamená, ¾e kód mù¾e být volán z více vláken
-najednou bez destruktivních následkù
+\item \emph{thead-safe} means that the function can be called from multiple
+threads in parallel without destructive consequences
 \begin{itemize}
-\item do funkce, která nebyla navr¾ena jako thread-safe, je mo¾né
-pøidat jeden zámek -- na zaèátku funkce se zamkne, na konci odemkne
-\item tento zpùsob ale samozøejmì není pøíli¹ efektivní
+\item the function which was not designed to be thread-safe can be
+converted into the one that is by inserting a locked section.
+\item this is obviously not very efficient
 \end{itemize}
-\item slovem \emph{reentrantní} se typicky myslí, ¾e daná funkce byla navr¾ena s
-pøihlédnutím na existenci vláken
+\item \emph{reentrantní} typically means that the function was designed
+with threads in mind
 \begin{itemize}
-\item \dots{}tedy ¾e funkce pracuje efektivnì i ve vícevláknovém
-prostøedí
-\item taková funkce by se mìla vyvarovat pou¾ití statických dat a pokud mo¾no i
-prostøedkù pro synchronizaci vláken, proto¾e bìh aplikace zpomalují
+\item \dots{}i.e. it works efficiently in multithreaded environment
+\item such function should avoid using static data and if possible also
+avoid using thread synchronization primitives because they slow down 
+the run.
 \end{itemize}
 \end{itemize}
 \end{slide}
@@ -1311,45 +1311,46 @@ prostøedkù pro synchronizaci vláken, proto¾e bìh aplikace zpomalují
 \label{THREADSAFE}
 
 \begin{itemize}
-\item z vý¹e uvedeného vyplývá, ¾e thread-safe je slab¹í vlastnost ne¾
-reentrantní. Napsat thread-safe funkci lze s pou¾itím synchronizaèních
-primitiv; pøepsání existující funkci tak, aby byla reentrantní
-vy¾aduje mnohem více invence.
-\item reentrantní funkce jsou také jediné funkce bezpeènì pou¾itelné v
-signal handlerech.
-\item v dne¹ní dobì thread-safe vìt¹inou znamená reentrantní, tj. funkce jsou
-pøe\-psá\-ny tak, aby pracovaly efektivnì i s vlákny, je ale dobré vìdìt, ¾e
-nìkdy to mù¾e vyjadøovat rozdíl.
-\item o zamykání knihoven viz také strana \pageref{MUTEXES2}.
-\item existuje mno¾ství funkcí, které mohou být thread-safe, ale nikoliv
-reentrant, napø. \texttt{gethostbyname}. Bì¾nì tato funkce pou¾ívá
-statickou promìnnou, která se znovu pou¾ije pøi ka¾dém volání, tak¾e je
-pro pou¾ití v multithreadovém prostøedí nevhodné - není thread-safe.
-Nicménì, na FreeBSD 6.0 je tato funkce implementovaná tak, ¾e pou¾ívá
-implicitnì thread-local storage pro ulo¾ení výstupních dat a
-tím pádem je thread safe. To ji je¹tì ale neèiní úplnì bezpeènou k
-pou¾ití (nemluvì o tom, ¾e program , který se spoléhá na takové chování
-není portabilní), viz pøíklad \example{reentrant/gethostbyname.c}. O nìco
-lep¹í je pou¾ít reentrantní verzi této funkce \texttt{gethostbyname\_r}
-(pokud je na daném systému k dispozici), u které lze specifikovat adresu,
-kam má ukládat svùj výstup, èím¾ se stává reentrantní. Daleko nejlep¹í
-øe¹ení je pou¾ít standardní funkci \texttt{getaddrinfo} (viz strana
-\pageref{GETADDRINFO}), která je sama o sobì reentrantní.
+\item The consequence of the above is that thread-safe is weaker property
+than reentrant. It is possible to write thread-safe function using
+synchronization primitives; rewrite existing function so that it is reentrant
+requires much more invention.
+\item The reentrant functions are also the only usable functions in
+signal handlers.
+\item These days thread-safe usually means reentrantní, however it does not
+hurt to know the difference.
+\item For more on library locking see also page \pageref{MUTEXES2}.
+\item There exists a number of functions that can be thread-safe, however
+not reentrant, e.g. \texttt{gethostbyname}. Normally this function uses
+static variable that is used for each call which makes it unsuitable to use
+in multithreaded environment - it is not thread-safe.
+However, on FreeBSD 6.0 it is implemented so that it implicitly uses
+thread-local storage for saving input data and this makes it
+thread safe. That said, it does not make it totally safe to use.
+(not mentioning that a program relying on this behavior is not portable)
+see example \example{reentrant/gethostbyname.c}.
+A bit better is to use reentrantní version of this function called 
+\texttt{gethostbyname\_r} (if it is available on given system),
+which takes the address of where the result will be stored as parameter,
+which makes it reentrant. Much better is to use standard function
+\texttt{getaddrinfo} (see page) \pageref{GETADDRINFO}, which is reentrant
+by itself.
 
 
-\item pøíklad: \example{reentrant/inet\_ntoa.c} - tady je vidìt, ¾e ani
-takto napsaná funkce vám nepomù¾e pokud je volaná dvakrát v rámci
-jednoho volání \texttt{printf}. Poka¾dé vrací pointer se stejnou adresou
-(v jednom threadu), kterou si \texttt{printf} pouze poznamená a pøi
-finálním tisku tedy vypí¹e reprezentaci poslední adresy, se kterou byla
-\texttt{inet\_ntoa} volána. Na Solarisu je to vidìt pomocí:
+\item Example: \example{reentrant/inet\_ntoa.c} -- shows that even
+function written like so does not help if it is called twice within
+the same call of \texttt{printf}. Each time it returns pointer with
+the same address (in one thread) which the \texttt{printf} only notes
+and only uses the contents for the final priting, therefore prints
+the representation of the last address used in \texttt{inet\_ntoa}.
+On Solarisu it is possible to observe this with:
 \begin{verbatim}
 truss -t\!all -u libnsl::inet_ntoa ./a.out
 \end{verbatim}
-\item Na Solarisu obsahují manuálové stránky knihovních funkcí polo¾ku
-\texttt{MT-level} v sekci \texttt{ATTRIBUTES}, která udává zda je mo¾né
-funkci pou¾ít v multithreadovém prostøedí a pøípadnì s jakými omezeními.
-Tyto úrovnì jsou popsány v manuálové stránce attributes(5).
+\item Man pages on Solaris contain an item called
+\texttt{MT-level} in the \texttt{ATTRIBUTES} section that states
+whether the function can be used in multithreaded environment and
+any constraints. The levels are described in the attributes(5) man page.
 \end{itemize}
 
 %%%%%
