@@ -1169,59 +1169,64 @@ AND and OR, value assignment atd.
 %%%%%
 
 \pdfbookmark[1]{pthread\_barrier\_init, pthread\_barrier\_wait,%
-pthread\_barrier\_destroy}{bariera}
+pthread\_barrier\_destroy}{barrier}
 
 \begin{slide}
-\sltitle{Bariéra}
+\sltitle{Barrier}
 \begin{itemize}
-\item bariéra (\emph{barrier}) je zpùsob, jak udr¾et èleny skupiny pohromadì
-\item v¹echna vlákna èekají na bariéøe, dokud ji nedosáhne poslední vlákno; pak
-mohou pokraèovat
-\item typické pou¾ití je paralelní zpracování dat
+\item \emph{barrier} is a primitive that holds group of threads together
+w.r.t. execution.
+\item all threads wait on barrier until the last thread from the group
+reaches it; then they can all continue together.
+\item typical use case is parallel data processing
 \end{itemize}
 \texttt{int \funnm{pthread\_barrier\_init}(pthread\_barrier\_t *\emph{barrier},
 \emph{attr}, unsigned \emph{count});}
 \begin{itemize}
-\item inicializuje bariéru pro \emph{count} vstupù do ní
+\item initializes barrier for \emph{count} entrances
 \end{itemize}
 \texttt{int \funnm{pthread\_barrier\_wait}(pthread\_barrier\_t *\emph{barrier});}
 \begin{itemize}
-\item zablokuje se dokud není zavolána \emph{count}-krát
+\item blocks until the function is called \emph{count} times
 \end{itemize}
 \texttt{int \funnm{pthread\_barrier\_destroy}(pthread\_barrier\_t *\emph{barrier});}
 \begin{itemize}
-\item zru¹í bariéru
+\item destroys the barrier
 \end{itemize}
 \end{slide}
 
 \label{BARRIER}
 
 \begin{itemize}
-\item API pro bariéry je definované od SUSv3, podívejte se napøíklad na
-\texttt{pthread\_\-barrier\_init}, je mo¾né je ale jednodu¹e vytvoøit pomocí
-mutexù a pod\-mín\-ko\-vých promìnných.
-\item Pozor na to, ¾e bariéry jsou nepovinnou èástí POSIXu (patøí do
-Advanced realtime threads) a tedy i systém certifikovaný na SUS je nemusí
-implementovat, co¾ je pøípad Mac OS X (10.10).
-\item bariéru mù¾ete vyu¾ít napø. v situaci, kdy mezi jednotlivými fázemi
-zpracování je potøeba provést jistou inicializaci, vlákna pøed ní tedy na sebe
-v¾dy musí poèkat, proto¾e inicializace dal¹í fáze mù¾e zaèít a¾ tehdy, kdy
-skonèí fáze pøedchozí. Pøíklad \example{pthreads/pthread-barrier.c} ukazuje
-pou¾ití ba\-ri\-éry pro nìkolik fází zpracování dat.
-\item podmínka pro bariéru je napøíklad hodnota èítaèe rovnající se nule. Ka¾dé
-vlákno, které dosáhne bariéry, sní¾í èítaè, který je na zaèátku inicializován na
-poèet vláken. Pokud vlákno po dekrementování èítaèe zjistí, ¾e je¹tì není roven
-nule, uspí se na podmínkové promìnné.  Pokud dané vlákno je tím vláknem, které
-sní¾í èítaè na nulu, místo zavolání \texttt{pthread\_cond\_wait} po¹le
-broadcast, který následnì probudí v¹echna vlákna spící na bariéøe
-(\texttt{pthread\_cond\_signal} zde nestaèí, chcete probudit v¹echna vlákna, ne
-jen jedno!). Pøed spu¹tìním dal¹í fáze zpracování se èítaè reinicializuje na
-pùvodní hodnotu. I zde je nutné øe¹it rùzné problémy, napøíklad není mo¾né jen
-tak reinicializovat èítaè poté, co bariéry dosáhne poslední vlákno, proto¾e jak
-ji¾ víme, vlákna po probuzení z \texttt{pthread\_cond\_wait} musí v¾dy
-otestovat, zda èítaè je opravdu nulový a pokud není, opìt se uspí. Tak¾e by se
-vám mohlo stát, ¾e by se probudila jen nìkterá vlákna, nebo taky ¾ádná. Je nutné
-zresetovat èítaè a¾ po probuzení posledního vlákna. Jak byste to øe¹ili?
+\item The barrier API has been defined since SUSv3, see for example
+\texttt{pthread\_\-barrier\_init}, however they can be created using
+mutexes and condition variables.
+\item The barrier API is non-mandatory part of POSIXu (it belongs to
+Advanced realtime threads extension) and hence SUS certified system does not
+have to implement it, which is e.g. the case of macOS.
+\item The barrier can be used e.g. in situation when it is necessary to perform
+some initialization between individual phases of processing. The threads
+need to wait for each other because the initialization can only begin
+once the previous phase is over.
+Example \example{pthreads/pthread-barrier.c} shows the use in such case.
+\item The barrier condition is for example value of a counter to be 0.
+Each thread that reaches the barrier decrements the counter which is
+initialized to the number of threads in the beginning.
+Once a thread decrements the counter and realizes it is not 0,
+it will enter sleep on a condition variable.
+If the thread is the one which discovers the counter to be 0, then instead of
+calling \texttt{pthread\_cond\_wait} it will send a broadcast which will
+all the threads sleeping on the barrier.
+\texttt{pthread\_cond\_signal} is not enough, since it is necessary to wake up
+all the threads, not just one.
+Before entering next phase the counter is initialized to previous value.
+This needs to be done carefully, for example it is not possible just to
+reinitialize the counter after the last thread reaches the barrier,
+because like was shown on page \pageref{CONDITION_VARIABLES} after waking
+up from \texttt{pthread\_cond\_wait} the threads need to test that the counter
+is indeed 0 and if not they need to be put to sleep again. So it can happen
+that only some (or none) of the threads would wake up.
+How would you solve this problem ?
 \end{itemize}
 
 
