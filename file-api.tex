@@ -190,66 +190,64 @@ root).
 \pdfbookmark[1]{read, write}{readwrite}
 
 \begin{slide}
-\sltitle{Ètení a zápis souborù: \texttt{read()}, \texttt{write()}}
+\sltitle{Reading and writing files: \texttt{read()}, \texttt{write()}}
 
-\texttt{ssize\_t \funnm{read}(int \emph{fildes}, void *\emph{buf},
+\texttt{ssize\_t \funnm{read}(int \emph{fd}, void *\emph{buf},
 size\_t \emph{nbyte});}
 \begin{itemize}
-\item z otevøeného souboru s èíslem deskriptoru \texttt{fildes}
-pøeète od aktuální pozice max. \texttt{nbyte} bajtù dat a ulo¾í je
-od adresy \texttt{buf}. 
-\item vrací poèet skuteènì pøeètených bajtù (\texttt{<= nbyte}), 0
-znamená konec souboru.
+\item attempts to read \emph{nbyte} bytes of data from the object referenced by
+the descriptor \emph{fd} into the buffer pointed to by \emph{buf}
+\item returns the number of bytes actually read, 0 on EOF, -1 on error
 \end{itemize}
 
-\texttt{ssize\_t \funnm{write}(int \emph{fildes}, const void *\emph{buf},
+\texttt{ssize\_t \funnm{write}(int \emph{fd}, const void *\emph{buf},
 size\_t \emph{nbyte});}
 \begin{itemize}
-\item do otevøeného souboru s èíslem deskriptoru \texttt{fildes} zapí¹e na
-aktuální pozici max. \texttt{nbyte} bajtù dat ulo¾ených od adresy
-\texttt{buf}. 
-\item vrací velikost skuteènì zapsaných dat (\texttt{<= nbyte}). 
+\item attempts to write \emph{nbyte} of data to the object referenced by the
+descriptor \emph{fd} from the buffer pointed to by \emph{buf}
+\item number of bytes which were written is returned, -1 on error
 \end{itemize}     
 \end{slide}
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
-\item pro UNIX je ka¾dý soubor posloupnost bajtù bez dal¹í vnitøní struktury.
-\item \emsl{chování \texttt{read} a \texttt{write} závisí na typu souboru}
-(regulární, zaøízení, roura, soket) a na tom, zda je soubor v blokujícím nebo
-neblokujícím módu (flag \texttt{O\_NONBLOCK} pøi otevøení souboru, viz strana
-\pageref{O_NONBLOCK}).
-\item pro obì volání existuje nìkolik zásadních rohových pøípadù a následující
-informace jsou výòatkem z manuálových stránek. Pokud si nejste jisti, doporuèuji
-se podívat pøímo do normy (POSIX 1003.1, sekce XSH, èást System Interfaces).
-\item volání \texttt{read} vrátí nenulový poèet bajtù men¹í ne¾ \texttt{nbyte},
-pokud v souboru zbývá ménì ne¾ \texttt{nbyte} bajtù, nebo volání bylo pøeru¹eno
-signálem, nebo soubor je roura, zaøízení èi soket a aktuálnì je k~dispozici ménì
-ne¾ \texttt{nbyte} bajtù. Pøi neexistenci dat se blokující \texttt{read}
-zablokuje, dokud se nìjaká data neobjeví, neblokující \texttt{read} vrátí
-\texttt{-1} a nastaví \texttt{errno} na \texttt{EAGAIN}.
-\item volání \texttt{write} vrátí nenulový poèet bajtù men¹í ne¾ \texttt{nbyte},
-jestli¾e se do souboru nevejde víc dat (napø. zaplnìný disk), zápis je pøeru¹en
-signálem nebo je nastaveno \verb#O_NONBLOCK# a do roury, soketu nebo zaøízení se
-vejde pouze èást zapisovaných dat. Bez \verb#O_NONBLOCK# se èeká, dokud se
-nepodaøí zapsat v¹e. Pokud nelze aktuálnì zapsat nic, blokující \texttt{write}
-se zablokuje, dokud není mo¾né zapisovat, neblokující \texttt{write} vrátí
-\texttt{-1} a nastaví \verb#errno# na \verb#EAGAIN#.
-\item \emsl{dùle¾ité výjimky vzhledem k rourám} jsou uvedeny na stranì
+\item For any Unix system, a file is just a sequence of bytes without any innner
+structure.
+\item \emsl{Behavior of \texttt{read} and \texttt{write} depends on the type of
+the file} (regular, device, pipe, or socket) and whether the file is in a
+blocking or non-blocking mode (flag \texttt{O\_NONBLOCK} on file opening, see
+page \pageref{O_NONBLOCK}).
+\item For both calls there are quite a few situations that can happen, and
+which are listed in the next few paragraphs.  If unsure, consult the standard.
+\item \texttt{read} returns a non-zero number of bytes less than \emph{nbyte} if
+less then \emph{nbyte} bytes remain in a file, if the call was interrupted
+by a signal, or if the file is a pipe, device, or socket and there is less than
+\emph{nbyte} bytes available at the moment.  If there is no data, a blocking
+\texttt{read} will block unless some data gets available, a non-blockin
+\texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
+\item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
+if less then \emph{nbyte} bytes can fit the file (eg. disk full), if the call
+was interrupted by a signal, or if \verb#O_NONBLOCK# was set and only part of
+the data fits into a pipe, socket, or a device; without \verb#O_NONBLOCK#
+the call will block until all the data can be written.  If nothing can be
+written, a blocking \texttt{write} blocks until writing data is possible, a
+non-blocking call returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
+\item \emsl{Important exceptions for pipes} are listed on page
 \pageref{NAMEDPIPE}.
-\item kdy¾ \texttt{read} nebo \texttt{write} vrátí ménì ne¾ \texttt{nbyte} z
-dùvodu chyby, opakované volání té¾e funkce vrátí \texttt{-1} a nastaví kód chyby
-v \texttt{errno}.
-\item pøeru¹ení \texttt{read}, \texttt{write} signálem døív, ne¾ se podaøí
-pøeèíst, resp. zapsat aspoò jeden bajt, zpùsobí návrat s hodnotou \texttt{-1} a
-nastavení \verb#errno# na \verb#EINTR#. Pozor na to, ¾e zde je rozdíl proti
-situaci, kdy pøed doruèením signálu podaøí pøeèíst nebo zapsat alespoò jeden
-bajt (viz vý¹e).
-\item pøíznak otevøení souboru \verb#O_APPEND# zajistí atomický zápis na konec
-souboru (pouze na lokálním disku), tj. \emsl{ka¾dý} zápis se provede na konec
-souboru (tzv. \emph{append-only} soubor).
-\end{itemize}
 
+\item
+If \texttt{read} or \texttt{write} returns a non-zero number less than
+\texttt{nbyte} due to an error, a repeated call returns -1 and sets
+\texttt{errno}.
+\item If \texttt{read} or \texttt{write} are interrupted before they manage to
+read or write, respectively, at least one byte, the call returns -1 and sets
+\texttt{errno} to \texttt{EINTR}.  Note that there is a difference if the call
+manages to read or write, respectively, at least one byte -- see the paragraphs
+above.
+\item \texttt{O\_APPEND} guarantees an atomic write to the end of a file on a
+local filesystem, ie. \emsl{every} write will add data to the file end (so
+called \emph{append-only} file).
+\end{itemize}
 
 %%%%%
 
