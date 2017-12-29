@@ -810,33 +810,33 @@ syntax.
 %%%%%
 
 \begin{slide}
-\sltitle{Kompilátor}
+\sltitle{Compiler}
 \renewcommand{\arraystretch}{1.1}
 \begin{itemize}
 \item volání:\\
-\texttt{cc [\emph{options}] \emph{soubor} \dots}
-\item nejdùle¾itìj¹í pøepínaèe:\\
+\texttt{cc [\emph{options}] \emph{file} \dots}
+\item the most important options:\\
 \begin{tabular}{ll}
-\texttt{-o \emph{soubor}} & jméno výsledného souboru\\
-\texttt{-c} & pouze pøeklad (nelinkovat)\\
-\texttt{-E} & pouze preprocesor (nepøekládat)\\ 
-\texttt{-l} & slinkuj s pøíslu¹nou knihovnou\\
-\texttt{-L\emph{jméno}} & pøidej adresáø pro hledání knihoven z \texttt{-l}\\
-\texttt{-O\emph{level}} & nastavení úrovnì optimalizace\\
-\texttt{-g} & pøeklad s ladicími informacemi\\
-\texttt{-D\emph{jméno}} & definuj makro pro preprocesor\\
-\texttt{-I\emph{adresáø}} & umístìní \texttt{\#include} souborù
+\texttt{-o \emph{file}} & output file name\\
+\texttt{-c} & only compile, do not link\\
+\texttt{-E} & only preprocessor\\ 
+\texttt{-l} & link with the specified library\\
+\texttt{-L\emph{directory}} & add a directory to search when using \texttt{-l}\\
+\texttt{-O\emph{level}} & optimalization level\\
+\texttt{-g} & compile with debug information\\
+\texttt{-D\emph{jméno}} & define a macro for the preprocessor\\
+\texttt{-I\emph{directory}} & add a directory to search for \texttt{\#include} files
 \end{tabular}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \texttt{-l}/\texttt{-L} jsou pøepínaèe linker editoru, tj.
-kompilátor pøíslu¹né informace pøedá, ale jsou pou¾ívány tak èasto,
-¾e jsou vlo¾eny i do tohoto slajdu.
-\item kompilátor a linker mají mnoho dal¹ích pøepínaèù ovlivòujících
-generovaný kód, vypisování varovných hlá¹ení nebo variantu jazyka
-(K\&R/ANSI). Je tøeba nastudovat dokumentaci konkrétního produktu.
+\item \texttt{-l}/\texttt{-L} are actually options for the linker, ie. the
+compiler will pass them on onto the linker.
+\item Both the compiler and linker have an extensive list of additonal options
+that influence the generated code and what warnings are printed during the
+compilation/linking based on the chosen language and the standard.  See manual
+pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \end{itemize}
 
 %%%%%
