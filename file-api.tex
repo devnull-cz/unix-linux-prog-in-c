@@ -254,34 +254,35 @@ called \emph{append-only} file).
 \pdfbookmark[1]{close}{close}
 
 \begin{slide}
-\sltitle{Uzavøení souboru: \texttt{close()}}
+\sltitle{Closing a file: \texttt{close()}}
 \texttt{int \funnm{close}(int \emph{fildes});} 
 \begin{itemize}
-\item uvolní deskriptor \texttt{fildes}, pokud to byl poslední deskriptor, který
-odkazoval na otevøení souboru, zavøe soubor a uvolní záznam o otevøení souboru. 
-\item kdy¾ je poèet odkazù na soubor 0, jádro uvolní data souboru. Tedy i po
-zru¹ení v¹ech odkazù (jmen) mohou se souborem pracovat procesy, které ho mají
-otevøený. Soubor se sma¾e, a¾ kdy¾ ho zavøe poslední proces. 
-\item kdy¾ se zavøe poslední deskriptor roury, v¹echna zbývající data v~rouøe se
-zru¹í. 
-\item pøi skonèení procesu se automaticky provede \texttt{close()} na v¹echny
-deskriptory.
+\item releases \texttt{fildes}, if it was the last descriptor for a file
+opening, closes the file
+\item if number of links is 0, the file data is released
+\item if the last pipe descriptor is closed, remaining data is lost
+\item on a process termination, implicit \texttt{close} is called on all
+descriptors
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Pokud proces potøebuje doèasný soubor, mù¾e ho vytvoøit, ihned smazat a
-pak s ním pracovat pøes existující deskriptor (tento deskriptor lze pøedat
-synovským procesùm). Kdy¾ je takový soubor zavøen v¹emi procesy, jádro sma¾e
-jeho data z disku.
-\item I operace \texttt{close} mù¾e selhat. Napø. nìkteré filesystémy zapisují
-data na disk a¾ v okam¾iku zavøení souboru, kdy¾ zápis skonèí chybou,
-\texttt{close} vrátí \texttt{-1}.
-\item Chbìjící zavírání deskriptorù pøi ukonèení práce s nimi vede k
-situaci, které se øíká \emph{file descriptor leak}.
-Není to úplnì pøesnì to, jak se typicky chápe \emph{memory leak} (pamìt, na
-kterou jsme ztratili ukazatel), ale následky jsou podobné.
-\item \label{SIMPLE_CAT} Pøíklad na jednoduchý \texttt{cat(1)} program:
+\item Note that the file data is released only after the number of links gets to
+0 \emsl{and} if the file was opened before, when closing it.  It means that you
+can \texttt{rm} all hard links to a specific file but if a process has the file
+still open, the file data remains on the disk until the process closes the file
+or terminates.
+\item If a process needs a temporary file, it can create it, unlink it right
+away, and work with it using the existing file descriptor.  When the file
+descriptor is closed (and all of its possible duplications), the file data is
+released.
+\item Even \texttt{close} may fail.  For example, some filesystems may write the
+data on file closure, and if that write fails, \texttt{close} fails.
+\item If you forget to close file descriptors when you no longer need them,
+and it is a long living process, a daemon perhaps, depending on the system
+configuration you may hit memory starvation as the system memory will be filled
+with the ever growing file descriptor table.
+\item \label{SIMPLE_CAT} A very simple \texttt{cat(1)} program:
 \example{read/cat.c}
 \end{itemize}
 
