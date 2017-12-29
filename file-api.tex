@@ -121,8 +121,8 @@ table, see page \pageref{OPENFILETABLES}.
 for \texttt{chmod(2)}, and you can find them also in the \texttt{stat.h} header
 file (or in another file included from it) where the standard requires them to
 be.
-\item The slot in the file descriptor or system file table, that is no longer
-needed, is zeroed out before its reuse. 
+\item A no longer needed slot in the file descriptor or system file table is
+zeroed out before its reuse. 
 \item There are other flags as well:
 \begin{itemize}
 \item \texttt{O\_SYNC} (\texttt{O\_DSYNC}, \texttt{O\_RSYNC}) \dots{} the call
@@ -502,7 +502,6 @@ lseek(fd, SEEK_SET, 1)
 \end{verbatim}
 \end{itemize}
 
-
 %%%%%
 
 \pdfbookmark[1]{truncate}{truncate}
@@ -521,13 +520,9 @@ reads as null bytes
 \end{slide}
 
 \begin{itemize}
-\item zru¹it ve¹kerý obsah souboru pøi otevøení se dá pøíznakem
-\texttt{O\_TRUNC} ve funkci \texttt{open}.
-\item podrobnosti je tøeba hledat v manuálové stránce, napø. ve
-FreeBSD v sekci BUGS nalezneme toto: \emph{Use of \texttt{truncate}
-to extend a file is not portable.}
+\item To truncate the file when opening it can be achieved via using the 
+\texttt{O\_TRUNC} flag in \texttt{open}, see page \pageref{OPEN}.
 \end{itemize}
-
 
 %%%%%
 
@@ -544,7 +539,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \texttt{int \funnm{dup2}(int \emph{fildes}, int \emph{fildes2});}
 \begin{itemize}
 \item duplicates \texttt{fildes} to \texttt{fildes2}. 
-\item same as\\
+\item almost the same as\\
 \texttt{close(fildes2);\\ fcntl(fildes, F\_DUPFD, fildes2);}
 \end{itemize}
 \end{slide}
@@ -552,16 +547,15 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \label{DUP_CALL}
 
 \begin{itemize}
-\item první volný deskriptor se pou¾ije i u otevírání a vytváøení souborù,
-viz strany \pageref{OPEN} a \pageref{CREAT}.
-\item duplikovaný a pùvodní deskriptor sdílí stejné otevøení souboru a tedy i
-ak\-tu\-ál\-ní pozici a mód ètení/zápis.
-\item ekvivalent pro \texttt{dup2} není zcela ekvivalentní, napø. pokud je
-\texttt{fildes} rovný \texttt{fildes2}, tak se neprovede
-\texttt{close(fildes2)} a \texttt{dup2} rovnou vrátí \texttt{fildes2}.
-Více viz POSIX 1003.1 (èást XSH, System interfaces).
+\item We already know that the first available file descriptor is used when
+opening and creating file, see page \pageref{OPEN}.
+\item The original and duplicated file descriptors share the same slot in the
+system file table (see page \pageref{OPENFILETABLES}), ie. they share the file
+position and read/write mode.
+\item The equivalent for \texttt{dup2} is not fully equivalent.  If
+\emph{fildes} is equal to \emph{fildes2}, \texttt{close(fildes2)} does not
+happen and \texttt{dup2} returns \texttt{fildes2} right away.
 \end{itemize}
-
 
 %%%%%
 
@@ -590,47 +584,52 @@ dup(1);
 \end{slide}
 
 \begin{itemize}
-\item note the flag \texttt{O\_APPEND} used to implement a redirection
+\item Note the flag \texttt{O\_APPEND} used to implement a redirection
 \texttt{>>}.
-\item \label{REDIRECT} Dal¹í pøíklad pou¾ití \texttt{dup} uvidíme, a¾ se budeme
-zabývat rourami. První pøesmìrování (bez \texttt{stderr}) je v
-\example{read/redirect.c}. Volání \texttt{execl} v tomto pøíkladu nahradí
-aktuální obraz bì¾ícího procesu obrazem programu pøe\-da\-ného jako první
-argument. Více o volání \texttt{execl} je na stranì \pageref{EXEC}.
-\item pro pochopení toho jak funguje pøesmìrování je dobré si nakreslit
-tabulku deskriptorù v èase a kam "ukazují". napø. pro druhý pøíklad
-(iniciální stav, stav po \texttt{close(1)} \texttt{open("out", ...)},
-koneèný stav):
+\item \label{REDIRECT} Another example of \texttt{dup} use will be provided when
+we start working with pipes.  The first redirection example from the slide
+(without \texttt{stderr}) is in \example{read/redirect.c}.  The call
+\texttt{execl} in that example replaces the current process image with the
+program passed as the first argument.  We got ahead of ourselves here though, we
+will learn about the \texttt{exec} calls on page \pageref{EXEC}.
+\item To fully understand how redirection works it is good to draw the file
+descriptor table for each step and where the slots point to.  For example, for
+the 2nd example in the slide, we have the initial state, after \texttt{close(1)}
+and \texttt{open("out", ...)}, and the final state, as follows:
+
 \begin{verbatim}
-+-------+               +-------+               +-------+
-|   0   +-> stdin       |   0   +-> stdin       |   0   +-> stdin
-+-------+               +-------+               +-------+
-|   1   +-> stdout ===> |   1   +-> "out"  ===> |   1   +-> "out"
-+-------+               +-------+               +-------+    ^
-|   2   +-> stderr      |   2   +-> stderr      |   2   +----/ 
-+-------+               +-------+               +-------+
++-------+              +-------+              +-------+
+|   0   +-> stdin      |   0   +-> stdin      |   0   +-> stdin
++-------+              +-------+              +-------+
+|   1   +-> stdout ==> |   1   +-> "out"  ==> |   1   +-> "out"
++-------+              +-------+              +-------+    /
+|   2   +-> stderr     |   2   +-> stderr     |   2   +---' 
++-------+              +-------+              +-------+
 \end{verbatim}
 
+\item You need to pay attention to the state of descriptors.  The 2nd example
+will not work if the descriptor 0 is already closed, as 
+\texttt{open} returns 0 (the first available descriptor) and \texttt{dup} fails
+while trying to duplicate an already closed descriptor.  Possible
+solutions:
 
-\item Je potøeba si dát pozor na stav deskriptorù. Druhý pøíklad nebude
-fungovat, kdy¾ bude deskriptor 0 uzavøen, proto¾e \texttt{open} vrátí deskriptor
-0 (první volný) a \texttt{dup} vrátí chybu (pokus o duplikaci uzavøeného
-deskriptoru). Mo¾né øe¹ení:
 \begin{alltt}
 close(1);
 if((fd = open("out", O\_WRONLY | O\_CREAT | O\_TRUNC, 0666)) == 0)
-    dup(0);
+        dup(0);
 close(2);
 dup(1);
 if(fd == 0)
-    close(0);
+        close(0);
 \end{alltt}
-nebo
+
+or
+
 \begin{alltt}
 fd = open("out", O\_WRONLY | O\_CREAT | O\_TRUNC, 0666);
 if(fd != 1) \{
-    dup2(fd, 1);
-    close(fd);
+        dup2(fd, 1);
+        close(fd);
 \}
 dup2(1, 2);
 \end{alltt}
