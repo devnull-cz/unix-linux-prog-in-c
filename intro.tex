@@ -688,46 +688,42 @@ paper, available freely.
 %%%%%
 
 \begin{slide}
-\sltitle{Princip pøekladu}
+\sltitle{Process of compilation}
 \begin{center}
 \input{img/tex/princip_prekladu.tex}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item u slo¾itìj¹ích programù bývá zvykem rozdìlit zdrojový text
-programu do nìkolika modulù, které obsahují pøíbuzné funkce a tyto
-moduly se pak mohou pøekládat zvlá¹» (dokonce ka¾dý modul mù¾e být v
-jiném jazyce a pøekládán jiným pøekladaèem). Výhodou je jednak
-urychlení pøekladu (pøekládají se v¾dy jen moduly zmìnìné od
-posledního pøekladu) a jednak flexibilita (nìk\-te\-ré moduly se mohou
-pou¾ívat v rùzných programech). Pro øízení pøekladu se obvykle
-pou¾ívá utilita \texttt{make}.
-\item \emph{pøekladaè} jednotlivé zdrojové moduly pøelo¾í do tvaru
-tzv. \emph{objektových modulù}, je¾ obsahují kód programu (vèetnì
-volání lokálních funkcí), ale namísto volání externích funkcí
-obsahují jen tabulku jejich jmen.
-\item po fázi pøekladu nastupuje \emph{spojovací program} (té¾
-\emph{linker} editor nebo \emph{loader}), který zkompletuje výsledný
-program vèetnì vyøe¹ení externích odkazù mezi moduly a systémovými
-knihovnami resp. mezi moduly navzájem.
-\item pou¾ité statické knihovny jsou zkopírovány do spustitelného
-souboru. Na sdíle{}né knihovny jsou ve spustitelném souboru pouze
-odkazy a linkuje je runtime linker pøi ka¾dém spu¹tìní programu. Více viz
-dynamický linker na stranì \pageref{RUNTIMELINKER}.
-\item pomocí parametrù linkeru lze urèit, zda se budou pou¾ívat
-statické nebo dynamické knihovny. Zdrojový kód je v obou pøípadech
-stejný. Existuje i mechanismus (\texttt{dlopen},
-\texttt{dlsym}\dots), pomocí kterého se za bìhu programu vybere
-sdíle{}ná knihovna a dají se volat její funkce.  Tímto zpùsobem mù¾ete
-také zjistit, zda v systému je pøítomna pøíslu¹ná funkcionalita a
-pokud ne, zachovat se podle toho. Více na stranì \pageref{DLOPEN}.
+\item Non-trivial programs are often split into several source code files that
+contain related functions.  Such files can be compiled independently, and you
+can even use different languages and different compilers for each file.  The
+advantage is the speed of building as only modified files are re-compiled (see
+page \pageref{MAKE} on the \texttt{make} utility), and also flexibility as you
+can use some of the files in other programs as well.
+\item The \emph{compiler} compiles each file into a corresponding object file.
+Instead of external function pointers in the compiled code, the object file
+contains a table of global symbols.
+\item Then, the \emph{linker} combines the built object files and used
+libraries into an output file.  By default, it also resolves all the references
+to make sure all symbols used are available. 
+\item Used code from the static libraries is copied to the executable file.
+When using dynamic libraries, the executable only contains a list of them, the
+linking process is then performed by the runtime linker (aka loader) on the
+program execution.  For more on the dynamic linking process, see page
+\pageref{RUNTIMELINKER}.
+\item To select whether to use static or dynamic libraries, you use options for
+the linker.  By default, dynamic libraries are used nowadays.  The source code
+is same in either case.  There is also a mechanism (\texttt{dlopen},
+\texttt{dlsym}\dots) that allows to load an additional dynamic library during
+the program execution, and use it.  For more information, see page
+\pageref{DLOPEN}.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Compilation of one file (preprocesor)}
+\sltitle{Compilation of one file: preprocesor}
 \begin{center}
 \input{img/tex/preprocesor.pstex_t}
 \end{center}
@@ -783,7 +779,7 @@ So, the preprocessor to your rescue -- use the conditional compilation feature:
 %%%%%
 
 \begin{slide}
-\sltitle{Compilation of one file (compiler)}
+\sltitle{Compilation of one file:  compiler}
 \begin{center}
 \input{img/tex/kompilator.tex}
 \end{center}
@@ -799,7 +795,7 @@ syntax.
 %%%%%
 
 \begin{slide}
-\sltitle{Compilation of one file (assembler)}
+\sltitle{Compilation of one file: assembler}
 \begin{center}
 \input{img/tex/assembler.pstex_t}
 \end{center}
