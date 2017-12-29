@@ -1140,27 +1140,27 @@ test2:
 %%%%%
 
 \begin{slide}
-\sltitle{Makra (\texttt{make})}
+\sltitle{Macros (\texttt{make})}
 \begin{itemize}
-\item definice makra:\\
+\item macro definition:\\
 \hspace*{5em}\texttt{name = string}
-\item pokraèování vkládá mezeru 
-\item nedefinovaná makra jsou prázdná 
-\item nezále¾í na poøadí definic rùzných maker
-\item definice na pøíkazové øádce: \\
+\item continuation via a backslash inserts a space
+\item undefined macros are empty
+\item ordering of macro definitions is not important
+\item defining a macro on a command line: \\
 \hspace*{5em}\texttt{make \emph{target} \emph{name}=\emph{string}}
-\item vyvolání makra: \\
+\item macro invocation: \\
 \hspace*{5em}\texttt{\$\emph{name}} (pouze jednoznakové
 \texttt{\emph{name}}), \\
-\hspace*{5em}\texttt{\$\{\emph{name}\}} nebo \texttt{\$(\emph{name})}
-\item systémové promìnné jsou pøístupné jako makra
+\hspace*{5em}\texttt{\$\{\emph{name}\}} or \texttt{\$(\emph{name})}
+\item environment variables are accessible as macros (eg. \texttt{\$\{EDITOR\}})
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item kdy¾ je stejné makro definováno vícekrát, platí jeho poslední definice,
-viz pøíklad \example{basic-utils/Makefile03}.
-\item makra není mo¾né definovat rekurzivnì, viz
+\item If a macro is defined multiple times, the last definition rules, you can
+see an example in \example{basic-utils/Makefile03}.
+\item You cannot define a macro recursively, see
 \example{basic-utils/Makefile05}:
 
 \begin{alltt}
@@ -1172,43 +1172,42 @@ all:
 \$ make -f Makefile05
 Variable M is recursive.
 \end{alltt}
-\item èasto se pou¾ívají rùzné roz¹íøené verze \texttt{make} (napø. GNU, BSD),
-které umí, podmínìné sekce v \texttt{Makefile}, redefinice pro\-mìn\-ných, apod.
-\item napsat \texttt{Makefile} který bude fungovat najednou pro rùzné verze
-\texttt{make} nemusí být jednoduché, proto existují projekty jako je napø. GNU
-automake. Pro jednoduchý podmíneèný pøeklad v závislosti na systému a kde se
-dají oèekávat rùzné verze pøíkazu make, je mo¾né pou¾ít napøíklad následující
-kód, který mi fungoval na v¹ech v nìm zmínìných systémech (znak ` je zpìtný
-apostrof, a ' je normální apostrof):
+\item Often extended \texttt{make} versions are used, eg. GNU (\texttt{gmake})
+or BSD.
+\item To write a non-trivial \texttt{Makefile} that will work with
+different \texttt{make} implementations is not a simple task.  Therefore
+projects as GNU Automake exist.  For a simple conditional compilation where
+based on the system we need to set different options, the following code might
+come in handy.  A character ` is a back quote, and a ' is a normal single quote:
 
 \begin{verbatim}
 CFLAGS=`x=\`uname\`; \
         if [ $${x} = FreeBSD ]; then \
-          echo '-Wall'; \
+                echo '-Wall'; \
         elif [ $${x} = SunOS ]; then \
-          echo '-v'; \
+                echo '-v'; \
         elif [ $${x} = Linux ]; then \
-          echo '-Wall -g'; \
+                echo '-Wall -g'; \
         fi`
 
 all:
         @echo "$(CFLAGS)"
 \end{verbatim}
 
-\item v ostatních situacích je vhodné, pøípadnì nezbytné pou¾ít programy typu
-\texttt{autoconf} nebo \texttt{automake}. Nìkteré \texttt{make} implementace
-mají pøímo direktivy pro podmínìné zpracování vstupního souboru, napøíklad make
-na BSD. Pøíklad: \example{basic-utils/Makefile08.bsd}.
-\item pøepínaèem \texttt{-e} mù¾eme \texttt{make} donutit, aby ignoroval
-nastavení promìnných ve vstupním souboru v pøípadì, ¾e je definována promìnná
-prostøedí stejného jména. Normálnì \texttt{make} pøebírá aktuální nastavení
-promìnných prostøedí jen v pøípadì, ¾e dané promìnné nejsou nastavené ve
-vstupním souboru. Pøíklad: \example{basic-utils/Makefile06}.
-\item \texttt{make} je velmi silný nástroj, staèí se podívat do systémových
-\texttt{Makefile} souborù jakéhokoli un{}ix-like systému (najdìte si na
-Wikipedii, co to znamená ``un{}ix-like'', pokud to nevíte). Typickou spoleènou
-vlastností je to, ¾e neexistuje dokumentace, jak je daný makefile framework
-postaven.
+\item In other situations it is recommended or even needed to use utilities like
+\texttt{autoconf} or \texttt{automake}.
+\item Some \texttt{make} implementations support directives for conditional
+processing, eg.  BSD make.  Example: \example{basic-utils/Makefile08.bsd}.
+\item With the \texttt{-e} option, we can force \texttt{make} to ignore a
+variable definition in the input file if an environment variable of the same
+name exists.  By default \texttt{make} accepts environment variables only if
+they are not defined in the input file.  Example:
+\example{basic-utils/Makefile06}.
+\item In general, \texttt{make} is a immensely powerful tool, just take a look
+at system make files of any Unix-like system.  A typical feature of such build
+systems is that there is no documentation on how it works internally so you have
+to dig in deep if you need to understand or modify it -- and that usually is not
+for the faint-hearted.
 \end{itemize}
 
 %%%%%
