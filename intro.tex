@@ -1077,26 +1077,25 @@ Makefile01}''.
 %%%%%
 
 \begin{slide}
-\sltitle{Syntaxe vstupního souboru (\texttt{make})}
+\sltitle{Syntax of the \texttt{make} input file}
 \begin{itemize}
-\item \makebox[4cm][l]{popis závislostí cíle:}
+\item \makebox[4cm][l]{target dependencies:}
 \texttt{\emph{targets} : [\emph{files}]}
-\item \makebox[4cm][l]{provádìné pøíkazy:} \verb#<Tab>#\texttt{\emph{command}}
-\item \makebox[4cm][l]{komentáø:} \texttt{\#\emph{comment}}
-\item \makebox[4cm][l]{pokraèovací øádek:}
+\item \makebox[4cm][l]{commands to be executed:} \verb#<Tab>#\texttt{\emph{command}}
+\item \makebox[4cm][l]{comment:} \texttt{\#\emph{comment}}
+\item \makebox[4cm][l]{line continuation:}
 \texttt{\emph{line-begin}}\verb#\#\\
 \makebox[4cm][l]{~} \texttt{\emph{line-continuation}}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emsl{Pozor na to, ¾e øádek s pøíkazem zaèíná tabulátorem, nikoliv
-mezerami.} Ka¾dý pøíkazový øádek se provádí samostatným shellem, pokud je
-potøeba provést více øádkù pomocí jednoho shellu, musí se v¹echny a¾ na poslední
-ukonèit backslashem (shell je dostane jako jeden øádek). Viz pøíklad, ve kterém
-dva poslední \texttt{echo} pøíkazy jsou souèástí jednoho \texttt{if} pøíkazu,
-který je spu¹tìn samostatným shellem. Dále si v¹imnìte, ¾e pokud máte pøíkaz na
-více øádkù, musíte ka¾dý øádek ukonèit zpìtným lomítkem.
+\item \emsl{Note that the line with a command starts with a tabulator, not
+spaces.}  Every command line is executed via its own shell invocation.  If
+multiple commands need to be executed via the same shell process, all but the
+last line needs to be terminated with a backslash.  See the following example
+where the last two \texttt{echo} commands are part of the same \texttt{if}
+construct.
 
 \begin{verbatim}
 $ cat basic-utils/Makefile02
@@ -1114,18 +1113,18 @@ $ make -f Makefile02
 5515
 \end{verbatim}
 
-\item co se týká pou¾ití zpìtného lomítka, tak to funguje jako oddìlovaè slov, a
-\texttt{make} místo nìj vlo¾í mezeru. Pøíklad: \example{basic-utils/Makefile07}.
-\item zdvojením \texttt{\$} se potlaèí speciální význam dolaru (viz
-následující slajd)
-\item znak \texttt{@} na zaèátku øádku potlaèí jeho výpis --
-\texttt{make} jinak standardnì vypisuje nejdøíve to, co bude
-vykonávat.
-\item vypsání v¹ech pøikazù které bude make provádìt bez toho aby je skuteènì
-provedl lze dosáhnout pou¾itím pøepínaèe \texttt{-n}.
-\item znak \texttt{-} na zaèátku øádku zpùsobí ignorování nenulové
-návratové hodnoty; jinak \texttt{make} v¾dy v takové situaci zahlásí
-chyby a okam¾itì skonèí. Pøíklad: \example{basic-utils/Makefile04}.
+\item The backslash works as a word separator and a space is inserted.  See
+the this example: \example{basic-utils/Makefile07}.
+\item Using a double \texttt{\$} supresses the special meaning of a dollar sign,
+see the next slide.
+\item A character \texttt{@} at the beginning of a line supresses its printout.
+Otherwise, \texttt{make} always prints out what is gonna be executed next.
+\item For a dry run, ie. to see what would be executed, but do not execute
+anything, use option \texttt{-n}.
+\item A character \texttt{-} at the beginning of a line causes \texttt{make} to
+ignore a non-zero return value (usually indicating a failure), otherwise
+\texttt{make} reports the error and bails out right away.  Example:
+\example{basic-utils/Makefile04}.
 \item 
 \begin{verbatim}
 test1:
