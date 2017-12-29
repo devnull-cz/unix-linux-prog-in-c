@@ -52,26 +52,25 @@ will only use functions for printing to the terminal output like
 \end{slide}
 
 \begin{itemize}
-\item toto je nejjednodu¹¹í pohled na tabulky v jádøe které se týkají souborù,
-je to pøevzato z [Bach]; dnes to je o nìco slo¾itìj¹í, my¹lenka je ale poøád
-stejná. Realitì více se podobající obrázek je na pøí¹tím slajdu.
-\item ka¾dý proces má svoji tabulku souborových deskriptorù (\emph{user file
-descriptor table})
-\item z této tabulky je odkazovnáno na systémovou tabulku otevøených souborù
-systému (\emph{file table}; ano, tato tabulka je pouze jedna). Zde je mód
-otevøení souboru a také \emsl{aktuální pozice v souboru.}
-\item z tabulky otevøených souborù je odkazováno do tabulky naètených inodù v
-pamìti. Dnes jsou to tzv. \emph{vnodes} -- \emph{virtual nodes}, ale to v této
-chvíli není relevantní.
-\item tabulka otevøených souborù systému, která vlastnì vytváøí o jednu úroveò
-odkazù navíc, je zde proto, aby rùzné procesy mohly sdílet stejnou aktuální
-pozici v souboru.
-\item pøi otevøení souboru pomocí volání \texttt{open} se v¾dy alokuje nový
-slot v tabulce deskriptorù a také v systémové tabulce otevøených souborù (to
-je dùle¾ité!). Sdíl{}ení se pak v rámci jednoho procesu dosáhne duplikací
-deskriptorù, kdy více deskriptorù sdílí stejný slot v tabulce otevøených
-souborù systému nebo v pøípadì rùzných procesù pak pomocí vytvoøení nového
-procesu pomocí volání \texttt{fork}(), viz strana \pageref{FDSHARING}.
+\item This is a simplified view of the kernel tables that deal with files.  It
+is modeled after a similar picture in [Bach].  Today it is more compliated but
+the main idea stays.  See the next slide for how it may look present time
+systems.
+\item Each process on the system has its \emph{file descriptor table}.
+\item Slots in that table points to the \emph{system file table}.  There is
+only one such a table in kernel.  This table carries the opened file mode and
+also the \emsl{current file position.}
+\item From the system file table, it is pointed to the \emph{system inode
+table}.  Nowadays the table contains so called \emph{vnodes} -- \emph{virtual
+nodes} but that is not relevant for us now.
+\item The system file table represents an additional level of indirection so
+that different processes can share the file position.
+\item When opening a file via an \texttt{open} call, a new slot in both the file
+descriptor and system file tables is always allocated.  File position sharing in
+the same process is achieved via file descriptor duplication where more
+descriptors share the same system file table slot.  If a file position sharing
+is needed among multiple processes, that is achieved via the \texttt{fork}
+call, and it is explained on page \pageref{FDSHARING}.
 \end{itemize}
 
 %%%%%
