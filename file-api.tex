@@ -51,6 +51,8 @@ will only use functions for printing to the terminal output like
 \end{center}
 \end{slide}
 
+\label{OPENFILETABLES}
+
 \begin{itemize}
 \item This is a simplified view of the kernel tables that deal with files.  It
 is modeled after a similar picture in [Bach].  Today it is more compliated but
@@ -78,68 +80,68 @@ call, and it is explained on page \pageref{FDSHARING}.
 \pdfbookmark[1]{open}{open}
 
 \begin{slide}
-\sltitle{Otevøení souboru: \texttt{open()}}
+\sltitle{Opening a file: \texttt{open()}}
 \texttt{int \funnm{open}(const char *\emph{path}, int \emph{oflag},
 ... );}
 \begin{itemize}
-\item otevøe soubor daný jménem (cestou) \texttt{path}, vrátí èíslo
-jeho deskriptoru (pou¾ije první volné), \texttt{oflag} je
-OR-kombinace pøíznakù 
+\item opens a file \texttt{path}, returns its file descriptor. The
+\texttt{oflag} is an OR combination of the following flags:
     \begin{itemize}
     \item \texttt{O\_RDONLY}/\texttt{O\_WRONLY}/\texttt{O\_RDWR} \dots{}
-    otevøít pouze pro ètení / pouze pro zápis / pro ètení i zápis 
-    \item \texttt{O\_APPEND} \dots{} pøipojování na konec 
-    \item \texttt{O\_CREAT} \dots{} vytvoøit, kdy¾ neexistuje 
-    \item \texttt{O\_EXCL} \dots{} chyba, kdy¾ existuje (pou¾ití s
+    open for reading, writing, or both
+    \item \texttt{O\_APPEND} \dots{} append only
+    \item \texttt{O\_CREAT} \dots{} create the file if it does not exist
+    \item \texttt{O\_EXCL} \dots{} fail if the file exists (for use with
     \texttt{O\_CREATE})
-    \item \texttt{O\_TRUNC} \dots{} zru¹it pøedchozí obsah (právo zápisu
-    nutné)
+    \item \texttt{O\_TRUNC} \dots{} truncate the file (write permission
+    needed)
     \item \dots{}
     \end{itemize}
-\item pøi \texttt{O\_CREAT} definuje tøetí parametr \texttt{mode}
-pøístupová práva
+\item with \texttt{O\_CREAT}, the third parameter \emph{mode}
+defines the access mode for the newly create file
 \end{itemize}
 \end{slide}
 
 \label{OPEN}
 
 \begin{itemize}
-\item pøi pou¾ití \texttt{O\_CREAT} se \texttt{mode} je¹tì modifikuje podle
-nastavení aktuální masky, které se mìní voláním \texttt{umask}. Defaultní
-hodnota je typicky \texttt{022}. Doporuèuji se zamyslet, zda ji ve va¹em shell
-profile skriptu nenastavit na \texttt{077}. To ale nikdy nedìlejte pro roota,
-jinak skonèíte s podivnì se chovajícím systémem -- nainstalovaný software nebude
-moct spustit pod bì¾ným u¾ivatelem, to co døíve fungovalo fungovat pøestane
-apod.
-\item \texttt{mode} nemá defaultní hodnotu, tj. vezme se to, co je na zásobníku
-i kdy¾ tento parametr není pøítomen! Pøíznaky i mód jsou ulo¾eny v systémové
-tabulce otevøených souborù.
-\item pokud se znovu pou¾ije døíve vyu¾ívaná polo¾ka v tabulce deskriptorù nebo
-v tabulce otevøených souborù, v¹e potøebné se vynuluje (pozice v souboru, flagy
-deskriptoru, \dots)
-\item existují je¹tì dal¹í nastavitelné pøíznaky:
+\item The first available file descriptor is always used.  
+\item When \texttt{O\_CREAT} is used, the \emph{mode} is modified using the
+current mask that can be changed via a shell command \texttt{umask} -- those
+bits in \emph{mode}, also set in the process umask, are nullified.  The
+default umask value is typically (and historically) \texttt{022}.  We recommend
+you to always se it to \texttt{077} in your profile script.  Never do that for
+root though otherwise you will end up with a system in a non-supported
+configuration -- installed software will not be possible to run by
+non-privileged users, what worked before may stop working, etc.
+\item If the \emph{mode} argument is required and not specified, you get
+whatever is on the stack.  Both flags and the mode are stored in the system file
+table, see page \pageref{OPENFILETABLES}.
+\item The slot in the file descriptor or system file table, that is no longer
+needed, is zeroed out before its reuse. 
+\item There are other flags as well:
 \begin{itemize}
-\item \texttt{O\_SYNC} (\texttt{O\_DSYNC}, \texttt{O\_RSYNC} -- není
-na BSD) \dots{} operace se souborem skonèí a¾ po fyzickém ulo¾ení
-dat (synchronized I/O)
-\item \texttt{O\_NOCTTY} \dots{} pøi otvírání terminálu procesem,
-který nemá øídicí terminál, se tento terminál nestane øídícím
-terminálem procesu
-\item \label{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} pokud nelze ètení nebo
-zápis provést okam¾itì, volání \texttt{read}/\texttt{write} skonèí s chybou
-místo zablokování procesu
+\item \texttt{O\_SYNC} (\texttt{O\_DSYNC}, \texttt{O\_RSYNC}) \dots{} the call
+returns after the data is physically stored (synchronized I/O).
+\texttt{O\_DSYNC} is for writing synchronization only, \texttt{O\_RSYNC} for
+reading.
+\item \texttt{O\_NOCTTY} \dots{} when opening a terminal by a process without a
+controlling terminal, the terminal being opened does not become it.
+\item \label{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} if reading or writing
+cannot be satisfied right away, calls \texttt{read}/\texttt{write} will fail
+instead of getting blocked and waiting for the completion.  \texttt{errno} is
+set to \texttt{EAGAIN} in such a case.
 \end{itemize}
-\item v pøístupových právech se vynulují ty bity, které jsou
-nastavené pomocí \texttt{umask}.
-\item pro ètení a zápis nelze pou¾ít \texttt{O\_RDONLY | O\_WRONLY}, proto¾e
-implementace pou¾ily 0 pro read-only flag. Norma proto definuje, ¾e aplikace
-musí pou¾ít právì jeden z tìchto tøí flagù.
-\item je mo¾né otevøít a zároveò vytvoøit soubor pro zápis tak, ¾e jeho mód
-zápis nedovoluje. Pøi pøí¹tím otevøení souboru se ale ji¾ tento mód uplatní
-pøi kontrole pøístupu a pro zápis jej otevøít nepùjde. Pro \texttt{O\_TRUNC}
-také platí, ¾e musíte mít pro daný soubor právo zápisu.
-\item Chování \texttt{O\_EXCL} bez souèasného pou¾ití \texttt{O\_CREAT} není
-definováno. Pro zamykání souborù se pou¾ívá \texttt{fcntl}, viz strana
+\item One cannot use \texttt{O\_RDONLY | O\_WRONLY} for both reading and writing
+as historically, implementations used 0 for the read-only flag.  The standard
+defines that only one of those three flags may be used.
+\item Is is possible to open and create a file for writing so that writing is
+disallowed by its mode.  It will work for that file opening but any other file
+opening for writing will fail.
+\item You need write permission to use \texttt{O\_TRUNC}.
+\item The behavior of \texttt{O\_EXCL} without using \texttt{O\_CREAT} at the
+same is undefined.
+\item For file locking, the \texttt{fcntl} call is used, see page
 \pageref{FCNTL}.
 \end{itemize}
 
