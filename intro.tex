@@ -646,45 +646,44 @@ We recommend Git (\texttt{git}) or Mercurial (\texttt{hg}).
 %%%%%
 
 \begin{slide}
-\sltitle{Konvence pro jména souborù}
+\sltitle{File name convention}
 \begin{tabular}{ll}
-\texttt{*.c} & jména zdrojových souborù programù v C\\
-\texttt{*.cc} & jména zdrojových souborù programù v C++\\
-\texttt{*.h} & jména hlavièkových souborù (headerù)\\
-\texttt{*.o} & pøelo¾ené moduly (object files)\\
-\texttt{a.out} & jméno spustitelného souboru (výsledek úspì¹né kompilace)
+\texttt{*.c} & the C language source code files\\
+\texttt{*.cc} & the C++ language source code files\\
+\texttt{*.h} & header files\\
+\texttt{*.o} & object files\\
+\texttt{a.out} & the default executable file name after the compilation
 \end{tabular}
 
 \begin{tabular}{ll}
-\texttt{/usr/inc{}lude} & koøen stromu systémových headerù\\
-\texttt{/usr/lib/lib*.a} & statické knihovny objektových modulù\\
-\texttt{/usr/lib/lib*.so} & umístìní dynamických sdíle{}ných knihoven\\&
-      objektových modulù
+\texttt{/usr/inc{}lude} & system header file root\\
+\texttt{/usr/lib/lib*.a} & static libraries\\
+\texttt{/usr/lib/lib*.so} & dynamic libraries
 \end{tabular}
 \end{slide}
 
-\begin{description}
-\item[statické knihovny] -- pøi linkování se kód funkcí pou¾itých z knihovny
-stane souèástí výsledného spustitelného programu. Dnes se u¾ moc nepou¾ívá.
-\item[sdíle{}né knihovny] -- program obsahuje pouze odkaz na knihovnu, pøi
-spu¹tìní programu se potøebné knihovny naètou do pamìti ze souborù \texttt{*.so}
-a pøilinkují.
-\end{description}
-
 \begin{itemize}
-\item dnes se vìt¹inou pou¾ívají sdíle{}né knihovny, proto¾e
-nezabírají tolik diskového prostoru (knihovna je na disku jednou,
-není souèástí ka¾dého spustitelného souboru) a snadnìji se upgradují
-(staèí instalovat novou verzi knihovny, není tøeba pøelinkovat
-programy).  Poslední verze Solarisu u¾ napøíklad vùbec neobsahuje
-\texttt{libc.a}, díky èemu¾ ji¾ programátor nemù¾e vytvoøit
-statickou binárku, ani¾ by mìl dostateèné znalosti systému.
-\item nìkdy se bez statických knihoven neobejdeme. V nìkterých
-situacích není mo¾né pou¾ít knihovny dynamické, spustitelné soubory
-jsou takzvané \emph{standalone binaries} a pou¾ití naleznou
-napøíklad pøi bootování operaèního systému.
+\item Static libraries -- code for used external functions is copied into a
+target program.  Not used much nowadays.
+\item Dynamic libraries -- the list of dynamic libraries needed are part of the
+program, on execution the dynamic linker (path to the dynamic linker is also
+part of the program, see page \pageref{RUNTIMELINKER}) loads them to memory and
+relocates pointers.
+\item Today, dynamic libraries are mostly used as they save disk space and you
+do not need to recompile all the utilities and other program on library
+upgrades.
+\item In specific situations, static libraries are still needed though, for
+example, in standalone binaries when booting an operating system.
+\item The origin of the name \texttt{a.out} is as follows.  Initially, even
+before the C was invented, there were no libraries, no loader or link editor in
+the first version of the UNIX system: the entire source of a program was
+presented to the assembler, and the output file with a fixed name that emerged
+was directly executable.  So \texttt{a.out} means ``the output of the
+assembler''.  Even after the system gained a linker and a means of specifying
+another name explicitly, it was retained as the default executable result of a
+compilation.  See \emph{Dennis M. Ritchie, The Development of the C Language}
+paper, available freely.
 \end{itemize}
-
 
 %%%%%
 
@@ -963,36 +962,6 @@ skládajících se z mnoha zdrojových souborù a knihoven se obvykle
 oddìluje pøeklad a linkování a celý proces je øízen utilitou
 \texttt{make} (strana \pageref{MAKE}).
 \end{itemize}
-
-
-% (jp) archiv jsem vyhodil, ja ho treba za ty roky nikdy nepouzil
-%
-%\begin{slide}
-%\sltitle{Práce s archivem (\texttt{ar})}
-%\begin{itemize}
-%\item manipulace s archivy souborù (napø. staticky linkované knihovny)
-%\item soubory ulo¾eny bez cesty
-%\item volání:\\\hspace{8em}
-%\texttt{ar [-dmpqrtx] [-abuv] [\emph{pos}] \emph{archive}
-%[\emph{file} \dots]}
-%\item operace:
-%    \begin{itemize2}
-%    \item \emsl{r}(eplace) -- pøepis souboru v archivu, pøepínaèe:
-%	\begin{itemize2}
-%	\item \emsl{a}(fter), \emsl{b}(ehind) -- umístìní za/pøed soubor
-%	\texttt{\emph{pos}}
-%	\item \emsl{u}(pdate) -- pøepis jen novìj¹ích
-%	\end{itemize2}
-%    \item \emsl{q}(uick) -- rychlé pøidání na konec (nekontroluje duplicitu)
-%    \item \emsl{m}(ove), \emsl{d}(elete) -- pøesun/smazání souboru v archivu 
-%    \item \emsl{p}(rint), \emsl{t}(able) -- výpis obsahu souboru/archivu 
-%    \item \emsl{x}(tract) -- výpis z archivu do normálního souboru 
-%    \end{itemize2}
-%\end{itemize}
-%\end{slide}
-%
-%Tímto pøíkazem se vytváøí statické knihovny objektových modulù. Dynamické
-%knihovny vytváøí linker pøi pou¾ití pøepínaèe \texttt{-shared}.
 
 %%%%%
 
