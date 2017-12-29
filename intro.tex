@@ -967,10 +967,10 @@ options via the compiler.
 \pdfbookmark[1]{make}{make}
 
 \begin{slide}
-\sltitle{Øízení pøekladu a linkování (\texttt{make})}
+\sltitle{Maintaining programs (\texttt{make})}
 \renewcommand{\baselinestretch}{1}
 \begin{itemize}
-\item \emsl{zdrojové texty}\\
+\item \emsl{source code}\\
 \begin{minipage}[t]{3.3cm}
 main.c\\
 \setbox0=\hbox{\begin{minipage}[t]{3.1cm}
@@ -1009,7 +1009,7 @@ msg()
 \end{itemize}
 \begin{minipage}[t]{3.7cm}
 \begin{itemize}
-\item \emsl{závislosti}\\\vskip-1ex
+\item \emsl{dependencies}\\\vskip-1ex
 \renewcommand{\arraystretch}{0.1}
 \setlength{\tabcolsep}{0.25ex}
 \begin{tabular}{lclcl}
@@ -1027,7 +1027,7 @@ msg()
 \end{minipage}\hfill
 \begin{minipage}[t]{6.5cm}
 \begin{itemize}
-\item \emsl{soubor} \texttt{Makefile}\\
+\item \emsl{file} \texttt{Makefile}\\
 \setbox0=\hbox{\begin{minipage}[t]{5.9cm}
 \begin{verbatim}
 prog : main.o util.o
@@ -1046,29 +1046,32 @@ util.o : util.c util.h
 \label{MAKE}.
 
 \begin{itemize}
-\item program je mo¾né také pøelo¾it a slinkovat jedním voláním kompilátoru,
-nebo definovat postup pøekladu a linkování pomocí shellového skriptu. Dùvodem
-pro pou¾ití \texttt{make} je to, ¾e vyhodnocuje závislosti mezi soubory a po
-zmìnì nìkterého zdrojového souboru pøekládá jenom to, co na nìm závisí. Èastý
-zpùsob pøekladu softwaru po aplikování zmìn zpùsobem ``\texttt{make clean; make
-all}'' je v situaci, kdy celý pøeklad trvá minuty (desítky minut, hodiny\dots),
-trochu nevhodný -- právì proto je dùle¾ité mít dobøe napsaný \texttt{Makefile}.
-\item øádek ``\verb#prog : main.o util.o#'' definuje, ¾e se má nejprve
-rekurzivnì zajistit existence a aktuálnost souborù \texttt{main.o} a
-\texttt{util.o}. Pak se zkontroluje, zda soubor (cíl) \texttt{prog} existuje a
-je aktuální (datum poslední modifikace souboru je mlad¹í ne¾ \texttt{main.o} a
-\texttt{util.o}). Pokud ano, nedìlá se nic. Kdy¾ ne, provede se pøíkaz na
-následujícím øádku.
-\item \texttt{make} se spou¹tí typicky s parametrem urèující pøí¹lu¹ný cíl
-(\emph{target}); pøi spu¹tìní bez parametrù se vezme první target.  To bývá
-\texttt{all}, co¾ vìt¹inou podle unixové konvence pøelo¾í v¹e, co se pøelo¾it
-má. Následuje pak tøeba spu¹tìní \texttt{make} s parametrem \texttt{install}
-apod.
-\item \texttt{make} je samozøejmì univerzální nástroj, pou¾itelný i jinde ne¾ u
-pøekladù zdrojových kódù
-\item pøíklad: \example{basic-utils/Makefile01}. Pozor na to, ¾e pro nestandardní
-jmé\-no vstup\-ní\-ho souboru je nutné pou¾ít pøepínaè \texttt{-f}:
-``\texttt{make -f Makefile01}''.
+\item You could compile and link the program via one invocation of a compiler,
+or write a simple shell script.  However, by using \texttt{make} you will only
+update a target if its dependencies have been modified.  In other words, a well
+written makefile will cause to re-compile only what is really necessary after
+some files have been changed.  You could always do something like
+``\texttt{make clean; make all}'' but if the whole compilation process takes
+minutes or even hours, you really want a well written \texttt{Makefile}.
+\item A line ``\verb#prog : main.o util.o#'' defines that before \texttt{prog}
+is checked, the existence of
+\texttt{main.o} and \texttt{util.o} needs to be checked, and also whether they
+are up to date.  That check is performed recursively.  After that, the existence
+of \texttt{prog} is checked and whether it is up-to-date, which means whether
+the last modification time is younger than that of \texttt{main.o} and
+\texttt{util.o}.  If yes, nothing else is done.  If not, the command on the next
+line is performed.
+\item \texttt{make} is usually run with an argument specifying the target to be
+built; if run without arguments, the first target in the \texttt{Makefile} is
+used.  That often is \texttt{all} which if the standard Unix convention is
+followed, builds everything that can be built.  After that, \texttt{make
+install} often follows, etc.
+\item \texttt{make} is a universal tool, useful not just for building source
+code.  For example, to build this material from various \LaTeX{} and other source
+files, \texttt{make} is used as well.
+\item Example: \example{basic-utils/Makefile01}.  Note that if a non-standard
+make file is used, you need the \texttt{-f} option: ``\texttt{make -f
+Makefile01}''.
 \end{itemize}
 
 %%%%%
