@@ -117,6 +117,10 @@ non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
 whatever is on the stack.  Both flags and the mode are stored in the system file
 table, see page \pageref{OPENFILETABLES}.
+\item Macros for use with \emph{mode} can be usually found in the manual page
+for \texttt{chmod(2)}, and you can find them also in the \texttt{stat.h} header
+file (or in another file included from it) where the standard requires them to
+be.
 \item The slot in the file descriptor or system file table, that is no longer
 needed, is zeroed out before its reuse. 
 \item There are other flags as well:
@@ -150,24 +154,20 @@ same is undefined.
 \pdfbookmark[1]{creat}{creat}
 
 \begin{slide}
-\sltitle{Vytvoøení souboru}
+\sltitle{Creating a file}
 \texttt{int \funnm{creat}(const char *\emph{path}, mode\_t \emph{mode});}
 \begin{itemize}
-\item \texttt{open()} s pøíznakem \texttt{O\_CREAT} vytvoøí soubor, pokud
-je¹tì neexistuje. V zadané hodnotì pøístupových práv se vynulují bity, které
-byly nastaveny pomocí funkce\\
-\texttt{mode\_t \funnm{umask}(mode\_t \emph{cmask});} 
-\item funkce je ekvivalentní volání\\
+\item the function is equivalent to:\\
 \texttt{open(path, O\_WRONLY|O\_CREAT|O\_TRUNC, mode);}
 \end{itemize}
 \texttt{int \funnm{mknod}(const char *\emph{path}, mode\_t \emph{mode},
 dev\_t \emph{dev});}
 \begin{itemize}
-\item vytvoøí speciální soubor zaøízení. 
+\item creates a device special file
 \end{itemize}
 \texttt{int \funnm{mkfifo}(const char *\emph{path}, mode\_t \emph{mode});} 
 \begin{itemize}
-\item vytvoøí pojmenovanou rouru.
+\item creates a named pipe
 \end{itemize}
 \end{slide}
 
@@ -175,22 +175,15 @@ dev\_t \emph{dev});}
 \label{CREAT}
 
 \begin{itemize}
-\item Volání vrací nejni¾¹í deskriptor, který v dané chvíli nebyl otevøený pro
-proces
-\item \texttt{open} doká¾e otevøít regulární soubor, zaøízení i pojmenovanou
-rouru, ale vytvoøit doká¾e jen regulární soubor; pro ostatní typy souborù je
-nutné pou¾ít zde uvedená speciální volání.
-\item Test pomocí pøíznaku \texttt{O\_EXCL} na to, zda soubor existuje, a jeho
-pøípadné vytvoøení je atomická operace. Toho se vyu¾ívá pøi pou¾ívání lock
-souborù. Ze slajdu je vidìt, ¾e tento test je mo¾né provést jen pomocí volání
-\texttt{open}, ne \texttt{creat}.
-\item Speciální soubory mù¾e vytváøet pouze root, proto¾e se pomocí nich
-definují pøístupová práva k periferním zaøízením.
-\item Povolené hodnoty pro \texttt{mode} je mo¾né nalézt vìt¹inou v manuálové
-stránkce pro \texttt{chmod(2)}, a urèitì je naleznete i v hlavièkovém souboru
-\texttt{stat.h}, kde musí být podle normy definované.
+\item The \texttt{open} call allows to open a regular file, a device, or a named
+pipe.  However, it (and \texttt{creat} as well) can only create a regular file,
+so you need the other two calls for non-regular files.
+\item The test of a file existence using the flag \texttt{O\_EXCL} and its
+subsequent creation if it did not exist, is an atomic operation.  You can use
+that for lock files but only with the \texttt{open} call, not \texttt{creat}.
+\item You need extra privileges to create device special files (eg. to be a
+root).
 \end{itemize}
-
 
 %%%%%
 
