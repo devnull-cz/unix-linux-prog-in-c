@@ -846,19 +846,25 @@ pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \begin{slide}
 \sltitle{UNIX standard macros}
 \begin{tabbing}
-\hskip 11em \= \kill
-\verb#__FILE__#, \verb#__LINE__#, \verb#__DATE__#, \verb#__TIME__#,
-\verb#__cplusplus#, apod.\\
-\> jsou standardní makra kompilátoru C/C++\\
-\verb#unix# \> v¾dy definováno v Unixu\\
-\verb#mips#, \verb#i386#, \verb#sparc# \> hardwarová architektura\\
-\verb#linux#, \verb#sgi#, \verb#sun#, \verb#bsd# \> klon operaèního systému\\
-\verb#_POSIX_SOURCE#, \verb#_XOPEN_SOURCE# \\
-\> pøeklad podle pøíslu¹né normy\\
+\hskip 13em \= \kill
+\verb#__FILE__#, \verb#__LINE__#,\\\verb#__DATE__#, \verb#__TIME__#,\\
+\verb#__cplusplus#, etc.
+\> are standard macros for the compiler \\\>C/C++\\
+\verb#unix# \> always defined if on Unix\\
+\verb#mips#, \verb#i386#, \verb#sparc# \> hardware architecture\\
+\verb#linux#, \verb#__APPLE__#, \verb#sun#, \verb#bsd# \> operating system\\
+\verb#_POSIX_SOURCE#,\\\verb#_XOPEN_SOURCE#
+\> build using the specific standard\\
 \end{tabbing}
+\end{slide}
 
-pro pøeklad podle urèité normy by pøed prvním \verb.#include. mìl
-být øádek s definicí následujícího makra. Pak naètìte \texttt{unistd.h}.
+\begin{slide}
+\sltitle{UNIX standard macros (cont.)}
+
+To build using a specific standard, you need to define one of the macros below
+before any \verb.#include..  Then include \texttt{unistd.h}.
+
+\vspace{2ex}
 
 \begin{tabular}{l@{\hspace{3em}}l}
 \emsl{UNIX 98} &\verb.#define _XOPEN_SOURCE 500.\\
@@ -869,15 +875,15 @@ být øádek s definicí následujícího makra. Pak naètìte \texttt{unistd.h}.
 \end{slide}
 
 \begin{itemize}
-\item funguje to tak, ¾e pomocí konkrétních maker definujete co chcete (napø.
-\texttt{\_POSIX\_SOURCE}) a podle nastavení jiných maker (napø.
-\texttt{\_POSIX\_VERSION}) pak zjistíte, co jste dostali. Musíte ale v¾dy po
-nastavení maker nainkludovat \texttt{unistd.h} a pou¾ít správný pøekladaè.
-Napøíklad se pokusíme pøelo¾it program \example{basic-utils/standards.c}, který
-vy\-¾a\-du\-je SUSv3, na systému podporujícím SUSv3 (Solaris 10), ale
-pøekladaèem, který podporuje pouze SUSv2 (SUSv3 pøekladaè je \texttt{c99}).
-Pozor, ¾e defaultní chování va¹eho pøekladaèe mù¾e být klidnì právì to z
-\texttt{c89}.
+\item The way how it works is that you use specific macros to define what you
+want (eg. \texttt{\_POSIX\_SOURCE}), and then you use other macros (eg.
+\texttt{\_POSIX\_VERSION}) to find out what you actually got.  You always have
+to include \texttt{unistd.h} after you set the macros and use a compiler that
+supports what you want.  For example, below we tried to compile
+\example{basic-utils/standards.c} which requires SUSv3, on a system supporting
+SUSv3 (Solaris 10), using a compiler that only supports SUSv2 (the compiler
+defined in SUSv3 is \texttt{c99}).  Note that the default behavior of your
+compiler might be same as \texttt{c89}.
 
 \begin{verbatim}
 $ cat standards.c 
@@ -894,24 +900,24 @@ options invalid; UNIX 03 and POSIX.1-2001 applications require
 the use of c99"
 cc: acomp failed for standards.c
 \end{verbatim}
-\item zdroj maker pro standard tedy mù¾e být ji¾ na stranì
-\pageref{UNIXSTANDARDS} zmiòovaný hla\-viè\-ko\-vý soubor
-\texttt{feature\_tests.h} na Solarisu.
-\item v dokumentaci konkrétního kompilátoru je mo¾né najít, která dal¹í makra
-se pou¾ívají. Mno¾ství maker je definováno také v systémových hlavièkových
-souborech.
-\item POSIX.1 v sobì zahrnuje ANSI C; tedy C89, ne C99 (o C standardech více
-na stranì \pageref{C_LANGUAGE}).
-\item co se týèe maker k jednotlivým standardùm, velmi dobrá je kapitola 1.5 v
-[Rochkind]. Viz také \example{basic-utils/suvreq.c}.
+%\item zdroj maker pro standard tedy mù¾e být ji¾ na stranì
+%\pageref{UNIXSTANDARDS} zmiòovaný hla\-viè\-ko\-vý soubor
+%\texttt{feature\_tests.h} na Solarisu.
+\item See the documentation for your compiler about what other macros can be
+used.
+\item See page \pageref{C_LANGUAGE} for more information on standards.
+\item Regarding macros for specific standards, you can find very good
+information in chapter 1.5 in [Rochkind]. See also
+\example{basic-utils/suvreq.c}.
+
 \begin{verbatim}
 int
 main(void)
 {
 #ifdef unix
-        printf("yeah\n");
+        printf("Yeah!\n");
 #else
-        printf("grr\n");
+        printf("Oh, no.\n");
 #endif
         return (0);
 }
