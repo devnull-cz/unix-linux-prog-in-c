@@ -611,28 +611,35 @@ write beautiful code.
 \begin{slide}
 \sltitle{Standard Utilities}
 \begin{tabular}{ll}
-\emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& pøekladaè C\\
-\emsl{CC}, \emsl{g++}$^\dagger$& pøekladaè C++\\
-\emsl{ld}& spojovací program (linker)\\
-\emsl{ldd}& pro zjistìní závislostí dynamického objektu\\
-\emsl{cxref}$^*$& køí¾ové odkazy ve zdrojových textech v C\\
-\emsl{sccs}$^*$, \emsl{rcs},\emsl{cvs}& správa verzí zdrojového kódu\\
-\emsl{make}$^*$& øízení pøekladu podle závislostí\\ 
-\emsl{ar}$^*$& správa knihoven objektových modulù\\
-\emsl{dbx}, \emsl{gdb}$^\dagger$& debuggery\\
-\emsl{prof}, \emsl{gprof}$^\dagger$& profilery\\
+\emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& C compiler\\
+\emsl{CC}, \emsl{g++}$^\dagger$& C++ compiler\\
+\emsl{ld}& linker\\
+\emsl{ldd}& for listing dynamic object dependencies\\
+\emsl{cxref}$^*$& generate a C program cross-reference table\\
+\emsl{sccs}$^*$& source code management\\
+\emsl{make}$^*$& for maintaining program dependencies\\ 
+\emsl{ar}$^*$& for managing archives\\
+\emsl{dbx}, \emsl{gdb}$^\dagger$& debuggers\\
+\emsl{prof}, \emsl{gprof}$^\dagger$& profilers\\
 \end{tabular}
 
-\hspace{0.5cm}$^*$ SUSv3 $^\dagger$ GNU
+\hspace{0.5cm}$^*$ SUSv4 $^\dagger$ GNU
 \end{slide}
 
-SUSv3
+SUSv4
 \begin{itemize}
-\item standardní pøíkaz volání kompilátoru a linkeru C je \texttt{c99} (podle
-ISO normy pro C z roku 1999)
-\item \texttt{cb} (C program beautifier) není
-\item pro správu verzí je \texttt{sccs}
-\item debuggery a profilery nejsou
+\item The standard C language compiler is \texttt{c99}, required by the
+specification.  Be careful as the default mode for \texttt{gcc} does not
+conform to any of the ANSI/ISO C standards.  You need to check the manual page
+for your version, look for the option \texttt{-std=} to see what is the default.
+For example, for version 4.2.1, the default is \texttt{-std=gnu89}, for version
+7.2, it is \texttt{-std=gnu11}.
+\item Do not use \texttt{sccs} for source code management.  Unless you are
+forced to use a centralized source code management (CVS, Subversion, etc.) due
+to historical reasons or while working on an existing project, always use a
+\emsl{distributed} source code management system when starting a new project.
+We recommend Git (\texttt{git}) or Mercurial (\texttt{hg}).
+\item Debuggers and profilers are not part of the standard.
 \end{itemize}
 
 
