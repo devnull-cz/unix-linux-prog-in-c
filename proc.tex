@@ -21,50 +21,48 @@ changequote([[[, ]]])
 \end{slide}
 
 \begin{itemize}
-\item ka¾dý proces má tøi základní segmenty (pamì»ové segmenty, nemluvíme o
-hardwarových segmentech):
+\item each process has 3 basic segments (memory segments, not
+hardware segments):
     \begin{itemize}
-    \item text \dots{} kód programu
-    \item data \dots{} inicializované promìnné
-    \item zásobník
+    \item text \dots{} program code
+    \item data \dots{} initialized variables
+    \item stack
     \end{itemize}
-\item sekce \texttt{text} a \texttt{data} jsou ulo¾eny ve spustitelném souboru
-\item sekce pro inicializované i neinicializované promìnné a heap jsou brány
-dohromady jako data
-\item dále lze do adresového prostoru pøipojit segmenty sdíl{}ené
-pamìti (\texttt{shmat}) nebo soubory (\texttt{mmap}).
-\item text je sdíl{}en v¹emi procesy, které provádí stejný kód. Datový
-segment a zásobník jsou privátní pro ka¾dý proces.
-\item ka¾dý systém mù¾e pou¾ívat zcela jiné rozdìl{}ení adresového prostoru
-procesu (a typicky tomu tak je). Konkrétní pøíklad je na následujícím slajdu, a
-zobrazuje i sekce pro \texttt{mmap} a \emph{heap}.
-\item \emph{bss} \dots{} neinicializované promìnné (\texttt{bss}
-pochází z assembleru IBM 7090 a znamená \uv{block started by
-symbol}). Za bìhu programu tvoøí sekce \texttt{data}, \texttt{bss} a heap
-(není na obrázku) dohromady datové segmenty procesu. Velikost heapu lze mìnit
-pomocí systémových volání \texttt{brk} a \texttt{sbrk}.
-\item poznámka -- neinicializované promìnné jsou statické promìnné, které
-(pøe\-kva\-pi\-vì) nejsou inicializované -- tj. globální promìnné nebo promìnné
-definované jako \texttt{static} ve funkcích i mimo funkce. Jak víte z pøedná¹ek
-o jazyku C, v¹echny tyto promìnné jsou pøi startu programu automaticky
-inicializované nulami. Proto není nutné mít jejich hodnotu v binárce. Jakmile
-ale nìjakou z takových pro\-mìn\-ných inicializujete, bude ji¾ souèástí datového
-segmentu programu na disku.
-\item \emph{(u¾ivatelský) zásobník} \dots{} lokální nestatické promìnné,
-parametry funkcí (na urèitých architekturách v daných modech - 32-bit x86),
-ná\-vra\-to\-vé adresy. Ka¾dý proces má dva zásobníky, jeden
-pro u¾ivatelský re¾im a jeden pro re¾im jádra. U¾ivatelský zásobník procesu
-automaticky roste podle potøeby (neplatí, pokud se pou¾ívají vlákna, tam má
-navíc ka¾dé vlákno zásobník svùj).
-\item \emph{oblast user (u-area)} \dots{} obsahuje informace o procesu pou¾ívané
-jádrem, které nejsou potøebné, kdy¾ je proces odlo¾en na disku (poèet otevøených
-souborù, nastavení o¹etøení signálù, poèet segmentù sdíl{}ené pamìti, argumenty
-programu, promìnné prostøedí, aktuální adresáø, atd.). Tato oblast je pøístupná
-pouze pro jádro, které v¾dy vidí právì jednu u-oblast patøící právì bì¾ícímu
-procesu. Dal¹í informace o procesu, které jádro mù¾e potøebovat i pro jiný ne¾
-právì bì¾ící proces, nebo i kdy¾ je proces odlo¾en, jsou ve struktuøe
-\texttt{proc}. Struktury \texttt{proc} pro v¹echny procesy jsou stále rezidentní
-v pamìti a viditelné v re¾imu jádra.
+\item \texttt{text} and \texttt{data} sections are saved in executable file
+\item the sections for inicialized and non-initialized variables and heap are
+considered as data
+\item it is also possible to connect segments of shared memory
+(\texttt{shmat}) or files (\texttt{mmap}) into the address space.
+\item the text is shared between all processes which execute the same code.
+The data segment and stack are private for each process.
+\item each system can use different layout of process address space
+(and typically it is indeed so). See next slide which also shows
+sections for \texttt{mmap} and \emph{heap}.
+\item \emph{bss} \dots{} non-initialized variables (\texttt{bss}
+comes from the IBM 7090 assembler and stands for \uv{block started by
+symbol}). While the program is running, the \texttt{data}, \texttt{bss} and heap
+sections (not shown in the picture) make up data segments of the process.
+Heap size can be changed using the \texttt{brk} and \texttt{sbrk} system calls.
+\item note -- non-initialized variables like static variables --
+i.e. global variables or variables declared as \texttt{static} both in the
+functions and outside. All these variables are automatically initialized
+with zeroes before the program is started. Therefore it is not necessary
+to store their value in the binary. Once one of these variables is initialized,
+it will become part of the data segment on disk.
+\item \emph{(user) stack} \dots{} local non-static variables,
+function parameters (on certain architectures in certain modes - e.g. 32-bit x86),
+return addresses. Each process has 2 stacks -- one for user mode and another
+for kernel mode. User stack automatically grows according to its use
+(except for threads where each thread has its own limited stack).
+\item \emph{user area (u-area)} \dots{} contains process information used by
+the kernel which are not needed when the process is swapped out to disk
+(number of open files, signal handling settings, number of shared memory segments,
+program arguments, environment variables, current working directory, etc.).
+This area is accessible only to the kernel which will see just the area 
+of currently running process. The rest of data which is needed even if the
+process is not currently running or is swapped out to disk, is stored in 
+\texttt{proc} structure. The \texttt{proc} structures for all processes
+are always resident in mempory and accessible in kernel modes.
 \end{itemize}
 
 
@@ -78,39 +76,40 @@ v pamìti a viditelné v re¾imu jádra.
 \label{SOLARIS_PROC_ADDR_SPACE}
 
 \begin{itemize}
-\item z obrázku lze vyèíst nìkolik dal¹ích vìcí:
+\item the following is deductible from the image:
 
 \begin{itemize}
-\item maximální velikost kernelu pro Solaris 11 x86 32-bit je 256 megabajtù
-\item mezi namapováním kernelu a pamìtí vyhrazenou pro \texttt{mmap} je volné
-místo
-\item zásobník roste smìrem k ni¾¹ím adresám a jeho velikost je omezena na 128
-megabajtù
+\item maximum size of kernel for Solaris 11 x86 32-bit is 256 megabytes
+\item there is free space between kernel and memory reserved for \texttt{mmap}
+\item stack grows towards lower addresses and its size is limited to 128 megabytes
 \end{itemize}
 
-\item \emph{heap} je èást pamìti, kterou si proces mù¾e zvìt¹ovat pomocí volání
-\texttt{brk} a \texttt{sbrk}, a je èasto pou¾ívaná funkcí \texttt{malloc}.
-Funguje to tak, ¾e \texttt{malloc} si postupnì zvìt¹uje heap podle potøeby, a
-pøiøazenou pamì» internì spravuje a pøidìluje ji procesu po èástech. Kdy¾ tedy
-voláte \texttt{free}, neznamená to, ¾e vracíte pamì» systému, ale pouze
-internímu alokátoru.
-\item oblast pro \texttt{mmap} se pou¾ívá pro mapování souborù, tedy i
-sdíl{}ených knihoven. Nìkteré alokátory pou¾ívají internì i tuto pamì»,
-napøíklad pro vìt¹í kusy pamìti ¾ádané najednou. Je mo¾né exkluzivnì pou¾ívat
-pouze \texttt{mmap}, pro aplikaci je to zcela transparentní. Pøi pou¾ití
-\texttt{mmap} je mo¾né pamì» systému vracet (voláním \texttt{munmap}), na rozdíl
-od implementace pomocí \texttt{brk}/\texttt{sbrk}.
-\item obrázek byl pøevzat z [McDougall-Mauro], a není na nìm oblast pro
-neinicializované promìnné. Pokud si ale na tomto systému necháte vypsat adresu
-jedné z nich, zjistíte, ¾e inicializované i neinicializované promìnné sdílí
-spoleèný datový segment, na obrázku oznaèený jako ,,executable -- DATA''.
-Pøíklad: \example{pmap/proc-addr-space.c}
-\item mapování kernelu není nutné, napøíklad u Solarisu na \emph{amd64}
-architektuøe (tj. 64-bit) u¾ kernel do u¾ivatelského prostoru procesu
-mapován není.
-\item \texttt{brk} ani \texttt{sbrk} nejsou souèástí normy, pøenositelné
-aplikace by proto mìly pou¾ívat, pokud podobnou funkcionalitu potøebují, volání
-\texttt{mmap}, viz strana \pageref{MMAP}.
+\item \emph{heap} is part of the memory that can be extended by the processes
+using the \texttt{brk} and \texttt{sbrk} syscalls and is used by
+the \texttt{malloc} function.
+The \texttt{malloc} allocator gradually extends the heap based on demand,
+and manages acquired memory and distributes to the process in chunks.
+When \texttt{free} is called, it does not mean that the memory is returned
+to the kernel; it is only returned to the allocator.
+\item The \texttt{mmap} area is used for mapping files into memory, i.e. also
+for shared libraries. Some allocators use also this memory internally,
+e.g. in case process requests larger chunks of memory at once.
+It is possible to exclusively use just \texttt{mmap}, it is transparent
+to the application. When using \texttt{mmap} it is possible to return the
+memory to the kernel (using \texttt{munmap}), compared to the
+\texttt{brk}/\texttt{sbrk} based implementation.
+\item The picture was taken from [McDougall-Mauro], and does not contain space
+for non-initialized variables. If you try to print the address of such variable
+on this system, you will find out that both initialized and non-initialized
+variables share common data segment, on the image visible as
+,,executable -- DATA''.
+Example: \example{pmap/proc-addr-space.c}
+\item The kernel mapping is not necessary, for example on Solaris running on
+\emph{amd64} architecture (i.e. 64-bit) the kernel is no longer mapped into
+user space.
+\item \texttt{brk} nor \texttt{sbrk} are part of the standard, hence portable
+applications should not use them; if similar functionality is needed, they
+should use \texttt{mmap}, see page \pageref{MMAP}.
 \end{itemize}
 
 
