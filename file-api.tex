@@ -209,6 +209,8 @@ descriptor \emph{fd} from the buffer pointed to by \emph{buf}
 \end{itemize}     
 \end{slide}
 
+\label{READCALL}
+
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
 \item For any Unix system, a file is just a sequence of bytes without any innner
@@ -234,7 +236,6 @@ written, a blocking \texttt{write} blocks until writing data is possible, a
 non-blocking call returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
 \item \emsl{Important exceptions for pipes} are listed on page
 \pageref{NAMEDPIPE}.
-
 \item
 If \texttt{read} or \texttt{write} returns a non-zero number less than
 \texttt{nbyte} due to an error, a repeated call returns -1 and sets
@@ -314,23 +315,28 @@ int main(int argc, char *argv[])
 \end{slide}
 
 \begin{itemize}
-\item Tento pøíklad je kompletní! Staèí provést cut-and-paste, pøelo¾it a
-spustit. Nutno poznamenat, ¾e pro úèely pou¾ití pouze jednoho slajdu se
-netestují ¾ádné chyby, vèetnì ignorování toho, ¾e u¾ivatel mù¾e program spustit
-bez parametrù, co¾ zpùsobí pokus o pøístup do pamìti na místo, které neobsahuje
-oèekávaná data. To pak na nìkterých systémech mù¾e zpùsobit core dump.
-\item Je neefektivní èíst a zapisovat soubor po jednotlivých bajtech, proto¾e
-ka¾dé systémové volání má jistý overhead, nezávislý na velikosti zpracovávaného
-bloku. Lep¹í je proto najednou zpracovávat rozumnì velké bloky, napøíklad
-8-64KB. Pøechozí pøíklad \example{read/cat.c} má pøepínaè \texttt{-b} pro
-nastavení velikosti bloku pro ètení; zkuste s (a bez) \texttt{-b 1} a zmìøte
-pomocí \texttt{time(1)}. Uvidíte velký rozdíl.
-\item Pokud potøebujete pracovat s malými èástmi/buffery, je lep¹í pou¾ít stream
-orintované knihovní funkce \texttt{fopen}, \texttt{fread}, \dots které data
-vnitønì bufferují.
-\item V¹imnìte si, ¾e v¾dy zapisujeme jen tolik bajtù, kolik jsme jich naèetli.
+\item The example above is complete.  You can cut-and-paste, compile, and run
+it.  Obviously, due to the slide size constraint, it is missing several error
+checks otherwise needed for a well behaved utility, like checking \texttt{argc}
+before using \texttt{argv}, or checking return values for \texttt{open} and
+\texttt{creat}.
+\item It is not efficient to read and write by a few bytes as each system call
+costs a certain overhead, independent on the size of the processed block.  It is
+much better to read and write larger blocks, say 8-1024KB.  You can
+\texttt{strace(1)} a \texttt{cat} command on Linux to see what blocks they use
+for \texttt{read}.  It may be around 128 kilobytes.  The following example,
+\example{read/cat.c}, has an option \texttt{-b} for setting the read block size;
+you can try different block sizes, including 1, on a reasonable big file (use
+\texttt{mkfile(1)} on BSD/macOS or \texttt{fallocate(1)} on Linux to create an
+arbitrarily large file), and use \texttt{time(1)} to measure the system call
+overhead.
+\item If you need to work with little pieces of data read from files, you can
+use stream oriented functions that internally buffer the data -- \texttt{fopen},
+\texttt{fread}, \dots
+\item Note that we always only write as many bytes as we actually read.  See
+page \pageref{READCALL} for more information on when we can read/write less data
+than requested.
 \end{itemize}
-
 
 %%%%%
 \begin{slide}
