@@ -123,26 +123,24 @@ should use \texttt{mmap}, see page \pageref{MMAP}.
 \end{slide}
 
 \begin{itemize}
-\item proces se dostane do re¾imu jádra buï pøíchodem
-\emph{pøeru¹ení vyvolaného procesorem} (výpadek stránky, neznámá
-instrukce,...), \emph{èasovaèem} (v pravidelných intervalech je
-potøeba aktivovat plánovaè procesù), \emph{periferním zaøízením},
-nebo instrukcí synchronního pøeru¹ení (standardní knihovna takto
-pøedává øízení jádru, aby obslou¾ilo \emph{systémové volání}).
-\item v pamìti je pouze jedna kopie kódu a dat jádra, sdíl{}ená v¹emi
-procesy. Kód jádra je v¾dy celý rezidentní v pamìti, není odkládán
-na disk.
-\item \emph{text jádra} \dots{} kód jádra operaèního systému,
-zavedený pøi startu systému a rezidentní v~pamìti po celou dobu bìhu
-systému. Nìkteré implementace umo¾òují pøidávat funkèní moduly do
-jádra za bìhu (napø. pøi pøidání nového zaøízení se do jádra
-dynamicky pøidá nový ovladaè), není proto tøeba kvùli ka¾dé zmìnì
-regenerovat jádro a restartovat systém.
-\item \emph{data a bss jádra} \dots{} datové struktury pou¾ívané
-jádrem, souèástí je i u-oblast právì bì¾ícího procesu.
-\item \emph{zásobník jádra} \dots{} samostatný pro ka¾dý proces, je
-prázdný, jestli¾e je proces v u¾ivatelském re¾imu (a tedy pou¾ívá
-u¾ivatelský zásobník).
+\item A process will enter kernel model either by a
+\emph{trap induced by the CPU} (page fault, unknown instruction, etc.)
+\emph{timer} (to invoke scheduler), \emph{interrupt} from peripheal device,
+or synchronous trap (standard library uses it to hand over the control
+to kernel to service \emph{system call}).
+\item There is only one copy of the kernel text and data in the memory,
+shared by all processes. Kernel text as a whole is resident in memory,
+it is not swapped out to disk.
+\item \emph{kernel text} \dots{} code of operating system kernel,
+loaded when the system is booting and is always resident in memory.
+Some implementations allow to add modules to the kernel during runtime.
+(e.g. when a device is connected, matching device driver module is
+automatically loaded), it is therefore not necessary to regenerate
+the kernel and reboot the system whenever a change is needed.
+\item \emph{data and kernel bss} \dots{} contain data structures used
+by kernel, contains the u-area of currently running process.
+\item \emph{kernel stack} \dots{} independent for each process, is empty
+when the process is in user mode (and therefore uses user stack).
 \end{itemize}
 
 %%%%%
