@@ -477,42 +477,35 @@ position
 \end{slide}
 
 \begin{itemize}
-\item \label{LSEEK} Poèítá se od 0, tj. offset 0 je první bajt souboru. Tam, kde
-to má smysl, je mo¾né pro \texttt{offset} pou¾ít i záporné èíslo. Pøíklad:
+\item \label{LSEEK} The first byte is at position 0.  If it makes sense, you may
+use a negative number for setting \emph{offset}.  Example:
 \example{read/lseek.c}.
+\item If it legal to move beyond the end of the file.  If data is written there,
+the file size will be set accordingly, the ``holes'' will be read as zeros.
+Note that just changing the file position will not increase the file size.
+\item You can get the file size via \texttt{lseek(fildes, 0, SEEK\_END)}.
+\item The most common operations with \texttt{lseek} are three: seeting the
+position from the beginning of a file, setting the position to the end of a
+file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
+\item There is no I/O involved when calling \texttt{lseek}.
+\item You can obviously use \texttt{lseek} not only for subsequent calls
+\texttt{read} and \texttt{write} but also for another call to \texttt{lseek}.
+\item \label{BIG_FILE} Beware of files with holes as it may lead to problems
+with backing up the data.  Example: \example{read/big-file.c} demonstrates that
+moving a sparse file may end up in the actual storage data occupation increase.
+It greatly depends on the system you run, what an archiving utility is used, and
+their versions.  Some utilities provide means to preserve holes, for example,
+\texttt{dd} with \texttt{conv=sparse}, \texttt{tar} with \texttt{-S},
+\texttt{rsync} with \texttt{--sparse}, etc.
+\item Beware of confusing the parameters.  The second line below looks OK but
+the arguments are in reversed order.  What is more, \texttt{SEEK\_SET} is
+defined as 0 and \texttt{SEEK\_CUR} is 1, so the file position is not moved
+which is not by itself a disasterous thing, and makes it more difficult to find
+it:
 
-
-\item Lze se pøesunout i na pozici za koncem souboru. Pokud se pak
-provede zápis, soubor se prodlou¾í a v pøeskoèené èásti budou samé
-nuly (samotné \texttt{lseek} nestaèí). Nìkteré filesystémy takové
-bloky celých nul pro úsporu místa neukládají.
-\item Velikost souboru je mo¾né zjistit pomocí \texttt{lseek(fildes,
-0, SEEK\_END)}.
-\item Nejèastìj¹í operace s \texttt{lseek} jsou \emsl{tøi}: nastavení
-konkrétní pozice od zaèátku souboru, nastavení pozice na konec
-souboru a zji¹tìní aktuální pozice v souboru (0 spoleènì se
-\texttt{SEEK\_CUR})
-\item Pøi pou¾ití \texttt{lseek} se ¾ádné I/O neprovede, tj. ¾ádný pøíkaz
-se nepo¹le na øadiè disku.
-\item \texttt{lseek} nemusí slou¾it jen pro operace \texttt{read} a
-\texttt{write}, ale také pro následnou operaci \texttt{lseek}
-\item \label{BIG_FILE} Seekování a zápis mù¾e vést k problémùm se zálohami.
-Pøíklad: \example{read/big-file.c} demonstruje, ¾e pøesun souboru s
-"dírami" (tzv. sparse file) mù¾e vést k nárùstu velikosti souboru
-co se týèe blokù alokovaných file systémem.
-Chování zále¾í na kombinaci operaèního systému, archivního programu a
-file systému (a jejich verzí). Nìkteré programy mají pøepínaèe, které
-umo¾ní díry zachovat (napø. \texttt{dd} s \texttt{conv=sparse},
-\texttt{tar} s \texttt{-S}, \texttt{rsync} s \texttt{--sparse}, atd.).
-
-
-\item Pozor na pøehození parametrù. Druhá øádka samostatnì vypadá OK, ale má
-pøehozené parametry. \texttt{SEEK\_SET} je navíc 0 a \texttt{SEEK\_CUR} je 1,
-tak¾e vás to nikam neposune a nic ¹patného se nestane, a o to je hor¹í to pak
-najít.
 \begin{verbatim}
-lseek(fd, 1, SEEK_SET)
-lseek(fd, SEEK_SET, 1)
+lseek(fd, 1, SEEK_SET);
+lseek(fd, SEEK_SET, 1);    /* WRONG!!! */
 \end{verbatim}
 \end{itemize}
 
