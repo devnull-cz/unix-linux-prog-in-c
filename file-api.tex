@@ -730,29 +730,32 @@ of 512B blocks allocated
 \end{slide}
 
 \begin{itemize}
-\item update èasu posledního pøístupu k souboru lze na bì¾ných file
-systémech vypnout pomocí optionu \texttt{noatime} pøíkazu \texttt{mount}.
-Hodit se to mù¾e pro urychlení, pokud se provádí ètení velkého mno¾ství
-souborù a nezále¾í na èasu pøístupu na tìchto souborech (napø. pøi
-kompilaci).
-\item \emph{Metadata} jsou informace o souboru -- tedy mód, èasy pøístupu,
-délka, vlastník a skupina atd. Nepatøí mezi nì skuteèná data souboru, a ani
-jméno, které není ulo¾eno v rámci daného souboru, ale v adresáøi èi v
-adresáøích.
-\item Metadata je mo¾né pøeèíst, i kdy¾ proces nemá práva pro ètení obsahu
-souboru.
-\item Touto funkcí nezískám flagy deskriptoru ani flagy z pole tabulky
-otevøených souborù v systému, zde jde o informace ohlednì souboru ulo¾eného na
-pa\-mì\-»o\-vém médiu.
-\item Co se stane kdy¾ se zavolá \texttt{fstat} na deskriptory 0,1,2 ?
-(pøedpokládáme ¾e nejsou pøesmìrované z normálního stavu)
-
-
-\item \texttt{st\_ctime} není èas vytvoøení souboru (creation time), ale èas
-zmìny indexového uzlu (change time)
-\item Norma nespecifikuje poøadí polo¾ek ve struktuøe ani nezakazuje pøidat
-dal¹í.
-\item \label{STAT} Pøíklad: \example{stat/stat.c}
+\item You may be able to instruct the system not to update the file access time
+when reading from a file, with granularity per file system.  This option is
+useful on file systems where there are large numbers of files and performance is
+more critical than updating the file access time (which is rarely ever
+important).  It may also come in handy if your filesystem is on a medium with a
+limited number of erase/write cycles -- a CompactFlash, for example.  If your
+system supports it, it will be a \texttt{noatime} option for the \texttt{mount}
+command.  See the manual page.
+\item \emph{Metadata} is information about the file -- access mode, access
+times, length, owner, group, etc.  Metadata does \emsl{not} include the file
+data itself, neither the filename as the file data can be accesses through
+several different hard links and those hardlinks are in the data of directories.
+In other words, metadata is data about the actual file data.
+\item Metadata can be read even when the process has not rights to read the file
+data.
+\item These functions do not provide file descriptor flags or flags from the
+system file table.  These functions are about file information as stored on some
+mountable media.
+\item \texttt{st\_ctime} is not the creation time but the change time -- the
+last modification of the inode.
+\item The UNIX norm does not specify the ordering of the \texttt{struct stat}
+members, neither it prohibits adding new.
+\item \label{STAT} Example: \example{stat/stat.c}
+\item You can call \texttt{fstat} on file descriptors 0,1,2 as well.  Unless
+redirected before, you will get information on the underlying terminal device
+(eg. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
 \end{itemize}
 
 
