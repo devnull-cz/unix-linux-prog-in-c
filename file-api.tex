@@ -643,57 +643,55 @@ dup2(1, 2);
 \texttt{ioctl()}} \texttt{int \funnm{fcntl}(int \emph{fildes}, int
 \emph{cmd}, ...);}
 \begin{itemize}
-\item provides file descriptor duplication, setting descriptor and file status
-flags, and advisory and possibly mandatory locking.
-
-Example: close standard error output on program execution (exec call)\\
-\texttt{fcntl(2, F\_SETFD, FD\_CLOEXEC);}
+\item file descriptor duplication
+\item setting descriptor and file status flags
+\item advisory and possibly mandatory locking
 \end{itemize}
 
 \texttt{int \funnm{ioctl}(int \emph{fildes}, int \emph{request}, ... );}
 \begin{itemize}
 \item manipulates the underlying device parameters of special files
-\item used as a universal interface for manipulating devices.  Each device
-defines a set of requests it understands.
+\item used as a universal interface for manipulating devices
+\item each device defines a set of requests it understands
 \end{itemize}
 \end{slide}
 
 \label{FCNTL}
 
 \begin{itemize}
-\item jak pozdìji uvidíme, i k socketùm se pøistupuje pøes souborové
-deskriptory, a je tedy mo¾né \texttt{fnctl} pou¾ít i na nì, tøeba pro
-nastavení neblokujícího socketu. Více informací viz strana \pageref{CONNECT}.
-\item mo¾né hodnoty \texttt{cmd} ve funkci \texttt{fcntl}:
+\item Example: close standard error output on program execution (exec call):\\
+\texttt{fcntl(2, F\_SETFD, FD\_CLOEXEC);}
+\item We will see later that descriptors are used for sockets as well, so it is
+possible to use \texttt{fnctl} on them, for example to set a non-blocking
+socket.  See page \pageref{CONNECT} for more information.
+\item Values for \emph{cmd} in \texttt{fcntl}:
 \begin{itemize}
-\item \texttt{F\_DUPFD} \dots{} duplikace deskriptoru
-\item \texttt{F\_GETFD} \dots{} zji¹tìní pøíznakù deskriptoru
-(\texttt{FD\_CLOEXEC} -- uzavøení pøi exec). \texttt{FD\_CLOEXEC} je jediný flag
-pro deskriptory, definovaný v normì UNIX~03.
-\item \texttt{F\_SETFD} \dots{} nastavení pøíznakù deskriptoru
-\item \texttt{F\_GETFL} \dots{} zji¹tìní módu ètení/zápis a pøíznakù otevøení
-souboru (jako u \texttt{open})
-\item \texttt{F\_SETFL} \dots{} nastavení pøíznakù otevøení souboru
-(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK}, \texttt{O\_RSYNC},
-\texttt{O\_SYNC}). Nemohu nastavit pøíznaky pro RO/RW a ani pøíznaky pro
-vytvoøení, zkrácení nebo exkluzivní pøístup k souboru.
+\item \texttt{F\_DUPFD} \dots{} duplicate descriptors
+\item \texttt{F\_GETFD} \dots{} get file descriptor flags.  \texttt{FD\_CLOEXEC}
+is the only descriptor flag defined in SUSv4.
+\item \texttt{F\_SETFD} \dots{} set file descriptor flags
+\item \texttt{F\_GETFL} \dots{} get file opening flags (read/write, append,
+\dots)
+\item \texttt{F\_SETFL} \dots{} set file opening flags
+(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK}, \texttt{O\_R\-SYNC},
+and \texttt{O\_SYNC}).  Setting RO/RW is not allowed, and neither are flags for
+creation, truncation, and exclusive access.
 \item \texttt{F\_GETLK}, \texttt{F\_SETLK}, \texttt{F\_SETLKW} \dots{}
-nastavování zámkù
+for file locking
 \end{itemize}
-\item je dùle¾ité si uvìdomit, ¾e jsou dva druhy pøíznakù -- pøíznak(y) pro
-souborový deskriptor a pøíznaky pro jedno konkrétní otevøení souboru -- tj.
-pøíznaky jsou ulo¾ené ve dvou rùzných tabulkách.
-
-
-\item periferní zaøízení podporují ètení a zápis dat pomocí \texttt{read},
-\texttt{write} a mapování dat do pamìti (\texttt{mmap}), ve¹keré dal¹í
-operace se zaøízením (napø. nastavení parametrù, zamèení nebo eject) se dìlají
-funkcí \texttt{ioctl}.
-\item pøi nastavování pøíznakù nejdøív v¾dy zjistìte, jaké byly pøedtím. I kdy¾
-jste si jisti, ¾e v dané chvíli jsou nulové a je tedy mo¾né provést
-\texttt{fcntl(fd, O\_APPEND)}, nemù¾ete vìdìt, co se mù¾e zmìnit (napøíklad o
-pár øádkù vý¹e nìjaký flag pøidáte, ani¾ byste vìdìli, ¾e jste ovlivnìni kódem
-dole). Tedy v¾dy pou¾ijte napøíklad toto:
+\item Note that there are two kinds of flags.  Flags associated with the file
+descriptor, having \texttt{FD} in the macro names (only one such exists --
+\texttt{FD\_CLOEXEC}), and flags associated with the slot in the system file
+table of opened files, having \texttt{FL} in the \texttt{fcntl} command macros
+(ie. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
+\item Devices may support reading and writing using \texttt{read} and
+\texttt{write}, and mapping files to memory (\texttt{mmap}, see page
+\pageref{MMAP}), all other operations on devices (eg. setting parameters,
+locking, or eject) are performed using the \texttt{ioctl} system call.
+\item When setting flags, always get the present flags first.  Even when you
+know the flags are zero, you never know how the code is modified in the future,
+and what other flags are possibly added.  So, you should always use something
+like the following when setting a new flag:
 
 \begin{verbatim}
 flags = fcntl(fd, F_GETFL);
@@ -701,11 +699,8 @@ if (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)
   ...
 \end{verbatim}
 
-\dots a podobnì pro odebrání flagu -- je ¹patné øe¹ení nastavit
-hodnotù flagù na nulu, místo toho je tøeba pou¾ít bitového
-jednièkového doplòku pøíslu¹ného flagu (\texttt{flags \& \tilda{}O\_APPEND}).
+\dots similarly when removing a flag.
 \end{itemize}
-
 
 %%%%%
 
