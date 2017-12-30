@@ -364,23 +364,31 @@ the notes below this slide.
 \label{NAMEDPIPE}
 
 \begin{itemize}
-\item Co se týèe vytvoøení pojmenované roury, mluvíme zde o volání
-\texttt{mkfifo} ze strany \pageref{MKFIFO}. Pou¾ití nepojmenované roury je
-popsané na stranì \pageref{PIPE}.
-\item Ètenáø je proces, který otevøe soubor (i) pro ètení, zapisovatel je
-proces, který otevøe soubor (i) pro zápis.
-\item Je mo¾né otevøít rouru pro zápis i ètení stejným procesem najednou, ani¾
-by pøedtím existoval ètenáø nebo zapisovatel. Proces pak mù¾e do roury zapisovat
-a z opaèného konce èíst, co do roury napsal.
-\item Pokud rouru nemá ¾ádný proces otevøenou pro zápis, pro okam¾ité vrácení
-deskriptoru pouze pro ètení je nutné \emsl{otevøít} rouru s flagem
-\texttt{O\_NONBLOCK}, proces se jinak na rouøe zablokuje èekáním na
-zapisovatele. Pozor ale na to, ¾e pokus o \emsl{ètení} z roury bez zapisovatele
-okam¾itì vrátí 0 jako indikaci konce souboru; \emsl{proces se nezablokuje
-èekáním na zapisovatele}, bez ohledu na to zda byl soubor otevøen v blokovacím
-èi neblokovacím módu. Pøi \emsl{zápisu} do roury bez ètenáøe (tj. zapisovatel
-otevøel rouru je¹tì v dobì, kdy ètenáø existoval, viz následující odstavec)
-po¹le kernel procesu signál \texttt{SIGPIPE} (``broken pipe''):
+\item A named pipe is created using the system call \texttt{mkfifo}, see page
+\pageref{MKFIFO}.  Using an unnamed pipe is described later on page
+\pageref{PIPE}.
+\item A consumer is a process that opens a file/pipe for reading, a producer
+opens a file/pipe for writing. 
+\item It is possible to open a named pipe for reading and writing at the same
+time.  The same process thus can write to the pipe and then read the same data
+from it.
+\item If the pipe is not yet open for writing by any process, to open the pipe
+for reading without blocking on the call, one needs to use \texttt{O\_NONBLOCK},
+see page \pageref{O_NONBLOCK}.  Without that flag the consumer will block
+waiting for a producer.
+\item However, trying to read a previously opened pipe that has no producer
+results in a return value of 0, indicating the end of file -- the process will
+not block waiting for a producer.  It is irrelevant whether the pipe was opened
+in a blocking or non-blocking mode.
+\item When writing to a pipe without a consumer (ie. the producer opened the
+pipe when there was at least one existing consumer), the kernel will send the
+producer a signal \texttt{SIGPIPE} (``broken pipe'').  See the following
+example.  For simplicity, we are using an unnamed pipe but that does not matter
+as it would have behaved in the same manner.  The \texttt{date(1)} command never
+reads anything from its standard input so it is guaranteed that the producer,
+\texttt{dd(1)}, will be writing to a pipe without a consumer.  If a process is
+killed by a signal, the shell provides a signal number added to 128 as its
+return value, and \texttt{kill -l} understands that:
 
 \begin{verbatim}
 bash$ dd if=/dev/zero | date
@@ -391,31 +399,32 @@ bash$ kill -l 141
 PIPE
 \end{verbatim}
 
-\item v pøípadì otevírání pouze pro zápis s \texttt{O\_NONBLOCK} bez
-existujícího ètenáøe se vrátí chyba a \texttt{errno} se nastaví na
-\texttt{ENXIO}. Tato asymetrie je snahou, aby v rouøe nebyla data, která nebudou
-v krátké dobì pøeètena -- systém nemá zpùsob, jak uschovávat data v rouøe bez
-èasového omezení. Bez \texttt{O\_NONBLOCK} flagu se proces zablokuje èekáním na
-ètenáøe. Asymetrií je mínìno to, ¾e systému nevadí ètenáøi bez zapisovatelù, ale
-nechce mít zapisovatele bez ètenáøù. I tato situace se mù¾e stát, viz pøedchozí
-odstavec, ale tam to jinak øe¹it nelze.
-\item z uvedeného tedy vyplývá, ¾e pokud chcete vytvoøit proces, který èeká na
-pojmenované rouøe a vykonává po¾adavky od rùzných procesù-zapisovatelù
-(od ka¾dého jeden), musíte ji otevøít s flagem
-\texttt{O\_RDWR} i kdy¾ do roury nehodláte zapisovat; jinak po prvním
-zablokování v \texttt{open} pøi èekání na otevøení roury zapisovatelem by
-dal¹í volání \texttt{read} pro akceptování dal¹ího po¾adavku typicky vrátilo
-0, pokud by náhodou roura nebyla mezitím pro zápis otevøena dal¹ím procesem.
-
-\item zápis maximální velikosti \texttt{PIPE\_BUF} (\texttt{limits.h}) je
-zaruèený jako atomický, tj. data nesmí být prolo¾ena daty jiných zapisujících
-procesù. Napø. v Solarisu 11 to je to 5120 bajtù, ve FreeBSD 5.4 je to 512
-bajtù. Pokud zapisujete více, mù¾e se to stát. Zároveò platí, ¾e pokud se
-zapisuje ménì ne¾ \texttt{PIPE\_BUF} bajtù, zapí¹ou se v¾dy najednou, a pokud je
-nastaveno \texttt{O\_NONBLOCK} a nelze toho dosáhnout, vrátí se chyba.
-\item roura nemá pozici v souboru, zápis tak v¾dy pøidává na konec.
-\item stejnì se vzhledem ke ètení a zápisu chová i nepojmenovaná roura, viz
-strana \pageref{PIPE}.
+\item When opening a pipe for writing only with \texttt{O\_NONBLOCK} and without
+an existing consumer, the call returns -1 and \texttt{errno} is set to
+\texttt{ENXIO}.  This asymmetry to opening a pipe for reading in a non-blocking
+mode is due to the fact that it is not desirable to have data in a pipe that may
+not be read in a short period of time.  The Unix system does not allow for
+storing pipe data for arbitrary length of time.  Without the
+\texttt{O\_NONBLOCK} flag, the process will block while waiting for a consumer.
+By asymmetry we mean that the system does not mind to keep consumers without
+producers but it tries to avoid writers without existing readers.
+\item  If you want to create a process that sits on a named pipe and processes
+data from producers, you need to open it with the flag \texttt{O\_RDWR} even
+that you do not intend to write it.  If you do not use the flag, you might end
+up with \texttt{read} returning 0 after all producers, perhaps temporarily only,
+disappear, which could be solved by busy waiting.  A much better solution would
+be to use the \texttt{select} call, see page \pageref{SELECT}.
+\item Writing data of length \texttt{PIPE\_BUF} bytes or less
+(\texttt{limits.h}) is guaranteed as atomic, ie. data will not be intermingled
+with data written by other writers.  For example, on Linux kernel 4.x it is 4096
+bytes, on Solaris 11 it is 5120 bytes, and on FreeBSD 8.2 it is only 512 bytes.
+It is obvious from the above that if you write less or equal than
+\texttt{PIPE\_BUF}, you always write the whole data or fail, and if
+\texttt{O\_NONBLOCK} is set and the whole data buffer cannot be written (for
+example, a pipe can hold only a limited number of bytes), the call will fail.
+\item A pipe has no file position, you always append data to a pipe.
+\item All the information here applies to a unnamed pipes as well, see page
+\pageref{PIPE}.
 
 %%%\item pro zápis platí toto (pøevzato z [Rochkind]):
 %%%
