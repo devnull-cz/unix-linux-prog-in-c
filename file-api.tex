@@ -794,16 +794,15 @@ the symlink refers to. This function returns information about the link itself.
 \end{slide}
 
 \begin{itemize}
-\item typ a práva souboru jsou ulo¾ena spoleènì v \verb#st_mode#,
-proto existují zmi\-òo\-va\-ná makra.
-\item S\_IFMT specifikuje tu èást bitù, které jsou vìnované typu
-souboru, makra pro jednotlivé typy pak nejsou masky, ale hodnoty,
-tak¾e test na typ souboru je nutné udìlat takto:
-\texttt{(st\_mode~\&~S\_IFMT~==~S\_IFREG)}. V¹echna makra jsou v
-normì, tak¾e jejich pou¾íváním zaruèíme pøenositelný kód.
-\item Pøíklad: \example{stat/filetype.c}
+\item The file type and access mode are stored together in the
+\verb#st_mode# member and that is why the aforementioned macros exist.
+\item \texttt{S\_IFMT} specifies those bits that store the file type, and the
+macros are not bit masks but values.  So, the test for the specific file type is
+needed to be done like the following (extra parentheses are needed due to the
+operator precedence): \texttt{((st\_mode~\&~S\_IFMT)~==~S\_IFREG)}.  All macros
+are defined in the spec and thus portable.
+\item Example: \example{stat/filetype.c}
 \end{itemize}
-
 
 %%%%%
 
@@ -821,13 +820,12 @@ const struct utimbuf *\emph{times});}
 \end{slide}
 
 \begin{itemize}
-\item Tuto funkci pou¾ívají hlavnì kopírovací a archivaèní programy,
-aby zajistily stejné èasy kopie a originálu (napø. \texttt{tar} nebo
+\item This call is mostly used by copy/move and also archive utilities to make
+sure the times are the same for the originals and copies.  (eg. \texttt{tar} or
 \texttt{rsync}). 
-\item Shellové rozhraní pro funkci \texttt{utime} pøedstavuje pøíkaz
-\texttt{touch}. Mìnit takto èas modifikace i-uzlu ale nelze.
+\item The shell interface for \texttt{utime} is the command \texttt{touch}.  As
+mentioned in the slide, you cannot change the time of the i-node modification.
 \end{itemize}
-
 
 %%%%%
 
@@ -854,24 +852,25 @@ the file and after closing the file by all processes, delete the file data.
 \end{slide}
 
 \begin{itemize}
-\item opìt zdùrazòuji, ¾e \emsl{u{}nix nemá volání typu delete na soubory}.
-Po\-drob\-nì\-ji viz strana \pageref{FILEDELETE}.
-\item volání \texttt{link} vytváøí hardlinky, tj. zobrazení ze
-jména souboru na èíslo i-uzlu. Èísla i-uzlù jsou jednoznaèná pouze v
-rámci svazku, proto pro linky mezi filesystémy je nutné pou¾ít
-symlinky.
-\item parametr \texttt{path2} nesmí existovat, tedy nelze takto
-pøejmenovávat
-\item \texttt{unlink} nefunguje na adresáøe
-\item shellový pøíkaz \texttt{mv} pou¾ívá \texttt{rename} pro
-pøesuny v rámci jednoho svazku. Pøesun souboru mezi filesystémy
-vy¾aduje nejprve soubor zkopírovat a pak smazat originál voláním
-\texttt{unlink}.
-\item \texttt{rename} funguje nad symlinky, ne nad soubory, na
-které symlink ukazuje
-\item existuje i volání \texttt{remove}, viz strana \pageref{REMOVE}.
+\item It is better said again -- \emsl{Unix does not have a delete call for
+files}.  Details are on page \pageref{FILEDELETE}.
+\item The call \texttt{link} creates hardlinks, ie. a relation between a file
+name and an i-node number.  I-node numbers are unique within a filesystem so for
+links between filesystems, symlinks are needed.  A number of hardlinks to a
+specific file is only limited by the size of the \texttt{st\_nlink} member of
+\texttt{struct stat}, and the specification does not specify the size, it only
+says its type \texttt{nlink\_t} is of an integer value.
+\item The parameter \emph{path2} must not exist.  So, you cannot rename using
+the \texttt{link} call.
+\item \texttt{unlink} does not work on directories.
+\item The shell command \texttt{mv} uses \texttt{rename} to move objects within
+the same filesystems.  To move files between filesystems, a file needs to be
+copied first, then unlinked from the originating filesystem (the whole operation
+is not atomic).
+\item \texttt{rename} renames symlinks, not the files those symlinks point to.
+\item There is also a more generic call \texttt{remove}, see page
+\pageref{REMOVE}.
 \end{itemize}
-
 
 %%%%%
 
@@ -967,7 +966,6 @@ na shellu. Dále pozor na sanitizaci promìnných prostøedí a jména adresáøe).
 \item \label{REMOVE} Norma specifikuje i volání \texttt{remove}, které se chová
 jako \texttt{unlink} pro regulární soubory, a jako \texttt{rmdir} pro adresáøe.
 \end{itemize}
-
 
 %%%%%
 
