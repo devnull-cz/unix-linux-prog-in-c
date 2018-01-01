@@ -935,35 +935,34 @@ int \funnm{closedir}(DIR *\emph{dirp});}
 \end{slide}
 
 \begin{itemize}
-\item Polo¾ky adresáøe nejsou nijak uspoøádány, \texttt{readdir} je mù¾e vracet
-v libovolném poøadí. V pøípadì chyby se vrací NULL jako pøedtím a \texttt{errno}
-je nastaveno. Konec adresáøe se signalizuje tím, ¾e \texttt{readdir} vrátí NULL
-a \texttt{errno} není zmìnìno.
-\item \texttt{readdir} je stavová funkce. Pro vrácení se na zaèátek je mo¾né
-pou¾ít funkci \texttt{rewinddir}. Pokud tuto funkci voláte z více vláken je
-nutné pou¾ívat reentrantní \texttt{readdir\_r}, proto¾e struktura
-\texttt{dirent} je statická.
-\item V nìkterých implementacích (napø. FreeBSD) lze adresáø otevøít pro ètení
-(ne pro zápis) jako normální soubor a èíst ho pomocí \texttt{read}, ale je tøeba
-znát jeho vnitøní organizaci. Proto je \texttt{readdir} pro zpracování obsahu
-adresáøe lep¹í ne¾ \texttt{read}, který vrací raw data adresáøe. Kromì toho,
-norma nevy¾aduje, aby adresáø bylo mo¾né èíst funkcí \texttt{read}, Linux to
-napøíklad nedovolí.
-\item \texttt{d\_ino} není moc u¾iteèné, proto¾e v pøípadì, kdy daný adresáø je
-mount point, tak ukazuje na adresáø, na který je dal¹í filesystém namontován, ne
-na koøen namontovaného filesystému
-\item \label{D_TYPE} Nìkteré systémy mají ve struktuøe \texttt{dirent} polo¾ku
-\texttt{d\_type}. Ta mù¾e nabývat hodnot \texttt{DT\_REG}, \texttt{DT\_DIR},
-\texttt{DT\_FIFO} atd., viz manuálová stránka pro \texttt{dirent}. Byla to vìc
-specifická pro BSD a následnì pøevzatá i jinými systémy, na\-pøí\-klad Linuxem.
-Není to souèástí normy a tedy to \emsl{není pøenositelné.} Pøe\-no\-si\-tel\-ný
-zpùsob je na ka¾dou polo¾ku zavolat \texttt{stat}.
-\item \texttt{rmdir} nefunguje na neprázdný adresáø, musíte sami smazat jeho
-obsah pøed smazáním adresáøe. Nìkdy lze v kódu nalézt zoufalé pokusy typu
-\texttt{system("rm -r xxx")} co¾ má svoje nevýhody (napø. závislost programu
-na shellu. Dále pozor na sanitizaci promìnných prostøedí a jména adresáøe).
-\item \label{REMOVE} Norma specifikuje i volání \texttt{remove}, které se chová
-jako \texttt{unlink} pro regulární soubory, a jako \texttt{rmdir} pro adresáøe.
+\item Directory items are not ordered and
+\texttt{readdir} is allowed to return them in arbitrary order depending on the
+filesystem implementation.  \texttt{NULL} is returned on failure
+and \texttt{errno} is set.  \texttt{NULL} is also returnd upon reaching the end
+of the directory but in that case \texttt{errno} is not changed.
+\item \texttt{readdir} is a stateful function.  To read the directory from the
+beginning again, \texttt{rewinddir} can be used.  If you want to read the
+directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
+\item Some implementations might still support to read a directory via a normal
+\texttt{read} call.  In that case, of course, you need to know the internal
+representation of the directory data so the use of this is questionable.  Linux
+does not allow it at all.
+\item \texttt{d\_ino} might not be very useful as if the directory is a
+mountpoint, this member contains the i-node number of the directory where the
+filesystem is mounted and not the root of the mounted filesystem as one might
+expect.
+\item \label{D_TYPE} Some system have a \texttt{struct dirent} member
+\texttt{d\_type}.  It can have values of \texttt{DT\_REG}, \texttt{DT\_DIR},
+\texttt{DT\_FIFO} etc., see the man page for \texttt{dirent}.  It was a BSD
+specific thing and subsequently copied by other systems, including Linux.
+However, it is not part of SUSv4 and thus not portable, unfortunatelly.  The
+portable way is to call \texttt{stat} on each directory entry.
+\item \texttt{rmdir} does not work on directories that are not empty.  You have
+to remove all entries before you can delete a directory.  You you use 
+\texttt{system("rm -r xxx")} etc. but be careful to sanitize the environment and
+the directory name to avoid any security implications.
+\item \label{REMOVE} The specification also defines \texttt{remove} which
+behaves like \texttt{unlink} for files and as \texttt{rmdir} for directories.
 \end{itemize}
 
 %%%%%
