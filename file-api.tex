@@ -1097,17 +1097,14 @@ the target group
 \end{slide}
 
 \begin{itemize}
-\item parametr \texttt{mode} zde samozøejmì neobsahuje typ souboru,
-jako tomu je na\-pøí\-klad u volání \texttt{stat}. Hodnoty
-\texttt{mode} viz \texttt{chmod}(2).
-\item pokud nejsem vlastník, nemohu celkem logicky zmìnit mód ani u
-souboru s nastaveným pøístupem \texttt{rw-rw-rw-}
-\item v nìkterých implementacích mù¾e vlastník souboru pøedat
-vlastnictví nì\-ko\-mu jinému, napø. v IRIXu je chování \texttt{chown}
-nastavitelné jako parametr jádra.
-\item není bì¾né volat funkci \texttt{chmod} z u¾ivatelských
-aplikací, na to se pou¾ívají flagy u volání \texttt{open}, hlavní
-pou¾ití je v aplikaci \texttt{chmod(1)}
+\item The \emph{mode} parameter does not contain the file type, of course.  See
+\texttt{stat.h} or the \texttt{chmod(2)} manual page for available bit
+masks.
+\item Only the owner of a file can change its mode.  Mode like
+\texttt{rw-rw-rw-} has nothing to do with that.
+\item In some implementations it was possible to pass the file ownership to
+someone else.  Today this is usually not allowed.  Just think aobut how you
+could work around a per-user filesystem quota with this.
 \end{itemize}
 
 \endinput
