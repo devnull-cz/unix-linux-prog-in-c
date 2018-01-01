@@ -499,18 +499,19 @@ group leader
 \end{slide}
 
 \begin{itemize}
-\item pro volání \funnm{setpgid} platí:
+\item For the \funnm{setpgid} syscall the following is true:
 \begin{enumerate}
-\item pid == pgid : proces s \emph{pid} se stane vedoucím skupiny procesù
-\item pid != pgid : proces s \emph{pid} se stane èlenem skupiny procesù
+\item pid == pgid : the process with \emph{pid} will become process group leader
+\item pid != pgid : the process with \emph{pid} will become process group member
 \end{enumerate}
-\item Proces, který je¹tì není
-vedoucím skupiny procesù, se mù¾e stát vedoucím sezení a zároveò skupiny procesù
-voláním \texttt{setsid}. Jestli¾e proces u¾ je vedoucím skupiny, \texttt{setsid}
-sel¾e, pak je tøeba provést \texttt{fork} a \texttt{setsid} zavolat v synovském
-procesu. Takový proces nemá øídicí terminál, mù¾e ho získat otevøením terminálu,
-který je¹tì není øídicím terminálem sezení, kdy¾ pøi \texttt{open} neuvede
-pøíznak \texttt{O\_NOCTTY}, nebo jiným implementaènì závislým zpù\-so\-bem.
+\item The process which is not yet process group leader can both become session
+leader and process group leader using \texttt{setsid}. If the process already is
+process group leader, \texttt{setsid} will fail. To overcome this it is necessary
+to call \texttt{fork} and call \texttt{setsid} in the son process.
+Such process does not have controlling terminal however it can acquire it by
+opening a terminal which is not yet controlling terminal of a session when
+\texttt{open} flags argument does not contain the \texttt{O\_NOCTTY} flag,
+or using other implementation dependent way.
 \end{itemize}
 
 %%%%%
