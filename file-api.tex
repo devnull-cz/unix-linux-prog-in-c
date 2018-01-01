@@ -895,16 +895,15 @@ size\_t \emph{bufsz});}
 \end{slide}
 
 \begin{itemize}
-\item Shellový pøíkaz \texttt{ln} volá \texttt{symlink} nebo
-\texttt{link}, podle toho, jestli je pou¾it pøe\-pí\-naè \texttt{-s}
-nebo ne.
-\item Smazání hardlinku nesma¾e soubor, pokud na nìj vede je¹tì jiný
-hardlink. Naopak soubor (polo¾ku adresáøe i data) je mo¾né smazat, i
-kdy¾ na nìj ukazují nìjaké symlinky.
-\item \texttt{readlink} je pou¾itelný v situaci, pokud chci
-smazat soubor, na který daný symlink ukazuje
-\item \texttt{bufsize} se typicky dává o 1 men¹í ne¾ velikost
-bufferu, to pro ukonèení znakem \verb#'\0'#
+\item The shell command \texttt{ln} uses either the \texttt{symlink} or
+\texttt{link} syscall depending on whether the \texttt{-s} option was used.
+\item Unlinking a hardlink will not release the file data if other hardlinks
+exists.  You can delete the symlink's target in which case you end up with a
+\emph{broken link}.
+\item \texttt{readlink} is useful in situation when you want to unlink the
+symlink's target.
+\item \emph{bufsize} is typically set as 1 byte less than the buffer size to
+accomodate the terminating NUL character.
 \end{itemize}
 
 %%%%%
