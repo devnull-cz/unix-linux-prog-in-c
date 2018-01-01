@@ -187,18 +187,17 @@ or \texttt{vmmap(1)} macOS.
 \end{slide}
 
 \begin{itemize}
-\item ka¾dý proces vidí svùj adresový prostor jako souvislý interval
-(virtuálních) adres od nuly po nìjakou maximální hodnotu. Pøístupné jsou pouze
-ty adresy, na kterých je namapován nìkterý segment procesu (to je právì to
-mapování, o kterém se mluví na pøedchozím slajdu).
-\item jádro dále rozdìluje pamì» procesu na stránky. Ka¾dá stránka má své
-u\-mí\-stì\-ní v~rámci fyzické pamìti. Toto umístìní je dáno stránkovacími
-tabulkami jádra a stránky mohou být v rámcích libovolnì promíchány vùèi jejich
-poøadí ve virtuální adresovém prostoru. 
-\item pokud není stránka právì pou¾ívána, mù¾e být také odlo¾ena na disk.
-\item pamì»ový manager jádra zaji¹»uje mapování mezi virtuálními adresami
-po\-u\-¾í\-va\-ný\-mi kódem u¾ivatelských procesù i jádra na fyzické adresy a
-naètení odlo¾ených stránek z~disku pøi výpadku stránky.
+\item Each process sees its own address space as contiguous interval of
+(virtual) addresses from zero to some maximal value. The accessible addresses
+are those for which there is a mapping, i.e. there is a memory
+segment (see previous slide).
+\item Kernel divides the memory to pages. Each page has its own location in
+physical memory. This location is determined by kernel page tables and the
+pages can be arbitrarily mixed w.r.t. their placement in virtual address space.
+\item If a page is not used, it can be swapped out to disk.
+\item The kernel memory management ensures mapping between virtual addresses
+used by user processes and kernel to physical addresses and reading in pages
+from disk upon page fault.
 \end{itemize}
 
 %%%%%
@@ -206,25 +205,26 @@ naètení odlo¾ených stránek z~disku pøi výpadku stránky.
 \pdfbookmark[1]{Process states}{procstates}
 
 \begin{slide}
-\sltitle{Stavy procesu}
+\sltitle{Process states}
 \begin{center}
-\input{img/tex/stavy_proc.tex}
+\input{img/tex/proc_states.tex}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item po ukonèení procesu voláním \texttt{exit} nebo v reakci na
-signál pøechází proces do stavu mátoha (zombie), proto¾e jádro si
-musí pamatovat k èíslu procesu jeho návratovou hodnotu. Celá pamì»
-procesu je uvolnìna, zbývá pouze struktura \texttt{proc}. Proces lze
-definitivnì zru¹it, a¾ kdy¾ se jeho rodiè zeptá na návratovou
-hodnotu voláním typu \texttt{wait}. Kdy¾ nebude pùvodní rodiè k dispozici,
-provede volání \texttt{wait} proces \texttt{init}, který pøevzal rodièovství.
-\item v dne¹ních UNIXech se obvykle do odkládací oblasti na disku
-(swap area) neodkládají celé procesy, ale jednotlivé stránky pamìti.
-\item proces je \emph{uspán}, kdy¾ o to sám po¾ádá, napø. zaène
-èekat na dokonèení periferní operace. \emph{Preempce} je naopak
-nedobrovolné odebrání procesoru plá\-no\-va\-èem.
+\item After the process is terminated either using \texttt{exit} call or
+as a consequence of a signal, it will transition to zombie state because
+the kernel needs to store return value for the process. The whole memory
+of the process is freed, the only remaining piece is the \texttt{proc}
+structure. The process can go away for good only after its parent will
+retrieve its return value using the \texttt{wait} call. If the original
+parent is no longer available, the \texttt{init} process which became the
+new parent will call \texttt{wait}.
+\item In today's UNIX systems the processes are not swapped out as whole,
+only individual pages.
+\item The process is put to sleep if it requests it, e.g. when it is waiting
+on an operation with peripheal device to complete. The \emph{preemption} is
+on the other hand involuntary removal of CPU by the scheduler.
 \end{itemize}
 
 %%%%%
