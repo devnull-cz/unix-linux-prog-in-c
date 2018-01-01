@@ -939,7 +939,7 @@ int \funnm{closedir}(DIR *\emph{dirp});}
 \texttt{readdir} is allowed to return them in arbitrary order depending on the
 filesystem implementation.  \texttt{NULL} is returned on failure
 and \texttt{errno} is set.  \texttt{NULL} is also returnd upon reaching the end
-of the directory but in that case \texttt{errno} is not changed.
+of a directory but in that case \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
 directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
@@ -987,17 +987,10 @@ int main(int argc, char *argv[])
 \end{slide}
 
 \begin{itemize}
-\item pøíkaz \texttt{ls} je zalo¾en na takovéto smyèce, navíc
-provádí napø. tøídìní jmen souborù a zji¹»ování dal¹ích informací
-pomocí \texttt{stat}.
-\item konec adresáøe se pozná tak, ¾e \texttt{readdir} vrátí
-\texttt{NULL}. To v¹ak vrátí i v pøípadì, pokud nastala chyba. V
-takovém pøípadì je kód chyby v promìnné \texttt{errno}, v pøípadì
-prvním je \texttt{errno} nezmìnìna. Proto by \texttt{errno} mìlo být
-v¾dy nastavené na nulu pøed voláním \texttt{readdir}. V pøíkladu
-tomu tak není, proto¾e z dùvodu málo místa nekontrolujeme
-\texttt{errno} vùbec.
-\item pøíklad: \example{readdir/readdir.c}
+\item The \texttt{ls} command is based on a similar loop.  It is missing code to
+tell whether NULL means an error or an end of a directory.
+\item Example (with the correct use of \texttt{errno}):
+\example{readdir/readdir.c}
 \end{itemize}
 
 %%%%%
