@@ -245,30 +245,30 @@ bigger priority.
 \end{slide}
 
 \begin{itemize}
-\item \emsl{základem preemptivního plánování jsou pravidelná pøeru¹ení od
-èasovaèe}, která odeberou procesor bì¾ícímu procesu a pøedají øízení jádru
-(aktivuje se plánovaè procesù).
-\item jiná varianta je nepreemptivní (kooperativní) plánování, kdy proces
-bì¾í, dokud se sám nevzdá procesoru, tj. dokud nezavolá takovou systémovou
-funkci, která pøepne kontext na jiný proces. Nevýhodou kooperativního
-plánování je, ¾e jeden proces mù¾e stále blokovat procesor a ostatní procesy
-se nikdy nedostanou na øadu. 
-\item UNIX pou¾ívá pro u¾ivatelské procesy pouze preemptivní plánování.
-\item tradièní UNIXové \emsl{jádro} funguje kooperativním zpùsobem, tj. proces
-bì¾ící v re¾imu jádra není pøeplánován, dokud se sám nevzdá procesoru.
-\emsl{Jádra moderních UNIXù jsou ji¾ preemtivní} -- je to hlavnì kvùli real-time
-systémùm; tam je potøeba mít mo¾nost bì¾ící proces zbavit procesoru o\-kam\-¾i\-tì,
-neèekat na to, a¾ se vrátí z re¾imu jádra nebo se sám uspí. Pozor na a» to
-nepletete -- UNIX byl od samého zaèátku preemptivní systém, ale jeho jádro bylo
-nepreemptivní.
-\item pøi preemptivním plánování mù¾e být proces kdykoliv pøeru¹en a øízení
-pøe\-dá\-no jinému procesu. Proces si proto nikdy nemù¾e být jistý, ¾e urèitou
-operaci (více ne¾ jednu intstrukci, kromì systémových volání se zaruèenou
-a\-to\-miè\-nos\-tí) provede atomicky, bez ovlivnìní ostatními procesy. Pokud
-je tøeba zajistit atomiènost nìjaké akce, musí se procesy navzájem
-synchronizovat. Pøi kooperativním plánování problém synchronizace odpadá
-(atomická posloupnost operací se zajistí tím, ¾e se proces bìhem ní nevzdá
-procesoru).
+\item \emsl{The premise of preemptive planning are periodic timer interrupts}
+which take away the CPU from the running process and pass on the CPU
+to the kernel (scheduler is activated).
+\item The other variant is non-preemtive (cooperative) planning, where process
+keeps running, until it gives up the CPU, i.e. until it calls such system call,
+that switches the context to different process. The downside of cooperative
+planning is that one process can block the CPU and other processes forever.
+\item UNIX uses only preemptive planning for user processes.
+\item Traditional (historical) UNIX \emsl{kernel} uses cooperative planning,
+i.e. process running in kernel mode is not switched until it gives up the CPU
+by itself.
+\emsl{Modern UNIX kernels are preemtive} -- mainly because of real-time
+systems; there it is necessary to have the possibility to remove CPU from
+running process immediately, not waiting until it returns from kernel mode
+or enters sleep by itself. Note that UNIX was preemtive from its very beginning,
+just the kernel was non-preemptive.
+\item With preemptive planning processes can be interrupted at any time and
+the CPU given to another process. Therefore the process can never be sure
+that given operation (spanning more than one instruction, besides system calls
+with guaranteed atomicity) will be executed atomically, without being
+influenced by other processes. If it is necessary to ensure atomicity of
+an operation, the processes must synchronize. This problem is avoided in
+cooperative planning -- the atomicity of given operation is simply ensured
+by not giving up the CPU while it is still in progress.
 \end{itemize}
 
 
