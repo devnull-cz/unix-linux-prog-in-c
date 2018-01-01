@@ -575,52 +575,49 @@ topic, see [Butenhof].
 \pdfbookmark[1]{pthread\_sigmask}{pthreadsigmask}
 
 \begin{slide}
-\sltitle{Signály a vlákna}
+\sltitle{Signals and threads}
 \prgchars
 \begin{itemize}
-\item signály mohou být generovány pro proces (voláním
-\texttt{kill}), nebo pro vlákno (chybové události, volání
-\texttt{pthread\_kill}). 
-\item nastavení obsluhy signálù je stejné pro v¹echna vlákna
-procesu, ale masku blokovaných signálù má ka¾dé vlákno vlastní,
-nastavuje se funkcí 
+\item signals can be generated for a process (the \texttt{kill} syscall) or
+for a thread (error conditions, the \texttt{pthread\_kill} call).
+\item signal handling is the same for all threads in the process,
+the mask of blocked signals is specific for each thread, can be set with
 \end{itemize}
 \funml{int \funnm{pthread\_sigmask}(\=int \emph{how},
 const sigset\_t *\emph{set},\\\> sigset\_t *\emph{oset});}
 \begin{itemize}
-\item signál urèený pro proces o¹etøí v¾dy právì jedno vlákno, které
-nemá tento signál zablokovaný. 
-\item lze vyhradit jedno vlákno pro synchronní pøíjem signálù pomocí volání
-\texttt{sigwait}. Ve v¹ech vláknech se signály zablokují.
+\item a signal for a process is handled by one of its threads, one of those
+that do not have such signal blocked.
+\item one thread can be dedicated for signal handling using the
+\texttt{sigwait} call. The other threads have the signals blocked.
 \end{itemize}
 \end{slide}
 
 \label{PTHREADSIGMASK}
 
 \begin{itemize}
-\item Jestli¾e je pro signál nastaveno ukonèení procesu, skonèí celý proces,
-nejen jedno vlákno.
-\item Vytvoøené vlákno dìdí nastavení signálové masky od vlákna, které ho
-vytvoøilo
-\item Analogicky k pou¾ití \texttt{sigwait} s procesy (stra\-na
-\pageref{SIGWAIT}) -- zablokujte pøíslu¹né signály ve v¹ech vlák\-nech, vèetnì
-vlákna, ve kterém chcete zpracovávávat signály pomocí \texttt{sigwait}.
-\emsl{Tento zpùsob zpracování signálù bývá èasto jediný opravdu doporuèovaný pro
-vlákna}, a navíc je i nejsnáze implementovatelný. Jak vyplývá z pøedchozí
-poznámky, staèí zamaskovat signály pouze jednou, a to v hlavním vláknì, proto¾e
-maska se pak podìdí pøi ka¾dém volání \texttt{pthread\_create}.
-\item V prostøedí vláken nepou¾ívejte \texttt{sigprocmask} (strana
-\pageref{SIGPROCMASK}), proto¾e chování tohoto volání není v takovém prostøedí
-normou specifikováno. Mù¾e to fungovat, a také nemusí.
-\item \label{THREADS_SIGWAIT} Pøíklad: \example{pthreads/sigwait.c}.
-\item \emsl{Pozor} na to, ¾e byste nemìli tento zpùsob obsluhy signálù pou¾ívat
-pro sig\-nály synchronní jako jsou \texttt{SIGSEGV}, \texttt{SIGILL}, apod. Tyto
-signály jsou ge\-ne\-ro\-va\-né pøímo pro vlákno, tak¾e pokud je zablokujete,
-vlákno urèené pro synchronní pøíjem signálù je nemusí ``vidìt'', jedinì pokud by
-ten signál zpù\-so\-bi\-lo samo, samozøejmì. Dal¹í vìc ale je, ¾e specifikací
-není definováno, zda blokování takových signálù tyto signály skuteènì zablokuje,
-jak ji¾ bylo zmínìno na stranì \pageref{SPECIALSIGNALS}. Nìkteré sys\-té\-my
-tyto signály normálnì doruèí, èím¾ proces ukonèí, viz pøesné znìní:
+\item If the action for a signal is set to process exit, the whole process
+will exit, not just one thread.
+\item New thread will inherit signal mask from the creator thread.
+\item Similarly to the use of \texttt{sigwait} with processes (page
+\pageref{SIGWAIT}) -- block given signals in all threads, including the
+thread, that will be processing the signals using \texttt{sigwait}.
+\emsl{This way of signal handling in threaded environment is usually the only
+recommended.} Also, it is easy to implement. From previous note, it is sufficient
+to mask the signals only once, in the main thread (before creating any new
+threads), because the mask will be inherited with each \texttt{pthread\_create}
+call.
+\item Do not use \texttt{sigprocmask} (page \pageref{SIGPROCMASK}) in threaded
+environment, because the behavior of this call is not specified by the standard
+in such environment. It may or work, or not.
+\item \label{THREADS_SIGWAIT} Example: \example{pthreads/sigwait.c}.
+\item \emsl{Note} that this way of signal handling should not be used for
+synchronous signals such as \texttt{SIGSEGV}, \texttt{SIGILL}, etc. These
+signals are generated directly for a thread, so if blocked the dedicated signal
+handling thread may not ``see'' them (if it did not cause them by itself).
+Also, the standard does not specify if blocking these signals should actually
+work as mentioned on page \pageref{SPECIALSIGNALS}. Some systems
+normally deliver these signals, making the process exit. The standard says:
 
 \begin{quote}
 \emph{If any of the SIGFPE, SIGILL, SIGSEGV, or SIGBUS signals are generated
@@ -628,13 +625,14 @@ while they are blocked, the result is undefined, unless the signal was generated
 by the kill() function, the sigqueue() function, or the raise() function.}
 \end{quote}
 
-Pøíklad: \example{pthreads/sigwait-with-sync-signals.c}. Tento pøíklad ukazuje,
-¾e na Solarisu 10, Solarisu 11, FreeBSD 7.2 a Linux distribuci, která se hlásí
-jako ``Gentoo Base System release 1.12.13'', je signál \texttt{SIGSEGV} doruèen
-a proces zabit bez ohledu na to, zda je maskován. Na¹el jsem ale i systém, který
-po zamaskování signál nedoruèí -- FreeBSD 6.0. Synchronní signály by ale mìlo
-být v¾dy mo¾né zachytit (pøed zavoláním \texttt{exit}), viz strana
-\pageref{SPECIALSIGNALS}, kde je i pøíklad.
+Example: \example{pthreads/sigwait-with-sync-signals.c}. This example shows that
+Solarisu 10, Solarisu 11, FreeBSD 7.2 and a Linux distribution, that reports
+itself as ``Gentoo Base System release 1.12.13'', is the \texttt{SIGSEGV} signal
+delivered and the process killed even though it is masked.
+There used to be a system that did not deliver the signal when masked
+-- FreeBSD 6.0. It should be possible to always handle synchronous signals
+(before \texttt{exit}), see page \pageref{SPECIALSIGNALS}, which also
+contains example.
 
 \end{itemize}
 
