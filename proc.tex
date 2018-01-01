@@ -455,29 +455,29 @@ process)
 \end{slide}
 
 \begin{description}
-\item[skupiny procesù] umo¾òují posílat signály najednou celé skupinì.
-\item[session] (relace, sezení) je kolekce procesù vytvoøená pro úèely øízení
-prací (\emph{job control}). Procesy sezení sdílejí jeden \emph{øídící terminál}.
-Session zahrnuje jednu nebo více skupin procesù. Max. jedna skupina v rámci
-sezení bì¾í na popøedí (\emph{foreground process group}) a má pøístup k øídicímu
-terminálu pro vstup i výstup, ostatní bì¾í na pozadí (\emph{background process
-groups}) a mají k øídicímu terminálu pøístup volitelnì jen pro výstup nebo vùbec
-(nepovolená operace s terminálem pozastaví proces).
-\item[rodièovský proces:] Ka¾dý proces (kromì \texttt{swapper}u, pid~==~0) má
-rodièe, tj. proces, který ho stvoøil voláním \texttt{fork}. Jestli¾e rodiè
-skonèí døíve ne¾ dítì, adoptivním rodièem se stává proces \texttt{init},
-který se také postará o uklizení zombie po skonèení procesu.
+\item[process groups] make it possible to send signals to group of processes
+at once
+\item[session] is a collection of processes created for (\emph{job control}).
+The processes of the session shared one \emph{controlling terminal}.
+Session includes one or more process groups. Maximum one group in the session
+runs in foreground (\emph{foreground process group}) and has access to the
+controlling terminal for input and output, the rest is running in the background
+(\emph{background process groups}) and have only optional access to the output
+or no at all. (unallowed operation with terminal will stop the process).
+\item[parent process:] Each process (besides \texttt{swapper}u, pid~==~0)
+has a parent, i.e. process that created it with the \texttt{fork} syscall.
+If the parent exits before the child, its adoptive parent will become the
+\texttt{init} process, that will take care of the zombie after the process ends.
 \end{description}
 \begin{itemize}
-\item Programatické zji¹»ování informací o ostatních procesech lze pomocí
-nestandardních rozhraní (napø. knihovna \texttt{libproc} na Solarisu postavená
-na filesystému \texttt{procfs}, který je pøipojen pod \texttt{/proc}).
-\item Pozor na to, ¾e zji¹»ovat ¾e rodiè skonèil pomocí kontroly hodnoty
-vrácené z \texttt{getppid} na hodnotu 1 (co¾ je bì¾nì proces \texttt{init}
-resp. jeho ekvivalent), není portabilní.
-\\
-V rùzných virtualizovaných prostøedích (PID namespaces v Linux, Zones v
-Solarisu) to nemusí platit. Viz pøíklad \example{session/getppid.c}.
+\item To get information about running processes programatically is possible
+using non-standar API (e.g. the \texttt{libproc} library on Solarisu built
+on top of the \texttt{procfs} filesystem that is mounted under \texttt{/proc}).
+\item Note that using \texttt{getppid} value to check if parent exited is not
+portable (commonly \texttt{init} has pid 1 however this is not true in many
+virtualized/containerized environments, e.g. in PID namespaces on Linux, Zones
+in Solaris).\\
+Example: \example{session/getppid.c}.
 \end{itemize}
 
 
