@@ -374,8 +374,30 @@ hand quality for a fraction of the original price.
 
 %%%%%
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Jazyk C
+\begin{slide}
+\sltitle{Manual page sections}
+\begin{itemize}
+\item the convention is that ``(X)'' after a name means the manual page section
+\item for example, \texttt{chmod(2)} means a man page for the system call from a
+section 2, it does \emsl{not} mean a function call
+\item \texttt{chmod(1)} means the shell command
+\item use ``\texttt{man <N> <name>}'' to get the specific man page.
+\item example: \texttt{man 2 chmod}
+\item see the \texttt{man-pages(7)} man page on Linux on what sections exist
+\end{itemize}
+\end{slide}
+
+\begin{itemize}
+\item Different systems might have a different list of manual page sections, the
+numbering may not match, etc.  See also \texttt{man(1)}.  For example, on
+Solaris, the manual page section needs to be provided with the \texttt{-s}
+option, ie. ``\texttt{man -s 2 chmod}''.
+\item The \texttt{man} command uses a list of system directories to search for
+man pages.  If you have manual pages some place else, perhaps in a local subtree
+after you unpacked a tar file you downloaded and want to check the
+documentation, the \texttt{-M} option may come in handy.
+\end{itemize}
+%%%%%
 
 \pdfbookmark[1]{The C Programming Language}{C}
 \label{C_LANGUAGE}
