@@ -150,29 +150,29 @@ when the process is in user mode (and therefore uses user stack).
 \begin{slide}
 \sltitle{Process memory segments}
 \begin{center}
-\input{img/tex/segmenty.tex}
+\input{img/tex/memory_segments.tex}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item takto vypadá vìt¹inou reprezentace pamì»ových segmentù procesu v jádøe.
-\item základním rysem této architektury je tzv. \emph{memory object}, co¾ je
-abstrakce mapování mezi kusem pamìti a místem, kde jsou data normálnì ulo¾ena
-(tzv. \emph{backing store} nebo \emph{data object}). Takové místo ulo¾ení mù¾e
-být napøíklad swap nebo soubor. Adresový prostor procesu je pak mno¾ina
-mapování na rùzné datové objekty. Existuje i \emph{anonymní objekt}, který
-nemá místo trvalého ulo¾ení (pou¾ívá se napøíklad pro zásobník). Fyzická pamì»
-pak slou¾í jako cache pro data tìchto namapovaných datových objektù.
-\item tato zde velmi hrubì popsaná architektura se nazývá VM (od \emph{Virtual
-Memory}), a objevila se v SunOS 4.0. Na této architektuøe je zalo¾ena
-architektura viruální pamìti v SVR4. Více informací viz [Vahalia], pùvodní
-èlánek z roku 1987 pøedstavující tuto architekturu: Gingell, R. A., Moran J.
-P., Shannon, W.  A. -- \emph{Virtual Memory Architecture in SunOS} nebo
-pøedná¹ka o operaèních systémech na MFF (NSWI004 - Operaèní systémy).
-\item z jakých segmentù se skládá pamì»ový prostor konkrétního
-procesu lze zjistit pomocí pøíkazu \texttt{pmap(1)} (na Solarisu, na NetBSD a v
-nìkterých Linuxových distribucích) nebo \texttt{procmap(1)} (v OpenBSD)
-nebo \texttt{vmmap(1)} v macOS.
+\item This is how memory segments representation looks like in the kernel.
+\item The core feature of this architecture is \emph{memory object}, which is
+mapping abstractions between part of memory and place where data is normally
+stored (so called \emph{backing store} or \emph{data object}). This place can
+be e.g. swap or a file. Address space of a process is set of mapping to different
+data objects. There exists also \emph{anonymous object}, which does not have
+persistent backing store (it is used e.g. for stack). Physical memory then
+serves as cache for data of these mapped objects.
+\item This coarsely described architecture is called VM (\emph{Virtual
+Memory}), and was introduced in SunOS 4.0. The virtual memory architecture
+of SVR4 is based on this architecture.
+More information can be found in [Vahalia], the original whitepaper from
+1987 that introduced this architecture: Gingell, R. A., Moran J.
+P., Shannon, W.  A. -- \emph{Virtual Memory Architecture in SunOS}.
+\item To determine what memory segments a memory space of a process consists
+of, various tools can be used: \texttt{pmap(1)} (Solarisu, NetBSD and
+in some Linux distributions), \texttt{procmap(1)} (OpenBSD)
+or \texttt{vmmap(1)} macOS.
 \end{itemize}
 
 %%%%%
