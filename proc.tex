@@ -304,28 +304,30 @@ by not giving up the CPU while it is still in progress.
 \end{slide}
 
 \begin{itemize}
-\item systémová tøída je pou¾ívána pouze jádrem, u¾ivatelský proces bì¾ící v
-re\-¾i\-mu jádra si ponechává svou plánovací charakteristiku.
-\item procesy ve tøídì reálného èasu mají nejvy¹¹í prioritu, proto musí být
-správnì nakonfigurovány, aby nezablokovaly zbytek systému.
-\item jestli¾e je proces ve tøídì sdíl{}ení èasu uspán a èeká na nìjakou
-událost, je mu doèasnì pøiøazena systémová priorita. Po probuzení se takový
-proces dostane na procesor døíve, ne¾  ostatní procesy, které nespí.
-\item pevná èást priority procesu ve tøídì sdíl{}ení èasu se dá nastavit
-pomocí\\ \texttt{int \funnm{setpriority}(int \emph{which}, id\_t \emph{who},
-int \emph{prio});}\\ nebo\\ \texttt{int \funnm{nice}(int \emph{in{}cr});} \\
-Hodnota \emph{which} udává co bude v argumentu \emph{who}. Pokud je napø.
-\emph{which} \emph{PRIO\_PGRP}, bude v \emph{who} èíslo skupiny procesù.
-Pozor na volání \funnm{nice} které vrací novou hodnotu nice. Proto¾e je
--1 validní hodnota, je potøeba pøed volání vyèistit \texttt{errno} a pokud
-funkce vrátí -1 tak ji zkontrolovat.
-\item prioritní tøídu a hodnotu nice daného procesu lze zobrazit pøepínaèem
--l programu ps(1) nebo pomocí specifikace hodnot které se mají vypsat.
-\item Pøíklad: hodnoty priority mají na rùzných systémech rùzné ¹kály.
-Napø. na macOS~10.9 má spu¹tìný proces hodnotu priority 30, po zvý¹ení
-hodnoty nice (proces je "hodnìj¹í" na ostatní procesy a dobrovolnì tedy sní¾il
-svoji prioritu) se mu hodnota prorita sní¾í na 21 co¾ na macOS znamená
-i sní¾ení priority:
+\item The system class is used only by the kernel, user process running
+in kernel mode retains its own planning characteristics.
+\item Processes in the real time classs have the biggest priority,
+therefore most be configured correctly, otherwise they would block
+the rest of the system.
+\item If a process in time-shared class is put to sleep and is waiting
+on some event, the system priority is temporarily assigned to it.
+After wake up, such process will be assigned a CPU earlier than other
+non-sleeping processes.
+\item Fixed part of the priority in the time-shared class can be set
+using\\
+\texttt{int \funnm{setpriority}(int \emph{which}, id\_t \emph{who},
+int \emph{prio});}\\ or \\ \texttt{int \funnm{nice}(int \emph{in{}cr});} \\
+The \emph{which} value determines what will be in the \emph{who} argument.
+If \emph{which} is e.g. \emph{PRIO\_PGRP}, the \emph{who} will store process
+group number.
+Note that \funnm{nice} call will return new nice value. Because -1 is valid
+variable, it is necessary to clear \texttt{errno} value and check it
+if the function returns -1.
+\item The prority class and nice value of given process can be displayed with
+the -l option of ps(1) or by specifying the values than should be written out.
+\item Example: the priority values have different scales on different systems.
+E.g. macOS~10.9 a process that had the priority value 30 will have the value
+decremented to 21 after increasing the nice value:
 \begin{verbatim}
 $ sleep 200 &
 [1] 36877
@@ -337,9 +339,9 @@ $ ps -O pri,nice -p $!
   PID PRI NI   TT  STAT      TIME COMMAND
 36877  21 10 s003  SN     0:00.00 sleep 200
 \end{verbatim}
-Na Linuxu 3.10 to ale bude vypadat jinak - po zvý¹ení hodnoty nice se zvý¹í i
-hodnota priority, to ale v této verzi znamená, ¾e proces bude bì¾et s
-prioritou ni¾¹í.
+On Linuxu 3.10 it will look differently -- the priority value will be increased
+after nice value increase. However this means that the process will be running
+with smaller priority.
 \end{itemize}
 
 
