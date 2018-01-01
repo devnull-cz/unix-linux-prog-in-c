@@ -381,7 +381,7 @@ hand quality for a fraction of the original price.
 \item for example, \texttt{chmod(2)} means a man page for the system call from a
 section 2, it does \emsl{not} mean a function call
 \item \texttt{chmod(1)} means the shell command
-\item use ``\texttt{man <N> <name>}'' to get the specific man page.
+\item use ``\texttt{man <N> <name>}'' to get the specific man page
 \item example: \texttt{man 2 chmod}
 \item see the \texttt{man-pages(7)} man page on Linux on what sections exist
 \end{itemize}
@@ -396,6 +396,12 @@ option, ie. ``\texttt{man -s 2 chmod}''.
 man pages.  If you have manual pages some place else, perhaps in a local subtree
 after you unpacked a tar file you downloaded and want to check the
 documentation, the \texttt{-M} option may come in handy.
+\item Sometimes there are entries for the same name in several sections.  If
+unsure what you are looking for, use the \texttt{-a} option to get all manual
+pages for that name (otherwise you get just one, usually from the first
+section found), and go through the individual man pages with the \texttt{q}
+command for \texttt{less(1)} which is usually the default pager (or possibly
+\texttt{more(1)}).
 \end{itemize}
 %%%%%
 
