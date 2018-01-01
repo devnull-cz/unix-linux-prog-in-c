@@ -368,26 +368,29 @@ of job control
 \end{slide}
 
 \begin{itemize}
-\item kdy¾ se u¾ivatel pøihlásí do systému, je vytvoøená nová relace, která se
-skládá z jedné skupiny procesù, ve které je jeden proces -- ten který vykonává
-u¾ivatelùv shell. Tento proces je zároveò vedoucí této jediné skupiny procesù a
-také je vedoucí relace. V pøípadì, ¾e job control je povolen, ka¾dý pøíkaz nebo
-kolona pøíkazù vytvoøí novou skupinu procesù, jeden z procesù v ka¾dé skupinì se
-v¾dy stane vedoucím procesem dané skupiny. Jedna ze skupin mù¾e bì¾et na
-popøedí, ostatní bì¾í na pozadí. Signály, které jsou generované z klávesnice
-(tj. stiskem kombinace kláves, nemyslí se tím spu¹tìní pøíkazu \texttt{kill}!),
-jsou zaslány pouze skupinì, která bì¾í na popøedí.
-\item pokud job control není zapnut, znamená spustìní pøíkazu na pozadí pouze
-to, ¾e shell neèeká na jeho ukonèení. Existuje pouze jedna skupina procesù,
-signály z klávesnice se posílají v¹em procesùm be¾ícím na popøedí i na pozadí.
-Nelze pøesouvat procesy z pozadí na popøedí a naopak.
-\item kdy¾ proces, který má kontrolní terminál, otevøe soubor \texttt{/dev/tty},
-tak se asociuje se svým kontrolním terminálem. Tj. pokud dva rùzné procesy z
-rùzných relací otevøou tento soubor, pøistupují oba k rùzným terminálùm.
-\item v bashi se skupina procesù (job) pozastaví pomocí \texttt{Ctrl-Z}, a
-rozbìhne pøes ,,\texttt{fg \%N}'' kde \texttt{N} je èíslo jobu podle výpisu
-pøíkazu \texttt{jobs}. Více informací viz sekce ,,JOB CONTROL'' v manuálové
-strán\-ce pro bash.
+\item When a user logs into system, new session is created. The session
+contains one process group that only has single process -- one with the
+user's shell. This process is also the leader of this single process group
+and session leader. In case job control is on, each command or
+colon of commands will create new process group, one process from each group
+will always become process group leader. One of the groups can be running
+in foreground, the rest will be running in the background.
+Signals which are generated from the keyboard (i.e. those triggered by
+combination of keys, not by executing the \texttt{kill} command),
+are sent only to the group running in the foreground.
+\item If job control is off, command execution in the foreground means
+that the shell will not be waiting for its completion. There exists only
+one group of processes, keyboard generated signals are sent to all processes
+running in the foreground and background. Processes cannot be moved to
+background from foreground or back and forth.
+\item When a process that has controlling terminal opens the \texttt{/dev/tty}
+file, it is associated with its controlling terminal, i.e. if 2 different
+processes open this file, they will be accessing 2 different terminals.
+\item In bash process group (job) can be stopped temporarily using
+\texttt{Ctrl-Z}, and be continued again using ,,\texttt{fg \%N}'' where
+\texttt{N} is the number from the \texttt{jobs} command listing.
+More information can be found in the ,,JOB CONTROL'' section in the bash
+man page.
 \end{itemize}
 
 \pdfbookmark[1]{fork}{fork}
