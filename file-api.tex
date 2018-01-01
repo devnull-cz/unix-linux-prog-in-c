@@ -1018,27 +1018,19 @@ its \emph{size} must be at least one byte longer than the path length.
 \end{slide}
 
 \begin{itemize}
-\item funkci \texttt{fchdir} se pøedává deskriptor získaný voláním
-\texttt{open} na adresáø.
-\item funkce \texttt{getcwd} mù¾e vrátit jinou cestu ne¾ tu, po které jsme
-se do ak\-tu\-ál\-ní\-ho adresáøe dostali, jesli¾e èást cesty v
-\texttt{chdir} byl symlink nebo do¹lo k pøesunu (pøejmenování) nìkterého
-adresáøe na cestì od koøene. U souèasných u{}nixù by se to ale u¾ stát nemìlo.
-\item na vìt¹inì moderních unixových systémù existuje funkce \texttt{chroot},
-která u\-mo¾\-òu\-je zmìnit koøenový adresáø volajícího procesu na daný
-adresáø. Je èasto pou¾ívaná v implementací serverù k omezení pøístupu
-pouze na daný podstrom file systému (napø. FTP servery).
-Pokud se pou¾ívá pro zapezpeèení, vy¾aduje to zvlá¹tní opatrnost,
-proto¾e existují cesty jak se dostat do pù\-vod\-ní\-ho stromu.
-Pokud je nutné z chroot prostøedí spou¹tìt programy, nastávají dal¹í
-komplikace s nutností replikace kritických systémových souborù do chroot
-prostøedí (pokud není program upraven aby mìl v¹e zabudované v sobì).
-Tato funkce není souèástí aktuální verze standardu (POSIX 1003.1-2008).
+\item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
+directory (ie. not from \texttt{opendir}).
+\item There is also a function \texttt{chroot} which allows to change the root
+directory of a calling process to a new one.  It is often used in various server
+implementations to limit access to the specific subtree.  For example, for an
+FTP server.  You have to be careful though and make sure it is not possible to
+escape from the chrooted subtree and access other parts of the filesystem.  The
+function is also not a part of SUSv4.
 \begin{itemize}
-\item dal¹í, mnohem obecnìj¹í, zpùsoby izolace procesù se dají nalézt v
-unixových systémech (jails v FreeBSD, zones v Solarisu, sandboxing v Mac
-OS X). Zpravidla se velmi li¹í tím jaké hranice doká¾í vytyèit, k èemu
-jsou urèeny, zpùsobem administrace, \ldots.
+\item Other, more generic ways of isolation are provided in available systems,
+and differ from each other greatly.  For example, there are jails in Free\-BSD,
+zones in Solaris, sandboxing in macOS, LXC in Linux (that is what Docker is
+based on there), etc.  
 \end{itemize}
 \end{itemize}
 
@@ -1066,20 +1058,20 @@ below.}
 \end{slide}
 
 \begin{itemize}
-\item Volání \texttt{access} aplikuje mechanismus testování pøístupových práv k
-zadanému souboru pro volající proces a vrátí výsledek.
-\item Funkce \texttt{access} volání byla pro setuid proces, aby si mohl ovìøit,
-zda u¾ivatel bì¾ící daný setuid proces by mìl za normálních okolností k
-pøíslu¹nému souboru pøístup. Z toho vyplývá, ¾e toto volání je \emsl{security
-hole} -- mezi testem a následnou akcí se soubor mù¾e zmìnit tøeba tak, ¾e
-pùvodní (mùj) soubor sma¾u a vytvoøím symbolický link se stejným jménem na
-soubor, ke kterému bych jinak nemìl pøístup. Toto proces nemù¾e nikdy o¹etøit,
-tak¾e vesele zmodifikuje soubor, který bych jako u¾ivatel nikdy nemohl zmìnit.
-Správným øe¹ením je vrátit se zpátky k reálným UID/GID a pøístup rovnou
-vyzkou¹et. Pokud napøíklad daný soubor otevøeme, u¾ nám ho nikdo pod rukama
-``nevymìní''.
+\item This call applies mechanism of access right testing to a specific file for
+the calling process.
+\item The function was meant for an SUID process to verify whether the user
+running the process would have had access to a file if it was not for the SUID
+privileges.  However, there is an inherent security hole in this approach.
+The test and the subsequent action on the file is not an atomic operation.  An
+attacker could possibly unlink the file and immediatelly symlink it to a
+different file to what it actually had no rights to manipulate with.  If the
+timing is right, the SUID process will operate on that other file.  The correct
+solution is not to use the \texttt{access} call but return to the real UID/GID
+and try the operation.  For example, if we succeed to open the file under the
+real UID/GID and continue working with the file descriptor, the file
+manipulation mentioned above would not gain the attacker anything.
 \end{itemize}
-
 
 %%%%%
 
