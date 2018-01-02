@@ -609,7 +609,7 @@ threads), because the mask will be inherited with each \texttt{pthread\_create}
 call.
 \item Do not use \texttt{sigprocmask} (page \pageref{SIGPROCMASK}) in threaded
 environment, because the behavior of this call is not specified by the standard
-in such environment. It may or work, or not.
+in such environment. It may work, or not.
 \item \label{THREADS_SIGWAIT} Example: \example{pthreads/sigwait.c}.
 \item \emsl{Note} that this way of signal handling should not be used for
 synchronous signals such as \texttt{SIGSEGV}, \texttt{SIGILL}, etc. These
