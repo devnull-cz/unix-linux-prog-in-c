@@ -626,7 +626,7 @@ by the kill() function, the sigqueue() function, or the raise() function.}
 \end{quote}
 
 Example: \example{pthreads/sigwait-with-sync-signals.c}. This example shows that
-Solarisu 10, Solarisu 11, FreeBSD 7.2 and a Linux distribution, that reports
+Solaris 10 and 11, FreeBSD 7.2 and a Linux distribution, that reports
 itself as ``Gentoo Base System release 1.12.13'', is the \texttt{SIGSEGV} signal
 delivered and the process killed even though it is masked.
 There used to be a system that did not deliver the signal when masked
@@ -1341,7 +1341,7 @@ the same call of \texttt{printf}. Each time it returns pointer with
 the same address (in one thread) which the \texttt{printf} only notes
 and only uses the contents for the final priting, therefore prints
 the representation of the last address used in \texttt{inet\_ntoa}.
-On Solarisu it is possible to observe this with:
+On Solaris it is possible to observe this with:
 \begin{verbatim}
 truss -t\!all -u libnsl::inet_ntoa ./a.out
 \end{verbatim}
