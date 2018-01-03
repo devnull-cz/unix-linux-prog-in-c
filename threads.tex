@@ -727,7 +727,7 @@ will result in deadlock (\texttt{NORMAL}) or not (\texttt{ERRORCHECK}).
 In the second case, return value will contain information about the error.
 If not tested, the program will wrongly assume that the mutex is locked.
 For the \texttt{NORMAL} type the result of the remaining two situations is not
-define, for \texttt{ERRORCHECK} an error will be returned. ``Not defined``
+defined, for \texttt{ERRORCHECK} an error will be returned. ``Not defined``
 means that the thread unlocking a mutex locked by different thread can succeed.
 Or not -- everything depends on the implementation at hand. It also means that
 the result of such operations is of no interest because these should be avoided.
