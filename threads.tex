@@ -751,8 +751,7 @@ mutex. Without recursive locks a deadlock will ensue. With recursive mutexes
 that's fine if these two calls are done by the same thread (another thread will
 get blocked). That is, assuming \texttt{A:foo()} and \texttt{A:bar()} are aware
 that the same thread can be already in the critical section.
-\item \label{MUTEXTAB} The behavior according to mutex types:
-shrnuje tabulka:\\
+\item \label{MUTEXTAB} The behavior according to mutex types:\\
 \\
 \raisetab{
 \begin{tabular}[t]{r|c|c|c|}
