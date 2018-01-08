@@ -965,7 +965,7 @@ pthread\_cond\_timedwait}{pthreadcondunblfncs}
 
 \begin{itemize}
 \item one conditional variable can be used to announce multiple situations
-at once -- e.g. when inserting or removal an item to/from a queue.
+at once -- e.g. when inserting or removing an item to/from a queue.
 Because of this, it is necessary to test the condition the thread is waiting
 for. Another consequence of this is that it is neccessary to use broadcast
 in such situation. Let's assume that both readers and writers are waiting for
