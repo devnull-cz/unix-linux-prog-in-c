@@ -1120,13 +1120,13 @@ The same is true for mutexes and condition variables.
 \begin{slide}
 \sltitle{Atomic arithmetic operations}
 \begin{itemize}
-\item for architectures where the addition operation is not atomic
+\item for architectures where the arithmetic operations are not atomic
 \item significantly faster than other mutual exclusion mechanisms
 thanks to using native CPU instructions ensuring atomicity.
 \item some systems supply functions for atomic operations,
-(e.g. \texttt{atomic\_add(3c)} in Solaris); generally it is better
-to use the routines from C11 standard via \emph{stdatomic.h}.
-\item There is API for miscellaneous types and operations, e.g. addition:
+(e.g. \texttt{atomic\_add(3c)} in Solaris \texttt{libc})
+\item generally it is better to use the routines from C11 standard
+via \emph{stdatomic.h}, e.g. addition:
 \end{itemize}
 \begin{verbatim}
     #include <stdatomic.h>
