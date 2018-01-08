@@ -926,11 +926,12 @@ if they are blocked. It is important to perform this under the protection of
 the mutex, to be sure what is the state of the data when calling
 \texttt{pthread\_cond\_wait}.
 \item The conditional variables API works thanks to the fact that when entering
-critical section the mutex is locked by the thread and
-\emsl{funkce \texttt{pthread\_cond\_wait} before putting the thread to sleep will
-unlock the mutex}. Before exiting from the function the mutex is again locked.
-It can therefore happen that the thread is woken while waiting on a conditional
-variable and then sleeps again when waiting for the mutex.
+critical section the mutex is locked by the thread and the
+\emsl{\texttt{pthread\_cond\_wait} function will unlock the mutex before putting
+the thread to sleep}. Before exiting from the function the mutex is again
+locked.
+It can therefore happen that the thread is woken up while waiting on a
+conditional variable and then sleeps again when waiting for the mutex.
 There is nothing complicated about this, it is merely mutual exclusion of 
 threads in critical section.
 \end{itemize}
