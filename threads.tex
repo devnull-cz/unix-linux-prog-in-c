@@ -1235,19 +1235,32 @@ How would you solve this problem ?
 
 %%%%%
 
-\pdfbookmark[1]{sem\_init, sem\_post, sem\_wait}{semafory}
+\pdfbookmark[1]{sem\_init, sem\_post, sem\_wait}{semaphores}
 
 \begin{slide}
-\sltitle{POSIX Semaphores}
+\sltitle{POSIX Semaphores -- unnamed}
 \begin{itemize}
 \item semaphores come from POSIX-1003.1b (real-time extensions)
 \item the function names do not begin with \emsl{pthread\_}, but \emsl{sem\_}
-(\texttt{sem\_init}, \texttt{sem\_post}, \texttt{sem\_wait}, \dots)
 \item possible to use them with threads
+\end{itemize}
+\texttt{int \funnm{sem\_init}(sem\_t *\emph{s},
+int \emph{pshared}, unsigned int \emph{value});}
+\begin{itemize}
+\item initialize semaphore
+\item The \funnm{sem\_post} and \funnm{sem\_wait} are the same as for named
+semaphores (see page \pageref{NAMED_SEMAPHORES})
+\end{itemize}
+\texttt{int \funnm{sem\_destroy}(sem\_t *\emph{s});}
+\begin{itemize}
+\item destroys the unnamed semaphore
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
+\item Sempahores created using this API do not have a name (as opposed to
+those created via the \texttt{sem\_open} function), hence they are called
+unnamed.
 \item The semaphore functions adhere to the classical UNIX semantics --
 they return -1 on error and set \texttt{errno}.
 \end{itemize}
