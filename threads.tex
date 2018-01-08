@@ -1345,13 +1345,12 @@ thread-local storage for saving input data and this makes it
 thread safe. That said, it does not make it totally safe to use.
 (not mentioning that a program relying on this behavior is not portable)
 see example \example{reentrant/gethostbyname.c}.
-A bit better is to use reentrantní version of this function called 
+A bit better is to use reentrant version of this function called 
 \texttt{gethostbyname\_r} (if it is available on given system),
 which takes the address of where the result will be stored as parameter,
 which makes it reentrant. Much better is to use standard function
 \texttt{getaddrinfo} (see page) \pageref{GETADDRINFO}, which is reentrant
 by itself.
-
 
 \item Example: \example{reentrant/inet\_ntoa.c} -- shows that even
 function written like so does not help if it is called twice within
