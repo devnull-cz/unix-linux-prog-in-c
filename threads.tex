@@ -1071,7 +1071,7 @@ POSIX.1j called ``advanced realtime extensions''.
 \item More than one thread can hold the lock for reading or at most one
 thread for writing (and no one for reading).
 \item Read-write locks are semantically similar to locking files using
-funkce \texttt{fcntl}.
+\texttt{fcntl} function.
 \item It is common that given implementation prefers writer threads to
 reader threads. E.g. if a lock is owned by writer and some other thread
 calls \funnm{pthread\_rwlock\_rdlock} and there is at least one thread
