@@ -1219,7 +1219,7 @@ Once a thread decrements the counter and realizes it is not 0,
 it will enter sleep on a condition variable.
 If the thread is the one which discovers the counter to be 0, then instead of
 calling \texttt{pthread\_cond\_wait} it will send a broadcast which will
-all the threads sleeping on the barrier.
+wake up all the threads sleeping on the barrier.
 \texttt{pthread\_cond\_signal} is not enough, since it is necessary to wake up
 all the threads, not just one.
 Before entering next phase the counter is initialized to previous value.
