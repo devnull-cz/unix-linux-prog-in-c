@@ -1160,6 +1160,8 @@ arithmetic operation functions and mutexes is expecially notable on
 CPUs with hardware parallelism support.
 \item Similarly there is API for subtraction, bit operations
 AND and OR, value assignment atd.
+\item The atomic primitives and types in C11 is optional feature, so should
+be wrapped under \texttt{\_\_STDC\_NO\_ATOMICS\_\_} negative define.
 \item Good description of the C11 atomic API can be found on
 \url{http://en.cppreference.com/w/c/atomic}
 \end{itemize}
