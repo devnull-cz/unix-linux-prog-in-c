@@ -977,8 +977,8 @@ will remain in the queue until a reader is woken up.
 variable is associated with concrete event, which is no longer true after
 the waiting thread is woken up.
 Let's consider this situation: a thread signals a condition change and right
-after that another thread locks the mutex and do an action which invalidates
-the condition, e.g. removing a item from a queue when the event was
+after that another thread locks the mutex and performs an action which
+invalidates the condition, e.g. removing a item from a queue when the event was
 ``there is a messages in the queue''. Thus the thread which is woken up
 finds the queue empty. This is another reason why the condition variable
 \emsl{always} has to be tested in a cycle.
