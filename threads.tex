@@ -1313,8 +1313,8 @@ one request from single client.
 \item \emph{thead-safe} means that the function can be called from multiple
 threads in parallel without destructive consequences
 \begin{itemize}
-\item the function which was not designed to be thread-safe can be
-converted into the one that is by inserting a locked section.
+\item a function which was not designed to be thread-safe can be
+converted into one that is -- by inserting a locked section.
 \item this is obviously not very efficient
 \end{itemize}
 \item \emph{reentrant} typically means that the function was designed
