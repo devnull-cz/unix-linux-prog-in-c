@@ -1733,35 +1733,35 @@ Program terminated with signal 10, Bus error.
 \pdfbookmark[1]{standard header files}{stdhdrs}
 
 \begin{slide}
-\sltitle{Standardní hlavièkové soubory (ANSI~C)}
+\sltitle{Standard header files (ANSI~C)}
 \renewcommand{\arraystretch}{1}
 \begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
-\texttt{stdlib.h} & základní makra a funkce \\
-\texttt{errno.h} & o¹etøení chyb \\
-\texttt{stdio.h} & vstup a výstup \\
-\texttt{ctype.h} & práce se znaky \\
-\texttt{string.h} & práce s øetìzci \\
-\texttt{time.h} & práce s datem a èasem \\
-\texttt{math.h} & matematické funkce \\
-\texttt{setjmp.h} & dlouhé skoky \\
-\texttt{assert.h} & ladicí funkce \\
-\texttt{stdarg.h} & práce s promìnným poètem parametrù \\
-\texttt{limits.h} & implementaènì závislé konstanty \\
-\texttt{signal.h} & o¹etøení signálù
+\texttt{stdlib.h} & basic macros and functions\\
+\texttt{errno.h} & error handling\\
+\texttt{stdio.h} & input and output\\
+\texttt{ctype.h} & character handling\\
+\texttt{string.h} & string handling\\
+\texttt{time.h} & time and date handling\\
+\texttt{math.h} & math functions\\
+\texttt{setjmp.h} & far jumps\\
+\texttt{assert.h} & debugging macros/functions\\
+\texttt{stdarg.h} & variable arguments processing\\
+\texttt{limits.h} & implementation dependent constants\\
+\texttt{signal.h} & signal handling
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item hlavièkový soubor (\emph{header file}) je soubor s deklaracemi funkcí
-(\emph{forward declaration}), pro\-mìn\-ných a maker. Z pohledu preprocesoru
-je to obyèejný soubor napsaný v jazyce C.
-\item \emsl{tyto hlavièkové soubory nejsou specifické pro UNIX. Jsou souèástí
-standardu ANSI~C, který jak ji¾ víme (strana \pageref{C_LANGUAGE}), je zahrnut v
-POSIX.1. Je ale dùle¾ité si uvìdomit, ¾e tyto hlavièkové soubory musí podporovat
-ka¾dý systém, který podporuje ANSI~C, a» ji¾ podporuje POSIX.1 nebo ne.}
-\item pøíslu¹ný hlavièkový soubor pro konkrétní funkci najdete v manuálové
-stránce dané funkce, toto je zaèátek manuálové stránky na Solarisu pro
-\texttt{memcpy}:
+\item The \emph{header file} is a file that contains declarations 
+(\emph{forward declaration}) of functions, variables and macro definitions.
+From preprocessor's point of view this is simple file in C language.
+\item \emsl{These header files are not specific to UNIX. They are part of
+the ANSI~C standard, that is included in POSIX.1 (page \pageref{C_LANGUAGE})
+It is important to realize that every system that supports
+ANSI~C has to have these files, notwithstanding whether it supports POSIX.1.}
+\item Appropriate header file for given function can be looked up using the
+function's man page, e.g. this is the beginning of \texttt{memcpy} man page
+on Solaris:
 \begin{verbatim}
 Standard C Library Functions                         memory(3C)
 
@@ -1774,13 +1774,12 @@ SYNOPSIS
 ...
 ...
 \end{verbatim}
-\item jednotlivá makra obsa¾ená v tìchto souborech vìt¹inou nejsou
-vysvìt\-le\-na, význam jednotlivých maker je ale mo¾né si vyhledat v
-pøíslu¹ných specifikacích, které jsou on-line. Na nìkterých systémech
-(Solaris) mají jednotlivé hlavièkové soubory svoji vlastní manuálovou stránku
-(\texttt{man stdlib.h}).
-\item makro \texttt{assert} je mo¾né z bìhem kompilace odstranit pomocí makra
-\texttt{NDEBUG}. Pøíklad: \example{assert/assert.c}.
+\item Individual macros contained in these files are usually not explained,
+their meaning can be looked up in relevant specifications which are on-line.
+On some systems (Solaris) individual header files have their own manual page
+(e.g. \texttt{man stdlib.h}).
+\item The \texttt{assert} macro is possible to remove during the compilation
+using the \texttt{NDEBUG} define. Example: \example{assert/assert.c}.
 
 \begin{verbatim}
 cat assert.c 
