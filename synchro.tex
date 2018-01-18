@@ -274,8 +274,8 @@ void \funnm{unlock}(char *lockfile) \{
 
 \begin{itemize}
 \item \label{LOCK_UNLOCK} The key is the \texttt{O\_EXCL} flag.
-\item example: \example{file-locking/lock-unlock.c} -- use together with 
-the \example{file-locking/run.sh} shell script.
+\item example: \example{file-locking/lock-unlock.c} -- it is to be used together
+with the \example{file-locking/run.sh} shell script.
 \item In case of process crash the locks are not removed and therefore other
 processes would wait forever. Thus it is prudent to write PID of the process 
 that created the lock to the lock file. The process that is waiting for unlock
