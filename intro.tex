@@ -1806,44 +1806,42 @@ $ echo $?
 %%%%%
 
 \begin{slide}
-\sltitle{Standardní hlavièkové soubory (2)}
+\sltitle{Standard header files (2)}
 \begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
-\texttt{unistd.h} & symbolické konstanty, typy a základní funkce \\
-\texttt{sys/types.h} & datové typy \\
-\texttt{fcntl.h} & øídící operace pro soubory \\
-\texttt{sys/stat.h} & informace o souborech \\
-\texttt{dirent.h} & procházení adresáøù \\
-\texttt{sys/wait.h} & èekání na synovské procesy \\
-\texttt{sys/mman.h} & mapování pamìti \\
-\texttt{curses.h} & ovládání terminálu \\
-\texttt{regex.h} & práce s regulárními výrazy\\
+\texttt{unistd.h} & standard symbolic constants and types \\
+\texttt{sys/types.h} & data types \\
+\texttt{fcntl.h} & file control options \\
+\texttt{sys/stat.h} & information on files \\
+\texttt{dirent.h} & directory entry format \\
+\texttt{sys/wait.h} & waiting for children \\
+\texttt{sys/mman.h} & memory mapping \\
+\texttt{regex.h} & working with regular expressions \\
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item tyto headery u¾ patøí do UNIXu.
-\item zajímavé mù¾e být podívat se do \texttt{sys/types.h}
+\item These headers are part of the UNIX specification.
+\item Looking into these header files may be worth your while.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Standardní hlavièkové soubory (3)}
+\sltitle{Standard header files (3)}
 \begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
-\texttt{semaphore.h} & semafory (POSIX) \\
-\texttt{pthread.h} & vlákna (POSIX threads) \\
-\texttt{sys/socket.h} & sí»ová komunikace \\
-\texttt{arpa/inet.h} & manipulace se sí»ovými adresami\\
-\texttt{sys/ipc.h} & spoleèné deklarace pro System~V IPC \\
-\texttt{sys/shm.h} & sdíle{}ná pamì» (System~V) \\
-\texttt{sys/msg.h} & fronty zpráv (System~V)\\
-\texttt{sys/sem.h} & semafory (System~V) \\
+\texttt{sys/socket.h} & network communication \\
+\texttt{arpa/inet.h} & definitions for internet operations \\
+\texttt{pthread.h} & POSIX threads \\
+\texttt{semaphore.h} & POSIX semaphores \\
+\texttt{sys/ipc.h} & System~V IPC \\
+\texttt{sys/shm.h} & System~V shared memory \\
+\texttt{sys/msg.h} & System~V messages \\
+\texttt{sys/sem.h} & System~V semaphores \\
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item dokonèení nejdùle¾itìj¹ích UNIXových headerù. Existují samozøejmì
-je¹\-tì dal\-¹í.
+\item There are also many other standard header files.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
