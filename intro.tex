@@ -2187,61 +2187,60 @@ rewritten to C language using the \texttt{getopt} function:
 \pdfbookmark[1]{getopt\_long}{getoptlong}
 
 \begin{slide}
-\sltitle{Dlouhý tvar pøepínaèù}
+\sltitle{Processing long options}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item poprvé se objevilo v GNU knihovnì \texttt{libiberty}: 
+\item first appeared in GNU library \texttt{libiberty}: 
 \begin{verbatim}
-      --jméno nebo --jméno=hodnota 
+      --name or --name=value
 \end{verbatim}
-\item argumenty se permutují tak, aby pøepínaèe byly na zaèátku, napø.
-\verb#ls * -l# je toté¾ jako \verb#ls -l *#, standardní chování lze docílit
-nastavením promìnné \verb#POSIXLY_CORRECT#.
-\item zpracovávají se funkcí \texttt{\funnm{getopt\_long}()}, která pou¾ívá
-pole struktur popisujících jednotlivé pøepínaèe: 
+\item the arguments are permuted so that e.g.
+\verb#ls * -l# is the same as \verb#ls -l *#, standard behavior can be enabled
+by setting the \verb#POSIXLY_CORRECT# environment variable.
+\item the long options are processed using the \texttt{\funnm{getopt\_long}()}
+function using these variables and structures:
 {\tt
 \begin{tabbing}
 stru\=ct \funnm{option} \{\\
-\>const char *name; \textrm{/* jméno pøepínaèe */} \\
-\>int has\_arg; \textrm{/* hodnota: ano, ne, \emsl{volitelnì} */} \\
-\>int *flag; \textrm{/*~}\=\textrm{kdy¾ je \texttt{NULL}, funkce vrací
-\texttt{val}, jinak vrací 0}\\\>\>\textrm{a dá \texttt{val} do \texttt{*flag}
-*/} \\
-\>int val; \textrm{/* návratová hodnota */} \\
+\>const char *name; \textrm{/* name of the option */} \\
+\>int has\_arg; \textrm{/* value: yes, no, \emsl{optional} */} \\
+\>int *flag; \textrm{/*~}\=\textrm{if \texttt{NULL}, the function returns
+\texttt{val}}, \\
+\>\>\textrm{otherwise returns 0}
+\textrm{and }\texttt{*flag = val}\textrm{ */} \\
+\>int val; \textrm{/* return value */} \\
 \};
 \end{tabbing}}
 \end{itemize}
 \end{slide}
 
-verze jak se objevila ve FreeBSD (funkce \textrm{getopt\_long} není
-standarizovaná), má následující vlastnosti:
+The version that appeared in FreeBSD (\textrm{getopt\_long} is not part
+of the standard), has the following properties:
 
 \begin{itemize}
-\item pokud v¹echny dlouhé pøepínaèe mají nastaveny krátkou variantu
-ve \texttt{val}, je chování \texttt{getopt\_long} kompatibilní s
-\texttt{getopt}
-\item je mo¾né zadávat argument k dlouhému pøepínaèi i s mezerou
-(na\-pøí\-klad \texttt{--color~green})
-\item pokud je nastaven \texttt{flag}, tak \texttt{getopt\_long}
-vrací 0, èím¾ se tyto dlouhé pøe\-pí\-na\-èe bez krátké varianty zpracují v
-jedné vìtvi pøíkazu \texttt{case}
-\item existuje i volání \texttt{getopt\_long\_only}, které povoluje
-i dlouhé pøepínaèe uvozené jednou uvozovkou (\texttt{-option})
-\item funkci \texttt{getopt\_long} je mo¾né pou¾ívat dvìmi zpùsoby.
-První zpùsob je, ¾e ka¾dý dlouhý pøepínaè má korespondující krátký
--- takto lze jednodu¹e pøidat dlouhé pøepínaèe do existujícího
-programu a je \emsl{kompatibilní s getopt}. Druhý zpùsob umo¾òuje
-mít samostatné dlouhé pøepínaèe. V tom pøípadì funkce vrací v¾dy 0
-(nekompatibilita s \texttt{getopt}) a promìnná \texttt{*flag} se
-nastaví na \texttt{val}.
-\item na konkrétním pøíkladu na následující stránce je vidìt, jak to
-celé funguje
+\item If all long options have the short variant set in \texttt{val}, the
+behavior of \texttt{getopt\_long} is compatible with that of \texttt{getopt}.
+\item It is possible to specify value of long option also with a space
+(for example \texttt{--color~green}).
+\item If \texttt{flag} is set, \texttt{getopt\_long} returns 0, which makes
+these long options without short variant processed in single branch of
+\texttt{case}.
+\item There is also \texttt{getopt\_long\_only}, that allows long options
+to begin with single dash (\texttt{-option}).
+\item The \texttt{getopt\_long} function is possible to use in two ways.
+The first way is that each long option has a corresponding short variant
+-- this way it is possible to introduce long options to existing program
+in \emsl{getopt compatible} way. The second way makes it possible to have
+independent long options. In this case the function returns always 0
+(non-compatible with \texttt{getopt}) and the \texttt{*flag} variable
+is set to \texttt{val}.
+\item The next slide demonstrates how it works.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Dlouhé pøepínaèe (pokraèování)}
+\sltitle{Processing long options (cont.)}
 {\tt\begin{tabbing}
 int \funnm{getopt\_long}(\=int \emph{argc}, char * const \emph{argv}[],\\
 \>const char *\emph{optstring},\\
@@ -2249,19 +2248,20 @@ int \funnm{getopt\_long}(\=int \emph{argc}, char * const \emph{argv}[],\\
 \>int *\emph{longindex}); 
 \end{tabbing}}
 \begin{itemize}
-\item \texttt{optstring} obsahuje jednopísmenné pøepínaèe,
-\texttt{longopts} obsahuje adresu pole struktur pro dlouhé pøepínaèe
-(poslední záznam pole obsahuje samé nuly) 
-\item pokud funkce narazí na dlouhý pøepínaè, vrací odpovídající
-\texttt{val} nebo nulu (pokud \texttt{flag} nebyl \texttt{NULL}),
-jinak je chování shodné s \texttt{getopt}.
-\item do \texttt{*longindex} (kdy¾ není \texttt{NULL}) dá navíc
-in{}dex nalezeného pøepínaèe v \texttt{longopts}.
+\item \texttt{optstring} contains short options,
+\texttt{longopts} contains address of array of structures for long options
+(last record contains all zeroes) 
+\item if the function hits a long option, it returns corresponding
+\texttt{val} or zero (if \texttt{flag} was not \texttt{NULL}),
+otherwise the behavior is the same as \texttt{getopt}.
+\item it will also put the index of the found option in \texttt{longopts}
+to \texttt{*longindex} (if not \texttt{NULL})
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item toto je upravený pøíklad z manuálové stránky na FreeBSD:
+\item This is slightly modified example from the \texttt{getopt\_long}
+FreeBSD man page:
 {\footnotesize
 \begin{verbatim}
 #include <stdio.h>
