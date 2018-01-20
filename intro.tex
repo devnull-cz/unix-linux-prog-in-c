@@ -1243,99 +1243,102 @@ for the faint-hearted.
 \pdfbookmark[1]{dynamic linker}{ldso}
 
 \begin{slide}
-\sltitle{Dynamický linker (loader)}
+\sltitle{Dynamic linker (loader)}
 
 \begin{itemize}
-\item pøeklad vy¾aduje v¹echny potøebné dynamické knihovny pro kontrolu
-dosa¾itelnosti pou¾itých symbolù
-\item \emsl{sestavení kompletního programu v pamìti se ale provede
-a¾ pøi spu¹tìní}. To je úkol pro \emsl{dynamický linker}
-(\emph{run-time linker}, \emph{loader})
-\item seznam dynamických knihoven zjistí ze sekce \texttt{.dynamic}
-\item systém má nastaveno nìkolik cest, kde se automaticky tyto knihovny hledají
-\item v sekci \texttt{.dynamic} je mo¾né dal¹í cesty ke knihovnám pøidat pomocí
-tagù \texttt{RUNPATH}/\texttt{RPATH}
-\item nalezené knihovny se pøipojí do pamì»ového procesu pomocí volání
-\funnm{mmap}() (bude pozdìji)
+\item the compilation phase requires all needed dynamic libraries to check
+accessibility of used symbols
+\item \emsl{loading external shared libraries into a running process happens on
+program execution}. That is what a \emsl{dynamic linker} does  (\emph{run-time
+linker}, \emph{loader}).
+\item list of required dynamic libraries is in the \texttt{.dynamic} section of
+an ELF object
+\item system by default looks for shared libs in certain locations
+\item located libraries are mapped to the process address space via
+\funnm{mmap}() (will be later)
 \end{itemize}
 \end{slide}
 
 \label{RUNTIMELINKER}
 
 \begin{itemize}
-\item proces spu¹tìní dynamicky slinkovaného programu probíhá takto:
-
+\item An ELF object format is explained on page \pageref{ELF}.
+\item In the ELF \texttt{.dynamic} section, you can add additional paths to
+search for the libraries using tags \texttt{RUNPATH}/\texttt{RPATH}.
+\item The process of an execution of a dynamically linked program works like
+this:
 \begin{itemize}
-\item kernel ve volání \texttt{exec} namapuje program do pamìti a zjistí, jaký
-dynamický linker se má pou¾ít (viz dále)
-\item kernel namapuje linker do pamì»ového prostoru spou¹tìného programu a pak
-linkeru pøedá kontrolu. Linker je program sám o sobì -- na Solarisu je ho mo¾né
-normálnì spustit (má tedy funkci \texttt{main}) a jako parametr mu dát jméno
-programu. Mo¾nost spou¹tìt dynamický linker z pøíkazového øádku je ale hlavnì
-pro experimentovaní s linkerem pøi jeho vývoji.
-\item linker z hlavièky programu zjistí, jaké dynamické knihovny program
-pou¾ívá, namapuje je do pamìti a zavolá jejich inicializaèní funkce, pokud
-existují. Mapují se v¹echny nalezené závislosti které nejsou nastavené jako
-\emph{lazy} (strana \pageref{DLOPEN}), rekurzívnì prohledáváním do ¹íøky. V
-tomto poøadí se pak také objekty prohledávají pøi hledání jednotlivých symbolù.
-\item linker programu pøedá øízení (tj. zavolá funkci \texttt{main})
-\item proces mù¾e i za bìhu dále vyu¾ívat dynamický linker pomocí volání
-\texttt{dlopen} a spol.; k tomu se dostaneme na stranì \pageref{DLOPEN}
+\item The kernel in \texttt{exec()} maps the program to a newly created process
+address space and finds out what a dynamic linker is used (see \texttt{.interp}
+below).
+\item The kernel maps the dynamic linker to the process address space as well
+and calls the linker's \texttt{main()} function.  As a dynamic linker is an
+executable program by itself, it has \texttt{main()}.  You can usually also run
+a dynamic linker on a command line if you want to, that is mostly useful for
+debugging and experimenting with a dynamic linker.
+\item The linker gets the list of required libraries from the program ELF header,
+maps those libraries to the process address space, and calls their initialization
+functions if those exist.  All dependencies not set as 
+\emph{lazy} (see page \pageref{DLOPEN}) are mapped recursively via breadth
+search.
+\item The linker's job is done at that point and calls the program
+\texttt{main()} function.
+\item A process may continue to use the dynamic linker during program execution
+via calls like \texttt{dlopen()} etc.  See page \pageref{DLOPEN} for more
+information.
 \end{itemize}
+\item Note that the dynamic linker does not run as a separate process (unless
+you run it like that) even that it has its own \texttt{main()} function.  It is
+used within an address space of an executed program.  The program, dynamic
+linker, and dynamic libraries constitute a single process.
 
-\item je potøeba si uvìdomit, ¾e dynamický linker zde nepracuje jako samostatný
-proces pøesto¾e má svoji vlastní \texttt{main} funkci, jeho kód se pou¾ívá v
-rámci pamì»ového prostoru procesu; \emsl{program, linker a knihovny dohromady
-tvoøí jeden proces}.
-
-\item \emsl{následující pøíkazy a pøíklady se týkají Solarisu}. Pokud to nebude
-fungovat na jiných systémech, tak mají ekvivaletní nástroje s podobnou
-funkcionalitou.
-
+\item The following examples \emsl{are from Solaris}.  Finding equivalent
+commands and/or options on Linux is left as an excercise to the reader.
 \begin{itemize}
-\item seznam sekcí se zjistí pomocí \texttt{elfdump -c} (GNU má pøíkazy
-\texttt{objdump} a \texttt{readelf}). O programových sekcích bude více na stranì
+\item ELF sections are listed via \texttt{elfdump -c} (GNU has
+\texttt{objdump} and \texttt{readelf}).  More on program sections on page
 \pageref{ELF}.
-\item to, jaký dynamický linker se pou¾ije, kernel zjistí ze sekce
-\texttt{.interp}, viz ''\texttt{elf\-dump -i}'' a ``\texttt{ld -I}''. To
-znamená, ¾e si mù¾ete napsat vlastní linker a pomocí \texttt{-I} pro \texttt{ld}
-ho pak nastavit jako dynamický linker pro vá¹ program.
-\item dynamická sekce se vypí¹e pomocí \texttt{elfdump -d}, dynamické knihovny
-jsou o\-zna\-èe\-né tagem \texttt{NEEDED}
+\item What a dynamic linker is used is in section \texttt{.interp}, see
+''\texttt{elf\-dump -i}'' and ``\texttt{ld -I}''.  It means you could write your
+own dynamic linker and set it via the \texttt{-I} option for \texttt{ld} to your
+program.  It is needed to say such an enterprise would not be an easy feat at
+all.
+\item To list the dynamic section, use \texttt{elfdump -d}, dynamic libraries
+are set as \texttt{NEEDED}.
 \item Finding out shared object dependencies is very easy via the
-\texttt{ldd} command (Solaris, Linux, BSD).  It displays paths to the libraries
-that will be used if the program is run in the same environment (see right
-below for more information).  The command resolves the depencides recursively so
-you will also see dynamic libraries that are used by other libraries and not
-directly by the program.  To find out what exactly depends on what, use the
-\texttt{-v} option.  macOS does not have \texttt{ldd}, use \texttt{otool -L}
-instead.
-\item jaké knihovny byly pøi spu¹tìní nakonec pou¾ity mù¾e být jiné ne¾ co uká¾e
-pøíkaz \texttt{ldd}, a to tøeba díky mechanismu \texttt{LD\_PRELOAD}. Na
-Solarisu proto existuje pøíkaz \texttt{pldd}, který pomocí èísla procesu uká¾e
-závislosti konkrétního procesu. Pøíklad na \texttt{LD\_PRELOAD}: pou¾ijte ji¾
-zmínìný \texttt{Ma\-ke\-file01}, a pøelo¾te \example{basic-utils/preload.c}
-takto:
-``\texttt{cc -shared -o lib\-pre\-load.so preload.c}''. Pak spus»te
-program, který zachytí
-systémové volání \texttt{close}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
-\item vìt¹inu zde uvedených informací naleznete v manuálové stránce pro
-dynamický linker v Solarisu, \texttt{ld.so.1(1)}, a více pak v \emph{Linkers
-and Libraries Guide} na \texttt{docs.oracle.com}. Na FreeBSD se dynamický
-linker nazývá \texttt{ld-elf.so.1}, v linuxových distribucích vìt¹inou
-\texttt{ld-linux.so.1}, na IRIXu \texttt{rld} atd.
-\item dynamický linker se typicky dá konfigurovat pomocí nastavení
-pro\-mìn\-ných, napøíklad si zkuste na Solarisu spustit toto:
+\texttt{ldd} command (Solaris, Linux, BSD).  It displays paths to the specific
+libraries (ie. full paths) that will be used if the program is run in the
+same environment (see right below for more information).  The command resolves
+the dependencies recursively so you will also see dynamic libraries that are used
+by other libraries and not directly by the program.  To find out what exactly
+depends on what, use the \texttt{-v} option.  macOS does not have \texttt{ldd},
+use \texttt{otool -L} instead.
+\item What libraries are eventually used when running the program could be
+different from what \texttt{ldd} shows.  For example, 
+one could use the \texttt{LD\_PRELOAD} mechanism.  For that reasons,
+Solarisu has a \texttt{pldd} command which provides for a running process
+library dependencies.  Example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
+already mentioned \texttt{Ma\-ke\-file01}, and compile
+\example{basic-utils/preload.c} like this: ``\texttt{gcc -shared -o
+lib\-pre\-load.so preload.c}''.  Run the program then which interposes a system
+call \texttt{close()}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
+\item Most of the information listed here can be found in a manual page for the
+Solaris dynamic linker, \texttt{ld.so.1(1)}, and much more then in an excellent
+\emph{Linkers and Libraries Guide} on \texttt{docs.oracle.com}.  If you use
+FreeBSD, its dynamic linker is \texttt{ld-elf.so.1}, on Linux distros it is
+usually \texttt{ld-linux.so.1}, it is \texttt{rld} on SGI IRIX etc.
+\item You can also configure the dynamic linker via setting environment
+variables.  For example, try this on Solaris:
 \begin{verbatim}
 LD_LIBRARY_PATH=/tmp LD_DEBUG=libs,detail date
 \end{verbatim}
-a pro zji¹tìní v¹ech mo¾ností jak debugovat dynamický linker pou¾ijte:
+and to find out what options you have to debug the dynamic linker there:
 \begin{verbatim}
 LD_DEBUG=help date
 \end{verbatim}
-\item pøíklad na to, kdy je potøeba, aby linker hledal knihovny i jinde ne¾ v
-defaultních adresáøích (adresáøe specifikované promìnnou
-\texttt{LD\_LIBRARY\_PA\-TH} se prohledávají jako první):
+\item To tell the linker to look for dynamic libraries also in directories other
+than the default ones (paths from \texttt{LD\_LIBRARY\_PA\-TH} are searched
+first), use it like the following:
 \begin{verbatim}
 $ cp /lib/libc.so.1 /tmp
 $ LD_LIBRARY_PATH=/tmp sleep 100 &
@@ -1345,30 +1348,27 @@ $ pldd 104547
 /tmp/libc.so.1
 /usr/lib/locale/cs_CZ.ISO8859-2/cs_CZ.ISO8859-2.so.3
 \end{verbatim}
-\item Solaris má velmi zajímavý pøíkaz \texttt{elfedit(1)}, pomocí kterého
-mù¾ete editovat metadata ELF objektu, napøíklad pøepsat jméno závislé
-kni\-hov\-ny, zmìnit nastavení \texttt{RUNPATH} atd.
+\item You can also edit ELF objects via \texttt{elfedit(1)} on Solaris.  You can
+change \texttt{RUNPATH}, for example.
 \end{itemize}
-\item \label{EVIL_LDLIBPATH} Obecnì platí, ¾e pou¾ívat
-\texttt{LD\_LIBRARY\_PATH} k ovlivnìní bìhu dynamického linkeru pro nìco
-jiného ne¾ ladìní dynamických knihoven pøi vývoji nebo pøesunech knihoven
-mezi adresáøi není dobrý nápad. Na internetu lze najít mno¾ství èlánkù
-typu "why is \texttt{LD\_LIBRARY\_PATH} evil ?" apod., napø.
+\item \label{EVIL_LDLIBPATH} In general, you should not use
+\texttt{LD\_LIBRARY\_PATH} for anything else then debugging during the
+development or when moving libraries between directories.  You can find lots of
+articles on ``why is \texttt{LD\_LIBRARY\_PATH} evil?'' etc.  For example,
 \url{http://xahlee.org/UnixResource\_dir/\_/ldpath.html}.
-\par
-Tato promìnná je typicky zneu¾ívaná ve startovacích skriptech programù, aby
-pøedsunuly alternativní seznam adresáøù kde hledat dynamické knihovny na
-kterých program závisí. To vìt¹inou proto, ¾e byl program nesprávnì
-slinkován a dynamický linker by podle informací v ELFu nedokázal jinak
-knihovny najít. Typický nechtìný side effect je, ¾e program dále spustí
-jiný program, který pou¾ívá knihovnu stejného jména, ale "díky" tomu, ¾e
-se promìnné prostøedí dìdí, tak dynamický linker najde tuto knihovnu
-jako první v aresáøi specifikovaném pomocí \texttt{LD\_LIBRARY\_PATH}.
-Tato knihovna mù¾e být ale jiné verze, ne¾ ten druhý program oèekává, a
-pak snadno mù¾e dojít k nìèemu, co se vìt¹inou nazývá "nedefinované
-chování" (viz pøíklad u dal¹ího slide o ABI).
-\end{itemize}
 
+\par
+This varible is often misused in the start-up scripts because the command(s)
+is/are incorrectly linked and the dynamic linker would not otherwise find the
+correct libraries.  The typical side effect, however, is that the program(s)
+subsequently start(s) additional programs that use the same libraries but as all
+children inherit the environment, those programs are forced to use libraries
+from non-default directories, and possibly those contain libraries of different
+versions from those that the programs were initially built with.  Quite often
+this might be hard to find when something goes bad and you start seeing
+unexpected behavior.  Commands like \texttt{pldd} come in handy in such
+situation.
+\end{itemize}
 
 %%%%%
 
