@@ -2013,38 +2013,38 @@ XXX=yyy
 \pdfbookmark[1]{getenv, putenv, setenv}{envfuncs}
 
 \begin{slide}
-\sltitle{Manipulace s promìnnými prostøedí}
+\sltitle{Manipulating the environment}
 \begin{itemize}
-\item je mo¾né pøímo mìnit promìnnou \texttt{environ}, SUSv3 to ale nedoporuèuje
+\item it is possible to replace \texttt{environ} with a different array but in
+general you should not do that
 \item \texttt{char *\funnm{getenv} (const char *\emph{name});}
     \begin{itemize}
-    \item vrátí hodnotu promìnné name
+    \item return value of \emph{name}
     \end{itemize}
 \item \texttt{int \funnm{putenv} (char *\emph{string});} 
     \begin{itemize}
-    \item vlo¾í string ve tvaru \texttt{\emph{jméno}=\emph{hodnota}} do
-    prostøedí (pøidá novou nebo modifikuje existující promìnnou)
+    \item inserts a string \texttt{\emph{name}=\emph{value}} into the
+    environment (adds a new or modifies an existing variable)
     \end{itemize}
-\item zmìny se pøená¹ejí do synovských procesù
-\item zmìny v prostøedí syna samozøejmì prostøedí otce neovlivní
-\item existují i funkce \funnm{setenv}() a \funnm{unsetenv}()
+\item changes are propagated into children upon their creation
+\item there are also functions \funnm{setenv}() a \funnm{unsetenv}()
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item u \texttt{putenv} se vlo¾ený øetìzec stane souèástí prostøedí (jeho
-pozdìj¹í zmìna tak zmìní prostøedí) a nesmíte proto pou¾ívat retìzce v
-automatických pro\-mìn\-ných, toto øe¹í \texttt{setenv}, který hodnotu promìnné
-zkopíruje. Viz pøíklad \example{main/putenv.c}.
-\item dùle¾ité je zapamatovat si, ¾e synovský proces zdìdí v okam¾iku svého
-vzniku od rodièe v¹echny promìnné prostøedí, ale jakákoliv manipulace s nimi v
-synovi je lokální a do otce se nepøená¹í. Ka¾dý proces má svou kopii
-pro\-mìn\-ných, proto ani následná zmìna prostøedí otce nezmìní promìnné
-ji¾ existujícího potomka.
-\item dal¹í rozdíl mezi \texttt{putenv} a \texttt{setenv} je ten, ¾e v
-\texttt{setenv} mohu definovat, zda existující promìnnou chci nebo nechci
-pøepsat. \texttt{putenv} v¾dy pøepisuje.
-\item
+\item Read the description for \texttt{environ} in SUSv4 before assigning a new
+value to the variable as there are important information there you should know.
+\item When using \texttt{putenv}, the string will become part of the
+environment, nothing is copied.  You must not use automatic variables for such
+strings.  Use \texttt{setenv} to copy the value into the environment.  Example:
+\example{main/putenv.c}.
+\item Changes in a child never changes its parent environment as those arrays
+reside in separate address spaces.
+\item Another difference between \texttt{putenv} and \texttt{setenv} is that in
+\texttt{setenv} one can say whether an existing variable should be overwritten
+or not. Function \texttt{putenv} always overwrites an existing variable.
+\item Example:
+
 \begin{verbatim}
 int
 main(void)
@@ -2053,17 +2053,17 @@ main(void)
         return (0);
 }
 $ ./a.out 
-jp
+janp
 \end{verbatim}
-\item jeliko¾ promìnná \texttt{environ} je obyèejné pole ukazatelù na øetìzce,
-není nebì¾né narazit na kód, který s tímto polem pracuje pøímo. Pozor v¹ak na
-to, ¾e v takovém pøípadì pak ji¾ nesmíte pou¾ívat zde uvedené funkce, jinak se
-mù¾ete dostat do problémù s jejich konkrétní implementací. A hlavnì, nový kód
-takto nepi¹te, proto¾e norma SUSv3 pøímou práci s tímto polem nedoporuèuje.
-\item pøíklad: \example{main/getenv.c}
-\item pozor na to, ¾e je rozdíl mezi nastavením hodnoty promìnné na
-prázdný string a odmazáním promìnné ze seznamu promìnných (pomocí
-\texttt{unsetenv}).
+
+\item As \texttt{environ} is just an array of pointers, you may find code that
+directly manipulates it.  However, any application that directly modifies the
+pointers to which the environ variable points has undefined behavior according
+to SUSv4, and that is possibly exacerbated if the functions introduced above are
+used while doing that.  Do not write code like that.
+\item Example: \example{main/getenv.c}
+\item Note that there is a difference between setting a variable to an empty
+string and removing the variable from the environment via \texttt{unsetenv}.
 \end{itemize}
 
 %%%%%
