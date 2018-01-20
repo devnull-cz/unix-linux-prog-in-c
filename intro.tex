@@ -1850,22 +1850,23 @@ $ echo $?
 \pdfbookmark[1]{argv, argc}{args}
 
 \begin{slide}
-\sltitle{Funkce \texttt{main()}}
+\sltitle{Function \texttt{main()}}
 \renewcommand{\baselinestretch}{0.4}
 \begin{itemize}
 \setlength{\itemsep}{-0.5ex}
 \setlength{\topsep}{1\itemsep}
-\item pøi spu¹tìní programu je pøedáno øízení funkci \texttt{main()}.
+\item function \texttt{main()} is called upon program execution
 \item \texttt{int \funnm{main} (int \emph{argc}, char *\emph{argv}[]);}
     \begin{itemize}
-    \item \texttt{argc} \dots poèet argumentù pøíkazové øádky
-    \item \texttt{argv} \dots pole argumentù
+    \item \texttt{argc} \dots number of command line arguments
+    \item \texttt{argv} \dots array of command line arguments
 	\begin{itemize2}
-	\item podle konvence je \texttt{argv[0]} jméno programu (bez cesty)
-	\item poslední prvek je \texttt{argv[argc] == NULL}
+	\item \texttt{argv[0]} is a executed program name (without path)
+	\item the last item is \texttt{argv[argc] == NULL}
 	\end{itemize2}
-    \item návrat z \texttt{main()} nebo volání \texttt{exit()} ukonèí program
-    \item standardní návratové hodnoty \verb#EXIT_SUCCESS# (0) a
+    \item returnin from \texttt{main()} or callin \texttt{exit()} terminates the
+    process
+    \item standard return values are \verb#EXIT_SUCCESS# (0) a
     \verb#EXIT_FAILURE# (1)
     \end{itemize}
 \end{itemize}
@@ -1876,68 +1877,76 @@ $ echo $?
 \end{slide}
 
 \begin{itemize}
-\item první parametr (typu \texttt{int}) udává poèet argumentù na pøíkazovém
-øádku (vèet\-nì argumentu 0 -- jména programu) a druhý parametr (typu
-\texttt{char**}) je pole ukazatelù na tyto øetìzce. Za posledním øetìzcem je
-je¹tì ukonèovací \texttt{NULL} pointer -- pozor na to, ¾e to je nìco jiného ne¾
-prázdný øetìzec.
-\item \label{SHELL_ARGV0} \texttt{argv[0]} nìkdy bývá dùle¾itým zdrojem pøidané
-informace. Na Solarisu jsou napøíklad pøíkazy \texttt{cp}, \texttt{mv} a
-\texttt{ln} nalinkované na stejný soubor. Hodnota \texttt{argv[0]} pak urèuje,
-jakou funkci vlastnì proces má. Jiný pøíklad -- pokud má shell první znak z
-\texttt{argv[0]} nastaven na ``-'', znamená to, ¾e se má chovat jako login shell
-(podívejte se tøeba do manuálové stránky pro \texttt{bash} na sekci INVOCATION,
-pokud nevíte, co to je login shell). Ve výpisu procesù pak uvidíte ``-bash''.
-Toto není souèást UNIX specifikace pro \texttt{sh}, ale pou¾íval to ji¾ Bourne
-shell na UNIXu V7 (1979) a ostatní shelly to pøevzaly.
-\item pøi spu¹tìní programu pøedá kód dynamického linkeru øízení funkci
-\texttt{main}, viz strana \pageref{RUNTIMELINKER}. Staticky slinkovanému
-programu se øízení pøedá pøímo. Ne\-pøí\-tom\-nost \texttt{main} v programu
-zpùsobí chybu pøi pøekladu na úrovni linkeru. Této funkci se pøedá jméno
-spu¹tìného programu, argumenty z pøíkazové øádky a pøípadnì i pro\-mìn\-né
-prostøedí. Ukonèení této funkce znamená konec programu a návratová hodnota se
-pou¾ije jako kód ukonèení programu pro OS. Jinou mo¾ností ukonèení programu je
-pou¾ití funkce \texttt{exit} nebo \verb#_exit#, kterou lze pou¾ít
-kdykoliv, nejen ve funkci \texttt{main}. V C lze pou¾ívat obì metody
-ukonèení programu.
-\item pøedání promìnných prostøedí tøetím parametrem typu \texttt{char**}
-není souèástí normativní èásti C standardu, pouze informativní. Pøekladaèe to
-ale typicky podporují. Varianta \texttt{main} s pro\-mìn\-ný\-mi prostøedí
-pak vypadá takto:\\ \texttt{int \funnm{main}(int \emph{argc}, char
-*\emph{argv}[], char *\emph{envp}[]);}
-\item návratový typ funkce \texttt{main} by mìl být v¾dy \texttt{int}; pøekladaè
-si jinak bude stì¾ovat. \emsl{Z této hodnoty se ale pou¾ije pouze nejni¾¹ích 8
-bitù}, a je to nezáporné èíslo. Pozor na to, ¾e na rozdíl od konvence jazyka C
-návratová hodnota 0 má v shellu význam true (úspìch) a nenula význam false
-(neúspìch). Typická konstrukce v shellu vypadá takto:
+\item The first argument (of type \texttt{int}) is the number of arguments on a
+command line, including argument 0 -- the program name.  The second argument is
+an array of strings representing such command line arguments.  There is a
+terminating \texttt{NULL} as the last array item.  Note that \texttt{NULL} is
+different from an empty string.
+\item To go through all the command line arguments, you can either use
+\emph{argc} or test for \texttt{NULL} in \texttt{argv[i]}.
+\item \label{SHELL_ARGV0} \texttt{argv[0]} is sometimes a source of additional
+information.  For example, commands \texttt{cp}, \texttt{mv} and \texttt{ln} may
+be linked to the same executable (Solaris).  The value of \texttt{argv[0]} then
+tells the process what function it is supposed to perform.  Another example -- if
+the first character of a shell process \texttt{argv[0]} is set to ``-'' it means
+the shell process is supposed to act as a login shell (check the \texttt{bash}
+man page, section INVOCATION, for more information on what being a login shell
+means).  In the process listing then you will see ``\texttt{-bash}''.  This
+convention is not part of the UNIX specification for \texttt{sh} but it has been
+already used in the Bourne shell on UNIX V7 (1979) and other shells followed the
+suite. 
+\item We already know that upon the program execution, the dynamic linker
+eventually passes the control to function \texttt{main}, as explained on page
+\pageref{RUNTIMELINKER}.  If the \texttt{main} function is missing, the
+compilation fails during the linking phase.  When \texttt{main} finishes it
+means the process finishes.  You can also use functions \texttt{exit()} or
+\verb#_exit()# from anywhere in the program, ie. not just from function
+\texttt{main}.
+\item Passing the environment in the third parameter of type
+\texttt{char**} is not part of the normative part of the C standard, only the
+informative one.  C compilers typically support that though.
+The \texttt{main} variant with the 3rd parameter looks like this:\\ \texttt{int
+\funnm{main}(int \emph{argc}, char *\emph{argv}[], char *\emph{envp}[]);}
+\item The return value type of \texttt{main} should be always \texttt{int}.
+\emsl{Only lower 8 bits from that integer are only used though.}  It is always a
+non-negative number.  Note that in contrast to the C convention, the \texttt{0}
+return value means a success in a Unix shell, and a non-zero value means a
+failure.  A typical construct in a shell looks like this:
+
 \begin{verbatim}
-if ! prog; then
-        echo "failure"
-else
+if prog; then
         echo "success"
+else
+        echo "failure"
 fi
 \end{verbatim}
-Pøíklad: \example{main/return-256.c}.
-\item \label{RETURN255} nepou¾ívejte proto ve funkci \texttt{main}
-\texttt{return (-1)} a nikde pak ani
-\texttt{exit(-1)}, z toho vznikne návratová hodnota \texttt{255} a kód je
-matoucí. Je vùbec velmi vhodné pou¾ívat pouze \texttt{0} a \texttt{1}, pokud
-není
-zá\-sad\-ní dùvod pro jiné hodnoty, tøeba ten ¾e jich potøebujete více -- mù¾ete
-se podívat napøíklad na manuálovou stránku pro \texttt{passwd} na Solarisu,
-sekce \texttt{EXIT STATUS}. Pøíklad: \example{main/return-negative-1.c}.
 
+or:
 
-\item rozdíl mezi funkcemi \texttt{exit} a \verb#_exit# je v tom, ¾e
-\texttt{exit} pøed ukonèením programu je¹tì vyprázdní (pomocí knihovní
-funkce \texttt{fflush}) a zavøe streamy a volá funkce
-zaregistrované pomocí \texttt{atexit}. V závislosti na systému to mohou být i
-dal¹í akce.
-
-Pro zajímavost, napøíklad ve FreeBSD je \texttt{\_exit} systémové
-volání a \texttt{exit} knihovní funkce, ale na Solarisu jsou obì systémovými
-voláními. Pøíklad: \example{exit/exit.c}
-\item \label{MAIN_C} pøíklad: \example{main/print-argv.c}
+\begin{verbatim}
+prog && echo "success" || echo "failure"
+\end{verbatim}
+Example: \example{main/return-256.c}.
+\item \label{RETURN255} Never use \texttt{return (-1)} in \texttt{main} and
+neither \texttt{exit(-1)}.  Based on the information in the previous paragraph,
+from \texttt{-1} you will get \texttt{255} as the return value you get in the
+shell in \texttt{\$?}.  It just creates confusion.
+\item It is very reasonable to use only \texttt{EXIT\_SUCCESS} (\texttt{0}) and
+\texttt{EXIT\_FAILURE} (\texttt{1}) unless there is a valid reason for other
+values.  Sometimes you might need more values to distinguish between failures.
+For example, the \texttt{passwd} command on Solaris have quite a few of them, go
+check its manual page if interested, section \texttt{EXIT STATUS}. Example:
+\example{main/return-negative-1.c}.
+\item The difference between function \texttt{exit()} and \verb#_exit()# is that
+\texttt{exit} also flushes and closes streams (try it out with \texttt{printf()}
+\emsl{without} printing a new line), and calls functions registered via
+\texttt{atexit()}, and possibly other actions based on a specific system.
+Example: \example{exit/exit.c}
+\item \label{MAIN_C} Example on printing out commnd line arguments:
+\example{main/print-argv.c}
+\item If a process is killed by a signal, you can get the signal number from its
+return value as presented by the shell.  See page
+\pageref{SHELLRETVALUEFORSIGNALS}.
 \end{itemize}
 
 %%%%%

@@ -198,12 +198,28 @@ We could divide signals into a few groups\dots
 
 \begin{itemize}
 \item Those signals are generated on an error in a program.
-\item For the first four signals -- \texttt{SIGBUS}, \texttt{SIGFPE},
-\texttt{SIGILL}, and \texttt{SIGSEGV} the standard does not specify what exactly
-has to be the reason but usually those are errors detected by hardware.
-Try the following examples, and check the return value with ``\texttt{kill -l
-\$?}'': \example{signals/sigsegv.c},
+\item \label{SHELLRETVALUEFORSIGNALS} For the first four signals --
+\texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL}, and \texttt{SIGSEGV} the
+standard does not specify what exactly has to be the reason but usually those
+are errors detected by hardware.  Try the following examples, and check the
+return value with ``\texttt{kill -l \$?}'': \example{signals/sigsegv.c},
 \example{signals/div-by-zero.c}.
+
+\par The Unix shell convention is that if a program is killed by a signal,
+\texttt{\$?} will be \texttt{128} plus the signal number (\texttt{Ctrl+\bs}
+sends any foreground process a \texttt{SIGQUIT} signal):
+
+\begin{verbatim}
+$ sleep 99
+^\Quit: 3
+$ echo $?
+131
+$ kill -l 131
+QUIT
+$ kill -l $((131 - 128))
+QUIT
+\end{verbatim}
+
 \item \label{SPECIALSIGNALS} \emsl{For those four signals, there are some
 special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
 SUSv4):
