@@ -1952,13 +1952,13 @@ return value as presented by the shell.  See page
 %%%%%
 
 \begin{slide}
-\sltitle{Promìnné prostøedí}
+\sltitle{Environment variables}
 \begin{itemize}
-\item seznam v¹ech promìnných prostøedí (\emph{environment
-variables}) se pøedává jako promìnná\\ \texttt{extern char
+\item the list of \emph{environment
+variables} is passed as\\ \texttt{extern char
 **\funnm{environ};}
-\item je to pole ukazatelù (ukonèené NULL) na øetìzce ve tvaru:\\
-\texttt{\emph{promìnná}=\emph{hodnota}}
+\item it is an array of strings terminated by \texttt{NULL} of the
+format: \texttt{\emph{variable\_name}=\emph{value}}
 \end{itemize}
 \begin{center}
 \input{img/tex/environ.pstex_t}
@@ -1966,14 +1966,13 @@ variables}) se pøedává jako promìnná\\ \texttt{extern char
 \end{slide}
 
 \begin{itemize}
-\item shell pøedává spu¹tìnému programu ty promìnné, které jsou oznaèeny jako
-exportované (Bourne-like shellech pøíkazem \texttt{export \emph{variable}}). Po
-zmìnì obsahu ji¾ jednou exportované promìnné samozøejmì není potøeba promìnnou
-znovu exportovat. Pøíkaz \texttt{env} vám vypí¹e aktuální promìnné
-prostøedí.
-Abyste pøidali promìnnou do prostøedí spou¹tìného programu staèí provést
-pøiøazení na pøíkazové øádce, ani¾ byste museli mìnit prostøedí va¹eho
-shellu:
+\item A shell passes an executed program those variables marked as exported
+(in Bourne-like shells via an internal command \texttt{export \emph{variable}}).
+After you export a variable, you do not need to export it again after its value
+is changed.  The command \texttt{env} prints current enviroment variables.
+You can also add a variable to the environment of an executed program without
+changing the environment of your current shell:
+
 \begin{verbatim}
 $ date
 Sun Oct  7 13:13:58 PDT 2007
@@ -1981,20 +1980,25 @@ $ LC_TIME=fr date
 dimanche  7 octobre 2007 13 h 14 PDT
 \end{verbatim}
 
-nedivte se, pokud to na va¹em systému takto fungovat nebude, v tom pøípadì
-nemáte instalovaný balík s francouzskou lokalizací (co¾ je pravdìpodobné).
-\item pøi nahrazení aktuálního obrazu procesu obrazem jiným se pøedává, pokud
-se neøekne jinak, synovským procesùm celé pole \texttt{environ} automaticky.
-Je mo¾né ve volání pøíslu¹né varianty funkce \texttt{exec} pøedat pole jiné.
-\item jaké promìnné prostøedí konkrétní pøíkaz pou¾ívá (a jak je pou¾ívá) by
-mìlo být v manuálové stránce. Typicky v sekci nazvané \emph{ENVIRONMENT} nebo
-\emph{ENVIRONMENT VARIABLES}
-\item \texttt{man} napøíklad pou¾ívá \texttt{PAGER}, \texttt{vipw} pak
-promìnnou \texttt{EDITOR} apod.
-\item pokud je \texttt{envp} tøetím parametrem funkce \texttt{main}, tak je to
-stejná hodnota co je v ukazateli \texttt{environ}.
-\item pøíklad: \example{main/print-env.c} (vèetnì pou¾ití
-\texttt{env} pøíkazu zpùsobem, který vyèistí zdìdìné promìnné prostøedí).
+It may not work like that in your shell as very probably your system will not
+have a french localization package installed.
+\item When replacing the current process image with a different program (page
+\pageref{EXEC}), the child will by default get the full environment from its
+parent.  You can pass a different array as an argument to the function
+\texttt{exec()}, including passing an empty one.
+\item Different commands use different environment variables.  That should be
+documented in their respective manual pages, sometimes in a separate section
+named \emph{ENVIRONMENT} or \emph{ENVIRONMENT VARIABLES}.
+\item For example, the \texttt{man} command uses \texttt{PAGER}, \texttt{vipw}
+uses \texttt{EDITOR} etc.  The variables are usually in caps but it is just a
+convension.  \texttt{wget} does not follow that, for example, it uses
+\texttt{http\_proxy} and \texttt{https\_proxy} as environment variables to set
+the proxy to be used, and other lower case variables as well.
+\item If \emph{envp} is the 3rd argument of \texttt{main} it is the same pointer
+as is in the standard global variable \texttt{environ}.
+\item Example: \example{main/print-env.c} (see below how to clear out inherited
+environment from the shell using the \texttt{env} command):
+
 \begin{verbatim}
 $ cc print-env.c
 $ env - XXX=yyy aaa=ABC ./a.out
