@@ -2069,38 +2069,37 @@ string and removing the variable from the environment via \texttt{unsetenv}.
 %%%%%
 
 \begin{slide}
-\sltitle{Zpracování argumentù programu}
+\sltitle{Command arguments processing}
 \begin{itemize}
-\item obvyklý zápis v shellu: \verb#program -pøepínaèe argumenty#
-\item pøepínaèe tvaru \texttt{-x} nebo \texttt{-x \emph{hodnota}}, kde
-\texttt{x} je jedno písmeno nebo èíslice, \texttt{\emph{hodnota}} je libovolný
-øetìzec
-\item nìkolik pøepínaèù lze slouèit dohromady: \texttt{ls -lRa}
-\item argument '\texttt{--}' nebo první argument nezaèínající '\texttt{-}'
-ukonèuje pøepínaèe, následující argumenty nejsou pova¾ovány za pøepínaèe, i
-kdy¾ zaèínají znakem '\texttt{-}'.
-\item tento tvar argumentù po¾aduje norma a lze je zpracovávat automaticky
-funkcí \texttt{getopt}.
+\item common notation for shell: \verb#program -option arguments#
+\item options are in the form of \texttt{-x} or \texttt{-x \emph{value}},
+where \texttt{x} is alphanumeric, \texttt{\emph{value}} is arbitrary string
+\item multiple options can be unified: \texttt{ls -lRa}
+\item '\texttt{--}' or first argument not starting with '\texttt{-}'
+marks end of options, the following arguments are not considered options even
+if they start with '\texttt{-}'.
+\item this form of arguments is required by the standard and can be processed
+using the \texttt{getopt} function.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item argumenty lze samozøejmì zpracovávat vlastní funkcí, ale standardní
-funkce je pohodlnìj¹í.
-\item argumenty se typicky mohou opakovat, ale to má smysl jen v nìkterých
-situacích
-\item poøadí pøepínaèù mù¾e být dùle¾ité a je na aplikaci, aby toto
-specifikovala
-\item UNIX norma definuje pomocí 13 pravidel velmi pøesnì, jak by mìly vypadat
-názvy pøíkazù a formát pøepínaèù. Napøíklad jméno pøíkazu by mìlo být pouze
-malými písmeny, dlouhé 2--9 znakù, z pøenositelné znakové sady. Pøepínaèe bez
-argumentù by mìlo být mo¾né dát do skupiny za jedním znakem '--'. Atd.
-\item pou¾ívat èíslice jako pøepínaèe je zastaralé; je to nìkde v normì
-SUSv3, i kdy¾ já to v ní nena¹el.
-\item pozor na Linux a jeho (ponìkud zvlá¹tní a nestandardní) permutování
-argumentù
-\item pøepínaè \texttt{-W} by mìl být rezervovaný pro vendor options, tj. pro
-nepøenositelná roz¹íøení
+\item The arguments can of course be processed using custom function however
+the standard function is sufficient for the overwhelming majority of use cases.
+\item The options can be repeated however it makes sense only in specific
+cases.
+\item The ordering of the options can be important and it depends on the
+application to specify the ordering.
+\item The UNIX standard defines 13 rules that very precisely define the naming
+of commands and the format of options. For example the name of the command
+should be lower case, 2--9 characters long and using only chracters from
+portable character set. Arguments without options should be possible to group
+after '--', etc.
+\item Using numbers of options is old fashioned; reportedly SUSv3 mentions that.
+\item Watch out for GNU command line utilities and its strange permutations
+of options and arguments.
+\item The \texttt{-W} option should be reserved for vendor options, i.e. for
+non-portable extensions.
 \end{itemize}
 
 %%%%%
@@ -2109,7 +2108,7 @@ nepøenositelná roz¹íøení
 
 \begin{slide}
 \setlength{\baselineskip}{0.8\baselineskip}
-\sltitle{Zpracování pøepínaèù: \texttt{getopt()}}
+\sltitle{Options processing: \texttt{getopt()}}
 \begin{tabbing}
 \texttt{int \funnm{getopt}(}\=\texttt{int \emph{argc},
 char *const \emph{argv}[],}\\
@@ -2118,31 +2117,30 @@ char *const \emph{argv}[],}\\
 \texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};} 
 \end{tabbing}
 \begin{itemize}
-\item funkce dostane parametry z pøíkazového øádku, pøi ka¾dém
-volání zpracuje a vrátí dal¹í pøepínaè. Pokud má pøepínaè hodnotu,
-vrátí ji v \texttt{optarg}. 
-\item kdy¾ jsou vyèerpány v¹echny pøepínaèe, vrátí -1 a v
-\texttt{optind} je èíslo prvního nezpracovaného argumentu. 
-\item mo¾né pøepínaèe jsou zadány v \texttt{optstring}, kdy¾ za
-znakem pøepínaèe následuje '\texttt{:}', má pøepínaè povinnou
-hodnotu. 
-\item pøi chybì (neznámý pøepínaè, chybí hodnota) vrátí
-'\texttt{?}', ulo¾í znak pøepínaèe do \texttt{optopt} a kdy¾
-\texttt{opterr} nebylo nastaveno na nulu, vypí¹e chybové hlá¹ení.
+\item the function receives command line parameters and processes and returns
+one option. If given option has an argument, it is set in the
+\texttt{optarg} variable.
+\item when all options are processed, it returns -1 and the \texttt{optind} 
+variable contains the index of first unprocessed argument of the program.
+\item possible options are passed in the \texttt{optstring} string.
+If an options has mandatory argument, its character is followed by '\texttt{:}'
+in the string.
+\item on error (unknown option, argument missing) the function returns
+'\texttt{?}', saves the option character into the \texttt{optopt} variable.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item obvykle se nejprve pomocí \texttt{getopt} naètou pøepínaèe a pak se
-vlastními pro\-støed\-ky zpracují ostatní argumenty; èasto jsou to jména
-souborù.
-\item je konvencí, ¾e volby v parametru \texttt{optstring} jsou setøídìné.
+\item Usually the \texttt{getopt} function is used first to process options
+and then the rest is processed using custom functions; the remaining arguments
+are often file names and such.
+\item By convention the optinons in the \texttt{optstring} variable are sorted.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøíklad pou¾ití \texttt{getopt()}}
+\sltitle{Example of using \texttt{getopt()}}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
 struct \{
@@ -2154,7 +2152,9 @@ while((opt = \emprg{getopt}(argc, argv, "abc:")) != -1)
     switch(opt) \{ 
         case 'a': opts.a = 1; break; 
         case 'b': opts.b = 1; break; 
-        case 'c': \sout{strcpy}(opts.c, \emprg{optarg}); break; 
+        case 'c': strncpy(opts.c, \emprg{optarg},
+            sizeof (opts.c) - 1);
+            opts.c[sizeof (opts.c) - 1] = '\textbackslash0'; break; 
         case '?': fprintf(stderr, 
             "usage: %s [-ab] [-c Carg] arg1 arg2 ...\bs{}n", 
             basename(argv[0])); break; 
@@ -2164,19 +2164,22 @@ arg1 = argv[\emprg{optind}];
 \end{slide}
 
 \begin{itemize}
-\item dobrým zvykem je pøi detekování neznámého pøepínaèe nebo ¹patného
-zá\-pi\-su parametrù programu vypsat struènou nápovìdu, pøípadnì s odkazem na
-podrobnìj¹í dokumentaci, a ukonèit program s chybou, tj. s nenulovou
-ná\-vra\-to\-vou hodnotou.
-\item pøíklad také ukazuje nebezpeèné pou¾ití funkce \texttt{strcpy}
-\item z pou¾ití funkce \texttt{getopt} je vidìt, ¾e je stavová. Zpracovat dal¹í
-pole argumentù, pøípadnì zaèít opìt od zaèátku, je mo¾né nastavením externí
-pro\-mìn\-né \texttt{optreset} na 1.
-\item standardní \texttt{getopt} zachová poøadí pøepínaèù pøi zpracování
-\item pøi pou¾ití nedefinovaného pøepínaèe funkce vypí¹e chybu; to lze potlaèit
-na\-sta\-ve\-ním \texttt{opterr} na 0.
-\item \label{GETOPT} pøíklad: shellový skript \example{getopt/getopts.sh}
-pøepsaný do jazyka C pomocí \texttt{getopt} funkce, \example{getopt/getopt.c}
+\item It is a good custom while detecting unknown switch or incorrect use
+of options to write simple usage, optionally with a reference to documentation,
+and exit the program with error, i.e. non zero return value.
+\item Note how the \texttt{opts.c} string is properly terminated. Utmost care
+is necessary when processing potentially unbound output, especially when
+handling options of a program running with elevated privileges.
+\item It is evident that \texttt{getopt} is stateful function. In order to
+process next array of arguments or start from scratch, it is necessary to
+set the \texttt{optreset} variable to 1.
+\item Standard version of \texttt{getopt} retains the order of arguments when
+processing.
+\item When undefined option is used, \texttt{getopt} will print an error;
+this can be suppressed by setting the \texttt{opterr} variable to 0.
+\item \label{GETOPT} Example: shell script \example{getopt/getopts.sh}
+rewritten to C language using the \texttt{getopt} function:
+\example{getopt/getopt.c}
 \end{itemize}
 
 %%%%%
