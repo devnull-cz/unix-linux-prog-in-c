@@ -2301,63 +2301,43 @@ int main(int argc, char **argv)
 }
 \end{itemize}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Struktura systému, systémová volání
-
-% (jp) tohle neni uplne klasicka struktura, je to jedna z moznosti.
-% Nevidim moc duvod tu ten slajd mit. OSy uz koneckoncu meli...
-
-%%%\begin{slide}
-%%%\sltitle{Klasická struktura operaèního systému}
-%%%\begin{center}
-%%%\input{klasicky_os.tex}
-%%%\end{center}
-%%%\end{slide}
-%%%
-%%%Hardware poèítaèe je "obalen" jednotlivými vrstvami operaèního
-%%%systému, kdy ka¾dá vrstva roz¹iøuje schopnosti vrstvy spodní.
-%%%Programové rozhraní operaèního systému (API) pøedstavuje pro
-%%%aplikace virtuální (logický) poèítaè, který skrývá detaily
-%%%hardwarové architektury, poskytuje slu¾by vy¹¹í úrovnì a v
-%%%neposlední øadì definuje pøístupová práva a navzájem chrání
-%%%jednotlivé bì¾ící aplikace.
-
 %%%%%
 
 \begin{slide}
-\sltitle{Struktura klasického OS UNIX}
-\input{img/tex/struktura.pstex_t}
+\sltitle{Classic UNIX structure}
+\input{img/tex/unix_structure.pstex_t}
 \end{slide}
 
 \begin{itemize}
-\item toto schéma je pøevzato z [Bach86], viz literatura. Zdùrazòuje dva
-ústøední pojmy v modelu systému UNIX -- soubory a procesy. \emsl{V dne¹ní dobì
-to vypadá velmi odli¹nì, ale pro nás staèí tato základní pøedstava.}
-\item UNIX rozli¹uje dva re¾imy bìhu procesoru: \emph{u¾ivatelský re¾im} a
-\emph{re¾im jádra}. V u¾ivatelském re¾imu nejsou pøístupné privilegované
-instrukce (napø. mapování pamìti, I/O, maskování pøeru¹ení). Tyto dva re¾imy
-musí být podporovány na hardwarové úrovni (procesorem).
-\item procesy bì¾í obvykle v u¾ivatelském re¾imu, do re¾imu jádra pøechází buï
-instrukcí synchronního pøeru¹ení (trap) pro volání slu¾by jádra, nebo na
-základì asynchronních pøeru¹ení (hodiny, I/O). Dále se v~re¾imu jádra
-o\-¹e\-tøu\-jí výjimeèné stavy procesoru (výpadek stránky, naru¹ení ochrany
-pamìti, ne\-zná\-má instrukce apod.). Nìkteré speciální akce jsou zaji¹»ovány
-systémovými procesy, které bì¾í celou dobu v re¾imu jádra.
-\item klasické UNIXové jádro je tvoøeno monolitickým kódem. Pùvodnì bylo
-po\-tøe\-ba vygenerovat (tj. pøelo¾it ze zdrojových textù a slinkovat) jádro pøi
-zmìnì nìkterého parametru nebo pøidání ovladaèe zaøízení. V novìj¹ích
-implementacích je mo¾no nastavovat parametry jádra, nìkdy i za bìhu, pomocí
-systé\-mo\-vých utilit bez nutnosti rekompilace jádra. Moderní unixové systémy
-umo¾òují roz¹iøovat kód jádra za bìhu pomocí tzv. modulù jádra (\emph{loadable
-kernel modules}). Napøíklad systém FreeBSD 5.4-RELEASE má 392 takových modulù.
-\item existují dva zpùsoby práce s perifériemi: bloková (\emph{block devices})
-a znaková zaøízení (\emph{character, raw devices}). Data z blokových zaøízení
-(napø. disky) procházejí pøes vyrovnávací pamìti (\emph{buffers}) po blocích,
-znaková zaøízení (napø. terminály) umo¾òují pracovat s jednotlivými bajty a
-nepou¾ívají vyrovnávací pamì».
-\item \emsl{jádro není samostatný proces}, ale je èástí ka¾dého u¾ivatelského
-procesu. Kdy¾ jádro nìco vykonává, tak vlastnì proces, bì¾ící v re¾imu jádra,
-nì\-co provádí.
+\item This scheme is taken from [Bach86]. It emphasizes two central terms
+of the system model in UNIX -- files and processes.
+\emsl{In modern Unixes it looks differently however for the time being
+such model will suffice.}
+\item UNIX differentiates two modes of CPU: \emph{user mode} and
+\emph{kernel mode}. In user mode there the privileged intructions are not
+available (e.g. memory mapping, I/O, interrupt masking). These modes have to
+be supported by the hardware (CPU).
+\item The processes usually spend most of the time running in user mode.
+They enter kernel mode either by using synchronous interrupt (trap) for
+calling kernel services or asynchronously (clock, I/O). In kernel mode
+the exceptional states are handled (page fault, memory protection failure,
+unknown instruction etc.). Some special tasks are handled by system processes
+running in kernel mode all the time.
+\item Classic UNIX kernel is monolitic. Originally it was necessary to
+regenerate the kernel (i.e. compile from source code and link) whenever some
+kernel parameter had to be changed or add a device driver. In modern
+implementations it is possible to set many kernel parameters dynamically using
+system utilities. Also, many Unix systems extend kernel services by using
+\emph{loadable kernel modules}. For example FreeBSD 5.4-RELEASE has 392 such
+modules.
+\item There are two ways how to handle peripheral devices:
+\emph{block devices} and \emph{character / raw devices}. Block devices (e.g.
+disk drives) pass the data through \emph{buffers} in blocks, character devices
+(e.g. terminals) make it possible to work with individual bytes and do not use
+buffering.
+\item \emsl{The kernel is not individual process}, rather it is part of each
+user process. When kernel is executing, it is usually user space performing some
+action in kernel mode.
 \end{itemize}
 
 

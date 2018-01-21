@@ -1,0 +1,61 @@
+\begin{picture}(0,0)%
+\includegraphics{img/tex/struktura}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(4590,2865)(79,-2086)
+\put(1531,614){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}user process}%
+}}}}
+\put(1396,-826){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}buffers}%
+}}}}
+\put(3916,614){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}user}%
+}}}}
+\put(3916,434){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}mode}%
+}}}}
+\put(4231,-196){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}mode}%
+}}}}
+\put(4231,-376){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}kernel}%
+}}}}
+\put(3826,-1006){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}scheduler}%
+}}}}
+\put(3961,-826){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}IPC}%
+}}}}
+\put(2701,434){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}return}%
+}}}}
+\put(1036,434){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}trap}%
+}}}}
+\put(1643, 74){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}kernel interface}%
+}}}}
+\put(631,-286){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}file}%
+}}}}
+\put(511,-466){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}subsystem}%
+}}}}
+\put(2881,-826){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}process}%
+}}}}
+\put(3061,-1006){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}and}%
+}}}}
+\put(2971,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}memory}%
+}}}}
+\put(2956,-1366){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}subsystem}%
+}}}}
+\put(3788,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}memory}%
+}}}}
+\put(3938,-1366){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}allocation}%
+}}}}
+\put(2018,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}hardware}%
+}}}}
+\put(908,-1726){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}machine dependent HW control layer}%
+}}}}
+\put(691,-1366){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}drivers}%
+}}}}
+\put(256,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}character}%
+}}}}
+\put(1171,-1186){\makebox(0,0)[lb]{\smash{{\SetFigFont{10}{12.0}{\sfdefault}{\mddefault}{\updefault}{\color[rgb]{0,0,0}block}%
+}}}}
+\end{picture}%
