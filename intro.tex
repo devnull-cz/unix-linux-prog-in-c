@@ -2344,47 +2344,47 @@ action in kernel mode.
 %%%%%
 
 \begin{slide}
-\sltitle{Procesy, vlákna, programy}
+\sltitle{Processes, threads, program}
 \begin{itemize}
-\item \emsl{proces} je systémový objekt charakterizovaný svým
-kontextem, identifikovaný jednoznaèným èíslem (\emsl{process ID},
-\emsl{PID}); jinými slovy \uv{kód a data v pamìti} 
-\item \emsl{vlákno (thread)} je systémový objekt, který existuje uvnitø
-procesu a je charakterizován svým stavem. V¹echna vlákna jednoho procesu sdílí
-stejný pamì»ový prostor kromì registrù procesoru a zásobníku; \uv{linie
-výpoètu}, \uv{to, co bì¾í} 
-\item \emsl{program} ... soubor pøesnì definovaného formátu obsahující
-instrukce, data a slu¾ební informace nutné ke spu¹tìní; \uv{spustitelný soubor
-na disku}
+\item \emsl{process} is system object characterized by its context,
+identified by a unique number (\emsl{process ID},
+\emsl{PID}); in other words \uv{code and data in memory} 
+\item \emsl{thread} is system object, that exists inside a process and
+is characterized by its state. All threads within single process share
+the same memory area sans registers and stack; \uv{line of execution},
+\uv{what is running} 
+\item \emsl{program} ... file with precisely defined format that contains
+instructions, data and service informations needed for execution;
+\uv{executable file on disk}
 \end{itemize}
 
 \begin{itemize}
-\item[$\circ$] \emsl{pamì»} se pøidìluje \emsl{procesùm}. 
-\item[$\circ$] \emsl{procesory} se pøidìlují \emsl{vláknùm}.
-\item[$\circ$] vlákna jednoho procesu mohou bì¾et na rùzných procesorech.
+\item[$\circ$] \emsl{memory} is assigned to \emsl{processes}. 
+\item[$\circ$] \emsl{processors} are assigned to \emsl{threads}.
+\item[$\circ$] threads of single process can run on different processors.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emsl{\emph{kontext}} je pamì»ový prostor procesu, obsah registrù a datové
-struktury jádra týkající se daného procesu
-\item jinak øeèeno -- kontext procesu je jeho stav. Kdy¾ systém
-vykonává proces, øíká se, ¾e bì¾í v kontextu procesu. Jádro (klasické)
-obsluhuje pøeru¹ení v kontextu pøeru¹eného procesu.
-\item vlákna se dostala do UNIXu a¾ pozdìji, pùvodnì v nìm existovaly pouze
-procesy, které mìly z dne¹ního pohledu pouze jedno vlákno. Mo¾nost pou¾ít v
-procesu více vláken byla zavedena, proto¾e se ukázalo, ¾e je vhodné mít více
-paralelních linií výpoètu nad sdíle{}nými daty.
-\item pamì»ové prostory procesù jsou navzájem izolované, ale procesy spolu
-mohou komunikovat. Pozdìji se dozvíme, ¾e mohou i èásteènì sdílet pamì».
-\item procesy jsou entity na úrovni jádra, ale vlákna mohou být èásteènì nebo
-zcela implementována knihovními funkcemi. V pøípadì implementace pomocí
-knihovních fukncí to znamená, ¾e vlákna nemusí jádro vùbec podporovat. S vlákny
-je spojena men¹í re¾ie ne¾ s~procesy.
-\item systémový proces, který bì¾í na pozadí obvykle po celou dobu bìhu
-systému a zaji¹»uje nìkteré systémové slu¾by (\texttt{inetd}, \texttt{cron},
-\texttt{sendmail}\dots) se nazývá \emph{démon} (angl. \emph{daemon}). Systém
-BSD tedy nemá ve znaku èerta, ale démona.
+\item The \emsl{\emph{context}} is memory are of process, register contents and
+kernel data structures relevant to given process.
+\item In other words -- the context of a process is its state. When the system
+is executing the process, one says that it runs in the process context.
+The classic kernel handles interrupts in the context of interrupted process.
+\item The threads were introduced to UNIX later, originally there were just
+processes that from today's perspective had only single thread. The possibility
+to use multiple threads was introduced because it was shown that it is
+beneficial to have multiple lines of execution within the same process on
+common shared data.
+\item The memory areas of processes are isolated between each other however
+processes can communicate or explicitly share memory.
+\item While processes are kernel entities, threads can be partially or fully
+implemented as user libraries. In the latter case this means that the kernel
+does not have to support threading at all. Threads have smaller overhead than
+processes.
+\item A system process that is running for the whole time and provides some
+system services (\texttt{inetd}, \texttt{cron}, \texttt{sendmail}\dots) is
+called \emph{daemon}. BSD system mascot is not a devil but daemon.
 \end{itemize}
 
 %%%%%
