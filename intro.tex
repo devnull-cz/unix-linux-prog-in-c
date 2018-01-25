@@ -2389,43 +2389,38 @@ called \emph{daemon}. BSD system mascot is not a devil but daemon.
 
 %%%%%
 
-
 \begin{slide}
-\sltitle{Jádro, re¾imy, pøeru¹ení (klasický UNIX)}
+\sltitle{kernel, modes, interrupts/traps (classic UNIX)}
 \begin{itemize}
-\item procesy typicky bì¾í v u¾ivatelském re¾imu
-\item systémové volání zpùsobí pøepnutí do re¾imu jádra
-\item proces má pro ka¾dý re¾im samostatný zásobník
-\item jádro je èástí ka¾dého u¾ivatelského procesu, není to samostný proces
-(procesy)
-\item pøepnutí na jiný proces se nazývá \emph{pøepnutí kontextu}
-\item obsluha pøeru¹ení se provádí v kontextu pøeru¹eného procesu
-\item klasické jádro je nepreemptivní
+\item the processes typically run in user mode
+\item a system call will cause switch to kernel mode
+\item a process has one stack for each mode
+\item kernel is part of each user process, it is not a standalone process(es)
+\item switching to different process is called \emph{context switch}
+\item interrupt handling is performed in the context of interrupted process
+\item classic kernel is non-preemptive
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emsl{jádro není oddìl{}ená mno¾ina procesù, bì¾ících paralelnì s
-u\-¾i\-va\-tel\-ský\-mi procesy, ale je èástí ka¾dého u¾ivatelského procesu.}
-\item pøechod mezi u¾ivatelským re¾imem a re¾imem jádra není pøepnutí kontextu
--- proces bì¾í poøád v tom samém
-\item pøeru¹ený proces nemusel pøeru¹ení vùbec zpùsobit
-\item v re¾imu jádra mù¾e proces pøistupovat i k adresám jádra, která z
-u\-¾i\-va\-tel\-ské\-ho re¾imu pøístupná nejsou; takté¾ mù¾e pøistupovat k
-instrukcím (napø. instrukce manipulující se stavovým registrem), jejich¾
-vykonání v u¾ivatelském re¾imu vede k chybì
-\item pøeru¹ovací rutina se nemù¾e zablokovat, proto¾e tím by zablokovala
-proces; proces se toti¾ mù¾e zablokovat jen ze své vlastní vùle. Moderní unixy
-dnes pou¾ívají interrupt vlákna, v jejich¾ kontextu se \emsl{mohou} drivery
-zablokovat.
-\item to, ¾e klasické unixové jádro je nepreemptivní znamená, ¾e \emsl{jeden
-proces nemù¾e zablokovat jiný proces}
-\item pøi obsluze pøeru¹ení se mù¾e stát, ¾e nastane dal¹í pøeru¹ení. Pokud je
-jeho priorita vìt¹í, je procesorem pøijmuto. Posloupnost pøijmutých pøeru¹ení
-je uchována v \emph{zásobníku kontextových vrstev}.
-\item \emsl{u moderních kernelù je situace èasto velmi rozdílná -- obsluha
-pøe\-ru\-¹e\-ní, preemptivnost kernelu atd.; k nìkterým vìcem se mo¾ná
-dostaneme pozdìji bìhem semestru}
+\item \emsl{The kernel is not a set of processes running in parallel with
+user processes, rather it is part of each user process.}
+\item The transition between user and kernel mode is not a context switch
+-- the process is still running in the same context.
+\item The interrupted process is not necessarily the one that caused it.
+\item In kernel mode a process can access kernel memory that is not accessible
+from user mode. Likewise it can execute privileged instructions that would
+otherwise cause error in user mode (like state register manipulations).
+\item Interrupt routine cannot block because it would block the process;
+process can block only on its own. Moder Unixes use interrupt threads,
+in their context the drivers \emsl{can} block.
+\item The fact that classic UNIX kernel is non-preemptive means that
+\emsl{one process cannot block another process}.
+\item An interrupt can come while handling another interrupt. If its priority
+is higher, it is accepted by the CPU. The sequence of accepted interrupts is
+saved in \emph{interrupt context stack}.
+\item \emsl{Modern kernels are very different in terms of interrupt handling,
+kernel preemption, etc.}
 \end{itemize}
 
 %%%%%
