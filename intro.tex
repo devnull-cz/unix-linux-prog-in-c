@@ -2426,44 +2426,41 @@ kernel preemption, etc.}
 %%%%%
 
 \begin{slide}
-\sltitle{Volání slu¾eb a komunikace mezi procesy}
+\sltitle{System calls and inter-process communication}
 \begin{itemize}
 \item UNIX\vspace{1ex}
 
 \input{img/tex/syscall_unx.tex}
-\item distribuovaný OS\vspace{1ex}
+\item distributed OS\vspace{1ex}
 
 \input{img/tex/syscall_dist.tex}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item pokud unixový proces vy¾aduje provedení systémové slu¾by, pomocí
-systé\-mo\-vé\-ho volání pøedá øízení jádru. Jádro je kus kódu sdíle{}ný v¹emi
-procesy (ov¹em pøístupný jen pro ty, které jsou právì v re¾imu jádra). Jádro
-tedy není samostatný privilegovaný proces, ale v¾dy bì¾í v rámci nìkterého
-procesu (toho, který po¾ádal jádro o slu¾bu, nebo toho, který bì¾el v okam¾iku
-pøíchodu pøeru¹ení).
-\item komunikace mezi procesy v UNIXu je øe¹ena pomocí systémových volání, je
-tedy zprostøedkovaná jádrem.
-\item aby to nebylo tak jednoduché, mohou existovat systémové procesy
-(o\-zna\-èo\-va\-né jako \emph{kernel threads}), které bì¾í celou dobu v
-re¾imu jádra. Naprostá vìt¹ina systémových procesù v¹ak bì¾í v u¾ivatelském
-re¾imu a li¹í se jen tím, ¾e mají vìt¹í pøístupová práva. Plánovaè procesù
-pøepíná mezi procesy a tím umo¾òuje bìh více procesù souèasnì i na jednom
-procesoru. Na multiprocesorových poèítaèích pak funguje skuteèný paralelismus
-procesù a vláken (dokonce se proces mù¾e pøi pøeplánování dostat i na jiný
-procesor).
-\item v distribuovaném operaèním systému má jádro obvykle formu mikrojádra,
-tj. zaji¹»uje pouze nejzákladnìj¹í slu¾by øízení procesoru, pøidìlování pamìti
-a komunikace mezi procesy. Vy¹¹í systémové slu¾by, které jsou v UNIXu souèástí
-jádra (napø. pøístup k systému souborù) jsou realizovány speciálními procesy
-(servery) bì¾ícími v u¾ivatelském re¾imu procesoru. Jádro pøedá po¾adavek
-u¾ivatelského procesu pøíslu¹nému serveru, který mù¾e bì¾et i na jiném uzlu
-sítì.
-\item dostupných mikrokernelù je v dne¹ní dobì mnoho. Mù¾ete zkusit napøíklad
-Minix (u{}nix-like výukový systém), pøípadnì systém HURD, který bì¾í nad
-mikrojádrem Mach.
+\item If a Unix process requires to perform system task, it will pass the
+control to the kernel using a system call. The kernel is code shared between
+all processes however accessible only to those processes that are running in
+kernel mode. The kernel is therefore not a standalone privileged process,
+it is still running in the context of a process (one that requested system
+service via system call or such that was running when interrupt came).
+\item Inter-process communication in UNIX is achieved using system calls,
+it is therefore handled by the kernel.
+\item There can be system processes called \emph{kernel threads}, that are
+running exclusively in kernel mode. The majority of system processes run in user
+mode and differ from the rest in that they have elevated privileges.
+The process scheduler switches between processes and makes it possible to run
+multiple processes simultaneously even on single processor system.
+Multi-processor systems enable true parallelism of processes and threads
+(it is possible for a thread to migrate between processors based on scheduling).
+\item In distributed operating systems the kernel is in the form of microkernel,
+i.e. provides only the very basic services like processor programming, memory
+allocation and inter-process communication. Upper system services that are part
+of kernel in UNIX (e.g. file system access) are implemented as special processes
+(servers) running in user mode. The kernel passes the request of user process to
+relevant server that can be running on different network node.
+\item There are many microkernels today, e.g. Minix (unix-like system) or HURD
+that runs above the Mach micro-kernel.
 \end{itemize}
 
 %%%%%
