@@ -1375,61 +1375,64 @@ situation.
 \pdfbookmark[1]{API/ABI}{APIABI}
 
 \begin{slide}
-\sltitle{API versus ABI}
+\sltitle{API vs ABI}
 
 API -- Application Programming Interface
 
 \begin{itemize}
-\item rozhraní pou¾ité pouze ve zdrojovém kódu
-\item rozhraní \emsl{zdrojáku} vùèi systému, knihovnì èi vlastnímu kódu, tj.
-napø. \texttt{exit(1)}, \texttt{printf("hello\bs{}n")} nebo
-\texttt{my\_function(1, 2)}
-\item \dots{}aby se stejný \emsl{zdrojový kód} mohl pøelo¾it na v¹ech
-systémech podporující dané API
+\item interface used in the \emsl{source code} to use another software
+component like a library, OS kernel, or your own code -- eg.
+\texttt{exit(1)}, \texttt{printf("hello\bs{}n")} or \texttt{my\_function(1,
+2)}
+\item \dots{}so that the same source code could be compiled on all systems
+supporting a given API
 \end{itemize}
 
 ABI -- Application Binary Interface
 
 \begin{itemize}
-\item low-level rozhraní \emsl{aplikace} vùèi systému, knihovnì èi jiné èásti
-sama sebe
-\item \dots{}aby se \emsl{objektový modul} mohl pou¾ít v¹ude tam, kde
-je podporováno stejné ABI
+\item low-level binary interface between \emsl{modules} (eg.  \texttt{a.out}
+and \texttt{libc.so.1} or even \texttt{a.out} and \texttt{a.out})
+\item \dots{}so that the built module could be used wherever the same ABI is
+supported
 \end{itemize}
 \end{slide}
 
 \label{API_ABI}
 
 \begin{itemize}
-\item Pøíkladem API je tøeba API definované normou POSIX.1.
-\item ABI definuje konvenci volání (to jak program pøedá parametry funkci
-a jak od ní pøevezme návratovou hodnotu), jaká jsou èísla systémových volání,
-jak se systémové volání provede èi formát objektového modulu
-a pøijímaných argumentù, viz pøíklad dole.
-\item API knihovny pak definuje mimo jiné mno¾inu volání která jsou knihovnou
-definována, jejich parametry a typy tìchto parametrù.
-\item následná ukázka je pøíklad na to, kdy vývojáø zmìní velikost argumentù v
-bajtech (tj. zmìní ABI knihovny), a nahradí novou verzí tu starou. V¹imnìte
-si, ¾e dynamický linker toto nezjistí; nemá toti¾ jak, øídí se podle jména
-knihovny v dynamické sekci programu, a to se nezmìnilo. Uvedená zmìna je sice
-i zmìna v API a problém by se odstranil, kdybychom \texttt{main.c} znovu
-pøelo¾ili se zmìnìným øádkem deklarace funkce \texttt{add}. To je ale èasto
-problém (pøe\-klá\-dej\-te celý systém jen kvùli tomu), proto je tak dùle¾ité
-dodr¾ovat zpìtnou kompatibilitu v ABI u knihoven.
+\item In short -- an API is source code based while an ABI is binary based.
+\item An example of an API is one defined by POSIX.1 standard or the set of
+system calls for a given system.
+\item An example of an ABI is System V AMD64 ABI, the one followed on Solaris,
+Linux, FreeBSD, macOS, and other systems.
+\item ABI defines calling convention interface to the called machine code, eg.
+how parameters are passed (pushed on the stack, placed in registers, or a mix
+of both) or how return value is returned.
+\item API defines a set of functions, its parameters and their types, and
+function return values.  Part of the API may be also global variables --
+\texttt{errno}, for example.
+\item The following example represents what happens if a library ABI is changed
+and the new library replaces the old one.  Note that the dynamic linker can not
+detect that as the function symbol did not change.  The given change is also an
+API change and the problem would be fixed if \texttt{main.c} was recompiled
+with the correct prototype for function \texttt{my\_add}.  However,
+recompiling is often not desirable as one might end up recompiling the whole
+system.  That is why keeping backward compatibility for library ABI is so
+important.
 
-Výsledek následujícího pøekladu knihovny, programu a jeho spu¹tìní je jak
-bychom oèekávali (pou¾it \texttt{cc} ze SunStudio, pro \texttt{gcc} pou¾ijte
-místo \texttt{-G} volbu \texttt{-shared}; novìj¹í \texttt{gcc} navíc neznají
-\texttt{-R} a je místo toho nutné pou¾ít \texttt{-Xlinker -R .}:
+The first result is expected, ie. \texttt{3}:
 
 \begin{verbatim}
 $ cat main.c 
+#include <stdio.h>
+
 int my_add(int a, int b);
 
 int
 main(void)
 {
-        printf("%d\n", my_add(1, 2));
+        (void) printf("%d\n", my_add(1, 2));
         return (0);
 }
 
@@ -1440,17 +1443,16 @@ my_add(int a, int b)
         return (a + b);
 }
 
-$ cc -G -o libadd.so add.c
-$ cc -L. -ladd -R. main.c 
+$ gcc -shared -o libadd.so add.c
+$ gcc -L. -ladd -Xlinker -R . main.c
 $ ./a.out 
 3
 \end{verbatim}
 
-Nyní ale pøi¹la dal¹í verze knihovny se stejným jménem, a ve funkci
-\texttt{my\_add}
-nastala zmìna v typu argumentù, kde místo 4-bajtového integeru se pou¾ije
-64-bitový celoèíselný typ. Program ale o nièem neví, nechá se spustit a vrátí
-chybnou hodnotu:
+Now imagine a new library came, one with a modified ABI in function
+\texttt{my\_add}.  Note that we replaced the old library with the new one.
+Now, instead of 4 byte integers, 64-bit longs are used.  When you run the
+program again, you will get an incorrect return value:
 
 \begin{verbatim}
 $ cat add2.c
@@ -1460,90 +1462,54 @@ my_add(int64_t a, int64_t b)
         return (a + b);
 }
 
-$ cc -G -o libadd.so add2.c 
+$ gcc -shared -o libadd.so add2.c 
 $ ./a.out 
 -1077941135
 \end{verbatim}
 
-\item \label{ABI_MAIN} pøíklad: \example{lib-abi/abi-main.c} (komentáø v
-souboru napoví jak pou¾ít os\-tat\-ní soubory ve stejném adresáøi)
+\item \label{ABI_MAIN} Example: \example{lib-abi/abi-main.c} (see the block
+comment in the file on how to use other files located in the same directory).
+\item To change an ABI safely, you need library versioning -- if the library
+ABI change is not backward compatible, a bumped up version needs to prevent to
+run the program without rebuilding it.   However, in that case you need to keep
+the old library in the system.  Note that having different versions of the same
+library might become a problem by itself, for example if more versions of such
+an library get loaded into the program address space.
+\item The way how versioning works in ELF (see page \pageref{ELF}) is that the
+library file name incorporates a version.  The \texttt{SONAME} in the dynamic
+section then lists the full name of the library, including the version.  When
+the loader searches for the libraries, it searches for the filename from the
+\texttt{SONAME} field.
+\item Example on what exact libraries and their versions are needed for the
+Secure shell client on a Linux distribution.  You see that, for example, the
+OpenSSL library version used by the SSH client is 1.0.0.
 
-
-\item zde pak pøichází ke slovu verzování knihoven, tj. je nutné ``nìco''
-zmìnit tak, aby po instalaci nové knihovny ne¹lo program spustit bez jeho
-rekompilace.
-\item \label{OPENSSL} binární nekompatibilita je napøíklad problém u OpenSSL.
-Vìtve 0.9.x a 0.9.y nejsou ABI kompatibilní. Konkrétnì verze 0.9.7 a 0.9.8,
-v roce 2009 stále obì pou¾ívané. Verze rozli¹ené písmeny, tj. napøíklad 0.9.8a a
-0.9.8g, jsou ABI kompatibilní. Nìkteré systémy stále pou¾ívají pouze 0.9.7
-(FreeBSD 6.x, Solaris 10), jiné jen 0.9.8 (Solaris 11 Express), dal¹í integrují 
-obì vìtve (rùzné Linuxové distribuce). Problém je, máte-li napøíklad program pro
-Solaris~10 pou¾ívající \texttt{libcrypto.so} knihovnu, který chcete pou¾ívat i
-na Solaris 11 Express (to je jinak díky zpìtné binární kompatibilitì striktnì
-dodr¾ované mezi "major" verzemi Solarisu mo¾né - napø. program který bì¾el
-na Solarisu 2.6 z roku 1997 mù¾e bì¾et na Solarisu 10 z roku 2009 bez nutnosti
-rekompilace - to se týká systému a knihoven s ním dodávaných).
-Jediné správné re¹ení je zkompilovat pro nový systém, pøípadnì manuálnì
-zkopírovat potøebné verze knihoven, co¾ ale zdaleka není ideální -- program
-nebude fungovat s novì nainstalovaným systémem, ale nikdo najednou neví,
-proè to funguje na stejném systému vedle, a kdy¾ se to zjistí tak je opìt
-potøeba manuální zásah, a pochybuji o tom, ¾e autor ``øe¹ení'' bude instalovat
-opravené verze pøi výskytu bezpeènostních chyb. Nekompatibilita 0.9.x verzí je
-dùvodem, proè je v dynamické sekci knihovny i její celé èíslo (bez písmen, ta
-jak ji¾ víme nejsou pro ABI kompatibilitu u OpenSSL dùle¾itá), a díky tomu je
-pak toto èíslo uvedeno i v ka¾dém programu proti knihovnì slinkovanému:
 \begin{verbatim}
-$ elfdump -d /usr/sfw/lib/libcrypto.so.0.9.8 | grep SONAME
-   [7]  SONAME            0x1               libcrypto.so.0.9.8
+$ readelf -d /usr/bin/ssh
 
-$ elfdump -d /usr/bin/ssh | grep NEEDED
-   [1]  NEEDED            0x3c99            libsocket.so.1
-   [3]  NEEDED            0x3cb1            libnsl.so.1
-   [5]  NEEDED            0x3cc6            libz.so.1
-   [7]  NEEDED            0x3d12            libcrypto.so.0.9.8
-   [9]  NEEDED            0x3cd9            libgss.so.1
-  [10]  NEEDED            0x3cfe            libc.so.1
+Dynamic section at offset 0xb0280 contains 34 entries:
+  Tag        Type           Name/Value
+0x0000000000000001 (NEEDED) Shared library: [libsctp.so.1]
+0x0000000000000001 (NEEDED) Shared library: [libcrypto.so.1.0.0]
+0x0000000000000001 (NEEDED) Shared library: [libdl.so.2]
+0x0000000000000001 (NEEDED) Shared library: [libz.so.1]
+0x0000000000000001 (NEEDED) Shared library: [libresolv.so.2]
+0x0000000000000001 (NEEDED) Shared library: [libpthread.so.0]
+0x0000000000000001 (NEEDED) Shared library: [libgssapi.so.3]
+0x0000000000000001 (NEEDED) Shared library: [libc.so.6]
+
+$ openssl version
+OpenSSL 1.0.2n  7 Dec 2017
+
+$ ls /usr/lib/libcrypto.so.1.0.0
+/usr/lib/libcrypto.so.1.0.0
 \end{verbatim}
-\begin{itemize}
-\item pøíèinou zpìtné nekompatibility OpenSSL verzí je to, ¾e z historických
-dùvodù jsou nìkteré pou¾ívané struktury v hlavièkových souborech. Tyto struktury
-je ale nìkdy nutné roz¹íøit, napøíklad pøi vývoji nové funkcionality. Tím
-nastane situace, ¾e program pøelo¾ený s verzí 0.9.7 by pøedal novìj¹í knihovnì
-``men¹í'' strukturu, respektive nová knihovna by pøistupovala ve staré struktuøe
-na polo¾ky, které neexistují -- a tedy by pøistupovala k pamìti, která programu
-nebyla pøidìlena. To mù¾e zpùsobit pád programu (pøístup na nenamapovanou
-stránku), mù¾e to fungovat dále (v dané pamìti je to, co se tam typicky oèekává,
-napøíklad nula), nebo se to zaène chovat ``podivnì'' (v pamìti bylo nìco, co v
-dané situaci oèekávané nebylo). Problém v OpenSSL je, ¾e nyní ji¾ není technicky
-jednoduché z tìchto struktur udìlat interní a navenek pracovat jen s
-transparentními referencemi objektovým pøístupem, co¾ by umo¾nilo dìlat
-libovolné zmìny ve strukturách, ani¾ by to program ovlivnilo.
-\item bì¾nì vidìné øe¹ení zpùsobené neznalostí vìci je vytvoøit symbolický link,
-napøíklad na Solarisu 11 udìlat 0.9.7 symlink na existující knihovnu verze
-0.9.8. Èastý výsledek je pak pád programu a údiv autora symlinku. Nìkdy to
-naopak funguje, proto¾e program náhodou nepou¾ívá pøíslu¹né struktury, a to je
-jasným dùkazem pro aktéra, ¾e øe¹ení musí být správné. Mù¾e se ale stát, ¾e
-program struktury nepou¾ívá pøi konkrétním provedeném testu, ale zaène dìlat
-problémy a¾ pøi ¾ivém nasazení. Tady je jediná rada -- pokud si opravdu nejste
-jisti ¾e víte, co dìláte a nejste si jistí svoji detailní znalostí kódu programu
-i knihoven, vyhnìte se tomu. Nebo riskujte, ale ji¾ víte jak to mù¾e skonèit.
-\item zdánlivì jednoduché øe¹ení dodávat více verzí OpenSSL s jedním sys\-té\-mem
-pøiná¹í zase jiné problémy -- obtí¾nìj¹í vývoj systému, obtí¾nìj¹í správu
-systému (pøi výskytu bezpeènostní chyby je èasto nutné patchovat v¹echny
-instalované verze), problémy s nepøímými závislostmi obsahující více verzí dané
-knihovny apod.
-\item upgrade verze OpenSSL v existujícím systému je také vìc, které je dobré se
-vyhnout, respektive toto tì¾ko vyøe¹íte vydáním patche pro existující systémy --
-uva¾te ¾e zákazník pou¾ívá své nebo jím koupené programy, které závisí na
-existující verzi. A tu byste mu najednou upgradovali na verzi vy¹¹í, ABI
-nekompatibilní.
-\item typickým pøíkladem, kdy se pou¾ívá transparentní typ jako reference, co¾
-umo¾òuje dal¹í roz¹iøování pod ní le¾ící struktury bez rizika vý¹e uvedených
-problémù, je typ POSIX vláken. Struktura typu \texttt{pthread\_t} (strana
-\pageref{PTHREAD_T}) je interní zále¾itostí knihovny. Typicky je to integer, ale
-to by programátora nemìlo vùbec zajímat. Samozøejmì souborový deskriptor èi
-èíslo procesu jsou podobné pøípady, ale na pøíkladu vláken je to lépe vidìt.
-\end{itemize}
+
+\par The OpenSSL library version is kept 1.0.0 even that the real version is
+actually 1.0.2n.  That is because the micro versions (``z'' in x.y.z) do not
+change the ABI binary compatibility (change in ``y'' does).  So, such a number
+must not be in the \texttt{SONAME} field otherwise you would need rebuilt
+binaries that depend on OpenSSL even on a binary compatible micro upgrade.
 \end{itemize}
 
 %%%%%
