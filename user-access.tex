@@ -156,14 +156,13 @@ in \texttt{/etc/passwd}, then in LDAP
 \end{slide}
 
 \begin{itemize}
-\item systémy mají typicky manuálovou stránku \texttt{nsswitch.conf(4)}, kde lze
-nalézt podrobnosti v závislosti na konkrétním operaèním systému, vèetnì API,
-pomocí kterého se pracuje s jednotlivými databázemi. Napøíklad, s databází
-\texttt{passwd} pracují standardní volání \texttt{getpwnam(3)},
-\texttt{getpwent(3)} a dal¹í - není proto potøeba zpracovávat tyto soubory
-(databáze) sami.
-\item zde je èást skuteèného souboru \texttt{nsswitch.conf} ze stroje
-\texttt{u-us}:
+\item Systems using the name service switch typically have
+\texttt{nsswitch.conf(4)} where you can find information about what databases
+are supported, including the API.  For example, with the \texttt{passwd}
+database, standard calls like \texttt{getpwnam(3)} and \texttt{getpwent(3)} use
+it.  In general, it is not needed to process such databases manually as there is
+always an API to use for that.
+\item Example of an existing \texttt{nsswitch.conf} on Solaris:
 
 \begin{verbatim}
 passwd:     files ldap
@@ -183,7 +182,6 @@ rpc:        files
 ethers:     files
 \end{verbatim}
 \end{itemize}
-
 
 %%%%%
 
