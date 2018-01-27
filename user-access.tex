@@ -58,38 +58,43 @@ to, those in the user's entry in \texttt{/etc/group}, are called
 \pdfbookmark[1]{file access rights}{fsaccessrights}
 
 \begin{slide}
-\sltitle{Pøístupová práva}
+\sltitle{Access rights}
 \begin{center}
 \input{img/tex/prava.tex}
 \end{center}
 \begin{itemize}
-\item \emsl{SGID} pro soubor bez práva spu¹tìní pro skupinu v System
-V: kontrola zámkù pøi ka¾dém pøístupu (\emsl{mandatory locking})
-\item \emsl{sticky bit} pro adresáøe: právo mazat a pøejmenovávat
-soubory mají jen vlastníci souborù 
-\item \emsl{SGID} pro adresáø: nové soubory budou mít stejnou
-skupinu jako adresáø (System V; u BSD systémù to funguje jinak, viz
-poznámky)
+\item \emsl{SGID} on a file without the executable bit for its group means
+\emsl{mandatory locking} in systems based on System~V
+\item \emsl{sticky bit} for directories: remove and renamed allowed for file
+owners only.
+\item \emsl{SGID} for directory: new files will have the same group as the
+directory (on System~V based systems; it works in a different way on BSD
+systems, see below)
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item SGID pro adresáøe u BSD systémù zpùsobí, ¾e soubory a podadresáøe
-vytvoøené v tomto adresáøi budou mít stejného majitele jako je majitel daného
-adresáøe. Nutným pøedpokladem je dále to, ¾e daný UFS filesystém musí být
-namontován s suiddir pøíznakem a v jádru je option SUIDDIR (a to není
-default). Navíc to nefunguje pro roota. Tato mo¾nost existuje kvùli Sambì a
-Nettalku.
-\item sticky bit pro adresáøe: pøejmenovat nebo smazat soubor mù¾e jen jeho
-vlastník (v~nìkterých implementacích staèí i právo zápisu do souboru),
-ne\-sta\-èí právo zápisu do adresáøe. Toto nastavení se pou¾ívá pro veøejné
-adresáøe (napø. \texttt{/tmp}).
-\item pùvodnì mìl sticky bit význam i pro spustitelné soubory: program s
-nastaveným sticky bitem zùstal po ukonèení v pamìti a jeho opìtovné spu¹tìní
-bylo rychlej¹í. Dnes se sticky bit v tomto významu u¾ nepou¾ívá.
-\item nìkteré filesystémy (XFS, AFS, UFS2, ZFS) mají tzv. access control lists
-(ACLs), které dovolují jemnìj¹í pøidìlování práv jednotlivým u¾ivatelùm a
-skupinám.
+\item The sticky bit for directories means that when the directory is writable
+for a given user (possibly because all users can write), the user can create any
+file that does not exist in that directory yet.  However, if the file exists but
+is not owned by the user, he/she can not remove nor rename it even that by
+itself he/she can write the directory.  Sticky bit is denoted by ``t'' and is
+typically used for temporary directories:
+
+\begin{verbatim}
+$ ls -ld /tmp
+drwxrwxrwt 9 root root 356352 Jan 27 22:37 /tmp/
+\end{verbatim}
+
+\item The SGID bit on directories on BSD based systems means that files and
+directories created in this directory will have the same owner as the directory
+itself.  The filesystem must be mounted with an \texttt{suiddir} flag and
+the kernel may need an additional non-default option \texttt{SUIDDIR}.  It also
+does not work for the root user.  This functionality is there to support Samba.
+\item Originally, the sticky bit had a meaning for regular files as well but
+that is not used anymore.
+\item Some filesystems (XFS, AFS, UFS2, ZFS, and others) also support
+\emph{access control lists} (ACLs) that allow for finer access right management.
 \end{itemize}
 %%%%%
 
@@ -118,15 +123,16 @@ beginning of the password database, \funnm{getpwent} gets the current entry,
 \end{slide}
 
 \begin{itemize}
-\item tyto funkce fungují nezávisle na tom jak z jaké databáze byly
-získány informace o daném u¾ivateli.
-\item v¹echny tyto funkce jsou souèástí POSIX 1003.1-2008 (sekce XSH)
-\item \funnm{setpwent} je tøeba zavolat pøed prvním voláním \funnm{getpwent}
-\item analogicky exitují funkce \funnm{getgrnam} a \funnm{getgrent} které
-získávají informace o skupinách.
-\item pro prohledávání a výpis databazí lze pou¾ít program
-\texttt{getent}. Napø. k nalezení záznamu u¾ivatele a skupiny
-\texttt{root}:
+\item These functions work independently on what database was used to get the
+user information, see page \pageref{name_service_switch} for more information on
+naming databases.
+\item All these functions are part of POSIX 1003.1-2008.
+\item \funnm{setpwent}() is needed to call before first calling
+\funnm{getpwent}().
+\item There are also functions \funnm{getgrnam}() and \funnm{getgrent}() which
+can be used to get group information.
+\item To search and list naming databases, you can use program \texttt{getent}.
+For example:
 
 \begin{verbatim}
 $ getent passwd root
@@ -154,6 +160,8 @@ in \texttt{/etc/passwd}, then in LDAP
 \item came first with Solaris, other systems took over the idea
 \end{itemize}
 \end{slide}
+
+\label{name_service_switch}
 
 \begin{itemize}
 \item Systems using the name service switch typically have
