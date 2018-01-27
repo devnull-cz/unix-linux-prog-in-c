@@ -2466,65 +2466,64 @@ that runs above the Mach micro-kernel.
 %%%%%
 
 \begin{slide}
-\sltitle{Systémová volání, funkce}
+\sltitle{System calls, functions}
 \begin{itemize}
-\item v UNIXu se rozli¹ují \emsl{systémová volání} a \emsl{knihovní
-funkce}.  Toto rozli¹ení dodr¾ují i manuálové stránky: sekce
-\emsl{2} obsahuje systémová volání (\emph{syscalls}), sekce \emsl{3}
-knihovní funkce (\emph{library functions}). 
+\item In UNIX a distinction is made of \emsl{system calls} and \emsl{library
+functions}. This division is maintained in man pages: section \emsl{2} contains
+system call man pages and section \emsl{3} library functions.
     \begin{itemize}
-    \item knihovní funkce se vykonávají v u¾ivatelském re¾imu,
-    stejnì jako ostatní kód programu. 
-    \item systémová volání mají také tvar volání funkce. Pøíslu¹ná funkce ale
-    pouze zpracuje argumenty volání a pøedá øízení jádru pomocí instrukce
-    synchronního pøeru¹ení. Po návratu z jádra funkce upraví výsledek a pøedá ho
-    volajícímu. 
+    \item library functions are executed in user mode, just like the rest
+    of the program's code.
+    \item system calls also have the form of a function. However given function
+    only processes arguments and passes the control to the kernel using
+    synchronous interrupt instruction. Once it returns from the kernel,
+    it will adjust the result and returns it to the caller.
     \end{itemize}
-\item standardy tyto kategorie nerozli¹ují -- z hlediska programátora je jedno,
-zda urèitou funkci provede jádro nebo knihovna.
+\item this distinction is not made in the standard -- from programmer's
+perspective it does not \emph{usually} matter if given function is processed
+by a library or kernel.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item zjednodu¹enì lze øíci, ¾e systémové volání je funkce, která
-jen upraví své argumenty do vhodné podoby, pøepne re¾im procesoru a
-skuteènou práci nechá na jádru. Nakonec zase upraví výsledek.
-\emsl{Knihovní funkce mù¾e a nemusí volat jádro, ale v¾dy sama dìlá
-nìjakou netriviální èinnost v u¾ivatelském re¾imu.}
-\item v assembleru je mo¾né zavolat volání jádra pøímo
-\item API jádra je definované na úrovni volání funkcí standardní
-knihovny, nikoliv na úrovni pøeru¹ení a datových struktur
-pou¾ívaných tìmito funkcemi pro pøedání øízení jádru. Mechanismus
-pøepnutí mezi u¾ivatelským re¾imem a re¾imem jádra se toti¾ mù¾e
-li¹it nejen v závislosti na hardwarové platformì, ale i mezi rùznými
-verzemi systému na stejném hardwaru. 
+\item The transition from userland to kernel can be costly; if the program
+executes lot of syscalls, it can have a negative effect on its performance.
+\emsl{Library function can but does not have to perform some system calls,
+however it always does some non-trivial work in user mode.}
+\item It is possible to perform system call directly in assembler.
+\item The kernel API is defined w.r.t. function calls of the standard library,
+not w.r.t. interrupt level and data structures used by these functions when
+passing control to the kernel. The mechanism of switching between user and
+kernel mode can differ not only depending on hardware platform but also between
+different versions of the same system on the same hardware.
 \end{itemize}
+
 %%%%%
 
 \pdfbookmark[1]{syscall return values semantics}{syscallretvals}
 
 \begin{slide}
-\sltitle{Návratové hodnoty systémových volání}
+\sltitle{System call return values}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item celoèíselná návratová hodnota (\texttt{int}, \texttt{pid\_t},
-\texttt{off\_t}, apod.)
+\item integer return value (\texttt{int}, \texttt{pid\_t},
+\texttt{off\_t}, etc.)
     \begin{itemize}
-    \item \texttt{>= 0} \dots{} operace úspì¹nì provedena 
-    \item \texttt{== -1} \dots{} chyba 
+    \item \texttt{>= 0} \dots{} success
+    \item \texttt{== -1} \dots{} failure
     \end{itemize}
-\item návratová hodnota typu ukazatel 
+\item pointer return value
     \begin{itemize}
-    \item \texttt{!= NULL} \dots{} operace úspì¹nì provedena 
-    \item \texttt{== NULL} \dots{} chyba 
+    \item \texttt{!= NULL} \dots{} success
+    \item \texttt{== NULL} \dots{} failure
     \end{itemize}
-\item po neúspì¹ném systémovém volání je kód chyby v globální
-promìnné \texttt{extern int \funnm{errno};}
-\item úspì¹né volání nemìní hodnotu v \texttt{errno}! Je tedy tøeba
-nejprve otestovat návratovou hodnotu a pak teprve \texttt{errno}. 
-\item chybové hlá¹ení podle hodnoty v \texttt{errno} vypí¹e funkce\\
+\item after failed syscall the error code is stored in global variable
+\texttt{extern int \funnm{errno};}
+\item successful syscall never changes \texttt{errno} ! It is therefore
+necessary to test the return value first and then check \texttt{errno}.
+\item error message depending on the \texttt{errno} value can be printed with\\
 \texttt{void \funnm{perror}(const char *\emph{s});}
-\item textový popis chyby s daným èíslem vrátí funkce\\
+\item textual representation for given value is returned by\\
 \texttt{char *\funnm{strerror}(int \emph{errnum});}
 \end{itemize}
 \end{slide}
@@ -2532,30 +2531,30 @@ nejprve otestovat návratovou hodnotu a pak teprve \texttt{errno}.
 %%%%%
 
 \begin{itemize}
-\item \label{ERRNO} v Solarisu je hodnota \texttt{errno} ve
-skuteènosti knihovnou \texttt{libc} definovaná jako dereferencovaný
-pointer na integer (specifický pro daný userland thread) a hodnota se
-nastavuje ihned po výstupu z instrukce pro systémové volání. Napø. na i386
-architektuøe je hodnota \texttt{errno} po návratu z kernelu (po dokonèení
-instrukce \texttt{sysenter}) ulo¾ena v registru \texttt{eax} (pøed voláním
-v ní bylo èíslo syscallu). Je to tedy knihovna \texttt{libc} kdo je
-zodpovìdný za to, ¾e program uvidí správnou hodnotu \texttt{errno}.
-
-
-\item funkce pro práci s vlákny \texttt{pthread\_*} nenastavují
-\texttt{errno}, ale vrací buï nulu (úspìch) nebo pøímo kód chyby.
-\item pro nìkterá volání mù¾e mít smysl i návratová hodnota
-\texttt{-1}. Pak je tøeba nejprve nastavit \texttt{errno~=~0} a po
-návratu zkontrolovat, zda se \texttt{errno} zmìnilo. Napø. funkce
-\texttt{strtol} vrací pøi chybì 0, co¾ je platná hodnota i pro
-správný výsledek (a $-1$ je samozøejmì platný výsledek také).
-\item je tedy v¾dy nutné si pøeèíst manuálovou stránku pro pøí¹lu¹né
-volání nebo knihovní funkci
-\item pozn.: úspì¹nost funkcí ze \texttt{stdio.h} je tøeba testovat pomocí\\
-\texttt{int \funnm{ferror}(FILE *\emph{stream})}, proto¾e jinak nelze rozli¹it
-mezi chybou a koncem streamu. Vzhledem k tomu, ¾e tyto funkce nepou¾íváme (kromì
-\texttt{printf} a \texttt{fprintf} na \texttt{stdout}, resp. \texttt{stderr}),
-nemìli byste ji potøebovat.
+\item \label{ERRNO} In Solaris \texttt{errno} is in reality defined in
+\texttt{libc} as a dereferenced pointer to integer (specific to userland thread)
+and the value is set right after the instruction for system call.
+For example on i386 architecture the \texttt{errno} value is stored in the
+\texttt{eax} register after the return from the syscall (after the
+\texttt{sysenter} instruction is executed). Before the instruction the register
+held the system call number. It is therefore the \texttt{libc} library that is
+responsible for the program to see the correct \texttt{errno} value.
+\item The POSIX thread functions (\texttt{pthread\_*}) do not set
+\texttt{errno}, rather they return either zero or error code.
+\item For some calls it the \texttt{-1} is semantically valid. To use such
+functions, it is necessary to set \texttt{errno~=~0} before the call and check
+whether the value changed after the call. E.g. the \texttt{strtol} function
+returns 0 on failure, which is valid value even for valid result
+(and $-1$ is also valid result value).
+\item It is therefore necessary to always read the man page for appropriate
+system call or library function.
+\item Note that the failure or functions from \texttt{stdio.h} it is necessary
+to test using\\
+\texttt{int \funnm{ferror}(FILE *\emph{stream})}, because it is not otherwise
+possible to distinguish between an error and end of stream. Considering we are
+not using these functions in the lecture (except 
+\texttt{printf} and \texttt{fprintf} for \texttt{stdout}, resp.
+\texttt{stderr}), you should not need it.
 \end{itemize}
 
 \begin{slide}
