@@ -33,93 +33,24 @@ used today), group ID (GID), list of group members
 \end{slide}
 
 \begin{itemize}
-\item informace o u¾ivatelích v souborech \texttt{/etc/passwd}, a
-\texttt{/etc/group} jsou zpracovávány rùznými systémovými programy, napø.
-\texttt{login} (pøihlá¹ení do sys\-té\-mu na základì u¾ivatelského jména a
-hesla) nebo \texttt{su} (zmìna identity). \emsl{Jádro o tìchto souborech nic
-neví, pou¾ívá pouze numerickou identifikaci u¾ivatele a skupiny.}
-\item dnes ji¾ hesla nejsou z bezpeènostních dùvodù pøímo v
-\texttt{/etc/passwd}, ale napøíklad v \texttt{/etc/shadow}, který bì¾nému
-u¾ivateli pøístupný není, pouze u¾ivatel \texttt{root} má právo pro ètení
-a zápis. Tedy pouze privilegované programy jako \texttt{login} nebo
-\texttt{sshd} mohou z tohoto souboru èíst nebo zapisovat (program
-\texttt{passwd} bì¾í pod u¾ivatelem \texttt{root} díky \emph{setuid} bitu
-nastaveném na souboru programu, viz poznámky na stranì \pageref{SUID_BIT}).
-Takto jsou hesla separovaná od veøejnì pøístupných informací, navíc
-soubor který hesla obsahuje, je ukládá v zaha¹ované/za¹ifrované formì,
-tak¾e nejsou pøímo èitelná.
-Na BSD systémech (napø. FreeBSD, Mac OS X) se místo \texttt{/etc/shadow}
-pou¾ívá soubor \texttt{/etc/master.passwd}.
-\item Soubor \texttt{/etc/shadow} je podobnì strukturovaný jako
-\texttt{/etc/passwd}. Jeden záznam obsahuje vìt¹inou následující polo¾ky
-(Solaris): u¾ivatelské jméno, zaha¹ované heslo (spolu s indikátorem ¾e 
-daný úèet je zablokovaný), poslední modifikace hesla,
-minimum dní po¾adovaných mezi zmìnou hesla, maximum dní po které je heslo
-platné, poèet dní po kterých je u¾ivatel varován o expiraci hesla, poèet
-povolených dní neaktivity u¾ivatele, absolutní èas expirace u¾ivatele,
-poèet neúspì¹ých pokusù o nalogování tohoto u¾ivatele.
-\item Hesla v \texttt{/etc/shadow} jsou ulo¾ena takovým zpùsobem, aby
-pokud se povede nìkomu soubor získat, mìl ztí¾enou práci pøi odhadování
-hesel. Pùvodní (cleartext) heslo se pro¾ene jednosmìrnou kryptografickou
-funkcí (která je navíc parametrizovatelná, èím¾ se výpoèetní a prostorová
-slo¾itost pro útok hrubou silou je¹tì zvý¹í)
-a ulo¾í se do \texttt{/etc/shadow} v této formì. Ovìøování hesla pak
-funguje tak ¾e, se na cleartext heslo aplikuje daná funkce s danými
-parametry a výsledek se porovná s polem hesla v \texttt{/etc/shadow}.
-Pokud jsou stejné, probìhla autentizace úspì¹nì. Pùvodnì navr¾ená funkce
-pøestala s rozvojem procesorù staèit, tak¾e se dnes pou¾ívají funkce MD5,
-SHA1, Blowfish a dal¹í. Polo¾ka hesla v \texttt{/etc/shadow} je pak vnitønì
-strukturovaná pomocí speciálních znakù, tak¾e programy ovìøující heslo ví,
-jakou funkci a s jakými parametry pou¾ít.
-Vìt¹ina systémù umo¾òuje globální konfiguraci pou¾itých funkcí a jejich
-parametrù.
-\item existují i jiné systémy, které (nejen) pro autentizaci
-\texttt{/etc/passwd} nemusí vùbec pou¾ívat, napøíklad NIS (Network Information
-Service) nebo LDAP (Lightweight Directory Access Protocol).
-\item skupina u¾ivatele uvedená v \texttt{/etc/passwd} se nazývá
-\emsl{primární}. Tuto skupinovou identifikaci dostanou napø. soubory vytvoøené
-procesy u¾ivatele. Dal¹í skupiny, ve kterých je u¾ivatel uveden v souboru
-\texttt{/etc/group}, jsou doplòkové (\emph{supplementary}) a roz¹iøují
-pøístupová práva u¾ivatele: skupinový pøístup je povolen ke v¹em objektùm,
-jejich¾ skupinový vlastník je roven buï primární, nebo jedné z doplòkových
-skupin.
-\item pùvodnì mìl v UNIXu ka¾dý u¾ivatel v¾dy aktivní pouze jednu skupinovou
-identitu. Po nalogování byl ve své primární skupinì, pro získání práv jiné
-skupiny bylo tøeba se do ní pøepnout pøíkazem \texttt{newgrp} (skupinová
-obdoba \texttt{su}, øídí se obsahem souboru \texttt{/etc/group}), který
-spustil nový shell.
-\item v novìj¹ích UNIXech není tøeba pro pøístup k souborùm mìnit primární
-skupinovou identitu procesu, pokud u¾ivatel patøí do potøebné skupiny. Zmìna
-identity je nutná, pouze kdy¾ chceme vytváøet soubory s jinou skupinovou
-identitou, ne¾ je primární skupina u¾ivatele. Lokálnì pro urèitý adresáø toho
-lze dosáhnout nastavením skupinového vlastníka adresáøe na po¾adovanou skupinu
-a nastavením bitu SGID v pøístupových právech adresáøe -- to platí pro systémy
-zalo¾ené na System~V. U BSD staèí zmìnit po¾adovanou skupinu u adresáøe.
-Pøíklad vytvoøení takového adresáøe na Solarisu (pøíkaz \texttt{chown}
-musí být proveden pod u¾ivatelem \texttt{root}):
-
-\begin{verbatim}
-# mkdir mydir
-# chown :lidi mydir
-# ls -ald mydir
-drwxr-xr-x   2 root     lidi           4 Nov  2 20:01 mydir
-# cd mydir/
-mydir # touch foo
-mydir # ls -ald foo
--rw-r--r--   1 root     root           0 Nov  2 20:01 foo
-mydir # chmod g+s .
-mydir # ls -ald .
-drwxr-sr-x   2 root     lidi           4 Nov  2 20:01 .
-mydir # touch bar
-mydir # ls -ald bar
--rw-r--r--   1 root     lidi           0 Nov  2 20:01 bar
-mydir # 
-\end{verbatim}
-
-\item druhá polo¾ka v øádcích \texttt{/etc/group} obsahuje zakódované
-skupinové heslo pou¾ívané pøíkazem \texttt{newgrp}, to se ji¾ dnes nepou¾ívá.
-Napøíklad na FreeBSD je pøíkaz \texttt{newgrp} pøístupný u¾ jen superu¾ivateli
-(kvùli volání \texttt{setgroups}).
+\item User information in files \texttt{/etc/passwd} and \texttt{/etc/group} are
+processed by various system programs, like \texttt{login} or \texttt{su}.
+The kernel knows nothing about these files as it only uses numeric
+representation of users and groups.
+\item Passwords are long gone from \texttt{/etc/passwd}, they are stored some
+place else, for example in \texttt{/etc/shadow}, which is not readable to an
+uprivileged user.  The passwords are also salted and then hashed.  On BSD based
+systems, eg. FreeBSD or macOS, instead of \texttt{/etc/shadow},
+\texttt{/etc/master.passwd} database is used.
+\item If \texttt{/etc/shadow} does exist, it is structured in a similar way as
+\texttt{/etc/passwd}.
+\item There are also protocols used for autentization that do not use
+\texttt{/etc/passwd} at all, for example NIS (Network Information Service) or
+LDAP (Lightweight Directory Access Protocol).
+\item The user group in \texttt{/etc/passwd} is called \emph{primary} for the
+user.  Such a group is used when files are created.  Other groups a user belongs
+to, those in the user's entry in \texttt{/etc/group}, are called
+\emph{supplementary} and provide additional group privileges to access files.
 \end{itemize}
 
 %%%%%
