@@ -4,30 +4,50 @@ changequote([[[, ]]])
 %%%%%
 
 \begin{slide}
-\sltitle{hierarchical file system}
+\sltitle{Hierarchical file system}
 \begin{center}
 \input{img/tex/fstree.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item svazek (angl. \emph{file system}) je èást souborového systému, kterou lze
-samostatnì vytvoøit, pøipojit, zru¹it... Ka¾dý filesystém mù¾e mít jinou vnitøní
-strukturu (\texttt{s5}, \texttt{ufs}, \texttt{ext2}, \texttt{xfs}, atd.) a mù¾e
-být ulo¾en na lokálním disku nebo na jiném poèítaèi a pøístupný po síti
-(\texttt{nfs}, \texttt{afs}). 
-\item po startu jádra je pøipojený jen koøenový filesystém, dal¹í filesystémy se
-zapojují do hierarchie na místa adresáøù pøíkazem \texttt{mount}. Tento pøíkaz
-je mo¾né spustit ruènì (u¾ivatel root libovolnì, ostatní pouze na nìkterých
-systémech a s~omezeními) nebo automaticky bìhem inicializace systému, kdy se
-typicky øídí obsahem souboru \texttt{/etc/fstab}. Pøed zastavením systému se
-filesystémy odpojují pøíkazem \texttt{umount}.
-\item dal¹í mo¾nost je pøipojení filesystému na ¾ádost pøi prvním pøístupu a
-jeho odpojení po urèité dobì neèinnosti. Tuto funkci zaji¹»uje démon
-\emph{automounter} (\texttt{autofs}, \texttt{automount}, \texttt{amd}).
-\item UNIX nemá ¾ádné A, B, C, D\dots disky apod.
+\item A \emph{file system} is a data structure to control how data is stored and
+retrieved.  Without it the stored data would have no structure, ownership, etc.
+The filesystem structure provides for storing directories (folders), files,
+metadata, etc.
+\item Each filesystem has a specific structure type it uses, for example
+\texttt{ext4} (Linux specific), \texttt{XFS} (used on Linux but coming from SGI
+IRIX), \texttt{JFS} (used on Linux but came from IBM AIX), \texttt{ufs} (BSD
+systems), \texttt{FAT32} (Win), \texttt{ZFS} (Solaris born, then ported to other
+systems), etc.  The filesystem can be either used on local or remote storage,
+and in case of a remote storage network filesystem protocols like \texttt{NFS} or
+\texttt{AFS} are used.  Note that these network filesystems do not define the
+filesystem structure itself, they only provide for accessing existing
+filesystems remotely.  Each filesystem also has its limits, a largest file size
+or the maximum size of the filesystem itself, for example.
+\item Unix does not have A, B, C, D\dots disks as Windows and other systems.
+All filesystems are mounted to a single directory hierarchy on any Unix system,
+as shown on the slide where you can see the root filesystem and three other
+fileystems, mounted on \texttt{/usr}, \texttt{/dev/tty}, and \texttt{/home}
+directories.  You could also further mount other filesystems on directories that
+are part of these non-root filesystems.
+\item Each filesystem mounted to the common hierarchy may be formatted using a
+different filesystem type.  However, that is largely transparent to a user
+traversing the hierarchy.  There are some exceptions though.  For example,
+\texttt{FAT32} does no provide user and access rights for files so those are
+faked when such filesystem is mounted.
+\item Upon the system boot, the root filesystem is mounted first, other
+filesystems are later mounted via the \texttt{mount} commmand, usually from
+specific startup services based on the system you use.  The startup services
+sometimes use file \texttt{/etc/fstab} as a source of information about what
+filesystems to mount.  You can also use \texttt{mount} manually.  To unmount a
+filesystem, the \texttt{umount} command is used.
+\item Some systems also provide for auto mounting where filesystems are mounted
+during the first access attempt, and may be automatically unmounted after a
+period of inactivity.  Such functionality is usually called an
+\emph{automounter}.  See \texttt{autofs}, \texttt{automount}, or \texttt{amd}
+for more information.
 \end{itemize}
-
 
 %%%%%
 
