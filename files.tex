@@ -19,12 +19,13 @@ metadata, etc.
 \texttt{ext4} (Linux specific), \texttt{XFS} (used on Linux but coming from SGI
 IRIX), \texttt{JFS} (used on Linux but came from IBM AIX), \texttt{ufs} (BSD
 systems), \texttt{FAT32} (Win), \texttt{ZFS} (Solaris born, then ported to other
-systems), etc.  The filesystem can be either used on local or remote storage,
-and in case of a remote storage network filesystem protocols like \texttt{NFS} or
-\texttt{AFS} are used.  Note that these network filesystems do not define the
-filesystem structure itself, they only provide for accessing existing
-filesystems remotely.  Each filesystem also has its limits, a largest file size
-or the maximum size of the filesystem itself, for example.
+systems), \texttt{APFS} (macOS and iOS since 2017), etc.  A filesystem can be
+either used on local or remote storage, and in case of a remote storage network
+filesystem protocols like \texttt{NFS} or \texttt{AFS} are used to access the
+data.  Note that these network filesystems do not define the filesystem
+structure itself, they only provide for accessing existing filesystems remotely.
+Each filesystem also has its limits, a largest file size or the maximum size of
+the filesystem itself, for example.
 \item Unix does not have A, B, C, D\dots disks as Windows and other systems.
 All filesystems are mounted to a single directory hierarchy on any Unix system,
 as shown on the slide where you can see the root filesystem and three other
