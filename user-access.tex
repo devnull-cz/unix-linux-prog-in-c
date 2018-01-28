@@ -218,30 +218,33 @@ If & then $P$rocess has w.r.t. $F$ile \\
 \end{slide}
 
 \begin{itemize}
-\item procesy superu¾ivatele \texttt{root} mohou mìnit svoji u¾ivatelskou a
-skupinovou identitu. Toho vyu¾ívá napø. proces \texttt{login}, který bì¾í jako
-\texttt{root} a po zkontrolování jména a hesla spustí shell s u¾ivatelskou
-identitou (pomocí volání \texttt{setuid} -- viz dal¹í slajdy).
-\item z algoritmu plyne, ¾e pro \texttt{root}a není relevantní nastavení práv
-(má v¾dy neomezený pøístup). Pokud se shoduje u¾ivatel, nepou¾ijí se nikdy práva
-skupiny nebo ostatních, i kdy¾ povolují více ne¾ u¾ivatelská práva. Podobnì
-práva ostatních se nepou¾ijí, jestli¾e se shoduje skupinová identita. \emsl{Tedy
-pokud má mùj soubor nastaveny práva \texttt{---rwxrwx}, nemohu ho èíst,
-zapisovat ani spustit, dokud nastavení práv nezmìním.}
-\item èím dál víc systémù se odklání od klasického modelu, kdy mnoho procesù
-bì¾elo pod u¾ivatelem s UID 0 a pøi bezpeènostní chybì v takové aplikaci èasto
-útoèník získal vládu nad celým systémem a zavádìjí modely jako je \emph{least
-privilege model} v Solarisu nebo \emph{privilege separation} a \emph{pledge}
-v OpenBSD.
-\item \label{FILEDELETE} opakování z prvního roèníku -- aby u¾ivatel mohl smazat
-soubor, musí mít právo zápisu do daného \emsl{adresáøe}, proto¾e to je ten
-``soubor'', co se mìní. \emsl{Práva k mazanému souboru nejsou podstatná}; to ¾e
-vás shell upozorní, ¾e ma¾ete soubor, ke kterému nemáte právo zápisu, je pouze
-vìc toho shellu. Je to logické -- pokud si nastavíte soubor jako read-only,
-shell usuzuje, ¾e ho asi normálnì mazat nechcete. Viz pøíklad pod tímto
-odstavcem. \emsl{Unixové systémy nemají delete-like operaci na soubor}, smazání
-souboru nastane automaticky tehdy, kdy¾ na soubor není ¾ádný odkaz z adresáøové
-struktury, a nikdo soubor ji¾ nemá otevøený.
+\item The processes of the \texttt{root} user can change its user and group
+identity. This is used by e.g. the \texttt{login} process, that runs as
+\texttt{root} and after performing authentication check successfully it runs
+shell process with identity of given user (using the \texttt{setuid} syscall
+-- see upcoming slides).
+\item The implication of the algorithm is that for the \texttt{root} user the
+access rights are not relevant (it has always unlimited access -- at least in
+classic UNIX without fine grained privileges). If the user is equal, the
+group/other rights are not used even though them permit more than what user
+rights do. Similarly the others rights are not used if the group is equal.
+\emsl{Therefore if a file owned by my user has the rights set to
+\texttt{---rwxrwx}, I cannot read/write/execute it until I change the rights.}
+\item More and more system diverge from the classic model where many processes
+were running under a user with UID 0. Security vulnerability in such application
+meant total control of the system. To thwart this, these systems employ models
+like \emph{least privilege} in Solarisu or \emph{privilege separation} and
+\emph{pledge} in OpenBSD.
+\item \label{FILEDELETE} In order to delete a file, the user has to have a right
+to write to the \emsl{directory} containing the file, because this is the
+``file'', that is being changed. \emsl{The rights of the file to be deleted are
+not relevant}; the shell might give you a warning that you are about to delete a
+file for which you do not have the right to write, however this is just
+informative. It is logical -- if you set a file as read-only, the shell will
+deduce that you do not normally want to delete such file. See the example below.
+\emsl{Unix systems do not have delete-like operation for a fike}, the file is
+deleted automatically once it is no longer referenced from directory structure
+and the file is not open by any process.
 
 \begin{verbatim}
 $ whoami
@@ -256,17 +259,19 @@ rm: janp-dir/root_wuz_here.txt: override protection 644 (yes/no)? yes
 $ ls janp-dir/root_wuz_here.txt 
 janp-dir/root_wuz_here.txt: No such file or directory
 \end{verbatim}
-\item pokud ale \texttt{root} vytvoøí v adresáøi \texttt{janp-dir} svùj
-podadresáø a tam vlo¾í svùj soubor, u¾ivatel \texttt{janp} u¾ nemù¾e
-adresáø \texttt{janp-dir} a jeho obsah smazat, proto¾e:
+\item However if \texttt{root} creates its own sub-directory in the
+\texttt{janp-dir} directory and creates a new file there, the
+\texttt{janp} user can no longer delete the \texttt{janp-dir} directory and its
+contents because:
 \begin{itemize}
-\item podadresáø nelze smazat proto¾e není prázdný
-\item a daný soubor nelze smazat z toho dùvodu, ¾e \texttt{janp} není vlastníkem
-podadresáøe.
+\item sub-directory cannot be deleted if non-empty
+\item given file cannot be deleted because \texttt{janp} is not user of
+the sub-directory
 \end{itemize}
-\item Pokud odeberu adresáøi read bit, není mo¾né èíst jeho obsah, tedy
-provádìt výpis souborù v nìm obsa¾ených. Pokud ale znám jméno souboru v
-adresáøi a execute bit je nastaven, mohu soubor pøeèíst:
+\item If the read bit is removed from a directory rights, it is not possible to
+read its contents, therefore list files therein contained. However if I know
+the name of the file in the directory and the execute bit is set, I can read the
+file:
 \begin{verbatim}
 $ mkdir foo
 $ ls -ald foo
@@ -282,19 +287,18 @@ ls: foo: Permission denied
 $ file foo/bar
 foo/bar: empty
 \end{verbatim}
-\item existuje situace, kdy ani právo zápisu (a execute) pro adresáø nestaèí. To
-se pou¾ívá u \texttt{tmp} adresáøù, do kterých mù¾e ka¾dý psát, ale není ¾ádoucí
-situace, kdy by si u¾ivatelé navzájem mazali soubory. K tomu se pou¾ívá tzv.
-\emph{sticky bit} (01000). Systémy mají vet¹inou manuálovou stránku
-\texttt{sticky}, kde je funkce sticky bitu popsaná. Na výpisu \texttt{ls} je
-oznaèovaný jako \texttt{\emsl{t}}:
+\item There is a situation where even the execute bit for a directory is not
+sufficient. This is used for temporary directories, where anyone can write to
+however it is not desirable to permit users to delete each others files.
+To achieve that there is the \emph{sticky bit} (01000). There might be a
+\texttt{sticky} man page, where the sticky bit function is described.
+It is visible as \texttt{\emsl{t}} in the \texttt{ls} output:
 
 \begin{verbatim}
 $ ls -ld /tmp
 drwxrwxrwt   7 root     root         515 Mar 23 12:22 /tmp
 \end{verbatim}
 \end{itemize}
-
 
 %%%%%
 
