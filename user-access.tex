@@ -328,34 +328,33 @@ supplementary GIDs}
 \label{ROOT_SETUID}
 
 \begin{itemize}
-\item \label{SUID_BIT} bity SUID a SGID se pou¾ívají u programù, které potøebují vìt¹í
-pøístupová práva, ne¾ má u¾ivatel, jen¾ je spou¹tí. Pøíkladem je program
-\texttt{passwd}, který musí aktualizovat soubory \texttt{/etc/passwd} a
-\texttt{/etc/shadow}, kde ten první ne\-mù\-¾e bì¾ný u¾ivatel mìnit a druhý z
-nich ani èíst. Dal¹í pøíklad je program \texttt{su}. Ten musí mít právo
-libovolnì zmìnit u¾ivatelskou a skupinovou identitu, co¾ je privilegium
-procesù s UID 0.
-
-
-\item SUID a SGID programy by mìly být peèlivì naprogramovány, aby dovolily
-pouze ty operace, pro které jsou urèeny, a neumo¾nily zneu¾ít jejich
-privilegia pro neoprávnìné akce (napø. spu¹tìní rootovského shellu). Zku¹enost
-ukazuje, ¾e tyto programy jsou jednou z nejèastìj¹ích pøíèin bezpeènostních
-problémù UNIXových systémù.
-\item základním pravidlem pro SUID programy je: \emsl{nepi¹te je} pokud to
-není opravdu nezbytné. Je to typické místo pro generování bezpeènostních chyb
-proto¾e dobøe, tj. bezpeènì, napsat slo¾itìj¹í SUID program není jednoduché.
-\item \emsl{toto jsou pravidla pro zmìny:}
+\item \label{SUID_BIT} The SUID and SGID bits are used for programs that need
+bigger privileges thatn the user who executes them. One example is the
+\texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
+\texttt{/etc/shadow}, where the ordinary user cannot modify the first and
+cannot write into the the second. Another example is the \texttt{su} program,
+which has to have the right to arbitrarily change user and group identity,
+which is a privilege of programs running with UID 0.
+\item Programs using the SUID and SGID bits should be carefully programmed
+to allow only such operations for which they were designed and prevent misuse
+of their privileges for non-authorized actions (root shell execution).
+Such programs used to be one of the most frequent causes of security problems
+in Unix systems.
+\item The basic rule for writing SUID/SGID programs is: \emsl{do not write
+them} if it is not absolutely necessary. This area is typical as security
+problem generator. It is not easy to produce correct (i.e. secure) SUID/SGID
+program, especially of higher complexity.
+\item \emsl{These are the rules for ID change:}
 \begin{itemize}
-\item be¾ný u¾ivatel nemù¾e zmìnit své RUID nebo uschované SUID (vyjímka je
-pøi volání \texttt{exec}, viz strana \pageref{EXEC})
-\item proces mù¾e v¾dy zmìnit své EUID na to z RUID nebo z uschovaného UID.
-Toto zaruèuje, ¾e v SUID programu je mo¾né libovolnì mìnit EUID mezi tím
-pùvodním kterým proces získal práva vlastníka a mezi UID skuteèného u¾ivatele
-který daný proces spustil.
-\item \emsl{root mù¾e v¹echno}, a kdy¾ zmìní RUID, tak se zároveò zmìní i
-uchované UID -- nemìlo by smysl mìnit jen jedno z nich kdy¾ kterékoli mù¾ete
-pou¾ít pro nastavení EUID.
+\item ordinary user cannot change its RUID or saved UID (the \texttt{exec} is an
+exception to that, see page \pageref{EXEC})
+\item the process can always change its EUID to that of RUID or saved UID.
+This guarantees that in SUID program it is possible to arbitrarily change EUID
+between the one that enabled the process to gain ownership rights and the
+UID of the real user that executed the process originally.
+\item \emsl{root can do everything}, and when it changes RUID, it will also
+change saved UID -- it does not make sense to change just one of them when
+either can be used to set EUID.
 \end{itemize}
 \end{itemize}
 
