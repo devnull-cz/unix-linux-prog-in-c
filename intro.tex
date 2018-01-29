@@ -1606,31 +1606,29 @@ Current function is bad_memory_access
 \begin{slide}
 \sltitle{GNU debugger \texttt{gdb}}
 \begin{itemize}
-\item Volání:\\
+\item Usage:\\
 \texttt{gdb [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
-\item Nejbì¾nìj¹í pøíkazy:\\
+\item Most common commands:\\
 \renewcommand{\arraystretch}{0.9}
 \begin{tabular}{ll}
-\texttt{run [\emph{arglist}]} & start programu\\
-\texttt{bt} & vypi¹ zásobník\\
-\texttt{print \emph{expr}} & vypi¹ výraz\\
-\texttt{set \emph{var} = \emph{expr}} & zmìò hodnotu promìnné\\
-\texttt{cont} & pokraèování bìhu programu\\
-\texttt{next}, \texttt{step} & proveï øádku (bez/s vnoøením do funkce)\\
-\texttt{break \emph{condition}} & nastavení breakpointu\\
-\texttt{help [\emph{name}]} & nápovìda\\
-\texttt{quit} & ukonèení debuggeru
+\texttt{run [\emph{arglist}]} & programu start\\
+\texttt{bt} & print stack\\
+\texttt{print \emph{expr}} & print expression\\
+\texttt{set \emph{var} = \emph{expr}} & change value of variable\\
+\texttt{cont} & continue program run\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{break \emph{condition}} & set breakpoint\\
+\texttt{help [\emph{name}]} & print help\\
+\texttt{quit} & debugger exit
 \end{tabular}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item GNU obdoba \texttt{dbx}. Mód kompatibilní s \texttt{dbx} spustíte pøes
-\texttt{-dbx}.
-\item na rùzných platformách existují i debuggery s grafickým
-rozhraním, napø. \texttt{workshop} (Solaris), \texttt{cvd} (IRIX),
-\texttt{xxgdb} (GNU), \texttt{ddd} (GNU). Èasto fungují jako
-nadstavby nad \texttt{dbx}, \texttt{gdb}.
+\item GNU analogy of \texttt{dbx}. The \texttt{dbx} compatibility mode can be
+enabled using the \texttt{-dbx} option.
+\item Most platforms today offer debuggers with graphical front end. Often they
+are implemented on top of \texttt{gdb}.
 
 \item \begin{verbatim}
 #include <stdio.h>
@@ -1655,12 +1653,11 @@ Continuing.
 Program exited normally.
 (gdb) q
 \end{verbatim}
-\item debuggery jsou výbornými pomocníky pokud vá¹ program konèí na chyby typu
-``segmentation error'' -- tj. kdy¾ zkusíte nekorektnì pøistoupit do pamìti,
-napøíklad tam kde nemáte co dìlat. Kdy¾ pøi pøekladu pou¾ijete option
-\texttt{-g}, uká¾e vám pak debugger pøesnì èíslo øádku, kde nastal problém.
-Konkrétní pøíklad (proè se vlastnì tento program chová jak se chová??? Hint:
-zkuste pøelo¾it na Solarisu pøekladaèem \texttt{cc} a spustit):
+\item Debuggers are great help when your program exits with
+``segmentation error'' -- i.e. when accessing memory incorrectly.
+When the \texttt{-g} option is used when compiling the debugger will be able to
+show exact line of code where the problem happened.
+Concrete example (can you tell why the program behaves in such a way ?):
 \begin{verbatim}
 $ cat -n main.c
      1  int
