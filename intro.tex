@@ -1517,52 +1517,54 @@ binaries that depend on OpenSSL even on a binary compatible micro upgrade.
 \begin{slide}
 \sltitle{Debugger \texttt{dbx}}
 \begin{itemize}
-\item Volání:\\
+\item Usage:\\
 \texttt{dbx [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
-\item Nejbì¾nìj¹í pøíkazy:\\
+\item Most common commands:\\
 \renewcommand{\arraystretch}{0.9}
 \begin{tabular}{ll}
-\texttt{run [\emph{arglist}]} & start programu\\
-\texttt{where} & vypi¹ zásobník\\
-\texttt{print \emph{expr}} & vypi¹ výraz\\
-\texttt{set \emph{var} = \emph{expr}} & zmìò hodnotu promìnné\\
-\texttt{cont} & pokraèování bìhu programu\\
-\texttt{next}, \texttt{step} & proveï øádku (bez/s vnoøením do funkce)\\
-\texttt{stop \emph{condition}} & nastavení breakpointu\\
-\texttt{trace \emph{condition}} & nastavení tracepointu\\
-\texttt{command \emph{n}} & akce na breakpointu (pøíkazy následují)\\
-\texttt{help [\emph{name}]} & nápovìda\\
-\texttt{quit} & ukonèení debuggeru
+\texttt{run [\emph{arglist}]} & program start\\
+\texttt{where} & print stack\\
+\texttt{print \emph{expr}} & print expression\\
+\texttt{set \emph{var} = \emph{expr}} & change value of variable\\
+\texttt{cont} & continue program run\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{stop \emph{condition}} & set breakpoint\\
+\texttt{trace \emph{condition}} & remove tracepoint\\
+\texttt{command \emph{n}} & action on breakpoint (commands follow)\\
+\texttt{help [\emph{name}]} & help\\
+\texttt{quit} & debugger exit
 \end{tabular}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item základní øádkový symbolický debugger, aby bylo mo¾né ho plnì vyu¾ít, musí
-být program pøelo¾en s ladicími informacemi (\texttt{cc -g}). Ladìný program se
-startuje z debuggeru pøíkazem \texttt{run}, nebo se debugger pøipojí k ji¾
-bì¾ícímu procesu. Pomocí \texttt{dbx} lze analyzovat i havarovaný program, který
-vygeneroval soubor \texttt{core}.
-\item je mo¾né ho najít napø. na Solarisu, av¹ak na Linuxu a FreeBSD defaultnì
-není.
-\item pro debugging se zdrojovými kódy nestaèí pou¾ít volbu \texttt{-g}, je
-zároveò nutné mít i zdrojáky a objektové moduly tam, kde byly pøi pøekladu. To
-je typicky bì¾ná situace, proto¾e ladíte na stroji, kde zároveò i vyvíjíte.
-Pokud tomu tak není, je nutné si zdrojáky a objektové moduly zajistit, pokud k
-nim vede jiná cesta, lze pou¾ít dbx pøíkaz \texttt{pathmap}.
-\item \texttt{gdb}-kompatibilní mód se spustí pøes \texttt{gdb on}. Pokud vás
-zajímá, jaký má \texttt{dbx} ekvivalentní pøíkaz ke konkrétnímu \texttt{gdb}
-pøíkazu, pomù¾e vám \texttt{help FAQ}; hned první otázka je ``A.1  Gdb does
-$<$something$>$; how do I do it in dbx?''
-\item pokud nepou¾ijete pøepínaè -g, bude vám dbx na Solarisu stále
-platný, proto¾e zobrazí argumenty funkcí. U BSD systémù a linuxových distribucí
--g pou¾ít musíte, jinak vám debuggery moc nepomohou. Kdy je to na Solarisu
-platné i bez -g je v vidìt v pøíkladu \example{debug/dbx.c}. Pøi kompilaci
-s gcc a pou¾ití gdb neuká¾e pøíkaz \texttt{where} parametry funkce
-\texttt{crash()} zatímco se Solaris Studio kompilerem a debuggerem dbx se
-parametry funkce vypí¹í, tak¾e je vidìt hodnota která se pøiøazovala.
-\item pøíklad: \example{debug/coredump.c}. Po pøelo¾ení a spu¹tìní program
-spadne a zanechá core dump.
+\item Basic line oriented debugger with symbols; to fully use it the program to
+be debugged has to be compiled with debuggin data (\texttt{cc -g}). The program
+is then started from debugger using the \texttt{run} command, or the debugger
+can be connected to already running process. \texttt{dbx} can also be used to
+analyze program crashes, provided a \texttt{core} file was generated.
+\item It is possible to find it e.g. on Solarisu, it is not present by default
+on other systems.
+\item For source line debugging it is not necessary to use just the \texttt{-g}
+option for translation, it is also necessary to have the object files and source
+files available in the same location as they were used for compilation.
+This is typically true when debugging on the system where writing code.
+For other uses cases it is necessary to provide the needed files, the dbx
+command \texttt{pathmap} can help with that.
+\item \texttt{gdb}-compatible mode can be enabled using \texttt{gdb on}.
+If you want to know what is the \texttt{dbx} equivalent command to concrete
+\texttt{gdb} command, see the \texttt{help FAQ}; the very first question is
+``A.1  Gdb does $<$something$>$; how do I do it in dbx?''
+\item If the option \texttt{-g} is not used, dbx will be still usable on
+Solarisu, because it will print function arguments. On BSD systems and Linux
+distributions the \texttt{-g} has to be used, otherwise the debuggers will not
+be of much use. This is demonstrated in the \example{debug/dbx.c} example.
+When compiling with gcc and using gdb the \texttt{where} command will not show
+the function parameters, while on Solaris with the Studio compiler and dbx
+debugger the function parameters will be shown.
+\item Example: \example{debug/coredump.c}. After compilation and running the
+program will crash and core dump will be generated (if permitted on the system;
+also see \texttt{ulimit -c})
 
 \begin{verbatim}
 $ cc coredump.c
@@ -1580,11 +1582,9 @@ program terminated by signal SEGV (no mapping at the fault address)
   [2] main(0x1, 0x8047a50, 0x8047a58, 0x8047a0c), at 0x8050a1b 
 \end{verbatim}
 
-Vidíme, ve které funkci to spadlo a je mo¾né se vypsat zásobník. Nevidíme ale
-pøesnì øádku kódu, kde nastal problém. Pro to je nutné pøelo¾it program s
-ladícími symboly, tj. ``\texttt{cc -g coredump.c}''. Zájemce o více informací o
-debugging pod unixem odkazuji na navazující pøedná¹ku ``Programování v UNIXu
-II.'' (NSWI138).
+Based on the above it is possible to say in which function the program crashed.
+What we cannot see is the exact line in the code. For that the program has to be
+compiled with debugging symbols, i.e. ``\texttt{cc -g coredump.c}''.
 
 \begin{verbatim}
 $ cc -g coredump.c
@@ -1600,7 +1600,6 @@ Current function is bad_memory_access
 \end{verbatim}
 
 \end{itemize}
-
 
 %%%%%
 
