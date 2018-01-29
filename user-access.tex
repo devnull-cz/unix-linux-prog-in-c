@@ -385,15 +385,15 @@ IDs of the calling process and returns number of all GIDs of the process.
 \end{slide}
 
 \begin{itemize}
-\item pro reálné UID je volání \texttt{getuid}, volání \texttt{getruid}
-neexistuje
-\item \texttt{getgroups}: kdy¾ \texttt{gidsz~==~0}, jen vrátí poèet
-skupin.  Kdy¾ \texttt{0 < gidsz < \#skupin}, vrátí \texttt{-1}.
-\item v UNIXu je mnoho typù jako \verb#uid_t#, \verb#gid_t#,
-\verb#size_t#, apod. Vesmìs jsou to celoèíselné typy, èasto je
-najdete v \texttt{/usr/inc{}lude/sys/types.h}
-\item Solaris má pøíkaz \texttt{pcred}, který jednodu¹e zobrazí informace o
-identifikaci procesu:
+\item The \texttt{getuid} returns real UID, there is nothing like
+\texttt{getruid}.
+\item \texttt{getgroups}: when \texttt{gidsz~==~0}, it returns the number of
+groups. When \texttt{0 < gidsz < \#skupin}, it returns \texttt{-1}.
+\item In UNIXu there are many data types such as \verb#uid_t#, \verb#gid_t#,
+\verb#size_t#, etc. Generally these are integer types, you can often find them
+in the \texttt{/usr/inc{}lude/sys/types.h} header file.
+\item Solaris has the \texttt{pcred} command, that will print process
+idenfitication information in simple form:
 \begin{verbatim}
 $ pcred 5464
 5464:   e/r/suid=1993  e/r/sgid=110
@@ -425,30 +425,25 @@ by superuser process.
 \end{slide}
 
 \begin{itemize}
-\item o nastavení UID pro proces s EUID 0 viz také poznámky na stranì
+\item W.r.t. setting UID for a process with EUID 0 see also the notes on page
 \pageref{ROOT_SETUID}.
-\item co vý¹e uvedené tedy znamená: proces s efektivními právy superu¾ivatele
-mù¾e libovolnì mìnit identitu. Ostatní procesory mohou pouze støídat svá
-reálná a efektivní práva.
-\item program \emph{login} vyu¾ívá volání \texttt{setuid}
-\item pokud chce process s UID~==~0 zmìnit svou identitu, musí
-nejprve volat \texttt{setgid} a \texttt{setgroups}. Teprve pak
-lze zavolat \texttt{setuid}. Pøi opaèném poøadí volání by proces
-po provedení \texttt{setuid} u¾ nemìl práva na \texttt{setgid} a
-\texttt{setgroups}.
-\item \texttt{setgroups} není uvedeno v UNIX~98 ani UNIX~03.
-\item RUID/EUID jsou ulo¾ené v záznamu tabulky procesù pro pøíslu¹ný proces a
-zároveò v tzv. \emph{u-area} (viz napøíklad [Bach]). EUID v tabulce procesù se
-nazývá ji¾ zmínìné uschované UID, neboli \emph{saved UID}.  Jak ji¾ bylo
-øeèeno, uschované UID se pou¾ívá pro kontrolu, kdy¾ se proces chce vrátit k
-EUID, se kterým byl spu¹tìn (po té, co doèasnì nastavil své EUID na UID
-u¾ivatele, který proces spustil, tj. na RUID).
-\item pokud tedy jako root vytvoøíte SUID program a v nìm zavoláte
-\texttt{setuid} pro jakéholi UID mimo 0, ji¾ se v programu k EUID==0 nemù¾ete
-vrátit (je to logické -- pøedstavte si situaci, kdy se u¾ivatel loguje do
-systému). V tom pøípadì byste museli pou¾ít volání \texttt{seteuid}, které
-nastavuje pouze EUID.
-\item pøíklad: \example{setuid/screate-file.c}
+\item To recap the above: a process with effective rights of superuser can
+arbitrarily change its identity. The rest can only switch between its read and
+effective IDs.
+\item The \emph{login} program uses the \texttt{setuid} syscall.
+\item If a process with UID~==~0 wants to change its identity, it has to call
+\texttt{setgid} first and then \texttt{setgroups}. Only after that it can call
+\texttt{setuid}. Any other ordering would mean that the process would lack the
+rights to perform the opearation in question, e.g. once \texttt{setuid} returns
+it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
+\item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
+\item RUID/EUID are saved in in kernel process structure and also in the so
+called \emph{u-area} (see e.g. [Bach]).
+\item If a root SUID program calls \texttt{setuid} for UID other than 0, it can
+no longer return to EUID==0 (this makes sense, imagine a user logging into the
+system). For different behavior \texttt{seteuid} (that sets just EUID) would
+have to be used.
+\item Example: \example{setuid/screate-file.c}
 \end{itemize}
 
 \pdfbookmark[1]{file system}{filesys}
