@@ -449,38 +449,38 @@ have to be used.
 \pdfbookmark[1]{file system}{filesys}
 
 \begin{slide}
-\sltitle{Systém souborù}
+\sltitle{File system}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item adresáøe tvoøí strom, spolu se soubory acyklický graf (na
-jeden soubor mù¾e existovat více odkazù). 
-\item ka¾dý adresáø navíc obsahuje odkaz na sebe '\texttt{.}'
-(teèka) a na nadøazený adresáø '\texttt{..}' (dvì teèky). 
-\item pomocí rozhraní systému souborù se pøistupuje i k dal¹ím
-entitám v~systému: 
+\item directories form a tree; together with files acyclical graph
+(one file can have multiple references).
+\item each directory also contains reference to itself '\texttt{.}'
+(dot) and to its parent directory '\texttt{..}' (two dots). 
+\item using file system interfaces it is possible to access other system
+entities such as:
     \begin{itemize2}
 \setlength{\itemsep}{-3pt}
 \setlength{\topsep}{0pt}
-    \item periferní zaøízení 
-    \item pojmenované roury 
-    \item sokety
-    \item procesy (\texttt{/proc}) 
-    \item pamì» (\texttt{/dev/mem}, \texttt{/dev/kmem}) 
-    \item pseudosoubory (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
+    \item peripheal devices
+    \item named pipes
+    \item sockets
+    \item processes (\texttt{/proc}) 
+    \item memory (\texttt{/dev/mem}, \texttt{/dev/kmem}) 
+    \item pseudo files (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
     \end{itemize2}
-\item z pohledu jádra je ka¾dý obyèejný soubor pole bajtù. 
-\item v¹echny (i sí»ové) disky jsou zapojeny do jednoho stromu.
+\item from kernel's perspective each regular file is an array of bytes.
+\item all (including network) dirves are connected to single tree.
 \end{itemize}
 \end{slide}
 
 \label{DEVFS}
 
 \begin{itemize}
-\item zaøízení, soubory v \texttt{/proc}, terminály, pamì» atd. jsou v¹echno
-jeden typ souborù - speciální soubory. Dal¹í typy souborù - regulární soubor
-(hardlink), adresáø, pojmenovaná roura, socket, symbolický link.
-\item novì vytvoøený adresáø má na sebe 2 odkazy -- jeden z nadøazeného
-adresáøe, a jeden sám na sebe, '\texttt{.}':
+\item Devices, files in \texttt{/proc}, terminals, memory etc. are of one type
+- special files. More types: regular file (hardlink), directory, named pipe,
+socket, symbolic link.
+\item Newly created directory has 2 references to itself -- one from its parent
+directory and one of itself, '\texttt{.}':
 
 \begin{verbatim}
 $ mkdir test
@@ -488,24 +488,23 @@ $ ls -ld test
 drwx------   2 janp     staff        512 Mar 23 12:46 test
 \end{verbatim}
 
-\item root mù¾e v nìkterých systémech strukturu adresáøù zacyklit, ale tím
-zmate utility pro procházení filesystému; moc se cyklické struktury
-nepou¾ívají. Symbolické linky na adresáøe fungují v¹ude.
-\item pojmenované roury (viz strana \pageref{MKFIFO}) lze pou¾ít i mezi
-procesy, které nejsou pøíbuzensky spøíznìné. Jinak fungují stejnì jako
-nepojmenované roury.
-\item zmiòované sokety jsou v doménì UNIX, tj. slou¾í pro komunikaci v rámci
+\item The root user can in some systems create cycle in directory structure
+however that might confuse file system traversal tools; hence the cyclical
+structure is not used much. Symbolic links to directories work everywhere.
+\item Named pipes (see page \pageref{MKFIFO}) can be used between processes
+that do not have ''family'' relationship. Otherwise they work as unnamed pipes.
+\item The sockets noticed above are in the UNIX domain, i.e. they serve for
+communication within one system. The INET domain sockets, used for network
+communication (see page \pageref{NETWORKING}) are not visible in the file system. 
 jednoho systému. Sokety z domény INET, pøes které probíhá sí»ová komunikace,
 se v systému souborù neobjevují. Sí»ová komunikace zaèíná na stranì
-\pageref{NETWORKING}.
-\item debuggery pou¾ívají pamì»ové obrazy procesù dostupné v \texttt{/proc}.
-Ve vìt¹inì u{}nix-like systémù obsahuje podstrom \texttt{/proc} údaje o jádru
-systému a bì¾ících procesech ve formì textových souborù.
-\item dne¹ní moderní unixy mívají speciální filesystém \emph{devfs}, jeho¾
-obsah odrá¾í aktuální konfiguraci systému co se týèe pøipojených zaøízení. Tj.
-napø. pøi pøipojení USB sticku se v \texttt{/dev} objeví pøíslu¹né diskové
-zaøízení. Po fyzickém odpojení zaøízení odkaz z adresáøové struktury opìt
-zmizí.
+\item Debuggers use process images available through \texttt{/proc}.
+On most of u{}nix-like systems the \texttt{/proc} tree contains informations
+about kernel and running processes in the form of text files.
+\item Modern Unixes contain special \emph{devfs} filesystem, which reflects
+actual system configuration w.r.t. connected devices. I.e. after connecting
+USB stick a related device will appear under \texttt{/dev}. After physically
+disconnecting it, the item will disappear.
 \end{itemize}
 
 \endinput
