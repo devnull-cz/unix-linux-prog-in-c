@@ -145,30 +145,30 @@ history, go check \url{https://www.levenez.com/unix/}.
 \pdfbookmark[1]{UNIX standards}{unixstd}
 
 \begin{slide}
-\sltitle{Standardy UNIXu}
+\sltitle{UNIX standards}
 \begin{itemize}
 \renewcommand{\baselinestretch}{0.8}
 \item \emsl{SVID} (System~V Interface Definition) 
     \begin{itemize2}
-    \item \uv{fialová kniha}, kterou AT\&T vydala poprvé v roce 1985
-    \item dnes ve verzi SVID3 (odpovídá SVR4) 
+    \item \uv{purple book}, published by AT\&T first in 1985
+    \item today at version SVID4 from 1995 (SVID3 corresponds to SVR4)
     \end{itemize2}
 \item \emsl{POSIX} (Portable Operating System based on UNIX)
     \begin{itemize2}
-    \item série standardù organizace IEEE znaèená P1003.xx, postupnì je
-    pøejímá vrcholový nadnárodní orgán ISO 
+    \item family or standards published by the IEEE organization marked
+    P1003.xx, gradually incorporated into ISO standards
     \end{itemize2}
 \item \emsl{XPG} (X/Open Portability Guide) 
     \begin{itemize2}
-    \item doporuèení konsorcia X/Open, které bylo zalo¾eno v r. 1984 pøedními
-    výrobci platforem typu UNIX
+    \item recommendation of the X/Open consortium, that was founded in 1984
+    by leading UNIX platform companies
     \end{itemize2}
 \item \emsl{Single UNIX Specification}
     \begin{itemize2}
-    \item standard organizace The Open Group, vzniklé v roce 1996 slouèením
-    X/Open a OSF 
-    \item dnes Version~4 (\emsl{SUSv4})
-    \item splnìní je nutnou podmínkou pro u¾ití obchodního názvu UNIX
+    \item standard of the The Open Group organization founded in 1996 via
+    merging X/Open and OSF 
+    \item today at Version~4 (\emsl{SUSv4})
+    \item the compliance is requisite condition for using the UNIX trademark
     \end{itemize2}
 \end{itemize}
 \end{slide}
@@ -176,46 +176,49 @@ history, go check \url{https://www.levenez.com/unix/}.
 \label{UNIXSTANDARDS}
 
 \begin{itemize}
-\item základní informace je, ¾e oblast standardù týkající se unixových systémù
-je vìc znaènì slo¾itá a na první pohled velmi nepøehledná.
-\item AT\&T dovolila výrobcùm nazývat svoji komerèní UNIX variantu ``System
-V'' pouze pokud splòovala podmínky standardu SVID. AT\&T také publikovala
-\emph{System~V Verification Suite} (SVVS), které ovìøilo, zda daný systém
-odpovídá standardu. 
-\item POSIX (Portable Operating System Interface) je standardizaèní snaha
-organizace IEEE (Institute of Electrical and Electronics Engineers).
-\item SUSv4 je spoleèný standard The Open Group, IEEE (Std. 1003.1, 2008
-Edition) a ISO (ISO/IEC 9945-2008).
-\item Pro certifikaci operaèního systému na Single Unix Specification
-je nutné aby systém (na dané architektuøe, napø. 64-bit x86) pro¹el sadou
-testù. Výsledky testù jsou pak vyhodnoceny. Testy samotné jsou sdru¾eny
-do tzv. \emph{test suites}, co¾ jsou sady automatických testù, které
-projdou systém a zjistí jestli splòuje rozhraní dané normou.
-Pro SUSv3 je takových test suites cca 10.
-\item Rozhraní specifikované normou POSIX.1-2008 se dìlí na 4
-základní skupiny: XSH (System Interfaces), XCU (Shell and Utilities), XBD
-(Base definitions). Z nich je co do poètu
-rozhraní nejobsáhlej¹í XSH, která popisuje více ne¾ 1000 rozhraní.
-\item Skupiny rozhraní POSIXu spolu se skupinou Xcurses, která je souèástí
-Single Unix Specification (ale nikoliv souèást POSIX báze v normì IEEE Std
-1003.1-2001) zahrnují celkem 1742 rozhraní, které tvoøí Single Unix
-Specification (2003). Tabulky rozhraní SUS je mo¾né získat zde:
+\item The very basic information is that the area of UNIX standards is very
+complex and incomprehensible on a first sight.
+\item AT\&T allowed the producers to call its own commercial UNIX variant
+``System V'' only if it complied to the SVID standard conditions. AT\&T also
+published \emph{System~V Verification Suite} (SVVS), that checked whether given
+system complies to the standard.
+\item POSIX (Portable Operating System Interface) is standardization effort
+of the IEEE organization (Institute of Electrical and Electronics Engineers).
+\item SUSv4 is common standard of The Open Group, IEEE (Std. 1003.1, 2008
+Edition) and ISO (ISO/IEC 9945-2008).
+\item To certify given system to Single Unix Specification it is necessary
+to pass a series of tests (on given architecture, e.g. 64-bit x86).
+The results of the tests are then evaluated. The tests itself are unified into
+so called \emph{test suites}, which are sets of automatic tests that go through
+the system and verify if it implements the interfaces specified in the standard.
+For example for SUSv3 there are 10 such test suites.
+\item The interfaces specified by the POSIX.1-2008 standard are divided into 4
+basic groups: XSH (System Interfaces), XCU (Shell and Utilities), XBD
+(Base definitions). W.r.t. number of interfaces the biggest of them is XSH that
+contains more than 1000 interfaces.
+\item The interface groups of POSIX together with the Xcurses group, that is
+part of Single Unix Specification (however not part of POSIX base in the IEEE Std
+1003.1-2001 standard) includes 1742 interfaces in total, which form Single Unix
+Specification (2003). The SUS interface tables are here:
 \url{http://www.unix.org/version3/inttables.pdf}
-\item komerèní UNIXy vìt¹inou sledují Single UNIX Specification, splnìní této
-normy je právì podmínkou pro u¾ití názvu UNIX (znaèka UNIX 98 odpovídá
-SUSv2, znaèka UNIX 03 odpovídá SUSv3, SUSv4 je UNIX V7 - neplést s historickým
-V7 UNIX). Je postavena na bázi POSIXu. My se budeme dr¾et SUSv4. Popis datových
-struktur a algoritmù jádra v tomto materiálu bude vìt¹inou vycházet ze
-System~V Rel.~4.
-\item na Solarisu je obsáhlá manuálová stránka \texttt{standards(5)}, kde mù¾ete
-na jednom místì nalézt mnoho informací týkající se standardù. Jednotlivé pøíkazy
-splòující danou normu jsou navíc umístìny do vyhrazených adresáøù. Napø.
-program \texttt{tr} je v adresáøích \texttt{/usr/xpg4/bin/} a
-\texttt{/usr/xpg6/bin/}, v ka¾dém je verze pøíkazu splòující danou normu.
-Na pøepínaèe a chování dané normou se pak lze spolehnout napø. pøi psaní
-shellových skriptù.
-\item opìt na Solarisu, podívejte se na hlavièkový soubor
-\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h}
+\item Commercial UNIXes largely follow the Single UNIX Specification, compliance
+to this standard is the condition to use the UNIX trademark 
+(the UNIX 98 brand corresponds to SUSv2, UNIX 03 corresponds to SUSv3, SUSv4 is
+UNIX V7 - do not mix it up with historical V7 UNIX). It is built on the POSIX
+base.
+\item We are going to follow SUSv4 for APIs in this lecture. The data structure
+definitions and algorithms used by kernel will be mostly based on
+System~V Rel.~4 to keep things simple.
+\item On Solaris there is a extensive \texttt{standards(5)} manual page, where
+lots of information about standards can be found in one place.
+Individual commands compliant to the standard are moreover placed
+into special directories, e.g. the \texttt{tr} program is located in
+\texttt{/usr/xpg4/bin/} and \texttt{/usr/xpg6/bin/} directories, in each there
+is a version of the program compliant to the respective standard.
+The options and behavior specified by the standard can be then relied on e.g.
+when writing shell scripts.
+\item Also on Solaris, look into the
+\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h} header file.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
