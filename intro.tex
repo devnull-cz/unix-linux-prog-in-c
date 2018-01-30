@@ -229,20 +229,20 @@ when writing shell scripts.
 \sltitle{POSIX}
 \begin{itemize}
 \renewcommand{\baselinestretch}{0.8}
-\item tvrzení ``tento systém je POSIX kompatibilní'' nedává ¾ádnou konkrétní
-informaci
+\item statements like ``this system is POSIX compatible'' do not give any
+concrete information whatsoever
 \begin{itemize}
-\item asi podporuje POSIX1990 a mo¾ná i nìco dal¹ího (co?)
+\item it might comply to POSIX1990 -- what else ?
+\item given person either does not know what is POSIX or thinks you do not know
+\item the only reasonable reaction is ``what POSIX?''
 \end{itemize}
-\item dotyèný buï neví co je POSIX nebo si myslí, ¾e to nevíte vy
-\item jediná rozumná reakce je otázka ``jaký POSIX?''
-\item POSIX je \emsl{rodina standardù}
-\item prvním dokumentem je \emph{IEEE Std POSIX1003.1-1988}, pozdìji po vzniku
-dal¹ích roz¹íøení neformálnì odkazovaný jako POSIX.1
-\item poslední verze POSIX.1 je \emph{IEEE Std 1003.1, 2004 Edition}
+\item POSIX is \emsl{family of standards}
+\item the first document is \emph{IEEE Std POSIX1003.1-1988}, later after the
+introduction of extensions referred to informally as POSIX.1
+\item last version of POSIX.1 is \emph{IEEE Std 1003.1-2008, 2016 Edition}
 \begin{itemize}
-\item obsahuje v sobì ji¾ i to, co døíve definoval POSIX.2 (Shell and Utilities)
-a rùzná, døíve samostatná roz¹íøení
+\item contains even content formerly defined by POSIX.2 (Shell and Utilities)
+and miscellaneous, formerly standalone extensions.
 \end{itemize}
 \end{itemize}
 \end{slide}
@@ -250,38 +250,38 @@ a rùzná, døíve samostatná roz¹íøení
 \label{POSIX}
 
 \begin{itemize}
-\item prvním dokumentem je \emph{IEEE Std POSIX1003.1-1988}, døíve oznaèovaný
-pros\-tì jako POSIX, pak odkazovaný jako \emph{POSIX.1}, proto¾e POSIXem se nyní
-míní sada vzájemnì souvisejících standardù. POSIX.1 v té dobì obsahoval
-programovací API, tj. práce s procesy, signály, soubory, èasovaèi atd. S malými
-zmìnami byl pøevzat organizací ISO (\emph{ISO 9945-1:1990}), a je
-oz\-na\-èo\-va\-ný i
-jako POSIX1990. IEEE oznaèení je \emph{IEEE Std POSIX1003.1-1990}. Tento
-standard byl sám o sobì velký úspìch, ale stále je¹tì nespojoval tábory System~V
-a BSD, proto¾e v sobì napøíklad nezahrnoval BSD sockety nebo IPC (semafory,
-zprávy, sdíl{}ená pamì») ze System~V. Souèástí standardu je i ``POSIX
-conformance test suite (PCTS)'', který je volnì k dispozici.
-\item oznaèení POSIX vymyslel Richard Stallman, tedy èlovìk, který v roce 1983
-zalo¾il GNU projekt.
-\item dùle¾itá ro¾¹íøení k IEEE Std 1003.1-1990 (jsou souèástí IEEE Std 1003.1,
-2004 Edition):
+\item The first document is \emph{IEEE Std POSIX1003.1-1988}, formerly simply
+referred to as POSIX, then referenced as \emph{POSIX.1}, because by POSIX it is
+currently meant a set of related standards. POSIX.1 in back then contained
+programming API, i.e. work with proceses, signals, files, timers etc.
+It was accepted by the ISO organization (\emph{ISO 9945-1:1990}) With small
+changes and is referred to as POSIX1990. IEEE reference is
+\emph{IEEE Std POSIX1003.1-1990}. This standard was a great success on its own
+however still did not connect the System~V and BSD camps, because it did not
+contain BSD sockets or System~V IPC (semaphores, messages, shared memory).
+Part of the standard is the ``POSIX conformance test suite (PCTS)'', which is
+freely available.
+\item The POSIX brand was conceived by Richard Stallman, who founded the GNU
+project in 1983.
+\item Important extensions of IEEE Std 1003.1-1990 (they are part of IEEE Std
+1003.1, 2004 Edition):
 \begin{itemize}
-\item \emph{IEEE Std 1003.1b-1993 Realtime Extension}, neformálnì známý jako
-POSIX.4, proto¾e to bylo jeho pùvodní oznaèení pøed pøeèíslováním; já budu toto
-roz¹íøení nìkdy také nazývat POSIX.4. Vìt¹ina tohoto roz¹íøení je nepovinná,
-tak¾e tvrzení ``systém podporuje POSIX.1b'' má je¹tì hor¹í vypovídací hodnotu
-ne¾ ``systém je POSIX kompatibilní'', a to prakticky nulovou. Jediná povinná
-èást POSIX.4 je malé doplnìní k signálùm oproti POSIX1990. Je proto nutné v¾dy
-uvést, co z POSIX.4 je implementováno -- napø. sdíl{}ená pamì», semafory,
-real-time signály, zamykání pamìti, asynchronní I/O, èasovaèe atd.
-\item \emph{IEEE Std 1003.1c-1995 Threads}, viz strana \pageref{POSIXTHREADS}.
+\item \emph{IEEE Std 1003.1b-1993 Realtime Extension}, informally known as
+POSIX.4, because that was its original naming before renumbering.
+Most of this extension is optional, therefore the claim ``system supports
+POSIX.1b'' gives even worse testimony that ``system is POSIX compatible'', i.e.
+practially zero. The only mandatory part of POSIX.4 is simple addendum to
+signals compared to POSIX1990. It is therefore always necessary to state
+what exactly out of POSIX.4 is implemented -- e.g. shared memory, semaphores,
+real-time signals, memory locking, asynchronous I/O, timers, etc.
+\item \emph{IEEE Std 1003.1c-1995 Threads}, see page \pageref{POSIXTHREADS}.
 \item \emph{IEEE Std 1003.1d-1999 Additional Realtime Extensions}
-\item \emph{IEEE Std 1003.1j-2000 Advanced Realtime Extensions}, viz strana
+\item \emph{IEEE Std 1003.1j-2000 Advanced Realtime Extensions}, see page
 \pageref{RWLOCKS}.
 \item \dots
 \end{itemize}
-\item standardy POSIX je mo¾né nalézt na \url{http://www.open-std.org/}.
-HTML verze je volnì k prohlí¾ení, za PDF verzi se platí.
+\item The POSIX standars can be found on \url{http://www.open-std.org/}.
+The HTML version is freely available, PDF documents have to be paid.
 \end{itemize}
 
 
