@@ -1316,7 +1316,7 @@ use \texttt{otool -L} instead.
 \item What libraries are eventually used when running the program could be
 different from what \texttt{ldd} shows.  For example, 
 one could use the \texttt{LD\_PRELOAD} mechanism.  For that reasons,
-Solarisu has a \texttt{pldd} command which provides for a running process
+Solaris has a \texttt{pldd} command which provides for a running process
 library dependencies.  Example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
 already mentioned \texttt{Ma\-ke\-file01}, and compile
 \example{basic-utils/preload.c} like this: ``\texttt{gcc -shared -o
@@ -1543,7 +1543,7 @@ be debugged has to be compiled with debuggin data (\texttt{cc -g}). The program
 is then started from debugger using the \texttt{run} command, or the debugger
 can be connected to already running process. \texttt{dbx} can also be used to
 analyze program crashes, provided a \texttt{core} file was generated.
-\item It is possible to find it e.g. on Solarisu, it is not present by default
+\item It is possible to find it e.g. on Solaris, it is not present by default
 on other systems.
 \item For source line debugging it is not necessary to use just the \texttt{-g}
 option for translation, it is also necessary to have the object files and source
@@ -1556,7 +1556,7 @@ If you want to know what is the \texttt{dbx} equivalent command to concrete
 \texttt{gdb} command, see the \texttt{help FAQ}; the very first question is
 ``A.1  Gdb does $<$something$>$; how do I do it in dbx?''
 \item If the option \texttt{-g} is not used, dbx will be still usable on
-Solarisu, because it will print function arguments. On BSD systems and Linux
+Solaris, because it will print function arguments. On BSD systems and Linux
 distributions the \texttt{-g} has to be used, otherwise the debuggers will not
 be of much use. This is demonstrated in the \example{debug/dbx.c} example.
 When compiling with gcc and using gdb the \texttt{where} command will not show
