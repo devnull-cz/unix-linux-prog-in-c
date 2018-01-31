@@ -56,34 +56,30 @@ that private semaphores can be inherited across \texttt{fork} as well.
 \sltitle{System V semaphore API: \texttt{semctl()}}
 \setlength{\baselineskip}{0.9\baselineskip}
 \begin{itemize}
-\item \texttt{semnum} \dots{} èíslo semaforu v poli 
-\item mo¾né hodnoty \texttt{cmd}: 
+\item \texttt{semnum} \dots{} number of semaphore in the array
+\item possible values of \texttt{cmd}: 
     \begin{itemize}
-    \item \texttt{GETVAL} \dots{} vrátí hodnotu semaforu 
-    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{nastaví semafor na hodnotu}
+    \item \texttt{GETVAL} \dots{} returns semaphore value
+    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{sets semaphore to value}
     \texttt{arg.val}
-    \item \texttt{GETPID} \dots{} PID procesu, který provedl
-    poslední operaci 
-    \item \texttt{GETNCNT} \dots{} poèet procesù èekajících na vìt¹í
-    hodnotu 
-    \item \texttt{GETZCNT} \dots{} poèet procesù èekajících na nulu 
-    \item \texttt{GETALL} \dots{} ulo¾í hodnoty v¹ech semaforù do
-    pole
+    \item \texttt{GETPID} \dots{} PID of the process that performed the last op.
+    \item \texttt{GETNCNT} \dots{} number of processes waiting on bigger value
+    \item \texttt{GETZCNT} \dots{} number of processes waiting for zero value
+    \item \texttt{GETALL} \dots{} saves the values of all semaphores to
     \texttt{arg.array}
-    \item \texttt{SETALL} \dots{} nastaví v¹echny semafory podle
+    \item \texttt{SETALL} \dots{} sets all sem. values according to
     \texttt{arg.array}
-    \item \texttt{IPC\_STAT} \dots{} do \texttt{arg.buf} dá poèet
-    semaforù, pøístupová práva a èasy posledních \texttt{semctl()} a
-    \texttt{semop()}
-    \item \texttt{IPC\_SET} \dots{} nastaví pøístupová práva 
-    \item \texttt{IPC\_RMID} \dots{} zru¹í pole semaforù
+    \item \texttt{IPC\_STAT} \dots{} saves number of semaphores, access rights,
+times of the last \texttt{semctl()} and \texttt{semop()} into \texttt{arg.buf}
+    \item \texttt{IPC\_SET} \dots{} sets access rights
+    \item \texttt{IPC\_RMID} \dots{} destroys the semaphore array
     \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item volání \texttt{semctl(semid, semnum, SETVAL, arg)} odpovídá obecné
-semaforové inicializaèní operaci \texttt{init(s,~n)}.
+\item The \texttt{semctl(semid, semnum, SETVAL, arg)} call corresponds to
+generic semaphore operation \texttt{init(s,~n)}.
 \end{itemize}
 
 %%%%%
@@ -91,40 +87,39 @@ semaforové inicializaèní operaci \texttt{init(s,~n)}.
 \begin{slide}
 \sltitle{System V semaphore API: \texttt{semop()}}
 \begin{itemize}
-\item operace se provádí atomicky (tj. buï se povede pro v¹echny
-semafory, nebo pro ¾ádný) na \texttt{nsops} semaforech podle pole
-\texttt{sops} struktur \texttt{struct~sembuf}, která obsahuje: 
+\item operation is performed atomically (i.e. either it will be done for all
+semaphores or none) on \texttt{nsops} semaphores according to the array
+\texttt{sops} of structures \texttt{struct~sembuf}, that contains:
     \begin{itemize}
-    \item \texttt{sem\_num} \dots{} èíslo semaforu 
-    \item \texttt{sem\_op} \dots{} operace 
+    \item \texttt{sem\_num} \dots{} semaphore number
+    \item \texttt{sem\_op} \dots{} operation
         \begin{itemize}
-        \item \texttt{P(sem\_num, abs(sem\_op))} pro \texttt{sem\_op < 0}
-        \item \texttt{V(sem\_num, sem\_op)} pro \texttt{sem\_op > 0}
-        \item èekání na nulovou hodnotu semaforu pro \texttt{sem\_op == 0} 
+        \item \texttt{P(sem\_num, abs(sem\_op))} for \texttt{sem\_op < 0}
+        \item \texttt{V(sem\_num, sem\_op)} for \texttt{sem\_op > 0}
+        \item waiting on zero semaphore value for \texttt{sem\_op == 0} 
         \end{itemize}
-    \item \texttt{sem\_flg} \dots{} OR-kombinace 
+    \item \texttt{sem\_flg} \dots{} OR-combination
         \begin{itemize}
-        \item \texttt{IPC\_NOWAIT} \dots{} kdy¾ nelze operaci hned provést,
-        neèeká a vrátí chybu 
-        \item \texttt{SEM\_UNDO} \dots{} pøi ukonèení procesu vrátit
-        operace se semaforem
+        \item \texttt{IPC\_NOWAIT} \dots{} when the operation cannot be
+        performed it does not wait and returns error
+        \item \texttt{SEM\_UNDO} \dots{} upon process exit undo the semaphore
+        operations
         \end{itemize}
     \end{itemize}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item atomiènost pøes mno¾inu semaforù zajistí, ¾e nedojde k deadlocku
-v následující situaci: dva procesy $A$ a $B$ budou pou¾ívat dva semafory k
-øízení pøístupu (zamykání) ke dvìma systémovým zdrojùm. Proces $A$ je bude
-zamykat v poøadí $(0, 1)$ a proces $B$ v poøadí $(1, 0)$. Ve chvíli,
-kdy proces $A$ zamkne semafor $0$ a $B$ zamkne $1$, dojde k
-deadlocku, proto¾e ani jeden proces nemù¾e pokraèovat (potøeboval by
-zamknout druhý semafor). Pøi pou¾ití atomické operace zamèení obou
-semaforù najednou bude úspì¹ný v¾dy právì jeden proces, který získá
-oba semafory, druhý bude èekat.
-\item \texttt{SEM\_UNDO} zajistí, ¾e pøi ukonèení procesu dojde k odemèení
-semaforù (po\-u\-¾i\-tých jako zámky), které tento proces mìl zamèené.
+\item The atomicity across the array avoids deadlock e.g. in this situation:
+two processes $A$ and $B$ will be using two semaphores for synchronization of
+access to two system resources. $A$ will lock in the $(0, 1)$ order and process
+$B$ will use the $(1, 0)$ order. In the moment when process $A$ locks semaphore
+$0$ and $B$ locks $1$, deadlock will happen because neither process can
+continue due to cyclical dependency. Using atomic operation of both semaphores
+means the operation will be successful only for one process that acquires both
+semaphores, the other will wait.
+\item \texttt{SEM\_UNDO} ensures that upon process exit the semaphore that were
+locked by the process (used as locks) will become unlocked.
 \end{itemize}
 
 %%%%%
