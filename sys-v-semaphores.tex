@@ -129,38 +129,36 @@ locked by the process (used as locks) will become unlocked.
 \begin{slide}
 \sltitle{Creating System V IPC resources}
 \begin{itemize}
-\item jeden proces prostøedek vytvoøí, ostatní se k nìmu pøipojí. 
-\item po skonèení pou¾ívání je tøeba prostøedek IPC zru¹it. 
-\item funkce \texttt{semget()}, \texttt{shmget()} a
-\texttt{msgget()} mají jako první parametr klíè identifikující
-prostøedek IPC. Skupina procesù, která chce komunikovat, se musí
-domluvit na spoleèném klíèi. Rùzné skupiny komunikujících procesù by
-mìly mít rùzné klíèe. 
+\item one process creates the resources, other connect to it.
+\item after being done with the resource, it has to be destroyed.
+\item \texttt{semget()}, \texttt{shmget()} and
+\texttt{msgget()} have the key identifying the resource as a first argument.
+Group of processes that want to communicate has to agree on common key.
+Different groups of communicating processes should have different keys.
 \end{itemize}
 \texttt{key\_t \funnm{ftok}(const char *\emph{path}, int \emph{id});}
 \begin{itemize}
-\item vrátí klíè odvozený ze zadaného jména souboru \texttt{path} a
-èísla \texttt{id}. Pro stejné \texttt{id} a libovolnou cestu
-odkazující na stejný soubor vrátí stejný klíè. Pro rùzná \texttt{id}
-nebo rùzné soubory na stejném svazku vrátí rùzné klíèe. 
+\item returns key derived from \texttt{path} and \texttt{id} number.
+Returns the same key for the same \texttt{id} and arbitrary path referencing the
+same file. Returns different keys for different \texttt{id} or different files
+on the same volume.
 \end{itemize}
 \end{slide}
 
-\label{FTOK} poznámky k \texttt{ftok()}:
+\label{FTOK} \texttt{ftok()} notes:
 \begin{itemize}
-\item z \texttt{id} se pou¾ije jen nejni¾¹ích 8 bitù.
-\item není specifikováno, zda bude stejný klíè vrácen i po smazání a
-znovuvytvoøení souboru. Vìt¹inou ne, proto¾e v klíèi se èasto odrá¾í èíslo
-indexového uzlu.
-\item rùzné klíèe pro rùzné soubory nejsou v¾dy zaruèené. Napø. na Linuxu se
-klíè získá kombinací 16 bitù èísla i-uzlu, 8 bitù \texttt{id} a 8 bitù
-vedlej¹ího èísla zaøízení. Stejný klíè pro rùzné soubory je vrácen, pokud se
-èísla i-uzlù shodují na spodních 16 bitech.
-\item pokud tedy nepøíbuzné procesy chtìjí pou¾ívat stejný semafor, \emsl{musí
-být jmého souboru pro klíè domluveno pøedem.}
-\item \label{SEM_FIXED_RACE_C} pøíklad na semafory (je to pomocí semaforù
-,,opravená'' verze døívej¹ího pøí\-kla\-du \example{race/race.c} ze strany
-\pageref{RACE_C}): \example{race/sem-fixed-race.c}.
+\item Only the 8 lowest bits are used from the \texttt{id} argument.
+\item It is left unspecified whether the same key will be returned across file
+deletion. Usually not because the key often reflects inode number.
+\item Different keys for different files are not always guaranteed. E.g. on
+Linux the key is determined using the combination of 16-bit inode number, 8 bits
+of \texttt{id} and 8 bits of minor device number. Same key is returned if the
+inode numbers have the same 16 lower bits.
+\item If unrelated processes need to use the same semaphore, \emsl{the filename
+used for the key needs to be agreed on beforehand.}
+\item \label{SEM_FIXED_RACE_C} Example: \example{race/sem-fixed-race.c}
+(this is the \example{race/race.c} example from page \pageref{RACE_C} fixed
+with semaphores)
 \end{itemize}
 
 \endinput
