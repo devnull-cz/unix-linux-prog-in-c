@@ -8,43 +8,46 @@ changequote([[[, ]]])
 \texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int
 \emph{semflg});}
 \begin{itemize}
-\item vrátí identifikátor pole obsahujícího \texttt{nsems} semaforù asociovaný
-s~klíèem \texttt{key} (klíè \texttt{IPC\_PRIVATE} \dots{} privátní semafory, pøi
-ka¾dém pou¾ití vrátí jiný identifikátor). \texttt{semflg} je OR-kombinace
-pøístupových práv a konstant \texttt{IPC\_CREAT} (vytvoøit, pokud neexistuje),
-\texttt{IPC\_EXCL} (chyba, pokud existuje). 
+\item returns identifier of an array of \texttt{nsems} semaphores associated
+with the \texttt{key} key (\texttt{IPC\_PRIVATE} key \dots{} private semaphores,
+each call returns different identifier). 
+\texttt{semflg} is OR-combination of access rights and constants
+\texttt{IPC\_CREAT} (create if does not exist),
+\texttt{IPC\_EXCL} (error, if exists). 
 \end{itemize}
 \texttt{int \funnm{semctl}(int \emph{semid}, int \emph{semnum},
 int \emph{cmd}, ...);}
 \begin{itemize}
-\item øídicí funkce, volitelný ètvrtý parametr \texttt{arg} je typu
-\texttt{union~semun}. 
+\item controlling function, optional 4th argument \texttt{arg} is of the
+\texttt{union~semun} type.
 \end{itemize}
 \texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t
 \emph{nsops});}
 \begin{itemize}
-\item zobecnìné operace P a V.
+\item generic operations P and V.
 \end{itemize}
 \end{slide}
 
 \label{SYSVSEM}
 
 \begin{itemize}
-\item jak získat klíè pro \texttt{semget} je vysvìtleno na strane
+\item How to get the key for \texttt{semget} is explained on page
 \pageref{FTOK}.
-\item nejvìt¹í zajímavost na System V implementaci semaforù je skuteènost, ¾e
-daný syscall neoperuje nad jedním semaforem, ale nad \emsl{polem semaforù}, a to
-atomicky. Vìt¹inou v¹ak budete potøebovat pouze jeden semafor, tj. pole o jednom
-prvku. Pro takové pou¾ití jsou System V semafory zbyteènì slo¾ité.
-\item pøístupová práva jsou jen pro ètení a zápis; bit execute zde nemá smysl.
-\item podobné schéma API funkcí (funkce na vytvoøení, øízení a operace) dodr¾ují
-i ostatní System V IPC mechanismy.
-\item jakmile je jednou pole semaforù jedním procesem vytvoøeno, mohou i ostatní
-procesy pou¾ít \texttt{semctl()} a \texttt{semop()}, ani¾ by pøedtím volaly
-\texttt{semget()}. To platí i pro semafory vytvoøené s klíèem
-\texttt{IPC\_PRIVATE}, pro které nelze volat \texttt{semget()}, proto¾e by se
-tím vytvoøilo nové pole semaforù. Je to tak proto, aby i privátní semafory mohly
-být dìdìné v rámci \texttt{fork}.
+\item The most interesting property of System V semaphore implementation is
+that given syscall does not operate on one semaphore but on \emsl{semaphore
+array}, atomically.
+Most of the time you will need just one semaphore, i.e. array of one item.
+For such use the System V semaphores are needlessly complex.
+\item Access rights are only for reading and writing; the execute bit does not
+make sense in this context.
+\item Similar API (function for creating, control and operations) is followed by
+the other System V IPC mechanism as well.
+\item Once the array of semaphores is created by a process, the other processes
+can use \texttt{semctl()} and \texttt{semop()}, without calling
+\texttt{semget()} beforehand. This is valid also for the semaphores created with
+the \texttt{IPC\_PRIVATE} key, for which it is not possible to call
+\texttt{semget()}, because it would create new semaphore array. This is done so
+that private semaphores can be inherited across \texttt{fork} as well.
 \end{itemize}
 
 %%%%%
