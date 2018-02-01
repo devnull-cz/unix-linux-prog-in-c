@@ -228,20 +228,22 @@ access rights are not relevant (it has always unlimited access -- at least in
 classic UNIX without fine grained privileges). If the user is equal, the
 group/other rights are not used even though them permit more than what user
 rights do. Similarly the others rights are not used if the group is equal.
-\emsl{Therefore if a file owned by my user has the rights set to
-\texttt{---rwxrwx}, I cannot read/write/execute it until I change the rights.}
+\emsl{Therefore if a file owned by a user has the rights set to
+\texttt{---rwxrwx}, the user cannot read/write/execute it until he/she changes
+the rights.}
 \item More and more systems diverge from the classic model where many processes
 were running under a user with UID 0. A security vulnerability in such an
 application meant total control of the system. To thwart this, these systems
 employ models like \emph{least privilege} in Solaris or \emph{privilege
 separation} and \emph{pledge} in OpenBSD.
 \item \label{FILEDELETE} In order to delete a file, the user has to have a right
-to write to the \emsl{directory} containing the file, because this is the
-``file'', that is being changed. \emsl{The rights of the file to be deleted are
+to write to the \emsl{directory} containing the file, because that is actually
+the ``file'' being changed. \emsl{The rights of the file to be deleted are
 not relevant}; the shell might give you a warning that you are about to delete a
-file for which you do not have the right to write, however this is just
-informative. It is logical -- if you set a file as read-only, the shell will
-deduce that you do not normally want to delete such file. See the example below.
+file for which you do not have the right to write, however that is just a
+warning, the operation will proceed.  It is quite logical -- if you set a file
+as read-only the shell will deduce that you probably do not want to delete such
+a file.  See the example below.
 \emsl{Unix systems do not have delete-like operation for a fike}, the file is
 deleted automatically once it is no longer referenced from directory structure
 and the file is not open by any process.
