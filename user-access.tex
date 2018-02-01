@@ -344,13 +344,12 @@ of their privileges for non-authorized actions (root shell execution).
 Such programs used to be one of the most frequent causes of security problems
 in Unix systems.
 \item The basic rule for writing SUID/SGID programs is: \emsl{do not write
-them} if it is not absolutely necessary. This area is typical as security
-problem generator. It is not easy to produce correct (i.e. secure) SUID/SGID
-program, especially of higher complexity.
+them} if it is not absolutely necessary.  It is not easy to produce a correct
+(i.e. secure) SUID/SGID program, especially of higher complexity.
 \item \emsl{These are the rules for ID change:}
 \begin{itemize}
-\item ordinary user cannot change its RUID or saved UID (the \texttt{exec} is an
-exception to that, see page \pageref{EXEC})
+\item an ordinary user cannot change its RUID or saved UID (the \texttt{exec} is
+an exception to that, see page \pageref{EXEC})
 \item the process can always change its EUID to that of RUID or saved UID.
 This guarantees that in SUID program it is possible to arbitrarily change EUID
 between the one that enabled the process to gain ownership rights and the
@@ -392,11 +391,12 @@ IDs of the calling process and returns number of all GIDs of the process.
 \texttt{getruid}.
 \item \texttt{getgroups}: when \texttt{gidsz~==~0}, it returns the number of
 groups. When \texttt{0 < gidsz < \#skupin}, it returns \texttt{-1}.
-\item In UNIXu there are many data types such as \verb#uid_t#, \verb#gid_t#,
-\verb#size_t#, etc. Generally these are integer types, you can often find them
-in the \texttt{/usr/inc{}lude/sys/types.h} header file.
-\item Solaris has the \texttt{pcred} command, that will print process
-idenfitication information in simple form:
+\item In Unix, there are many data types such as \verb#uid_t#, \verb#gid_t#,
+\verb#size_t#, \verb#pid_t#, etc.  In general, these are integer types and you
+can often find them in the \texttt{/usr/inc{}lude/sys/types.h} header file.
+\item Solaris has the \texttt{pcred} command that provides process
+idenfitication information in a simple form:
+
 \begin{verbatim}
 $ pcred 5464
 5464:   e/r/suid=1993  e/r/sgid=110
@@ -430,8 +430,8 @@ by superuser process.
 \begin{itemize}
 \item W.r.t. setting UID for a process with EUID 0 see also the notes on page
 \pageref{ROOT_SETUID}.
-\item To recap the above: a process with effective rights of superuser can
-arbitrarily change its identity. The rest can only switch between its read and
+\item To recap the above: a process with effective rights of a superuser can
+arbitrarily change its identity. The rest can only switch between its real and
 effective IDs.
 \item The \emph{login} program uses the \texttt{setuid} syscall.
 \item If a process with UID~==~0 wants to change its identity, it has to call
@@ -444,7 +444,7 @@ it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 called \emph{u-area} (see e.g. [Bach]).
 \item If a root SUID program calls \texttt{setuid} for UID other than 0, it can
 no longer return to EUID==0 (this makes sense, imagine a user logging into the
-system). For different behavior \texttt{seteuid} (that sets just EUID) would
+system). For a different behavior, \texttt{seteuid} (that sets just EUID) would
 have to be used.
 \item Example: \example{setuid/screate-file.c}
 \end{itemize}
@@ -494,20 +494,22 @@ drwx------   2 janp     staff        512 Mar 23 12:46 test
 \item The root user can in some systems create cycle in directory structure
 however that might confuse file system traversal tools; hence the cyclical
 structure is not used much. Symbolic links to directories work everywhere.
-\item Named pipes (see page \pageref{MKFIFO}) can be used between processes
-that do not have ''family'' relationship. Otherwise they work as unnamed pipes.
+\item Named pipes (see page \pageref{MKFIFO}) can be used between processes that
+do not have ''family'' relationship.  They work as unnamed pipes otherwise.
 \item The sockets noticed above are in the UNIX domain, i.e. they serve for
 communication within one system. The INET domain sockets, used for network
 communication (see page \pageref{NETWORKING}) are not visible in the file system. 
 jednoho systému. Sokety z domény INET, pøes které probíhá sí»ová komunikace,
 se v systému souborù neobjevují. Sí»ová komunikace zaèíná na stranì
 \item Debuggers use process images available through \texttt{/proc}.
-On most of u{}nix-like systems the \texttt{/proc} tree contains informations
-about kernel and running processes in the form of text files.
-\item Modern Unixes contain special \emph{devfs} filesystem, which reflects
-actual system configuration w.r.t. connected devices. I.e. after connecting
-USB stick a related device will appear under \texttt{/dev}. After physically
-disconnecting it, the item will disappear.
+On many Unix-like systems the \texttt{/proc} tree contains information about
+kernel and running processes in the form of text files.  However, some systems,
+like Solaris, have those files in a binary form only and provide special
+commands to read those (like \texttt{pargs}, \texttt{pldd}, etc.).
+\item Modern Unix systems contain a special \emph{devfs} filesystem that
+reflects an actual system configuration w.r.t. connected devices. I.e. after
+connecting a USB stick a related device will appear under \texttt{/dev}. After
+physically disconnecting it, the item will disappear.
 \end{itemize}
 
 \endinput
