@@ -26,67 +26,65 @@ Kirk McKusick is excellent.
 %%%%%
 
 \begin{slide}
-\sltitle{(Pre)historie UNIXu}
+\sltitle{UNIX (pre)history}
 \begin{itemize}
-\item 1925 -- \emsl{Bell Telephone Laboratories} -- výzkum v
-komunikacích (napø. 1947: transistor) v rámci AT\&T
-\item 1965 -- BTL s General Electric a MIT vývoj OS \emsl{Multics}
+\item 1925 -- \emsl{Bell Telephone Laboratories} -- research in
+communication (e.g. 1947: transistor) within AT\&T
+\item 1965 -- BTL s General Electric and MIT development OS \emsl{Multics}
 (MULTIplexed Information and Computing System) 
-\item 1969 -- Bell Labs opou¹tí projekt, \emsl{Ken Thompson} pí¹e
-assembler, základní OS a systém souborù pro PDP-7 
+\item 1969 -- Bell Labs initiates a project, \emsl{Ken Thompson} writes
+assembler, basic OS and file system for PDP-7 
 \item 1970 -- Multi-cs $\Rightarrow$ Uni-cs $\Rightarrow$ Uni-x
-\item 1971 -- UNIX V1, a portován na PDP-11
-\item prosinec 1971 -- první edice \emph{UNIX Programmer's Manual}
+\item 1971 -- UNIX V1, and ported to PDP-11
+\item december 1971 -- first edition of \emph{UNIX Programmer's Manual}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item AT\&T = American Telephone and Telegraph Company
-\item Multics byl systém, který významnì ovlivnil dal¹í vývoj operaèních
-systémù. Obsahoval mnoho v té dobì inovativních my¹lenek, z nich¾ ale ne v¹echny
-byly pøijímány kladnì. Významnì ovlivnil právì UNIX, který mnoho my¹lenek
-pøevzal a jeho nedostatky se naopak sna¾il napravit. Hlavní rozdíl byl asi ten,
-¾e UNIX byl navr¾en jako mnohem jednodu¹¹í systém, ne¾ Multics.
-\item po odchodu BTL z projektu Multics prodala GE svoji poèítaèovou divizi
-firmì Honeywell vèetnì projektu Multics, který se pak pod její patronací dále
-aktivnì vyvíjel (virtuální pamì», multiprocesory, \dots), a¾ do roku 1985.
-Poslední instalace Multics-u fungovala na kanadském Ministerstvu obrany
-(Canadian Department of National Defence) a systém byl napøíklad je¹tì aktivnì
-pou¾íván pro vojenské operace bìhem války v Perském zálivu. Definitivní shutdown
-byl proveden 31. øíjna 2000. Více informací je mo¾né nalézt na
-\url{http://www.multicians.org}.
-\item pøed poèátkem práce na vývojovém prostøedí pro PDP-7 napsal Thompson
-program \emph{Space Travel}, který byl vyvinut na jiném prostøedí (Honeywell
-635) a na pásce pøenesen na PDP-7.
-\item celkem bylo 10 edicí tohoto manuálu, korespondující deseti verzím UNIXu
-vzniklých v BTL.
-\item UNIX V1 nemìl volání \texttt{pipe} !!!
-\item manuál pro verzi 1:
+\item Multics was a system that significantly influenced the development of
+operating systems. It includes many innovative ideas, some of which were not
+always accepted positively. It greatly influenced UNIX, that adopted many ideas
+and tried to fix the shortcomings. The main difference was mainly in that UNIX
+was designed as simpler system.
+\item After BTL left the Multics project, GE sold its computer division to
+Honeywell including the Multics project, that was further developed under its
+patronage (virtual memory, multiprocessors, \dots) till 1985.
+The last Multics installation worked in the Canadian Department of National
+Defence and the system was used actively for example during the Persion gulf
+war. Definitive shutdown was made 31st October 2000. More information can be
+found on \url{http://www.multicians.org}.
+\item Before the work on the development environment for PDP-7 started, Thmopson
+wrote the \emph{Space Travel} program, that was developed in other environment
+(Honeywell 635) and transferred on tape to PDP-7.
+\item In overall there were 10 editions of this manual, corresponding to ten
+UNIX versions developed in BTL.
+\item UNIX V1 did not have the\texttt{pipe} syscall !!!
+\item The version 1 manual can be found on
 %\url{www.cs.bell-labs.com/who/dmr/1stEdman.html}.
-\url{http://man.cat-v.org/unix-1st/}
-Stojí za to nahlédnout, jak jeho struktura ovlivnila vzhled dne¹ních
-ma\-nu\-á\-lo\-vých stránek.
-\item \emsl{za pov¹imnutí stojí, ¾e UNIX je zhruba o 10 let star¹í ne¾ DOS}
-\item systém Multics mìl 9 hlavních cílù, jak popsáno v èlánku
-\emph{Introduction and Overview of the Multics System} z roku 1965. Za
-nejzajímavìj¹í cíl bych pova¾oval po¾adavek na nepøeru¹ovaný bìh systému.
-\item Multics byl napsaný v jazyce PL/I (Programming Language \#1), tedy døíve
-ne¾ byl UNIX pøepsaný do C !
-\item Multicsu byl v roce 1980 udìl{}en jako prvnímu systému level B2. Po
-nìkolik let to byl jediný systém s tímto bezpeènostím levelem.
-\item GE byla zalo¾ena v roce 1892 slouèením dvou spoleèností, z nich¾ jedna
-byla Edison General Electric Company zalo¾ená roku 1879 Thomasem Alvou Edisonem
-(vynálezce ¾árovky, filmové kamery, \dots); v souèasné dobì její dceøinné
-spoleènosti pokrývají mnoho oblastí, vèetnì dodávky jednoho ze dvou typù motorù
-pro Airbus 380 nebo bankovnictví.
-\item PDP = Programmed Data Processor. První typ, \emph{PDP-1}, se prodávala za
-\$120.000 v dobì, kdy se jiné poèítaèe prodávaly za ceny pøes milión. To byla
-také strategie fy DEC - pojem \emph{computer} tehdy znamenal drahou vìc,
-potøebující sál a tým lidí, který se o to v¹echno bude starat. Proto DEC své
-ma¹iny nenazýval poèítaèi, ale pravì slovem \emph{PDPs}.
-\item PDP-11 je legendární ma¹ina od firmy DEC, postupnì vznikaly verze PDP-1 az
-PDP-16, kromì PDP-2, PDP-13. Existují PDP-11 systémy, které je¹tì dnes bì¾í, a
-také firmy, které pro nì vyrábìjí náhradní díly.
+\url{http://man.cat-v.org/unix-1st/}.
+It is worth taking a look, especially how its structure influenced the
+appearance of today's manual pages.
+\item \emsl{Also note that UNIX is roughly 10 years older than DOS.}
+\item The Multics system had 9 main goals, as described in the
+\emph{Introduction and Overview of the Multics System} articale from 1965.
+Most interesting goal was probably a request for uniterrupted system run.
+\item Multics was written in the PL/I (Programming Language \#1), therefore
+earlier than UNIX was rewritten to C !
+\item Multics gained as a first system the B2 security level in 1980.
+For couple of years it was the only system with this security level.
+\item GE was founded in 1892 by merging two companies, one of which was
+Edison General Electric Company founded in 1879 by Thomas Alva Edison
+(inventor of bulb, film camera, \dots); currently its subsidiaries cover many
+areas, including the supply of one motor type for Airbus 380 or banking.
+\item PDP = Programmed Data Processor. First type, \emph{PDP-1}, was sold for
+\$120.000 in era, when other computers cost over one million. That was a
+strategy of the DEC corporation -- the \emph{computer} term meant expensive
+machine needing a hall and team of people to operate. That's why PDP was not
+calling its machines computers but \emph{PDPs}.
+\item PDP-11 is legendary machine of DEC corporation, gradually versions were
+developed from PDP-1 to PDP-16, except PDP-2, PDP-13. There are some PDP-11
+systems still running today and companies that manufacture spare parts. 
 \end{itemize}
 
 %%%%%
