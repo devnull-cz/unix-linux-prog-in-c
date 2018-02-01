@@ -90,55 +90,55 @@ systems still running today and companies that manufacture spare parts.
 %%%%%
 
 \begin{slide}
-\sltitle{Historie UNIXu, pokraèování}
+\sltitle{UNIX history, continued}
 \begin{itemize}
-\item únor 1973 -- UNIX V3 obsahoval \emph{cc} pøekladaè (jazyk C
-byl vytvoøen \emsl{Dennisem Ritchiem} pro potøeby UNIXu)
-\item øíjen 1973 -- UNIX byl pøedstaven veøejnosti èlánkem \emph{The
-UNIX Timesharing System} na konferenci ACM
-\item listopad 1973 -- \emsl{UNIX V4 pøepsán do jazyka C}
-\item 1975 -- UNIX V6 byl první verzí UNIXu bì¾nì k dostání mimo BTL
-\item 1979 -- UNIX V7, pro mnohé ``the last true UNIX'', obsahoval
-\emph{uucp}, Bourne shell; velikost kernelu byla pouze 40KB !!!
-\item 1979 -- UNIX V7 portován na 32-bitový VAX-11
-\item 1980 -- Microsoft pøíchází s XENIXem, který je zalo¾ený na
-UNIXu~V7
+\item february 1973 -- UNIX V3 contained the \emph{cc} compiler (the C
+language was created by \emsl{Dennisem Ritchiem} for UNIX)
+\item october 1973 -- UNIX presented to the public in \emph{The
+UNIX Timesharing System} article in ACM conference
+\item november 1973 -- \emsl{UNIX V4 rewritten to C}
+\item 1975 -- UNIX V6 was the first UNIX available outside of BTL
+\item 1979 -- UNIX V7, for many ``the last true UNIX'', contained
+\emph{uucp}, Bourne shell; kernel size was just 40KB !!!
+\item 1979 -- UNIX V7 ported to 32-bit VAX-11
+\item 1980 -- Microsoft introduces XENIX, based on UNIX~V7
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item ACM = Association for Computing Machinery, zalo¾ena 1947. UNIX pøedstavili
-Ken Thompson a Dennis Ritchie.
-\item \emsl{akt pøepsání UNIXu do jazyka C byl mo¾ná nejvýznamnìj¹ím momentem
-v historii tohoto systému} $\Rightarrow$ UNIX mohl být mnohem jednodu¹eji
-portován na jiné architektury
-\item na verzi 6 je zalo¾ena legendární kniha \emph{A commentary on the Unix
-Operating System}, její¾ autorem je John Lions.
-\item Microsoft neprodával XENIX pøímo, ale licencoval ho OEM výrobcùm
-(Original Equipment Manufacturer) jako byl Intel, SCO a jiní. Jiné firmy pak
-XENIX dále portovaly na 286 (Intel) a 386 (SCO, 1987). Na webu je mo¾né najít
-zajímavé informace popisující tuto dobu a tehdy kladný vztah Microsoftu k
-UNIXu.
+\item ACM = Association for Computing Machinery, founded in 1947. UNIX was
+presented by Ken Thompson and Dennis Ritchie.
+\item \emsl{The act of rewriting UNIX to C was possible to most important moment
+in the history of this system} $\Rightarrow$ it was much easier to port UNIX to
+different architectures.
+\item The legendary book \emph{A commentary on the Unix
+Operating System} by John Lions was found on version 6.
+\item Microsoft did not sell XENIX directly, it was licensed to OEM companies
+(Original Equipment Manufacturer) such as Intel, SCO a others. Ohter companies
+then ported XENIX to 286 (Intel) and 386 (SCO, 1987). It is possible to find
+interesting information on the web describing these times and then positive
+attitude of Microsoft towards UNIX.
 % find UNIX-v7/ -type f -name '*. wc -l {} \; | \
 %     awk 'BEGIN { cnt = 0; } { cnt += $1; } END { printf("lines: %d\n", cnt); }'
 %lines: 188319
 %find UNIX-v7/ -type f -name '*.[cshy]' | wc -l
 %    1131
-\item UNIX V7 mìl cca 188 tisíc øádek zdrojového kódu
-v cca 1100 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
-pøes soubory se jménem \texttt{*.[cshy]}).
-\item pokud vás více zajímá historie uni{}xu, podívejte se na Wikipedii na heslo
-``u{}nix'' a skrz odkazy máte na dlouho co èíst.
+\item UNIX V7 had some 188 lines of source code in circa
+1100 files (determined using \texttt{find}, \texttt{wc} and \texttt{awk}
+across all files matching \texttt{*.[cshy]}).
+\item If you are interested in UNIX history, see the ``u{}nix'' on Wikipedia and
+you will find lots of content just by clicking through.
 % http://minnie.tuhs.org/Seminars/Saving_Unix/sslides/ss-sslides.html
-\item V roce 1973 byl UNIX víceu¾ivatelský systém (konta s hesly) s podporou pro 
-multiprocessing s ochranou procesù a stránkováním. Mìl signály, roury,
-hierarchický systém souborù s mount pointy, souborová práva (User/group/other
-r/w/x), hard linky, zaøízení pøístupná jako soubory. Kernel byl napsán v jazyku C
-a v pamìti zabíral jeho obraz 26 Kilobytù. Pro práci se soubory slou¾ily
-systémová volání \texttt{open()}, \texttt{close()}, \texttt{read()},
-\texttt{write()}, \texttt{seek()}, \texttt{pipe()}.
-K manipulaci s procesy volání \texttt{fork()}, \texttt{exec()}, \texttt{wait()},
-\texttt{exit()}. Celkem bylo 48 syscallù, z nich existuje 35 do dne¹ní doby.
+\item UNIX was multiuser system (accounts with passwords) in 1973 with
+multiprocessing support and process protection and paging. It had signals,
+pipes, hierarchical file system with mount points, file rights (user/group/other
+r/w/x), hard links, devices accessible as files. The kernel was written in C
+and its image occupied 26 Kilobytes in memory. For file operations there were
+\texttt{open()}, \texttt{close()}, \texttt{read()},
+\texttt{write()}, \texttt{seek()}, \texttt{pipe()} system calls.
+For process manipulation there were \texttt{fork()}, \texttt{exec()},
+\texttt{wait()}, \texttt{exit()}. In total there were 48 syscalls, out of which
+35 exist till today.
 \end{itemize}
 
 %%%%%
