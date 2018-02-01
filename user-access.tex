@@ -243,10 +243,10 @@ not relevant}; the shell might give you a warning that you are about to delete a
 file for which you do not have the right to write, however that is just a
 warning, the operation will proceed.  It is quite logical -- if you set a file
 as read-only the shell will deduce that you probably do not want to delete such
-a file.  See the example below.
-\emsl{Unix systems do not have delete-like operation for a fike}, the file is
-deleted automatically once it is no longer referenced from directory structure
-and the file is not open by any process.
+a file.  See the example below.  \emsl{Unix systems do not have delete-like
+operation for a file}, the file is deleted automatically once it is no longer
+referenced from a directory structure and the file is not presently open by any
+process.
 
 \begin{verbatim}
 $ whoami
@@ -261,19 +261,20 @@ rm: janp-dir/root_wuz_here.txt: override protection 644 (yes/no)? yes
 $ ls janp-dir/root_wuz_here.txt 
 janp-dir/root_wuz_here.txt: No such file or directory
 \end{verbatim}
+
 \item However if \texttt{root} creates its own sub-directory in the
-\texttt{janp-dir} directory and creates a new file there, the
+\texttt{janp-dir} directory and then creates a new file in there, the
 \texttt{janp} user can no longer delete the \texttt{janp-dir} directory and its
 contents because:
 \begin{itemize}
-\item sub-directory cannot be deleted if non-empty
-\item given file cannot be deleted because \texttt{janp} is not user of
-the sub-directory
+\item no directory can be deleted if non-empty, and
+\item the given file created by \texttt{root} cannot be deleted because
+\texttt{janp} is not an owner of the sub-directory containing the file
 \end{itemize}
 \item If the read bit is removed from a directory rights, it is not possible to
-read its contents, therefore list files therein contained. However if I know
-the name of the file in the directory and the execute bit is set, I can read the
-file:
+read its contents, therefore neither list files contained therein. However if I
+know the name of the file in the directory and the execute bit is set, I can
+read the file:
 \begin{verbatim}
 $ mkdir foo
 $ ls -ald foo
@@ -290,9 +291,9 @@ $ file foo/bar
 foo/bar: empty
 \end{verbatim}
 \item There is a situation where even the execute bit for a directory is not
-sufficient. This is used for temporary directories, where anyone can write to
-however it is not desirable to permit users to delete each others files.
-To achieve that there is the \emph{sticky bit} (01000). There might be a
+sufficient.  That is used for temporary directories where anyone can write to.
+However, it is not desirable to permit users to delete each others files.
+To achieve that there is the \emph{sticky bit} (01000).  There might be a
 \texttt{sticky} man page, where the sticky bit function is described.
 It is visible as \texttt{\emsl{t}} in the \texttt{ls} output:
 
@@ -439,7 +440,7 @@ effective IDs.
 rights to perform the opearation in question, e.g. once \texttt{setuid} returns
 it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 \item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
-\item RUID/EUID are saved in in kernel process structure and also in the so
+\item RUID/EUID are saved in the kernel process structure and also in the so
 called \emph{u-area} (see e.g. [Bach]).
 \item If a root SUID program calls \texttt{setuid} for UID other than 0, it can
 no longer return to EUID==0 (this makes sense, imagine a user logging into the
