@@ -119,24 +119,24 @@ should use \texttt{mmap}, see page \pageref{MMAP}.
 \end{slide}
 
 \begin{itemize}
-\item A process will enter kernel model either by a
+\item A process will enter a kernel model either by a
 \emph{trap induced by the CPU} (page fault, unknown instruction, etc.)
-\emph{timer} (to invoke scheduler), \emph{interrupt} from peripheal device,
-or synchronous trap (standard library uses it to hand over the control
-to kernel to service \emph{system call}).
+\emph{timer} (to invoke scheduler), \emph{interrupt} from a peripheal device,
+or synchronous trap (a standard library uses it to hand over the control to
+the kernel to service a \emph{system call}).
 \item There is only one copy of the kernel text and data in the memory,
-shared by all processes. Kernel text as a whole is resident in memory,
-it is not swapped out to disk.
-\item \emph{kernel text} \dots{} code of operating system kernel,
-loaded when the system is booting and is always resident in memory.
-Some implementations allow to add modules to the kernel during runtime.
+shared by all processes. The kernel text as a whole is resident in memory and
+not swapped out to disk.
+\item \emph{kernel text} \dots{} code of the operating system kernel,
+loaded when the system is booting up and is always resident in memory.
+Some implementations allow to add modules to the kernel during runtime
 (e.g. when a device is connected, matching device driver module is
 automatically loaded), it is therefore not necessary to regenerate
 the kernel and reboot the system whenever a change is needed.
 \item \emph{data and kernel bss} \dots{} contain data structures used
-by kernel, contains the u-area of currently running process.
+by the kernel, contains the u-area of a currently running process.
 \item \emph{kernel stack} \dots{} independent for each process, is empty
-when the process is in user mode (and therefore uses user stack).
+when the process is in the user mode (and therefore uses the user stack).
 \end{itemize}
 
 %%%%%
@@ -152,19 +152,19 @@ when the process is in user mode (and therefore uses user stack).
 
 \begin{itemize}
 \item This is how memory segments representation looks like in the kernel.
-\item The core feature of this architecture is \emph{memory object}, which is
-mapping abstractions between part of memory and place where data is normally
+\item The core feature of this architecture is a \emph{memory object}, a
+mapping abstraction between a part of memory and a place where data is normally
 stored (so called \emph{backing store} or \emph{data object}). This place can
-be e.g. swap or a file. Address space of a process is set of mapping to different
-data objects. There exists also \emph{anonymous object}, which does not have
-persistent backing store (it is used e.g. for stack). Physical memory then
-serves as cache for data of these mapped objects.
+be e.g. swap space or a file. Address space of a process is a set of mappings to
+different data objects. There exists also an \emph{anonymous object} that does
+not have persistent backing store (it is used e.g. for a stack). Physical memory
+then serves as a cache for data of these mapped objects.
 \item This coarsely described architecture is called VM (\emph{Virtual
 Memory}), and was introduced in SunOS 4.0. The virtual memory architecture
-of SVR4 is based on this architecture.
-More information can be found in [Vahalia], the original whitepaper from
-1987 that introduced this architecture: Gingell, R. A., Moran J.
-P., Shannon, W.  A. -- \emph{Virtual Memory Architecture in SunOS}.
+of SVR4 is based on this architecture.  More information can be found in
+[Vahalia], the original whitepaper from 1987 that introduced this architecture:
+Gingell, R. A., Moran J.  P., Shannon, W.  A. -- \emph{Virtual Memory
+Architecture in SunOS}.
 \item To determine what memory segments a memory space of a process consists of,
 various tools can be used: \texttt{pmap(1)} on Solaris, NetBSD and in some Linux
 distributions, \texttt{procmap(1)} on OpenBSD, or \texttt{vmmap(1)} on macOS.
@@ -182,17 +182,18 @@ distributions, \texttt{procmap(1)} on OpenBSD, or \texttt{vmmap(1)} on macOS.
 \end{slide}
 
 \begin{itemize}
-\item Each process sees its own address space as contiguous interval of
-(virtual) addresses from zero to some maximal value. The accessible addresses
+\item Each process sees its own address space as a contiguous interval of
+(virtual) addresses from zero to some maximal value.  Accessible addresses
 are those for which there is a mapping, i.e. there is a memory
-segment (see previous slide).
-\item Kernel divides the memory to pages. Each page has its own location in
+segment (see the previous slide).
+\item The kernel divides the memory to pages. Each page has its own location in
 physical memory. This location is determined by kernel page tables and the
-pages can be arbitrarily mixed w.r.t. their placement in virtual address space.
-\item If a page is not used, it can be swapped out to disk.
-\item The kernel memory management ensures mapping between virtual addresses
-used by user processes and kernel to physical addresses and reading in pages
-from disk upon page fault.
+memory pages can be arbitrarily mixed w.r.t. their placement in the virtual
+address space of a process.
+\item If a page is not used it can be swapped out to disk.
+\item The kernel memory management ensures a mapping between virtual addresses
+used by processes and the kernel to physical addresses.  It also reads in pages
+from a disk upon a page fault.
 \end{itemize}
 
 %%%%%
@@ -207,19 +208,18 @@ from disk upon page fault.
 \end{slide}
 
 \begin{itemize}
-\item After the process is terminated either using \texttt{exit} call or
-as a consequence of a signal, it will transition to zombie state because
-the kernel needs to store return value for the process. The whole memory
-of the process is freed, the only remaining piece is the \texttt{proc}
-structure. The process can go away for good only after its parent will
-retrieve its return value using the \texttt{wait} call. If the original
-parent is no longer available, the \texttt{init} process which became the
-new parent will call \texttt{wait}.
-\item In today's UNIX systems the processes are not swapped out as whole,
-only individual pages.
-\item The process is put to sleep if it requests it, e.g. when it is waiting
-on an operation with peripheal device to complete. The \emph{preemption} is
-on the other hand involuntary removal of CPU by the scheduler.
+\item After the process is terminated either using an \texttt{exit} call or as a
+consequence of a signal, it will transition to a zombie state as the kernel
+needs to store a return value for the process. The whole memory of the process is
+freed, the only remaining piece is the \texttt{proc} structure. The process can
+go away for good only after its parent will retrieve its return value using the
+\texttt{wait} call. If the original parent is no longer available, the
+\texttt{init} process which became the new parent will call \texttt{wait}.
+\item In today's Unix systems processes are usually not swapped out as whole,
+only individual pages are.
+\item A process is put to sleep if it requests it, e.g. when it is waiting on a
+completion of an operation with a peripheal device. The \emph{preemption} is on
+the other hand an involuntary removal of a CPU by the scheduler.
 \end{itemize}
 
 %%%%%
@@ -229,13 +229,14 @@ on the other hand involuntary removal of CPU by the scheduler.
 \begin{itemize}
 \item \emph{preemptive} -- if a process does not give up CPU
 (e.g. by entering a sleep to wait on some event), the CPU is taken away
-after time quantum expiration.
-\item processes are classified into queues according to priority,
-CPU is assigned to the first ready process from queue with biggest priority.
+after a time quantum expiration.
+\item processes are classified into queues according to a priority,
+a CPU is assigned to the first ready process from the queue with the biggest
+priority.
 \item SVR4 introduced priority queues and real-time support with guaranteed
-maximal response time.
-\item contrary to the previous versions, in SVR4 bigger number means
-bigger priority.
+maximal response time
+\item contrary to the previous versions, in SVR4 a bigger number means a bigger
+priority
 \end{itemize}
 \end{slide}
 
@@ -247,25 +248,24 @@ to the kernel (scheduler is activated).
 keeps running, until it gives up the CPU, i.e. until it calls such system call,
 that switches the context to different process. The downside of cooperative
 planning is that one process can block the CPU and other processes forever.
-\item UNIX uses only preemptive planning for user processes.
+\item Unix uses only preemptive planning for user processes.
 \item Traditional (historical) UNIX \emsl{kernel} uses cooperative planning,
 i.e. process running in kernel mode is not switched until it gives up the CPU
 by itself.
-\emsl{Modern UNIX kernels are preemtive} -- mainly because of real-time
-systems; there it is necessary to have the possibility to remove CPU from
-running process immediately, not waiting until it returns from kernel mode
-or enters sleep by itself. Note that UNIX was preemtive from its very beginning,
-just the kernel was non-preemptive.
-\item With preemptive planning processes can be interrupted at any time and
-the CPU given to another process. Therefore the process can never be sure
-that given operation (spanning more than one instruction, besides system calls
+\emsl{Modern Unix kernels are preemtive} -- mainly because of real-time
+systems; where it is necessary to have the possibility to remove a CPU from
+a running process immediately, and not waiting until it returns from a kernel
+mode or enters sleep by itself. Note that UNIX was preemtive from its very
+beginning but its kernel was non-preemptive in the beginning.
+\item With a preemptive planning processes can be interrupted at any time and
+the CPU given to another process. Therefore a process can never be sure
+that a given operation (spanning more than one instruction, besides system calls
 with guaranteed atomicity) will be executed atomically, without being
-influenced by other processes. If it is necessary to ensure atomicity of
-an operation, the processes must synchronize. This problem is avoided in
-cooperative planning -- the atomicity of given operation is simply ensured
-by not giving up the CPU while it is still in progress.
+influenced by other processes. If it is necessary to ensure atomicity of an
+operation, processes must synchronize. This problem is avoided in a cooperative
+planning -- the atomicity of a given operation is simply ensured by not giving
+up the CPU while the operation is still in progress.
 \end{itemize}
-
 
 %%%%%
 
@@ -299,29 +299,30 @@ by not giving up the CPU while it is still in progress.
 \end{slide}
 
 \begin{itemize}
-\item The system class is used only by the kernel, user process running
-in kernel mode retains its own planning characteristics.
-\item Processes in the real time classs have the biggest priority,
-therefore most be configured correctly, otherwise they would block
-the rest of the system.
-\item If a process in time-shared class is put to sleep and is waiting
-on some event, the system priority is temporarily assigned to it.
-After wake up, such process will be assigned a CPU earlier than other
-non-sleeping processes.
+\item The system class is used only by the kernel, a user process running
+in a kernel mode retains its own planning characteristics.
+\item Processes in the real time class have the biggest priority,
+therefore most be configured correctly, otherwise they could block
+the rest of the system from getting any CPU time.
+\item If a process in a time-shared class is put to sleep and is waiting on an
+event, the system priority is temporarily assigned to it.  After a wake-up, such
+a process will be assigned a CPU earlier than other non-sleeping processes to
+finish the operation as soon as possible as it could hold some locks later
+needed by other processes.
 \item Fixed part of the priority in the time-shared class can be set
 using\\
 \texttt{int \funnm{setpriority}(int \emph{which}, id\_t \emph{who},
 int \emph{prio});}\\ or \\ \texttt{int \funnm{nice}(int \emph{in{}cr});} \\
 The \emph{which} value determines what will be in the \emph{who} argument.
 If \emph{which} is e.g. \emph{PRIO\_PGRP}, the \emph{who} will store process
-group number.
-Note that \funnm{nice} call will return new nice value. Because -1 is valid
-variable, it is necessary to clear \texttt{errno} value and check it
-if the function returns -1.
-\item The prority class and nice value of given process can be displayed with
-the -l option of ps(1) or by specifying the values than should be written out.
-\item Example: the priority values have different scales on different systems.
-E.g. macOS~10.9 a process that had the priority value 30 will have the value
+group number.  Note that \funnm{nice} call will return a new nice value. As
+-1 is a valid value, it is necessary to clear \texttt{errno} and then check if
+the function returns -1.
+\item The prority class and nice value of a given process can be displayed with
+the \texttt{-l} option of the \texttt{ps} command or by explicitly specifying
+the fields to be printed out (see the \texttt{-o} option).
+\item Example: priority values have different scales on different systems.  E.g.
+on macOS~10.9 a process that had the priority value 30 will have the value
 decremented to 21 after increasing the nice value:
 \begin{verbatim}
 $ sleep 200 &
@@ -334,11 +335,11 @@ $ ps -O pri,nice -p $!
   PID PRI NI   TT  STAT      TIME COMMAND
 36877  21 10 s003  SN     0:00.00 sleep 200
 \end{verbatim}
-On Linuxu 3.10 it will look differently -- the priority value will be increased
-after nice value increase. However this means that the process will be running
-with smaller priority.
-\end{itemize}
 
+With Linux kernel 3.10 it will look differently -- the priority value will be
+increased after a nice value increases.  However, that means the process will be
+running with a smaller priority.
+\end{itemize}
 
 %%%%%
 
@@ -363,29 +364,27 @@ of job control
 \end{slide}
 
 \begin{itemize}
-\item When a user logs into system, new session is created. The session
-contains one process group that only has single process -- one with the
-user's shell. This process is also the leader of this single process group
-and session leader. In case job control is on, each command or
-colon of commands will create new process group, one process from each group
-will always become process group leader. One of the groups can be running
-in foreground, the rest will be running in the background.
-Signals which are generated from the keyboard (i.e. those triggered by
-combination of keys, not by executing the \texttt{kill} command),
-are sent only to the group running in the foreground.
-\item If job control is off, command execution in the foreground means
-that the shell will not be waiting for its completion. There exists only
-one group of processes, keyboard generated signals are sent to all processes
-running in the foreground and background. Processes cannot be moved to
-background from foreground or back and forth.
-\item When a process that has controlling terminal opens the \texttt{/dev/tty}
-file, it is associated with its controlling terminal, i.e. if 2 different
-processes open this file, they will be accessing 2 different terminals.
-\item In bash process group (job) can be stopped temporarily using
-\texttt{Ctrl-Z}, and be continued again using ,,\texttt{fg \%N}'' where
-\texttt{N} is the number from the \texttt{jobs} command listing.
-More information can be found in the ,,JOB CONTROL'' section in the bash
-man page.
+\item When a user logs into a system, a new session is created.  The session
+contains one process group that only has a single process -- one with the user's
+shell.  That process is also the leader of that single process group and also a
+session leader.  In case a job control is on, each command or a pipeline will
+create a new process group, and one process from each group will always become a
+process group leader.  One of the groups can be running in the foreground, the
+rest will be running in the background.  Signals which are generated from the
+keyboard (i.e. those triggered by combination of keys, not by executing the
+\texttt{kill} command) are sent only to the group running in the foreground.
+\item If the job control is off, command execution in the background means that
+the shell will not be waiting for its completion.  There exists only one group of
+processes, and keyboard generated signals are sent to all processes running in
+the foreground and background.  Processes cannot be moved to the background from
+the foreground and vice versa.
+\item When a process that has a controlling terminal opens the \texttt{/dev/tty}
+file, it gets associated with its controlling terminal, i.e. if two different
+processes open this file, each will be accessing a different terminal.
+\item In bash a process group (job) can be stopped temporarily using
+\texttt{Ctrl-Z}, and can be resumed again using ,,\texttt{fg \%N}'' where
+\texttt{N} is the number from the \texttt{jobs} command listing.  More
+information can be found in the ``JOB CONTROL'' section in the bash man page.
 \end{itemize}
 
 \pdfbookmark[1]{fork}{fork}
@@ -422,7 +421,6 @@ around the problem that the child address space was usually rewritten on
 subsequent \texttt{exec}.  This problem was solved via already mentioned
 copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
 \end{itemize}
-
 
 %%%%%
 
