@@ -301,9 +301,9 @@ up the CPU while the operation is still in progress.
 \begin{itemize}
 \item The system class is used only by the kernel, a user process running
 in a kernel mode retains its own planning characteristics.
-\item Processes in the real time class have the biggest priority,
-therefore most be configured correctly, otherwise they could block
-the rest of the system from getting any CPU time.
+\item Processes in the real time class have the biggest priority and so should
+be configured correctly otherwise they could block the rest of the system from
+getting any CPU time.
 \item If a process in a time-shared class is put to sleep and is waiting on an
 event, the system priority is temporarily assigned to it.  After a wake-up, such
 a process will be assigned a CPU earlier than other non-sleeping processes to
