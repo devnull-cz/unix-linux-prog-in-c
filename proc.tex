@@ -21,7 +21,7 @@ changequote([[[, ]]])
 \end{slide}
 
 \begin{itemize}
-\item each process has 3 basic segments (memory segments, not
+\item Each process has 3 basic segments (memory segments, not
 hardware segments):
     \begin{itemize}
     \item text \dots{} program code
@@ -29,42 +29,41 @@ hardware segments):
     \item stack
     \end{itemize}
 \item \texttt{text} and \texttt{data} sections are saved in executable file
-\item the sections for inicialized and non-initialized variables and heap are
+\item The sections for inicialized and non-initialized variables and heap are
 considered as data
-\item it is also possible to connect segments of shared memory
+\item It is also possible to connect segments of shared memory
 (\texttt{shmat}) or files (\texttt{mmap}) into the address space.
-\item the text is shared between all processes which execute the same code.
+\item The text is shared between all processes which execute the same code.
 The data segment and stack are private for each process.
-\item each system can use different layout of process address space
-(and typically it is indeed so). See next slide which also shows
+\item Each system can use a different layout of a process address space
+(and typically it is indeed so).  See the next slide which also shows
 sections for \texttt{mmap} and \emph{heap}.
 \item \emph{bss} \dots{} non-initialized variables (\texttt{bss}
 comes from the IBM 7090 assembler and stands for \uv{block started by
 symbol}). While the program is running, the \texttt{data}, \texttt{bss} and heap
 sections (not shown in the picture) make up data segments of the process.
 Heap size can be changed using the \texttt{brk} and \texttt{sbrk} system calls.
-\item note -- non-initialized variables like static variables --
+\item Note -- by non-initialized variables are meant static variables --
 i.e. global variables or variables declared as \texttt{static} both in the
-functions and outside. All these variables are automatically initialized
-with zeroes before the program is started. Therefore it is not necessary
-to store their value in the binary. Once one of these variables is initialized,
-it will become part of the data segment on disk.
-\item \emph{(user) stack} \dots{} local non-static variables,
-function parameters (on certain architectures in certain modes - e.g. 32-bit x86),
-return addresses. Each process has 2 stacks -- one for user mode and another
-for kernel mode. User stack automatically grows according to its use
-(except for threads where each thread has its own limited stack).
-\item \emph{user area (u-area)} \dots{} contains process information used by
+functions and outside that are not set to a value.  All these variables are
+automatically initialized with zeroes before the program is started. Therefore
+it is not necessary to store their value in the binary. Once one of these
+variables is initialized, it will become part of the data segment on disk.
+\item \emph{(User) stack} \dots{} local non-static variables, function
+parameters (on certain architectures in certain modes - e.g. 32-bit x86), return
+addresses.  Each process has 2 stacks -- one for a user mode and another for
+kernel mode.  The user stack automatically grows according to its use (except
+for threads where each thread has its own limited stack).
+\item \emph{User area (u-area)} \dots{} contains process information used by
 the kernel which are not needed when the process is swapped out to disk
 (number of open files, signal handling settings, number of shared memory segments,
 program arguments, environment variables, current working directory, etc.).
 This area is accessible only to the kernel which will see just the area 
-of currently running process. The rest of data which is needed even if the
-process is not currently running or is swapped out to disk, is stored in 
-\texttt{proc} structure. The \texttt{proc} structures for all processes
-are always resident in mempory and accessible in kernel modes.
+of a currently running process. The rest of the data needed even if the process
+is not currently running or while swapped out to disk is stored in the
+\texttt{proc} structure.  \texttt{proc} structures for all processes are always
+resident in memory and accessible in a kernel mode.
 \end{itemize}
-
 
 \begin{slide}
 \sltitle{Example: Solaris 11 x86 32-bit}
@@ -76,7 +75,7 @@ are always resident in mempory and accessible in kernel modes.
 \label{SOLARIS_PROC_ADDR_SPACE}
 
 \begin{itemize}
-\item the following is deductible from the image:
+\item The following is deductible from the image:
 
 \begin{itemize}
 \item maximum size of kernel for Solaris 11 x86 32-bit is 256 megabytes
@@ -84,34 +83,31 @@ are always resident in mempory and accessible in kernel modes.
 \item stack grows towards lower addresses and its size is limited to 128 megabytes
 \end{itemize}
 
-\item \emph{heap} is part of the memory that can be extended by the processes
-using the \texttt{brk} and \texttt{sbrk} syscalls and is used by
-the \texttt{malloc} function.
-The \texttt{malloc} allocator gradually extends the heap based on demand,
-and manages acquired memory and distributes to the process in chunks.
-When \texttt{free} is called, it does not mean that the memory is returned
-to the kernel; it is only returned to the allocator.
+\item A \emph{heap} is a part of the memory that can be extended by processes
+using the \texttt{brk} and \texttt{sbrk} syscalls and is used by the
+\texttt{malloc} function.  The \texttt{malloc} allocator gradually extends the
+heap on demand, and manages acquired memory and distributes it to the process in
+chunks.  When \texttt{free} is called, it does not mean that the memory is
+returned to the kernel; it is only returned to the allocator.
 \item The \texttt{mmap} area is used for mapping files into memory, i.e. also
 for shared libraries. Some allocators use also this memory internally,
-e.g. in case process requests larger chunks of memory at once.
-It is possible to exclusively use just \texttt{mmap}, it is transparent
-to the application. When using \texttt{mmap} it is possible to return the
-memory to the kernel (using \texttt{munmap}), compared to the
-\texttt{brk}/\texttt{sbrk} based implementation.
-\item The picture was taken from [McDougall-Mauro], and does not contain space
-for non-initialized variables. If you try to print the address of such variable
-on this system, you will find out that both initialized and non-initialized
-variables share common data segment, on the image visible as
-,,executable -- DATA''.
-Example: \example{pmap/proc-addr-space.c}
+e.g. in case a process requests larger chunks of memory at once.  It is possible
+to exclusively use just \texttt{mmap}, and that is transparent to the
+application. When using \texttt{mmap} it is possible to return the memory to the
+kernel (using \texttt{munmap}), in contrast to the \texttt{brk}/\texttt{sbrk}
+based implementation.
+\item The picture was taken from [McDougall-Mauro] and does not contain space
+for non-initialized variables. If you try to print the address of such a
+variable on this system, you will find out that both initialized and
+non-initialized variables share a common data segment, labeled in the image as
+,,executable -- DATA''.  Example: \example{pmap/proc-addr-space.c}.
 \item The kernel mapping is not necessary, for example on Solaris running on
 \emph{amd64} architecture (i.e. 64-bit) the kernel is no longer mapped into
 user space.
 \item \texttt{brk} nor \texttt{sbrk} are part of the standard, hence portable
-applications should not use them; if similar functionality is needed, they
+applications should not use them; if a similar functionality is needed, they
 should use \texttt{mmap}, see page \pageref{MMAP}.
 \end{itemize}
-
 
 %%%%%
 
