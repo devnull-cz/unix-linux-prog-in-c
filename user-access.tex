@@ -199,8 +199,8 @@ ethers:     files
 \sltitle{Access rights testing}
 \setlength{\baselineskip}{0.9\baselineskip}
 \begin{itemize}
-\item user is identified with (\emsl{UID}) number and group numbers
-for groups he belongs to (\emsl{primary GID}, \emsl{supplementary GIDs}).
+\item user is identified with a \emsl{UID} number and numbers for groups he
+belongs to (\emsl{primary GID}, \emsl{supplementary GIDs})
 \item this identification is inherited by each process
 \item file $F$ has owner ($UID_F$) and group owner ($GID_F$). 
 \item algorithm for evaluation of access rights for process:
@@ -230,11 +230,11 @@ group/other rights are not used even though them permit more than what user
 rights do. Similarly the others rights are not used if the group is equal.
 \emsl{Therefore if a file owned by my user has the rights set to
 \texttt{---rwxrwx}, I cannot read/write/execute it until I change the rights.}
-\item More and more system diverge from the classic model where many processes
-were running under a user with UID 0. Security vulnerability in such application
-meant total control of the system. To thwart this, these systems employ models
-like \emph{least privilege} in Solarisu or \emph{privilege separation} and
-\emph{pledge} in OpenBSD.
+\item More and more systems diverge from the classic model where many processes
+were running under a user with UID 0. A security vulnerability in such an
+application meant total control of the system. To thwart this, these systems
+employ models like \emph{least privilege} in Solaris or \emph{privilege
+separation} and \emph{pledge} in OpenBSD.
 \item \label{FILEDELETE} In order to delete a file, the user has to have a right
 to write to the \emsl{directory} containing the file, because this is the
 ``file'', that is being changed. \emsl{The rights of the file to be deleted are
