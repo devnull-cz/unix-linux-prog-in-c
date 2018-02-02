@@ -38,7 +38,7 @@ in Prague.
 \item The text is currently being translated to English.
 \item This material is published under the
 \href{http://creativecommons.org/licenses/by-nc-sa/3.0/cz/}{Creative Commons
-BY-NC-SA 3.0} license and is always work in progress, see the history on
+BY-NC-SA 3.0} license and is always a work in progress, see the history on
 GitHub:\\
 \url{https://github.com/devnull-cz/unix-linux-prog-in-c}
 \item To download the latest version, go to the \emph{releases} tab on GitHub.
@@ -48,7 +48,7 @@ specified otherwise in the files.
 \item The source code files can be found on GitHub here:\\
 \url{https://github.com/devnull-cz/unix-linux-prog-in-c-src}
 \item In case you find any errors either in the text or in the example programs,
-we appreciate if you let us know. Especially do not hesitate to create new
+we would appreciate you letting us know. Especially do not hesitate to create new
 issues on \url{https://github.com/devnull-cz/unix-linux-prog-in-c/issues}.
 \end{itemize}
 
@@ -118,7 +118,7 @@ tested on Solaris, macOS and Linux.
 
 \begin{itemize}
 \item Note that \emsl{Linux is a kernel}, not the whole system.  In contrast to
-FreeBSD, for example, which covers both the kernel and the userland.  It is
+FreeBSD for example, which covers both the kernel and the userland.  It is
 better to say a ``Linux distribution'' if you discuss a whole system that is
 built around the Linux kernel.
 \item FreeBSD and NetBSD forked from 386BSD (now defunct) in 1993, OpenBSD
@@ -128,15 +128,15 @@ complicated, as usual.
 \item Presently, the ``UNIX'' trademark can be only used by systems that passed
 conformance tests defined in the Single UNIX Specification (SUS).
 \item From those systems listed above, only Solaris, macOS, AIX, and HP-UX are
-UNIX~03 compliant (\url{http://www.opengroup.org/openbrand/register/}).  Other,
-not certified systems, are often described as ``Unix-like'', even that in many
-cases they closely follow the standard.  However, word ``Unix'' is often used
+UNIX~03 compliant (\url{http://www.opengroup.org/openbrand/register/}).  Other
+uncertified systems, are often described as ``Unix-like'', even when in many
+cases they closely follow the standard.  However, the word ``Unix'' is often used
 for systems from either group.
 \item The above list is a tiny fraction of the whole Unix world.  Every
-proprietary Unix variant usually came from either UNIX~V or BSD, and added its
-own features.  That is why there were quite a few standards as well, see page
-\pageref{UNIXSTANDARDS}.  In the end vendors agreen upon a small set of those.
-\item If you are interested in detailed and up-to-date Unix system version
+proprietary Unix variant likely came from either UNIX~V or BSD, and added its
+own features.  This resulted in quite a few standards as well, see page
+\pageref{UNIXSTANDARDS}.  In the end vendors, agreed upon a small set of those.
+\item If you are interested in a detailed and up-to-date Unix system version
 history, go check \url{https://www.levenez.com/unix/}.
 \end{itemize}
 
@@ -168,7 +168,7 @@ history, go check \url{https://www.levenez.com/unix/}.
     \item standard of the The Open Group organization founded in 1996 via
     merging X/Open and OSF 
     \item today at Version~4 (\emsl{SUSv4})
-    \item the compliance is requisite condition for using the UNIX trademark
+    \item compliance is a requisite condition for using the UNIX trademark
     \end{itemize2}
 \end{itemize}
 \end{slide}
@@ -180,25 +180,25 @@ history, go check \url{https://www.levenez.com/unix/}.
 complex and incomprehensible on a first sight.
 \item AT\&T allowed the producers to call its own commercial UNIX variant
 ``System V'' only if it complied to the SVID standard conditions. AT\&T also
-published \emph{System~V Verification Suite} (SVVS), that checked whether given
+published \emph{System~V Verification Suite} (SVVS), that checked whether a given
 system complies to the standard.
-\item POSIX (Portable Operating System Interface) is standardization effort
+\item POSIX (Portable Operating System Interface) is a standardization effort
 of the IEEE organization (Institute of Electrical and Electronics Engineers).
-\item SUSv4 is common standard of The Open Group, IEEE (Std. 1003.1, 2008
+\item SUSv4 is a common standard of The Open Group, IEEE (Std. 1003.1, 2008
 Edition) and ISO (ISO/IEC 9945-2008).
-\item To certify given system to Single Unix Specification it is necessary
+\item To certify a given system for the Single Unix Specification, it is necessary
 to pass a series of tests (on given architecture, e.g. 64-bit x86).
-The results of the tests are then evaluated. The tests itself are unified into
+The results of the tests are then evaluated. The tests themselves are unified into
 so called \emph{test suites}, which are sets of automatic tests that go through
 the system and verify if it implements the interfaces specified in the standard.
-For example for SUSv3 there are 10 such test suites.
+For example, for SUSv3 there are 10 such test suites.
 \item The interfaces specified by the POSIX.1-2008 standard are divided into 4
 basic groups: XSH (System Interfaces), XCU (Shell and Utilities), XBD
-(Base definitions). W.r.t. number of interfaces the biggest of them is XSH that
+(Base definitions). W.r.t. number of interfaces, the biggest of them is XSH which
 contains more than 1000 interfaces.
-\item The interface groups of POSIX together with the Xcurses group, that is
-part of Single Unix Specification (however not part of POSIX base in the IEEE Std
-1003.1-2001 standard) includes 1742 interfaces in total, which form Single Unix
+\item The interface groups of POSIX together with the Xcurses group, are part
+of the Single Unix Specification (however not part of POSIX base in the IEEE Std
+1003.1-2001 standard) which includes 1742 interfaces in total, which form the Single Unix
 Specification (2003). The SUS interface tables are here:
 \url{http://www.unix.org/version3/inttables.pdf}
 \item Commercial UNIXes largely follow the Single UNIX Specification, compliance
@@ -207,15 +207,15 @@ to this standard is the condition to use the UNIX trademark
 UNIX V7 - do not mix it up with historical V7 UNIX). It is built on the POSIX
 base.
 \item We are going to follow SUSv4 for APIs in this lecture. The data structure
-definitions and algorithms used by kernel will be mostly based on
+definitions and algorithms used by the kernel will be mostly based on
 System~V Rel.~4 to keep things simple.
-\item On Solaris there is a extensive \texttt{standards(5)} manual page, where
+\item On Solaris there is an extensive \texttt{standards(5)} manual page, where
 lots of information about standards can be found in one place.
 Individual commands compliant to the standard are moreover placed
 into special directories, e.g. the \texttt{tr} program is located in
 \texttt{/usr/xpg4/bin/} and \texttt{/usr/xpg6/bin/} directories, in each there
 is a version of the program compliant to the respective standard.
-The options and behavior specified by the standard can be then relied on e.g.
+The options and behavior specified by the standard can be then relied upon e.g.
 when writing shell scripts.
 \item Also on Solaris, look into the
 \texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h} header file.
@@ -270,7 +270,7 @@ project in 1983.
 POSIX.4, because that was its original naming before renumbering.
 Most of this extension is optional, therefore the claim ``system supports
 POSIX.1b'' gives even worse testimony that ``system is POSIX compatible'', i.e.
-practially zero. The only mandatory part of POSIX.4 is simple addendum to
+practially zero. The only mandatory part of POSIX.4 is a simple addendum to
 signals compared to POSIX1990. It is therefore always necessary to state
 what exactly out of POSIX.4 is implemented -- e.g. shared memory, semaphores,
 real-time signals, memory locking, asynchronous I/O, timers, etc.
@@ -280,8 +280,8 @@ real-time signals, memory locking, asynchronous I/O, timers, etc.
 \pageref{RWLOCKS}.
 \item \dots
 \end{itemize}
-\item The POSIX standars can be found on \url{http://www.open-std.org/}.
-The HTML version is freely available, PDF documents have to be paid.
+\item The POSIX standards can be found on \url{http://www.open-std.org/}.
+The HTML version is freely available, PDF documents have to be purchased.
 \end{itemize}
 
 
@@ -313,7 +313,7 @@ edition, 2006.
 
 \begin{enumerate}
 \item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
-and Mach systems.  The 2nd edition scheduled for 2005 never happened,
+and Mach systems.  The 2nd edition, scheduled for 2005, never happened,
 unfortunately.
 \item UNIX classic book. On UNIX System~V Rel.~2, and partially 3 as well.
 While outdated, it is one of the best books ever written on Unix.  In 1993 a
@@ -357,7 +357,7 @@ net\-work\-ing, that is in 3.
 net\-work\-ing.  Not as detailed as books 1 and 3 but that could be to your
 advantage.  We very much recommend this book, especially if you want just one.
 The author can see the big picture which is quite rare.
-\item Unix network programming classics, one of the best on the topic; there is
+\item Unix network programming classic, one of the best on the topic; there is
 also volume 2, \emsl{UNIX Network Programming, Volume 2: Interprocess
 Communications}, covering interprocess communication in great detail.
 \item Great book on programming with threads using POSIX API.  Highly
@@ -397,8 +397,8 @@ numbering may not match, etc.  See also \texttt{man(1)}.  For example, on
 Solaris, the manual page section needs to be provided with the \texttt{-s}
 option, ie. ``\texttt{man -s 2 chmod}''.
 \item The \texttt{man} command uses a list of system directories to search for
-man pages.  If you have manual pages some place else, perhaps in a local subtree
-after you unpacked a tar file you downloaded and want to check the
+man pages.  If you have manual pages someplace else, perhaps in a local subtree
+after you unpacked a tar file you downloaded and you want to check the
 documentation, the \texttt{-M} option may come in handy.
 \item Sometimes there are entries for the same name in several sections.  If
 unsure what you are looking for, use the \texttt{-a} option to get all manual
@@ -504,7 +504,7 @@ See \url{http://www.open-std.org/}.
 \item Be careful when using tools like \texttt{hexdump} that by default print
 out a file as 16-bit numbers.  The ordering of individual bytes may not be how
 they are stored in a file.  For example, take FreeBSD on i386.  The first number
-in the file is character ``i'' which represents lower 8 bits of the first 16-bit
+in the file is character ``i'' which represents the lower 8 bits of the first 16-bit
 number, so when the first two bytes are printed out as a 16-bit number, the byte
 representing ``i'', ie. ``69'', is shown as the second byte.  Similarly for
 ``kl''.
@@ -516,7 +516,7 @@ $ hexdump test
 0000004
 \end{verbatim}
 
-You can use other output formats though, for example as hexa bytes and
+You can use other output formats though, for example as hex bytes and
 characters in the same output:
 
 \begin{verbatim}
@@ -595,7 +595,7 @@ main(void)
 
 \begin{itemize}
 \item One of the most important thing of a C style (well, any style) is
-consistency.  And often it is not that important what an exact C style a group
+consistency.  And often it is not that important what exact C style a group
 of coders is going to pick as it is that one specific style is chosen and then
 religiously followed by all in the group.  A good and rigorously followed cstyle
 leads to a smaller number of bugs in code.
@@ -730,8 +730,8 @@ paper, available freely.
 \item Non-trivial programs are often split into several source code files that
 contain related functions.  Such files can be compiled independently, and you
 can even use different languages and different compilers for each file.  The
-advantage is the speed of building as only modified files are re-compiled (see
-page \pageref{MAKE} on the \texttt{make} utility), and also flexibility as you
+advantage is the speed of building, as only modified files are re-compiled (see
+page \pageref{MAKE} on the \texttt{make} utility), and also flexibility, as you
 can use some of the files in other programs as well.
 \item The \emph{compiler} compiles each file into a corresponding object file.
 Instead of external function pointers in the compiled code, the object file
@@ -772,7 +772,7 @@ functionality comes in handy, not just for C source code.
 \item In a situation where you need to fix code full of includes and conditional
 compilation, the output after the preprocessor phase may be very helpful to
 locate the problem.
-\item \texttt{cpp} (or \texttt{cc -E}) also allow you to see the whole tree of
+\item \texttt{cpp} (or \texttt{cc -E}) also allows you to see the whole tree of
 included files, printed on the standard error output.  For that, use a separate
 \texttt{-H} option (not \texttt{-EH}) and redirect the output to
 \texttt{/dev/null}:
@@ -792,7 +792,7 @@ $ gcc -E -H tcp/connect.c >/dev/null
 etc...
 \end{verbatim}
 
-\item You cannot nest comments in C so in order to temporarily disable code with
+\item You cannot nest comments in C, so in order to temporarily disable code with
 comments without deleting it, wrapping it in another comment will not work.
 So, the preprocessor to your rescue -- use the conditional compilation feature:
 
@@ -845,7 +845,7 @@ syntax.
 \sltitle{Compiler}
 \renewcommand{\arraystretch}{1.1}
 \begin{itemize}
-\item volání:\\
+\item volÃ¡nÃ­:\\
 \texttt{cc [\emph{options}] \emph{file} \dots}
 \item the most important options:\\
 \begin{tabular}{ll}
@@ -856,7 +856,7 @@ syntax.
 \texttt{-L\emph{directory}} & add a directory to search when using \texttt{-l}\\
 \texttt{-O\emph{level}} & optimalization level\\
 \texttt{-g} & compile with debug information\\
-\texttt{-D\emph{jméno}} & define a macro for the preprocessor\\
+\texttt{-D\emph{jmÃ©no}} & define a macro for the preprocessor\\
 \texttt{-I\emph{directory}} & add a directory to search for \texttt{\#include} files
 \end{tabular}
 \end{itemize}
@@ -907,7 +907,7 @@ before any \verb.#include..  Then include \texttt{unistd.h}.
 \end{slide}
 
 \begin{itemize}
-\item The way how it works is that you use specific macros to define what you
+\item The way it works is that you use specific macros to define what you
 want (eg. \texttt{\_POSIX\_SOURCE}), and then you use other macros (eg.
 \texttt{\_POSIX\_VERSION}) to find out what you actually got.  You always have
 to include \texttt{unistd.h} after you set the macros and use a compiler that
@@ -932,8 +932,8 @@ options invalid; UNIX 03 and POSIX.1-2001 applications require
 the use of c99"
 cc: acomp failed for standards.c
 \end{verbatim}
-%\item zdroj maker pro standard tedy mù¾e být ji¾ na stranì
-%\pageref{UNIXSTANDARDS} zmiòovaný hla\-viè\-ko\-vý soubor
+%\item zdroj maker pro standard tedy mÃ¹Â¾e bÃ½t jiÂ¾ na stranÃ¬
+%\pageref{UNIXSTANDARDS} zmiÃ²ovanÃ½ hla\-viÃ¨\-ko\-vÃ½ soubor
 %\texttt{feature\_tests.h} na Solarisu.
 \item See the documentation for your compiler about what other macros can be
 used.
@@ -1122,7 +1122,7 @@ Makefile01}''.
 \end{slide}
 
 \begin{itemize}
-\item \emsl{Note that the line with a command starts with a tabulator, not
+\item \emsl{Note that the line with a command starts with a tab, not
 spaces.}  Every command line is executed via its own shell invocation.  If
 multiple commands need to be executed via the same shell process, all but the
 last line needs to be terminated with a backslash.  See the following example
@@ -1182,7 +1182,7 @@ test2:
 \item defining a macro on a command line: \\
 \hspace*{5em}\texttt{make \emph{target} \emph{name}=\emph{string}}
 \item macro invocation: \\
-\hspace*{5em}\texttt{\$\emph{name}} (pouze jednoznakové
+\hspace*{5em}\texttt{\$\emph{name}} (pouze jednoznakovÃ©
 \texttt{\emph{name}}), \\
 \hspace*{5em}\texttt{\$\{\emph{name}\}} or \texttt{\$(\emph{name})}
 \item environment variables are accessible as macros (eg. \texttt{\$\{EDITOR\}})
@@ -1208,7 +1208,7 @@ Variable M is recursive.
 or BSD.
 \item To write a non-trivial \texttt{Makefile} that will work with
 different \texttt{make} implementations is not a simple task.  Therefore
-projects as GNU Automake exist.  For a simple conditional compilation where
+projects as GNU Automake exist.  For a simple conditional compilation, where
 based on the system we need to set different options, the following code might
 come in handy.  A character ` is a back quote, and a ' is a normal single quote:
 
@@ -1292,7 +1292,7 @@ via calls like \texttt{dlopen()} etc.  See page \pageref{DLOPEN} for more
 information.
 \end{itemize}
 \item Note that the dynamic linker does not run as a separate process (unless
-you run it like that) even that it has its own \texttt{main()} function.  It is
+you run it like that) even though it has its own \texttt{main()} function.  It is
 used within an address space of an executed program.  The program, dynamic
 linker, and dynamic libraries constitute a single process.
 
@@ -1305,7 +1305,7 @@ commands and/or options on Linux is left as an excercise to the reader.
 \item What a dynamic linker is used is in section \texttt{.interp}, see
 ''\texttt{elf\-dump -i}'' and ``\texttt{ld -I}''.  It means you could write your
 own dynamic linker and set it via the \texttt{-I} option for \texttt{ld} to your
-program.  It is needed to say such an enterprise would not be an easy feat at
+program.  Needless to say, such an enterprise would not be an easy feat at
 all.
 \item To list the dynamic section, use \texttt{elfdump -d}, dynamic libraries
 are set as \texttt{NEEDED}.
@@ -1319,15 +1319,15 @@ depends on what, use the \texttt{-v} option.  macOS does not have \texttt{ldd},
 use \texttt{otool -L} instead.
 \item What libraries are eventually used when running the program could be
 different from what \texttt{ldd} shows.  For example, 
-one could use the \texttt{LD\_PRELOAD} mechanism.  For that reasons,
-Solaris has a \texttt{pldd} command which provides for a running process
-library dependencies.  Example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
+one could use the \texttt{LD\_PRELOAD} mechanism.  For that reason,
+Solaris has a \texttt{pldd} command which provides the library dependcies for a
+running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
 already mentioned \texttt{Ma\-ke\-file01}, and compile
 \example{basic-utils/preload.c} like this: ``\texttt{gcc -shared -o
 lib\-pre\-load.so preload.c}''.  Run the program then which interposes a system
 call \texttt{close()}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
-\item Most of the information listed here can be found in a manual page for the
-Solaris dynamic linker, \texttt{ld.so.1(1)}, and much more then in an excellent
+\item Most of the information listed here can be found in the manual page for the
+Solaris dynamic linker, \texttt{ld.so.1(1)}, and much more in the excellent
 \emph{Linkers and Libraries Guide} on \texttt{docs.oracle.com}.  If you use
 FreeBSD, its dynamic linker is \texttt{ld-elf.so.1}, on Linux distros it is
 usually \texttt{ld-linux.so.1}, it is \texttt{rld} on SGI IRIX etc.
@@ -1340,7 +1340,7 @@ and to find out what options you have to debug the dynamic linker there:
 \begin{verbatim}
 LD_DEBUG=help date
 \end{verbatim}
-\item To tell the linker to look for dynamic libraries also in directories other
+\item To tell the linker to also look for dynamic libraries in directories other
 than the default ones (paths from \texttt{LD\_LIBRARY\_PA\-TH} are searched
 first), use it like the following:
 \begin{verbatim}
@@ -1362,7 +1362,7 @@ articles on ``why is \texttt{LD\_LIBRARY\_PATH} evil?'' etc.  For example,
 \url{http://xahlee.org/UnixResource\_dir/\_/ldpath.html}.
 
 \par
-This varible is often misused in the start-up scripts because the command(s)
+This variable is often misused in the start-up scripts because the command(s)
 is/are incorrectly linked and the dynamic linker would not otherwise find the
 correct libraries.  The typical side effect, however, is that the program(s)
 subsequently start(s) additional programs that use the same libraries but as all
@@ -1811,7 +1811,7 @@ $ echo $?
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Konvence pøedávání parametrù a environmentových promìnných
+% Konvence pÃ¸edÃ¡vÃ¡nÃ­ parametrÃ¹ a environmentovÃ½ch promÃ¬nnÃ½ch
 
 \pdfbookmark[1]{argv, argc}{args}
 
