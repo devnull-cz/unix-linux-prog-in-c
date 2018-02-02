@@ -144,96 +144,100 @@ For process manipulation there were \texttt{fork()}, \texttt{exec()},
 %%%%%
 
 \begin{slide}
-\sltitle{Divergence UNIXu}
+\sltitle{UNIX divergence}
 \begin{itemize}
-\item pol. 70. let -- uvolòování UNIXu na univerzity: pøedev¹ím \emsl{University
+\item mid 70's -- releasing uvolòování UNIXu na univerzity: mainly to \emsl{University
 of California v Berkeley}
-\item 1979 -- z UNIX/32V (zmínìný port na VAX) poskytnutého do
-Berkeley se vyvíjí \emsl{BSD Unix (Berkeley Software Distribution)}
-verze 3.0; poslední verze 4.4 v roce 1993
-\item 1982 \emsl{AT\&T}, vlastník BTL, mù¾e vstoupit na trh poèítaèù
-(zakázáno od roku 1956) a pøíchází s verzí \emph{System III} (1982)
-a¾ \emph{V.4} (1988) -- tzv. \emph{SVR4}
-\item vznikají UNIX International, OSF (Open Software Foundation),
-X/OPEN, \dots 
-\item 1991 -- Linus Torvalds zahájil vývoj OS Linux, verze jádra 1.0 byla
-dokonèena v r. 1994
+\item 1979 -- \emsl{BSD Unix (Berkeley Software Distribution)} is being
+developed from UNIX/32V (the mentioned port to VAX) provided to Berkeley.
+vrsion 3.0; last version 4.4 in 1993
+\item 1982 \emsl{AT\&T}, owner of BTL, can enter the computer marked
+(forbidden till 1956) and comes with version \emph{System III} (1982)
+till \emph{V.4} (1988) -- so called \emph{SVR4}
+\item UNIX International, OSF (Open Software Foundation),
+X/OPEN, \dots are conceived
+\item 1991 -- Linus Torvalds begun OS Linux development, kernel version 1.0 was
+finished in 1994
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item UNIX je univerzální operaèní systém fungující na ¹iroké ¹kále poèítaèù
-od embedded a handheld systémù (Linux), pøes osobní poèítaèe a¾ po velké
-servery a superpoèítaèe.
-\item UNIX V3 = \emph{UNIX verze 3}, UNIX V.4 = \emph{system 5 release 4}
-atd., tj. UNIX V3 != SVR3.
-\item UNIX System III tedy není UNIX V3; v této dobì (pozdní 70. léta) bylo v
-BTL nìkolik skupin, které pøíspívaly do vývoje UNIXu. Vx verze byly vyvíjeny v
-rámci \emph{Computer Research Group}, dal¹í skupiny byly \emph{Unix System
-Group} (USG), \emph{Programmer's WorkBench} (PWB). Dal¹í vìtví UNIXu byl
-Columbus UNIX té¾ v rámci BT. Na tìchto rùzných verzích je právì zalo¾ena
-verze System III. Zájemce o více informací odkazuji na web.
-\item UNIX se roz¹tìpil na dvì hlavní vìtve: AT\&T a BSD, jednotliví výrobci
-pøicházeli s~vlastními modifikacemi. \emsl{Jednotlivé klony od sebe navzájem
-pøebíraly vlastnosti.}
+\item UNIX is universal operating system working on multitude of computers from
+embedded and handheld systems (Linux), through personal computers till servers
+and supercomputers.
+\item UNIX V3 = \emph{UNIX version 3}, UNIX V.4 = \emph{system 5 release 4}
+etc., e.g. UNIX V3 != SVR3.
+\item UNIX System III is therefore not UNIX V3; in those days (late 70's) there
+were multiple groups in BTL that contributed to the UNIX development. Vx
+versions were developed in \emph{Computer Research Group}, other groups were
+\emph{Unix System Group} (USG), \emph{Programmer's WorkBench} (PWB).
+Another branch of UNIX was Columbus UNIX also in BT. The System III version is
+based on these early versions.
+\item UNIX has forked into two main branches: AT\&T and BSD, individual
+manufacturers were coming with their own modifications.
+\emsl{Individual clones adopted features from each other.}
 % find SysV-R4.0/ -type f -name '*.[cshy]' | wc -l
 %    5714
 %find SysV-R4.0/ -type f -name '*.[cshy]' -exec wc -l {} \; | ~/bin/sum.awk 
 %lines: 1500713
-\item System V R4 mìl cca 1.5 milionu øádek zdrojového kódu
-v cca 5700 souborech (zji¹tìno pomocí \texttt{find}, \texttt{wc} a \texttt{awk}
-pøes soubory se jménem \texttt{*.[cshy]}).
-\item Univerzita v Berkeley získala jako jedna z prvních licenci UNIXu v roce
-1974. Bìhem nìkolika let studenti (jedním z nich byl Bill Joy, pozdìj¹í
-zakladatel firmy Sun Microsystems a autor C-shellu) vytvoøili SW balík
-\emph{Berkeley Software Distribution} (BSD) a prodávali ho v roce 1978 za
-\$50. Tyto poèáteèní verze BSD obsahovaly pouze SW a utility (první verze:
-Pascal pøekladaè, editor \emph{ex}), ne systém ani ¾ádné jeho zmìny. To pøi¹lo
-a¾ s verzí 3BSD. verze 4BSD vzniká roku 1980 ji¾ jako projekt financovaný
-agenturou DARPA a vedený Billem Joyem. Trpí problémy spojenými s nedostateèným
-výkonem a vzniká tak vyladìný systém 4.1BSD dodávaný od roku 1981.
-\item 4.1BSD mìlo být pùvodnì 5BSD, ale poté, co AT\&T vzneslo  námitky, ¾e by
-si zákazníci mohli plést 5BSD se systémem System~V, pøe¹lo BSD na èíslování
-4.xBSD. Bì¾nou vìcí bylo, ¾e ne¾ psát vlastní kód, vývojáøi z Berkeley se
-radìji nejdøíve podívali kolem, co je ji¾ hotové. Tak BSD napøíklad pøevzalo
-virtuální pamì» z Machu a nebo NFS-kompatibilní kód vyvinutý na jedné kanadské
-univerzitì.
-%\item (1988) 4.3BSD-Tahoe mìl ji¾ rozdìl{}ený kód kernelu na závislý na
-%architektuøe a nezávislý
-%\item (1989) \emph{Networking Release 1}, první volnì ¹iøitelný kód z
-%Berkeley obsahující sí»ový kód z Tahoe, nezávislý na licenèní politice AT\&T.
-%Licenèní politika z Berkeley byla oproti politice AT\&T velmi liberální.
-\item výrobci hardware dodávali varianty UNIXu pro své poèítaèe a
-komercializace tak je¹tì zhor¹ila situaci co týèe diverzifikace totoho systému
-\item v 80-tých letech se proto zaèaly objevovat snahy o standardizaci. Standard
-øíká, jak má vypadat systém navenek (pro u¾ivatele, programátora a správce),
-nezabývá se implementací. Cílem je pøenositelnost aplikací i u¾ivatelù. V¹ech\-ny
-systémy toti¾ z dálky vypadaly jako UNIX, ale pøi bli¾¹ím prozkoumání se li¹ily
-v mnoha dùle¾itých vlastnostech. System~V a BSD se napø. li¹ily v pou¾itém
-filesystému, sí»ové architektuøe i v architektuøe virtuální pamìti.
-\item kdy¾ v roce 1987 firmy AT\&T a Sun (jeho¾ tehdej¹í SunOS byl zalo¾ený
-na BSD) spojily svoje úsilí na vyvinutí jednoho systému, který by obsahoval to
-nejlep¹í z obou vìtví, kromì nad¹ených reakcí to vzbudilo i strach u mnoha
-dal¹ích výrobcù unixových systémù, kteøí se báli, ¾e by to pro obì firmy
-znamenalo obrovskou komerèní výhodu. Vzniká proto Open Software Foundation
-(nezamìòovat za FSF), a zakládajícími èleny byly mimo jiné firmy
-Hewlett-Packard, IBM a Digital. Z toho vze¹lý systém OSF/1 ale nebyl pøíli¹
-úspì¹ný, a dodával ho pouze Digital, který ho pøejmenoval na Digital UNIX.
-Zajímavostí je, ¾e systém je postavený na mikrojádru Mach. Po akvizici
-Digitalu Compaqem byl systém pøejmenován na Tru64 a s tímto jménem je dále
-podporován firmou Hewlett-Packard, která se v roce 2002 s Compaqem spojila. Mezitím
-firmy AT\&T a Sun kontrovaly zalo¾ením UNIX International. Toto období pøelomu
-80-tých a 90-tých let se nazývá \emsl{Unix Wars} -- boj o to, co bude
-``standardním unixem''.
-\item OSF a UI se staly velkými rivaly, ale velmi rychle se støetly s
-neèekaným protivníkem - s firmou Microsoft.
-\item (1992) 386BSD zalo¾ené na \emph{Networking Release 2}; Bill Jolitz
-vytvoøil 6 chybìjících souborù a dal tak dohromady funkèní BSD systém pro
-i386. Tento systém se stal základem systémù \emph{NetBSD} a \emph{FreeBSD} (a
-dal¹ích, z tìchto dvou systémù vycházejících).
-\item (1995) 4.4BSD-Lite Release 2, po které následuje rozpu¹tìní CSRG, která
-skoro 20 let pilotovala vývoj BSD vìtve. Více ji¾ zmínìná kapitola o BSD
-Unixu.
+\item System V R4 has circa 1.5 milion lines of code
+in circa 5700 files (determined using \texttt{find}, \texttt{wc} and
+\texttt{awk} across files names matching \texttt{*.[cshy]}).
+\item Berkeley university was granted UNIX license as one of the first in
+1974. During several years students (one of which was Bill Joy, later
+founder of Sun Microsystems and the author of C-shell) created SW package
+\emph{Berkeley Software Distribution} (BSD) and were selling it in 1978 for
+\$50. These early BSD versions contained just SW and utilities (first version:
+Pascal compiler, the \emph{ex} editor), not the system or its changes.
+That came with the 3BSD version. The 4BSD version was conceived in 1980 already
+as a project financed by the DARPA agency and led by Billem Joyem. It suffered
+problems with insufficient performance and the tuned 4.1BSD came into existence
+in 1981 as a result.
+\item 4.1BSD should have been originally 5BSD, however after AT\&T raised
+concerns that its customer could confuse 5BSD with System~V, BSD transitioned to
+the 4.xBSD versioning scheme. It was common that rather write its own code, the
+Berkeley developers looked around first for what is already done. In this way
+BSD took virtual memory from Mach or NFS-compatible code developed on one
+canadian university.
+%\item (1988) 4.3BSD-Tahoe had already the kernel code split into architecture
+%dependent and independent.
+%\item (1989) \emph{Networking Release 1}, first freely distributable code from
+%Berkeley containing networking code from Tahoe, not dependent on the AT\&T
+%licensing policy. The Berkeley licensing policy was very liberal compared to
+%the one of AT\&T.
+\item The hardware manufacturers were shipping UNIX variants for their own
+computers and commercionalization made the situation worse w.r.t.
+diversification of this system.
+\item In the 80's the first efforst for standardization came into existence.
+Standard specifies how the system should behave externally (for user, programmer
+and administrator), it is not dealing with implementation. The goal is
+portability of applications and users. All systems remotely looked like UNIX
+however upon closer look there were different in many important properties.
+For example System~V and BSD differed in filesystem, network architecture and
+virtual memory architecture.
+\item When in 1987 the AT\&T and Sun microsystems companies (whose then SunOS
+was based on BSD) joined their effort to develop single system that would
+contain the best of each, next to enthusiastic responses it also prompted fear
+between many other unix system manufacturers that were afraid that it would mean
+great business advantage for both companies. So came the Open Software
+Foundation into existence (do not confuse with FSF) and founding members were
+between others Hewlett-Packard, IBM a Digital. This system OSF/1 that arose from
+this partnership was not very successful and it was shipped only by Digital that
+renamed it to Digital UNIX. It is interesting to note that the system was based
+on the Mach microkernel. After the aquisition of Digital by Compaq it was
+renamed to Tru64 and supported by Hewlett-Packard, that was merged with
+Compaq in 2002. In the mean time AT\&T and Sun responsed by founding UNIX
+International. This period of 80's and 90's is called \emsl{Unix Wars} -- the
+firght over what will be the ``standard unix''.
+\item OSF and UI became great rivals however they were soon met by unexpected
+opponent -- Microsoft.
+\item (1992) 386BSD founded on \emph{Networking Release 2}; Bill Jolitz
+created 6 missing files and put together functional BSD system for i386.
+This system was a based for \emph{NetBSD} and \emph{FreeBSD} (and others
+patterned on these systems).
+\item (1995) 4.4BSD-Lite Release 2, after which CSRG was disbanded. It piloted
+the development of BSD branch for almost 20 years. More can be found in the BSD
+chapter mentioned above.
 \end{itemize}
 
 \endinput
