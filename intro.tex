@@ -415,7 +415,7 @@ command for \texttt{less(1)} which is usually the default pager (or possibly
 \begin{slide}
 \sltitle{The C Programming Language}
 \begin{itemize}
-\item virtually all Unix kernels are written in C.  Only some HW dependend parts
+\item virtually all Unix kernels are written in C. Only some HW dependent parts
 are written in assembler.
 \item C came into existence in the years 1969-1973, by Dennis M. Ritchie (\dag
 2011)
@@ -1320,9 +1320,9 @@ use \texttt{otool -L} instead.
 \item What libraries are eventually used when running the program could be
 different from what \texttt{ldd} shows.  For example, 
 one could use the \texttt{LD\_PRELOAD} mechanism.  For that reason,
-Solaris has a \texttt{pldd} command which provides the library dependcies for a
-running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
-already mentioned \texttt{Ma\-ke\-file01}, and compile
+Solaris has a \texttt{pldd} command which provides the library dependencies for
+a running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}:
+use already mentioned \texttt{Ma\-ke\-file01}, and compile
 \example{basic-utils/preload.c} like this: ``\texttt{gcc -shared -o
 lib\-pre\-load.so preload.c}''.  Run the program then which interposes a system
 call \texttt{close()}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
