@@ -437,7 +437,7 @@ effective IDs.
 \item If a process with UID~==~0 wants to change its identity, it has to call
 \texttt{setgid} first and then \texttt{setgroups}. Only after that it can call
 \texttt{setuid}. Any other ordering would mean that the process would lack the
-rights to perform the opearation in question, e.g. once \texttt{setuid} returns
+rights to perform the operation in question, e.g. once \texttt{setuid} returns
 it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 \item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
 \item RUID/EUID are saved in the kernel process structure and also in the so
