@@ -484,7 +484,7 @@ use a negative number for setting \emph{offset}.  Example:
 the file size will be set accordingly, the ``holes'' will be read as zeros.
 Note that just changing the file position will not increase the file size.
 \item You can get the file size via \texttt{lseek(fildes, 0, SEEK\_END)}.
-\item The most common operations with \texttt{lseek} are three: seeting the
+\item The most common operations with \texttt{lseek} are three: setting the
 position from the beginning of a file, setting the position to the end of a
 file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
 \item There is no I/O involved when calling \texttt{lseek}.
@@ -500,7 +500,7 @@ their versions.  Some utilities provide means to preserve holes, for example,
 \item Beware of confusing the parameters.  The second line below looks OK but
 the arguments are in reversed order.  What is more, \texttt{SEEK\_SET} is
 defined as 0 and \texttt{SEEK\_CUR} is 1, so the file position is not moved
-which is not by itself a disasterous thing, and makes it more difficult to find
+which is not by itself a disastrous thing, and makes it more difficult to find
 it:
 
 \begin{verbatim}
@@ -956,8 +956,8 @@ expect.
 \texttt{d\_type}.  It can have values of \texttt{DT\_REG}, \texttt{DT\_DIR},
 \texttt{DT\_FIFO} etc., see the man page for \texttt{dirent}.  It was a BSD
 specific thing and subsequently copied by other systems, including Linux.
-However, it is not part of SUSv4 and thus not portable, unfortunatelly.  The
-portable way is to call \texttt{stat} on each directory entry.
+However, it is not part of SUSv4 and thus not portable, unfortunately.
+The portable way is to call \texttt{stat} on each directory entry.
 \item \texttt{rmdir} does not work on directories that are not empty.  You have
 to remove all entries before you can delete a directory.  You you use 
 \texttt{system("rm -r xxx")} etc. but be careful to sanitize the environment and
