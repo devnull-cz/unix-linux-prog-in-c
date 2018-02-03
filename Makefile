@@ -61,3 +61,12 @@ notes:		$(NOTES)
 
 clean:
 		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp *.out
+
+# Once translation is finished, make this return 1 on non-empty output.
+spellcheck:
+		@for file in ${SLIDES}; do \
+			echo "### Checking $$file"; \
+			$(M4) $$file | \
+			    sed '/\begin{verbatim}/,/\end{verbatim}/d' | \
+			    aspell -t --personal=./unix_dict.txt list; \
+		done
