@@ -3,7 +3,7 @@ dist: trusty
 before_install:
 - sudo apt-get -qq update && sudo apt-get install -y --no-install-recommends texlive-fonts-recommended
   texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended texlive-pstricks
-  texlive-lang-czechslovak aspell aspell-en aspell-dictionary
+  texlive-lang-czechslovak aspell aspell-en aspell-en
 script:
 - make
 - make
