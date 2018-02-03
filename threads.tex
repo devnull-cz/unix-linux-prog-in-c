@@ -683,13 +683,13 @@ the thread waiting for the lock).
 \begin{itemize}
 \item the simplest way how to ensure synchronized access to shared data between
 threads
-\item inicialization of statically defined mutex:
+\item initialization of statically defined mutex:
 \end{itemize}
 
 \texttt{pthread\_mutex\_t mutex = PTHREAD\_MUTEX\_INITIALIZER;}
 
 \begin{itemize}
-\item inicialization of dynamically allocated mutex \texttt{mx} with attributes
+\item initialization of dynamically allocated mutex \texttt{mx} with attributes
 \texttt{attr} (these are set using \texttt{pthread\_mutexattr\_...};
 if \texttt{attr} is \texttt{NULL}, default attributes will be used)
 \end{itemize}
