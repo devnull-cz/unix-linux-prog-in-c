@@ -1,6 +1,6 @@
 
 \pagebreak
-\pdfbookmark[0]{process manipulation, program execution}{procesy}
+\pdfbookmark[0]{process manipulation, program execution}{processes}
 
 \begin{slide}
 \sltitle{Contents}
@@ -244,7 +244,7 @@ priority
 \item \emsl{The premise of preemptive planning are periodic timer interrupts}
 which take away the CPU from the running process and pass on the CPU
 to the kernel (scheduler is activated).
-\item The other variant is non-preemtive (cooperative) planning, where process
+\item The other variant is non-preemptive (cooperative) planning, where process
 keeps running, until it gives up the CPU, i.e. until it calls such system call,
 that switches the context to different process. The downside of cooperative
 planning is that one process can block the CPU and other processes forever.
@@ -252,10 +252,10 @@ planning is that one process can block the CPU and other processes forever.
 \item Traditional (historical) UNIX \emsl{kernel} uses cooperative planning,
 i.e. process running in kernel mode is not switched until it gives up the CPU
 by itself.
-\emsl{Modern Unix kernels are preemtive} -- mainly because of real-time
+\emsl{Modern Unix kernels are preemptive} -- mainly because of real-time
 systems; where it is necessary to have the possibility to remove a CPU from
 a running process immediately, and not waiting until it returns from a kernel
-mode or enters sleep by itself. Note that UNIX was preemtive from its very
+mode or enters sleep by itself. Note that UNIX was preemptive from its very
 beginning but its kernel was non-preemptive in the beginning.
 \item With a preemptive planning processes can be interrupted at any time and
 the CPU given to another process. Therefore a process can never be sure
