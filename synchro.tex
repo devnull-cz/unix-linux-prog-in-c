@@ -435,7 +435,7 @@ happen. Here e.g. 2 processes are waiting for each other, for the other to
 release the lock however that will never happen. Next possibility is deadlock
 of single process that is reading from a pipe after forgetting to close
 the write end of the pipe. If there is no one else that has the pipe open,
-the read will block because the all file desriptor copies of the write end are
+the read will block because the all file descriptor copies of the write end are
 not closed and therefore the end of file cannot happen until the reading process
 closed the write end however it cannot do it because it is blocked.
 in \texttt{read} syscall:
@@ -469,7 +469,7 @@ system.
 \sltitle{IPC}
 \begin{itemize}
 \item \emsl{IPC} stands for \emph{Inter-Process Communication}
-\item between processes \emsl{in single system}, e.g. does not inlude
+\item between processes \emsl{in single system}, e.g. does not include
 network communication.
 \item \emsl{semaphores} \dots{} used for process synchronization
 \item \emsl{shared memory} \dots{} passing data between processes,
