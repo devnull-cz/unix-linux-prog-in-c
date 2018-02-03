@@ -98,7 +98,6 @@ aaa
 abc
 abi
 acomp
-additonal
 addr
 ae
 ar
@@ -113,7 +112,6 @@ atexit
 autoconf
 automake
 basename
-beatiful
 bflag
 breakpoint
 bsd
@@ -136,10 +134,7 @@ cstyle
 ctype
 currentunix
 cxref
-daggerset
 dbx
-dependcies
-dependend
 dereferenced
 dev
 dimanche
@@ -348,3 +343,12 @@ NFS
 semop
 msgget
 timesharing
+WorkBench
+PWB
+USG
+UI
+wc
+uucp
+Jolitz
+CSRG
+Thmopson
