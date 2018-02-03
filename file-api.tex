@@ -788,8 +788,9 @@ constants \verb#S_IFMT# (bit mask for the file type bit field), \verb#S_IFBLK#
 \texttt{int \funnm{lstat}(const char *\emph{path}, struct stat
 *\emph{buf});}
 \begin{itemize}
-\item if \emph{path} is a symlink, \texttt{stat()} returns informace on the file
-the symlink refers to. This function returns information about the link itself.
+\item if \emph{path} is a symlink, \texttt{stat()} returns information of the
+file the symlink refers to. This function returns information about the link
+itself.
 \end{itemize}
 \end{slide}
 
