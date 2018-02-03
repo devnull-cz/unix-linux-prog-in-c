@@ -390,7 +390,7 @@ IDs of the calling process and returns number of all GIDs of the process.
 \item The \texttt{getuid} returns real UID, there is nothing like
 \texttt{getruid}.
 \item \texttt{getgroups}: when \texttt{gidsz~==~0}, it returns the number of
-groups. When \texttt{0 < gidsz < \#skupin}, it returns \texttt{-1}.
+groups. When \texttt{0 < gidsz < \#groups}, it returns \texttt{-1}.
 \item In Unix, there are many data types such as \verb#uid_t#, \verb#gid_t#,
 \verb#size_t#, \verb#pid_t#, etc.  In general, these are integer types and you
 can often find them in the \texttt{/usr/inc{}lude/sys/types.h} header file.

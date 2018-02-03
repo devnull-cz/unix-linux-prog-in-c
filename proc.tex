@@ -409,7 +409,7 @@ called \texttt{fork}; will be further explained on page \pageref{FORKALL}.
 \item The file descriptor tables are exact copies in both processes.  That means
 that more processes can share and seek a common file position.  Signal masks are
 not changed, more on that on page \pageref{SIGNALBLOCKINGEXAMPLE}.
-\item For effiency and less memory consumption, the address space is not copied
+\item For efficiency and less memory consumption, the address space is not copied
 but a \emph{copy-on-write} mechanism is used.
 \item The reason why the parent gets its child's PID as a return value and the
 child gets 0 is because it is easy for the child to get its parent PID via
@@ -456,7 +456,7 @@ Session includes one or more process groups. Maximum one group in the session
 runs in foreground (\emph{foreground process group}) and has access to the
 controlling terminal for input and output, the rest is running in the background
 (\emph{background process groups}) and have only optional access to the output
-or no at all. (unallowed operation with terminal will stop the process).
+or no at all. (disallowed operation with terminal will stop the process).
 \item[parent process:] Each process (besides \texttt{swapper}u, pid~==~0)
 has a parent, i.e. process that created it with the \texttt{fork} syscall.
 If the parent exits before the child, its adoptive parent will become the
@@ -464,7 +464,7 @@ If the parent exits before the child, its adoptive parent will become the
 \end{description}
 \begin{itemize}
 \item To get information about running processes programatically is possible
-using non-standar API (e.g. the \texttt{libproc} library on Solaris built
+using non-standard API (e.g. the \texttt{libproc} library on Solaris built
 on top of the \texttt{procfs} filesystem that is mounted under \texttt{/proc}).
 \item Note that using \texttt{getppid} value to check if parent exited is not
 portable (commonly \texttt{init} has pid 1 however this is not true in many
@@ -899,7 +899,7 @@ file descriptors with the \texttt{FD\_CLOEXEC} flag -- those are closed in the
 as the EOF would not be detected otherwise.
 \item Closing the reading descriptor \texttt{pd[0]} in the consumer process is
 desired as well (see {\color[rgb]{1,0,0} $\triangleright$}) as if the
-consumer finishes prematurely the producent properly gets a \texttt{SIGPIPE}.
+consumer finishes prematurely the producer properly gets a \texttt{SIGPIPE}.
 If that file descriptor in the producer was not closed while the consumer died
 in the middle of processing the data, for example, the producer would not learn
 that the consumer was gone (as the producer would remain to be an existing
