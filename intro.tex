@@ -1406,19 +1406,19 @@ supported
 
 \begin{itemize}
 \item In short -- an API is source code based while an ABI is binary based.
-\item An example of an API is one defined by POSIX.1 standard or the set of
+\item An example of an API is one defined by the POSIX.1 standard or the set of
 system calls for a given system.
-\item An example of an ABI is System V AMD64 ABI, the one followed on Solaris,
+\item An example of an ABI is the System V AMD64 ABI, followed on Solaris,
 Linux, FreeBSD, macOS, and other systems.
-\item ABI defines calling convention interface to the called machine code, eg.
+\item ABI defines the calling convention interface to the called machine code, eg.
 how parameters are passed (pushed on the stack, placed in registers, or a mix
 of both) or how return value is returned.
 \item API defines a set of functions, its parameters and their types, and
-function return values.  Part of the API may be also global variables --
+function return values.  The API may also include global variables --
 \texttt{errno}, for example.
 \item The following example represents what happens if a library ABI is changed
-and the new library replaces the old one.  Note that the dynamic linker can not
-detect that as the function symbol did not change.  The given change is also an
+and the new library replaces the old one.  Note that the dynamic linker cannot
+detect that the function symbol did not change.  The given change is also an
 API change and the problem would be fixed if \texttt{main.c} was recompiled
 with the correct prototype for function \texttt{my\_add}.  However,
 recompiling is often not desirable as one might end up recompiling the whole
@@ -1474,19 +1474,19 @@ $ ./a.out
 \item \label{ABI_MAIN} Example: \example{lib-abi/abi-main.c} (see the block
 comment in the file on how to use other files located in the same directory).
 \item To change an ABI safely, you need library versioning -- if the library
-ABI change is not backward compatible, a bumped up version needs to prevent to
-run the program without rebuilding it.   However, in that case you need to keep
-the old library in the system.  Note that having different versions of the same
+ABI change is not backward compatible, a bumped up version needs to prevent
+running the program without rebuilding it.   However, in that case you need to keep
+the old library on the system.  Note that having different versions of the same
 library might become a problem by itself, for example if more versions of such
-an library get loaded into the program address space.
-\item The way how versioning works in ELF (see page \pageref{ELF}) is that the
+a library get loaded into the program address space.
+\item The way versioning works in ELF (see page \pageref{ELF}) is that the
 library file name incorporates a version.  The \texttt{SONAME} in the dynamic
 section then lists the full name of the library, including the version.  When
 the loader searches for the libraries, it searches for the filename from the
 \texttt{SONAME} field.
-\item Example on what exact libraries and their versions are needed for the
+\item Example of what exact libraries and their versions are needed for the
 Secure shell client on a Linux distribution.  You see that, for example, the
-OpenSSL library version used by the SSH client is 1.0.0.
+OpenSSL library version used by the SSH client is 1.0.0.:
 
 \begin{verbatim}
 $ readelf -d /usr/bin/ssh
@@ -1509,11 +1509,11 @@ $ ls /usr/lib/libcrypto.so.1.0.0
 /usr/lib/libcrypto.so.1.0.0
 \end{verbatim}
 
-\par The OpenSSL library version is kept 1.0.0 even that the real version is
+\par The OpenSSL library version is kept 1.0.0 even though the real version is
 actually 1.0.2n.  That is because the micro versions (``z'' in x.y.z) do not
 change the ABI binary compatibility (change in ``y'' does).  So, such a number
 must not be in the \texttt{SONAME} field otherwise you would need rebuilt
-binaries that depend on OpenSSL even on a binary compatible micro upgrade.
+binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 \end{itemize}
 
 %%%%%
@@ -1542,32 +1542,32 @@ binaries that depend on OpenSSL even on a binary compatible micro upgrade.
 \end{slide}
 
 \begin{itemize}
-\item Basic line oriented debugger with symbols; to fully use it the program to
+\item Basic line oriented debugger with symbols; to fully use it, the program to
 be debugged has to be compiled with debuggin data (\texttt{cc -g}). The program
 is then started from debugger using the \texttt{run} command, or the debugger
-can be connected to already running process. \texttt{dbx} can also be used to
+can be connected to an already running process. \texttt{dbx} can also be used to
 analyze program crashes, provided a \texttt{core} file was generated.
 \item It is possible to find it e.g. on Solaris, it is not present by default
 on other systems.
 \item For source line debugging it is not necessary to use just the \texttt{-g}
 option for translation, it is also necessary to have the object files and source
 files available in the same location as they were used for compilation.
-This is typically true when debugging on the system where writing code.
-For other uses cases it is necessary to provide the needed files, the dbx
+This is typically true when debugging on the system where the code is written.
+For other use cases it is necessary to provide the needed files, the dbx
 command \texttt{pathmap} can help with that.
 \item \texttt{gdb}-compatible mode can be enabled using \texttt{gdb on}.
-If you want to know what is the \texttt{dbx} equivalent command to concrete
+If you want to know the \texttt{dbx} equivalent command to concrete
 \texttt{gdb} command, see the \texttt{help FAQ}; the very first question is
 ``A.1  Gdb does $<$something$>$; how do I do it in dbx?''
 \item If the option \texttt{-g} is not used, dbx will be still usable on
 Solaris, because it will print function arguments. On BSD systems and Linux
-distributions the \texttt{-g} has to be used, otherwise the debuggers will not
+distributions, the \texttt{-g} has to be used, otherwise the debuggers will not
 be of much use. This is demonstrated in the \example{debug/dbx.c} example.
 When compiling with gcc and using gdb the \texttt{where} command will not show
 the function parameters, while on Solaris with the Studio compiler and dbx
-debugger the function parameters will be shown.
+debugger, the function parameters will be shown.
 \item Example: \example{debug/coredump.c}. After compilation and running the
-program will crash and core dump will be generated (if permitted on the system;
+program will crash and a core dump will be generated (if permitted on the system;
 also see \texttt{ulimit -c})
 
 \begin{verbatim}
@@ -1587,7 +1587,7 @@ program terminated by signal SEGV (no mapping at the fault address)
 \end{verbatim}
 
 Based on the above it is possible to say in which function the program crashed.
-What we cannot see is the exact line in the code. For that the program has to be
+What we cannot see is the exact line in the code. For that, the program has to be
 compiled with debugging symbols, i.e. ``\texttt{cc -g coredump.c}''.
 
 \begin{verbatim}
@@ -1631,7 +1631,7 @@ Current function is bad_memory_access
 \begin{itemize}
 \item GNU analogy of \texttt{dbx}. The \texttt{dbx} compatibility mode can be
 enabled using the \texttt{-dbx} option.
-\item Most platforms today offer debuggers with graphical front end. Often they
+\item Most platforms today offer debuggers with a graphical front end. Often they
 are implemented on top of \texttt{gdb}.
 
 \item \begin{verbatim}
@@ -1657,11 +1657,11 @@ Continuing.
 Program exited normally.
 (gdb) q
 \end{verbatim}
-\item Debuggers are great help when your program exits with
+\item Debuggers are a great help when your program exits with a
 ``segmentation error'' -- i.e. when accessing memory incorrectly.
-When the \texttt{-g} option is used when compiling the debugger will be able to
+When the \texttt{-g} option is used during compilation, the debugger will be able to
 show exact line of code where the problem happened.
-Concrete example (can you tell why the program behaves in such a way ?):
+Concrete example (can you tell why the program behaves in such a way?):
 \begin{verbatim}
 $ cat -n main.c
      1  int
@@ -1720,12 +1720,12 @@ Program terminated with signal 10, Bus error.
 \begin{itemize}
 \item The \emph{header file} is a file that contains declarations 
 (\emph{forward declaration}) of functions, variables and macro definitions.
-From preprocessor's point of view this is simple file in C language.
+From the preprocessor's point of view, this is a simple file in the C language.
 \item \emsl{These header files are not specific to UNIX. They are part of
 the ANSI~C standard, that is included in POSIX.1 (page \pageref{C_LANGUAGE})
 It is important to realize that every system that supports
-ANSI~C has to have these files, notwithstanding whether it supports POSIX.1.}
-\item Appropriate header file for given function can be looked up using the
+ANSI~C has to have these files, regardless of whether it supports POSIX.1.}
+\item The appropriate header file for given function can be looked up using the
 function's man page, e.g. this is the beginning of \texttt{memcpy} man page
 on Solaris:
 \begin{verbatim}
@@ -1826,10 +1826,10 @@ $ echo $?
     \item \texttt{argc} \dots number of command line arguments
     \item \texttt{argv} \dots array of command line arguments
 	\begin{itemize2}
-	\item \texttt{argv[0]} is a executed program name (without path)
+	\item \texttt{argv[0]} is an executed program name (without path)
 	\item the last item is \texttt{argv[argc] == NULL}
 	\end{itemize2}
-    \item returnin from \texttt{main()} or callin \texttt{exit()} terminates the
+    \item returning from \texttt{main()} or calling \texttt{exit()} terminates the
     process
     \item standard return values are \verb#EXIT_SUCCESS# (0) a
     \verb#EXIT_FAILURE# (1)
@@ -1844,26 +1844,25 @@ $ echo $?
 \begin{itemize}
 \item The first argument (of type \texttt{int}) is the number of arguments on a
 command line, including argument 0 -- the program name.  The second argument is
-an array of strings representing such command line arguments.  There is a
+an array of strings representing the command line arguments.  There is a
 terminating \texttt{NULL} as the last array item.  Note that \texttt{NULL} is
 different from an empty string.
 \item To go through all the command line arguments, you can either use
 \emph{argc} or test for \texttt{NULL} in \texttt{argv[i]}.
 \item \label{SHELL_ARGV0} \texttt{argv[0]} is sometimes a source of additional
-information.  For example, commands \texttt{cp}, \texttt{mv} and \texttt{ln} may
+information.  For example, commands \texttt{cp}, \texttt{mv}, and \texttt{ln} may
 be linked to the same executable (Solaris).  The value of \texttt{argv[0]} then
 tells the process what function it is supposed to perform.  Another example -- if
 the first character of a shell process \texttt{argv[0]} is set to ``-'' it means
 the shell process is supposed to act as a login shell (check the \texttt{bash}
 man page, section INVOCATION, for more information on what being a login shell
-means).  In the process listing then you will see ``\texttt{-bash}''.  This
-convention is not part of the UNIX specification for \texttt{sh} but it has been
-already used in the Bourne shell on UNIX V7 (1979) and other shells followed the
-suite. 
-\item We already know that upon the program execution, the dynamic linker
+means).  In the process listing you will see ``\texttt{-bash}''.  This
+convention is not part of the UNIX specification for \texttt{sh} but it had already
+been used in the Bourne shell on UNIX V7 (1979) and other shells followed suit.
+\item We already know that upon program execution, the dynamic linker
 eventually passes the control to function \texttt{main}, as explained on page
 \pageref{RUNTIMELINKER}.  If the \texttt{main} function is missing, the
-compilation fails during the linking phase.  When \texttt{main} finishes it
+compilation fails during the linking phase.  When \texttt{main} finishes, it
 means the process finishes.  You can also use functions \texttt{exit()} or
 \verb#_exit()# from anywhere in the program, ie. not just from function
 \texttt{main}.
@@ -1892,8 +1891,8 @@ or:
 prog && echo "success" || echo "failure"
 \end{verbatim}
 Example: \example{main/return-256.c}.
-\item \label{RETURN255} Never use \texttt{return (-1)} in \texttt{main} and
-neither \texttt{exit(-1)}.  Based on the information in the previous paragraph,
+\item \label{RETURN255} Never use \texttt{return (-1)} in \texttt{main} nor
+\texttt{exit(-1)}.  Based on the information in the previous paragraph,
 from \texttt{-1} you will get \texttt{255} as the return value you get in the
 shell in \texttt{\$?}.  It just creates confusion.
 \item It is very reasonable to use only \texttt{EXIT\_SUCCESS} (\texttt{0}) and
@@ -1907,7 +1906,7 @@ check its manual page if interested, section \texttt{EXIT STATUS}. Example:
 \emsl{without} printing a new line), and calls functions registered via
 \texttt{atexit()}, and possibly other actions based on a specific system.
 Example: \example{exit/exit.c}
-\item \label{MAIN_C} Example on printing out commnd line arguments:
+\item \label{MAIN_C} Example on printing out command line arguments:
 \example{main/print-argv.c}
 \item If a process is killed by a signal, you can get the signal number from its
 return value as presented by the shell.  See page
@@ -1922,7 +1921,7 @@ return value as presented by the shell.  See page
 \item the list of \emph{environment
 variables} is passed as\\ \texttt{extern char
 **\funnm{environ};}
-\item it is an array of strings terminated by \texttt{NULL} of the
+\item it is an array of strings terminated by \texttt{NULL} in the
 format: \texttt{\emph{variable\_name}=\emph{value}}
 \end{itemize}
 \begin{center}
@@ -1946,20 +1945,20 @@ dimanche  7 octobre 2007 13 h 14 PDT
 \end{verbatim}
 
 It may not work like that in your shell as very probably your system will not
-have a french localization package installed.
+have a French localization package installed.
 \item When replacing the current process image with a different program (page
-\pageref{EXEC}), the child will by default get the full environment from its
+\pageref{EXEC}), the child will by default, get the full environment from its
 parent.  You can pass a different array as an argument to the function
 \texttt{exec()}, including passing an empty one.
 \item Different commands use different environment variables.  That should be
 documented in their respective manual pages, sometimes in a separate section
 named \emph{ENVIRONMENT} or \emph{ENVIRONMENT VARIABLES}.
 \item For example, the \texttt{man} command uses \texttt{PAGER}, \texttt{vipw}
-uses \texttt{EDITOR} etc.  The variables are usually in caps but it is just a
-convension.  \texttt{wget} does not follow that, for example, it uses
+uses \texttt{EDITOR}, etc.  The variables are usually in caps but it is just a
+convention.  \texttt{wget} does not follow convention and uses
 \texttt{http\_proxy} and \texttt{https\_proxy} as environment variables to set
 the proxy to be used, and other lower case variables as well.
-\item If \emph{envp} is the 3rd argument of \texttt{main} it is the same pointer
+\item If \emph{envp} is the 3rd argument of \texttt{main}, it is the same pointer
 as is in the standard global variable \texttt{environ}.
 \item Example: \example{main/print-env.c} (see below how to clear out inherited
 environment from the shell using the \texttt{env} command):
@@ -1992,15 +1991,15 @@ general you should not do that
     environment (adds a new or modifies an existing variable)
     \end{itemize}
 \item changes are propagated into children upon their creation
-\item there are also functions \funnm{setenv}() a \funnm{unsetenv}()
+\item there are also functions \funnm{setenv}() and \funnm{unsetenv}()
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item Read the description for \texttt{environ} in SUSv4 before assigning a new
-value to the variable as there are important information there you should know.
+value to the variable as there is important information there you should know.
 \item When using \texttt{putenv}, the string will become part of the
-environment, nothing is copied.  You must not use automatic variables for such
+environment, but nothing is copied.  You must not use automatic variables for such
 strings.  Use \texttt{setenv} to copy the value into the environment.  Example:
 \example{main/putenv.c}.
 \item Changes in a child never changes its parent environment as those arrays
@@ -2023,7 +2022,7 @@ janp
 
 \item As \texttt{environ} is just an array of pointers, you may find code that
 directly manipulates it.  However, any application that directly modifies the
-pointers to which the environ variable points has undefined behavior according
+pointers to which the \texttt{environ} variable points has undefined behavior according
 to SUSv4, and that is possibly exacerbated if the functions introduced above are
 used while doing that.  Do not write code like that.
 \item Example: \example{main/getenv.c}
@@ -2038,10 +2037,10 @@ string and removing the variable from the environment via \texttt{unsetenv}.
 \begin{itemize}
 \item common notation for shell: \verb#program -option arguments#
 \item options are in the form of \texttt{-x} or \texttt{-x \emph{value}},
-where \texttt{x} is alphanumeric, \texttt{\emph{value}} is arbitrary string
+where \texttt{x} is alphanumeric, \texttt{\emph{value}} is an arbitrary string
 \item multiple options can be unified: \texttt{ls -lRa}
 \item '\texttt{--}' or first argument not starting with '\texttt{-}'
-marks end of options, the following arguments are not considered options even
+marks the end of options and arguments following are not considered options even
 if they start with '\texttt{-}'.
 \item this form of arguments is required by the standard and can be processed
 using the \texttt{getopt} function.
@@ -2049,16 +2048,16 @@ using the \texttt{getopt} function.
 \end{slide}
 
 \begin{itemize}
-\item The arguments can of course be processed using custom function however
+\item The arguments can of course be processed using custom functions, however
 the standard function is sufficient for the overwhelming majority of use cases.
-\item The options can be repeated however it makes sense only in specific
+\item The options can be repeated, however it makes sense only in specific
 cases.
 \item The ordering of the options can be important and it depends on the
 application to specify the ordering.
 \item The UNIX standard defines 13 rules that very precisely define the naming
 of commands and the format of options. For example the name of the command
 should be lower case, 2--9 characters long and using only chracters from
-portable character set. Arguments without options should be possible to group
+the portable character set. Arguments without options should be possible to group
 after '--', etc.
 \item Using numbers of options is old fashioned; reportedly SUSv3 mentions that.
 \item Watch out for GNU command line utilities and its strange permutations
@@ -2083,14 +2082,14 @@ char *const \emph{argv}[],}\\
 \end{tabbing}
 \begin{itemize}
 \item the function receives command line parameters and processes and returns
-one option. If given option has an argument, it is set in the
+one option. If a given option has an argument, it is set in the
 \texttt{optarg} variable.
 \item when all options are processed, it returns -1 and the \texttt{optind} 
 variable contains the index of first unprocessed argument of the program.
 \item possible options are passed in the \texttt{optstring} string.
 If an options has mandatory argument, its character is followed by '\texttt{:}'
 in the string.
-\item on error (unknown option, argument missing) the function returns
+\item on error (unknown option, argument missing), the function returns
 '\texttt{?}', saves the option character into the \texttt{optopt} variable.
 \end{itemize}
 \end{slide}
@@ -2129,18 +2128,18 @@ arg1 = argv[\emprg{optind}];
 \end{slide}
 
 \begin{itemize}
-\item It is a good custom while detecting unknown switch or incorrect use
-of options to write simple usage, optionally with a reference to documentation,
-and exit the program with error, i.e. non zero return value.
+\item It is a good custom while detecting an unknown switch or incorrect use
+of options to write a simple usage message, optionally with a reference to documentation,
+and exit the program with error, i.e. non-zero return value.
 \item Note how the \texttt{opts.c} string is properly terminated. Utmost care
 is necessary when processing potentially unbound output, especially when
 handling options of a program running with elevated privileges.
-\item It is evident that \texttt{getopt} is stateful function. In order to
-process next array of arguments or start from scratch, it is necessary to
+\item It is evident that \texttt{getopt} is a stateful function. In order to
+process the next array of arguments or start from scratch, it is necessary to
 set the \texttt{optreset} variable to 1.
-\item Standard version of \texttt{getopt} retains the order of arguments when
+\item The standard version of \texttt{getopt} retains the order of arguments when
 processing.
-\item When undefined option is used, \texttt{getopt} will print an error;
+\item When a undefined option is used, \texttt{getopt} will print an error;
 this can be suppressed by setting the \texttt{opterr} variable to 0.
 \item \label{GETOPT} Example: shell script \example{getopt/getopts.sh}
 rewritten to C language using the \texttt{getopt} function:
@@ -2185,18 +2184,18 @@ of the standard), has the following properties:
 \begin{itemize}
 \item If all long options have the short variant set in \texttt{val}, the
 behavior of \texttt{getopt\_long} is compatible with that of \texttt{getopt}.
-\item It is possible to specify value of long option also with a space
+\item It is possible to specify the value of a long option also with a space
 (for example \texttt{--color~green}).
 \item If \texttt{flag} is set, \texttt{getopt\_long} returns 0, which makes
 these long options without short variant processed in single branch of
 \texttt{case}.
-\item There is also \texttt{getopt\_long\_only}, that allows long options
+\item There is also \texttt{getopt\_long\_only}, which allows long options
 to begin with single dash (\texttt{-option}).
 \item The \texttt{getopt\_long} function is possible to use in two ways.
 The first way is that each long option has a corresponding short variant
 -- this way it is possible to introduce long options to existing program
 in \emsl{getopt compatible} way. The second way makes it possible to have
-independent long options. In this case the function returns always 0
+independent long options. In this case the function always returns 0
 (non-compatible with \texttt{getopt}) and the \texttt{*flag} variable
 is set to \texttt{val}.
 \item The next slide demonstrates how it works.
