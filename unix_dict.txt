@@ -688,3 +688,11 @@ MULTIplexed
 Libes
 Ressler
 multiuser
+pthreads
+atfork
+sigmask
+pthreadsigmask
+sparc
+IPS
+ipcs
+ipcrm
