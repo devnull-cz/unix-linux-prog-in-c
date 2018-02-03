@@ -1065,7 +1065,7 @@ the calling process.
 running the process would have had access to a file if it was not for the SUID
 privileges.  However, there is an inherent security hole in this approach.
 The test and the subsequent action on the file is not an atomic operation.  An
-attacker could possibly unlink the file and immediatelly symlink it to a
+attacker could possibly unlink the file and immediately symlink it to a
 different file to what it actually had no rights to manipulate with.  If the
 timing is right, the SUID process will operate on that other file.  The correct
 solution is not to use the \texttt{access} call but return to the real UID/GID
@@ -1104,7 +1104,7 @@ masks.
 \item Only the owner of a file can change its mode.  Mode like
 \texttt{rw-rw-rw-} has nothing to do with that.
 \item In some implementations it was possible to pass the file ownership to
-someone else.  Today this is usually not allowed.  Just think aobut how you
+someone else.  Today this is usually not allowed.  Just think about how you
 could work around a per-user filesystem quota with this.
 \end{itemize}
 

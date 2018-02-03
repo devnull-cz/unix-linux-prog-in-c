@@ -395,7 +395,7 @@ groups. When \texttt{0 < gidsz < \#skupin}, it returns \texttt{-1}.
 \verb#size_t#, \verb#pid_t#, etc.  In general, these are integer types and you
 can often find them in the \texttt{/usr/inc{}lude/sys/types.h} header file.
 \item Solaris has the \texttt{pcred} command that provides process
-idenfitication information in a simple form:
+identification information in a simple form:
 
 \begin{verbatim}
 $ pcred 5464
@@ -494,13 +494,12 @@ drwx------   2 janp     staff        512 Mar 23 12:46 test
 \item The root user can in some systems create cycle in directory structure
 however that might confuse file system traversal tools; hence the cyclical
 structure is not used much. Symbolic links to directories work everywhere.
-\item Named pipes (see page \pageref{MKFIFO}) can be used between processes that
-do not have ''family'' relationship.  They work as unnamed pipes otherwise.
+\item Named pipes (see page \pageref{MKFIFO}) can be used between processes
+that do not have ''family'' relationship.  They work as unnamed pipes otherwise.
 \item The sockets noticed above are in the UNIX domain, i.e. they serve for
 communication within one system. The INET domain sockets, used for network
-communication (see page \pageref{NETWORKING}) are not visible in the file system. 
-jednoho systému. Sokety z domény INET, pøes které probíhá sí»ová komunikace,
-se v systému souborù neobjevují. Sí»ová komunikace zaèíná na stranì
+communication (see page \pageref{NETWORKING}) are not visible in the file
+system.
 \item Debuggers use process images available through \texttt{/proc}.
 On many Unix-like systems the \texttt{/proc} tree contains information about
 kernel and running processes in the form of text files.  However, some systems,

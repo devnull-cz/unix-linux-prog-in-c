@@ -346,7 +346,7 @@ telling the system you are not interested in the return value.
 \item Any thread can wait for another thread, not just the one that created it.
 \item We recommend to always check the return value of \funnm{pthread\_join}()
 to make sure you wait for the right thread.  If you use an incorrect thread ID,
-the funtion returns immediatelly with an error.
+the funtion returns immediately with an error.
 \item In contrast to waiting for processes to finish, \emsl{one cannot wait for
 any thread to finish}.  The rationale is that since there is not parent--child
 relation, it was not deemed necessary.  However, some system provide that
