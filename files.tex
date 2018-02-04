@@ -446,30 +446,30 @@ More in [Vahalia].
 \pdfbookmark[1]{file system hierarchy}{fshier}
 
 \begin{slide}
-\sltitle{Hierarchie souborových systémù}
+\sltitle{File system hierarchy}
 \begin{center}
 \input{img/tex/mount.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item struktura \texttt{vfs} obsahuje implementaènì nezávislé informace o
-filesystému, nezávislé na konkrétním typu filesystému, tedy podobnì jako vnode
-funguje pro soubory. Tato struktura reprezentuje jeden konkrétní fyzický
-filesystém, aktuálnì pøimontovaný do hierarchie souborù. V tomto vázaném seznamu
-tedy mù¾e být více struktur stejného typu souborového systému.
-\item \texttt{rootvfs} -- odkaz na root file system
-\item \texttt{vfsops} -- tabulka funkcí pro konkrétní typ systému souborù
-\item \texttt{vfssw[]} -- pole odkazù na tabulky \texttt{vfsops} pro v¹echny
-systémem podporované typy filesystémù, z tabulky se vybírá pøi pøipojování
-svazku podle typu filesystému zadaného pøi volání \texttt{mount}
-\item \texttt{v\_vfsp} -- odkaz z vnode na filesystém (strukturu
-\texttt{vfs}), na kterém le¾í soubor reprezentovaný pomocí vnode
-\item \texttt{v\_vfsmountedhere} -- pouze ve vnode, který reprezentuje mount
-point (adresáø, na kterém je pøipojen koøen jiného filesystému); odkazuje na
-strukturu \texttt{vfs} reprezentující pøipojený filesystém
-\item \texttt{v\_vnodecovered} -- odkaz na vnode adresáøe, na kterém je
-filesystém pøipojen
+\item The \texttt{vfs} structure contains implementation independent
+information about given filesystem, similarly to how vnode works for files.
+This structure represents once concrete physical filesystem, currently mounted
+to the hierarchy of files. In this linked list there can be more structures of
+the same filesystem type.
+\item \texttt{rootvfs} -- root file system reference
+\item \texttt{vfsops} -- function table for given file system type
+\item \texttt{vfssw[]} -- array of pointers to the \texttt{vfsops} tables for
+all file system types supported by the system. This table is used for selection
+based on filesystem type upon \texttt{mount} syscall.
+\item \texttt{v\_vfsp} -- reference from vnode to filesystem (the \texttt{vfs}
+structure), on which the file represented by the vnode lies
+\item \texttt{v\_vfsmountedhere} -- only in vnode representing a mount point
+(directory where root of different file system is mounted); points to
+the \texttt{vfs} structure represented mounted filesystem
+\item \texttt{v\_vnodecovered} -- pointer to the vnode of directory where
+the filesystem is mounted to
 \end{itemize}
 
 %%%%%
