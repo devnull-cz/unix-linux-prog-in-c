@@ -382,62 +382,63 @@ na disk
 
 %%%%%
 
-\pdfbookmark[1]{Virtual FIle System}{VFS}
+\pdfbookmark[1]{Virtual File System}{VFS}
 
 \begin{slide}
-\sltitle{Virtuální systém souborù (Virtual File System)}
+\sltitle{Virtual File System}
 \begin{center}
 \input{img/tex/vfs.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item \emph{FFS} uvedený ve 4.2BSD byl historicky druhý unixový filesystém.
-Nìkteøí dodavatelé unixových systémù ho zaèali preferovat vzhledem k jeho
-lep¹ímu výkonu a novým mo¾nostem, jiný zùstávali dále u \emph{s5fs} z dùvodu
-zpìtné kompatibility. To dále prohlubovalo problém ji¾ tak nedostateèné
-interoperability mezi rùznými unixovými systémy. Nìkterým aplikacím navíc plnì
-nevyhovoval ani jeden z tìchto filesystémù. Postupnì se také objevovala
-potøeba pracovat s ne-unixovými filesystémy, napø. \emph{FAT}. A s rostoucí
-popularitou poèítaèových sítí se zvy¹ovala poptávka po sdíl{}ení souborù mezi
-jednotlivými systémy, co¾ mìlo za následek vznik distribuovaných filesystémù
--- napø. \emph{NFS} (Network File System).
-\item vzhledem k vý¹e popsané situaci bylo jen otázkou èasu, kdy dojde k
-fundamentálním zmìnám v infrastruktuøe systému souborù, aby souèasnì
-podporoval více typù filesystémù. Vzniklo nìkolik rùzných implementací od
-rùzných výrobcù, a¾ se nakonec de facto standardem stala \emph{VFS/vnode}
-architektura od firmy Sun Microsystems. V dne¹ní dobì prakticky v¹echny
-unixové a u{}nix-like systémy podporují VFS, i kdy¾ èasto se vzájemnì
-nekompatibilními úpravami. VFS se poprvé objevilo v roce 1985 v Solarisu 2.0;
-brzy bylo pøevzato BSD -- FFS s podporou VFS se zaèal nazývat UFS.
-\item hlavní my¹lenka: ka¾dému otevøenému souboru v systému pøíslu¹í struktura
-\texttt{file}; to by vlastnì byl jeden slot v námi ji¾ známé systémové tabulce
-otevøených souborù. Ta ukazuje na \emph{vnode} (\emph{virtual node}).  Vnode
-obsahuje èást nezávislou na konkrétním systému souborù a èást závislou, co¾
-mù¾e být napøíklad struktura \emph{inode}. Ta je specifická pro ka¾dý typ
-souborového systému. \emsl{Ka¾dý typ filesystému implementuje pevnì danou
-sadu funkcí pro jednotlivé operace nad soubory}, na kterou se odkazují v¹echny
-virtuální uzly odpovídající danému typu filesystému. \emsl{Tato sada funkcí
-tedy definuje vnode interface.} Kdy¾ tedy zavoláte napøíklad \texttt{open},
-jádro zavolá pøíslu¹nou implementaci v závislosti na typu filesystému (napø. z
-modulu \emph{ext2fs}). Implementaènì závislá èást struktury vnode je pøístupná
-pouze z funkcí pøíslu¹ného typu filesystému; jádro do ní tedy ,,nevidí''
-pøímo. Jak uvidíte na dal¹ím slajdu, existuje je¹tì jedna sada funkcí, která
-se týka práce s filesystémy jako takovými. \emsl{Ta pak definuje VFS interface.}
-Tyto \emsl{dvì sady spoleènì} tvoøí vnode/VFS rozhraní, kterému se bì¾nì øíká
-jen VFS.
-\item (nebudu zkou¹et) -- u speciálních souborù je situace slo¾itìj¹í, v SVR4
-struktura \texttt{file} ukazuje na \emph{snode} (\emph{shadow-special-vnode}),
-který definuje operace se zaøízením (pomocí souborového systému \emph{spec}) a
-prostøednictvím ukazatele \texttt{s\_realvp} se odkazuje na reálný vnode pro
-operace se speciálním souborem; ten je potøeba napøíklad pro kontrolu práv
-pøístupu. Ka¾dému zaøízení mù¾e odpovídat více speciálních souborù, a tedy více
-snodes a pøíslu¹ných reálných vnodes. V¹echny takové snodes pro jedno zaøízení
-mají ukazatel \texttt{s\_commonvp} na jeden spoleèný snode, to ale není na
-obrázku zachyceno.  Pøi otevøení speciálního souboru se hledá v hash tabulce
-snodes otevøených zaøízení po\-lo¾\-ka odpovídající speciálnímu souboru (podle
-major a minor èísla zaøízení). Kdy¾ snode není nalezen, vytvoøí se nový. Tento
-snode se pak pou¾ívá pøi operacích se zaøízením. Více viz napøíklad [Vahalia].
+\item The \emph{FFS} filesystem introduced in 4.2BSD was historically the second
+unix filesystem. Some manufacturers of unix system started to prefer its
+considering its better performance and new features, others remained with 
+\emph{s5fs} from compatibility reasons. This deepened the problem with already
+insufficient interoperability between different unix systems. For some
+applications neither of these filesystems was enough. Gradually the need to work
+with non-unix systems started appearing, e.g. with \emph{FAT}. With growing
+popularity of computer networks the demand for file sharing between systems
+started to increase. This lead to the inception of distributed filesystems
+-- e.g. \emph{NFS} (Network File System).
+\item Given the above described situation it was just a matter of time when
+fundamental changes in the filesystem infrastructure will happen to support
+multiple filesystem types simultaneously. Several different implementations from
+multiple manufacturers were made; in the end the de facto standard became
+the \emph{VFS/vnode} architecture from Sun Microsystems. Today practically all
+unix u{}nix-like systems support VFS, even though with often non-compatible
+changes. VFS appeared for the first time in 1985 in Solaris 2.0;
+soon it was adopted by BSD -- FFS with VFS support started to be called UFS.
+\item the main idea: for each open file there is a \texttt{file} structure;
+it would be actually one slot in the already known system table of open files.
+This shows to \emph{vnode} (\emph{virtual node}). Vnode contains one part which
+is independent on given file system and one part dependent that could be e.g.
+the \emph{inode} structure. This is specific for each type of file system.
+\emsl{Each file system type implements concrete set of functions for individual
+file operations}. This set is referenced by each vnodes corresponding to given
+file system. \emsl{This set of functions define vnode interface.} When e.g.
+\texttt{open} is called, the kernel will call the corresponding implementation
+depending on file system type (e.g. from the \emph{ext2fs} module).
+Implementation dependent part of vnode structure is accessible only from
+functions of given filesystem; for kernel it is opaque. Next slide will shown
+another set of functions that works with filesystems themselves.
+\emsl{This set defines VFS interface.}
+These \emsl{two sets together} constitute the vnode/VFS interface, generally
+referred to as VFS.
+\item For special file types the situation is a bit more complicated, in SVR4
+the \texttt{file} structure points to \emph{snode}
+(\emph{shadow-special-vnode}), that defines operations with a device (using the
+\emph{spec} filesystem) and using the \texttt{s\_realvp} pointer it refers to
+real vnode for the operations with the special file; this file is necessary for
+example for checking file access rights. Each device can have multiple special
+files, hence more snodes and corresponding real vnodes. All such snodes for one
+device have the \texttt{s\_commonvp} pointer to one common snode, this is
+however not captured in the picture. When opening a special file, an item
+corresponding to the special file is searched in hash table of snodes of opened
+devices according to major and minor device number. If the snode is not found,
+new one is created. This snode will be then used for operations with the device.
+More in [Vahalia].
 \end{itemize}
 
 %%%%%
