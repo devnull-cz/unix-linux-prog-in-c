@@ -482,24 +482,23 @@ the filesystem is mounted to
 \end{slide}
 
 \begin{itemize}
-\item struktury \texttt{proc} a \texttt{user} vytváøí jádro pro
-ka¾dý proces a dr¾í v nich slu¾ební informace o procesu.
-\item struktura \texttt{ufchunk} obsahuje \texttt{NFPCHUNK} (obvykle
-24) \emph{deskriptorù souborù}, po zaplnìní se alokuje dal¹í
-\texttt{ufchunk}.
-\item struktura \texttt{file} (\emph{otevøení souboru}) obsahuje mód
-souboru (otevøen pro ètení, zápis, atd.), poèet deskriptorù, které
-se na ni odkazují, ukazatel na \texttt{vnode} a pozici v souboru.
-Jedno otevøení souboru mù¾e být sdíleno více deskriptory, jestli¾e
-byl pùvodní deskriptor zkopírován, napø. voláním \texttt{fork()}
-nebo \texttt{dup()}.
-\item struktura \texttt{cred} obsahuje u¾ivatelskou a skupinovou
-identitu procesu, který otevøel soubor.
-\item jeden vnode odpovídající jednomu souboru mù¾e být sdíl{}en nìkolika
-strukturami file, pokud byl daný soubor vícekrát otevøen.
-\item ne v¹echny vnodes jsou asociovány s tabulkou otevøených
-souborù. Napø. pøi spu¹tìní programu je potøeba pøistupovat do
-spustitelného souboru a proto se alokuje vnode.
+\item The \texttt{proc} and \texttt{user} strucures are created by the kernel
+for each process. They contain service information about the process.
+\item The \texttt{ufchunk} structure contains \texttt{NFPCHUNK} (usually 24)
+\emph{file descriptors}, after it is full new \texttt{ufchunk} is allocated.
+\item The \texttt{file} structure (\emph{file opening}) contains the mode
+of file (whether it is opened for reading, writing, etc.), number of descriptors
+that refers to it, the \texttt{vnode} pointer and file position.
+One opening of file can be shared by multiple file descriptors,
+if the original descriptor was copied e.g. with the \texttt{fork()}
+or \texttt{dup()} syscalls.
+\item The \texttt{cred} structure contains user and group identity of the
+process that opened the file.
+\item One vnode corresponding to one file can be shared by multiple file
+structures if given file was opened multiple times.
+\item Not all vnodes are associated with the table of opened files.
+E.g. when executing a program it is necessary to access the executable file and
+hence a vnode is allocated for that.
 \end{itemize}
 
 
