@@ -555,32 +555,32 @@ toor@shewolf:~# fsck /dev/ad0a
 
 %%%%%
 
-\pdfbookmark[1]{more ways to for ensuring filesystem consistency}{fsconsistency}
+\pdfbookmark[1]{more ways for ensuring filesystem consistency}{fsconsistency}
 
 \begin{slide}
-\sltitle{Dal¹í zpùsoby zaji¹tìní konzistence filesystému}
+\sltitle{More ways for ensuring filesystem consistency}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
 \setlength{\itemsep}{0ex}
-\item tradièní UFS -- synchronní zápis metadat
+\item traditional UFS -- synchronous metadata writes
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item aplikace vytváøející nový soubor èeká na inicializaci inode na
-    disku; tyto operace pracují rychlostí disku a ne rychlostí CPU
-    \item asynchronní zápis ale èastìji zpùsobí nekontistenci metadat
+    \item an application creating new file is waiting till the inode is
+    initialized on disk; these operations are done with disk speed, not CPU
+    speed
+    \item however asynchronous writes more often cause metadata inconsistencies
     \end{itemize}
-\item øe¹ení problémù s nekonzistencí metadat na disku:
+\item solutions to metadata inconsistency problem:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item \emph{journalling} -- skupina na sobì závislých operací se
-    nejdøíve atomicky ulo¾í do ¾urnálu; pøi problémech se pak ¾urnál
-    mù¾e ``pøehrát''
-    \item bloky metadat se nejdøíve zapí¹í do non-volatile pamìti
-    \item \emph{soft-updates} -- sleduje závislosti mezi ukazately
-    na diskové struktury a zapisuje data na disk metodou
-    \emph{write-back} tak, ¾e data na disku jsou v¾dy konzistentní
-    \item \emph{ZFS} je nový filesystém v Solarisu, který pou¾ívá
-    \emph{copy-on-write} transakèní model
+    \item \emph{journalling} -- one group of operations dependent on each other
+    is written to a journal first; if a problem is encountered the journal can
+    be ``replayed''
+    \item metadata blocks are written to non-volatile memory first
+    \item \emph{soft-updates} -- follows dependencies between pointers to disk
+    structures and writes the data using the \emph{write-back} method so that
+    the data are always consistent on disk.
+    \item \emph{transactions}
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -588,56 +588,58 @@ toor@shewolf:~# fsck /dev/ad0a
 \begin{itemize}
 \item filesystem \emph{metadata} = inodes, directories, free block
 maps
-\item \emph{ext2} dokonce defaultnì pou¾ívá asynchronní zápis metadat a je pøi
-pou¾ítí synchronního zápisu výraznì pomalej¹í ne¾ UFS
-\item závislé operace jsou napøíklad smazání polo¾ky z adresáøe a smazání
-diskového inode. Pokud by se stalo, ¾e se nejdøíve sma¾e diskový inode a pak
-teprve polo¾ka v adresáøi, pøi výpadku mezi tìmito dvìmi operacemi vniká
-nekonzistence -- link ukazuje na diskový soubor, který neexistuje. Není
-problém se tomuto vyhnout pøi synchronním zápisu metadat (víme kdy a co
-zapisujeme, urèujeme tedy poøadí zápisu), ale pøi metodì write-back je ji¾
-nutné øe¹it závislosti jednotlivých blokù na sebe, proto¾e pøi klasické
-synchronizaci vyrovnávacích pamìtí na disk jádro nezajímá, který blok se
-zapí¹e døív a který pozdìji.
-\item èasto jsou bloky na sobì závislé ve smyèce. Soft updates doká¾e takovou
-smyèku rozbít tím, ¾e provede \emph{roll-back} a po zápisu pak
-\emph{roll-forward}
-\item výkon soft updates je srovnatelný výkonu UFS filesystému s asynchronním
-zápisem metadat
-\item teoreticky soft updates zaruèují, ¾e po rebootu není potøeba pou¾ít
-\texttt{fsck}, tj. ¾e filesystém bude v takovém stavu, ¾e je mo¾né nabootovat.
-Je v¹ak nutné pou¾ít tzv. \emph{background fsck} pro opravy nezáva¾ných chyb
--- to je pova¾ováno stále za velkou nevýhodu soft updates zvlá¹tì s tím, jak
-rostou velikosti bì¾nì pou¾ívaných diskù. Takovou chybou, která nebrání
-nabootování, ale je nutné ji odstranit je napøíklad blok, který je oznaèen
-jako pou¾itý, ale ¾ádný soubor ho nepou¾ívá.
-\item soft updates nejsou v¾dy doporuèovány pro root filesystém. Problém je
-to, ¾e ztráta metadat na root filesystému (viz 30-ti sekundová perioda zápisu)
-mù¾e být výraznì vìt¹í hrozbou zde ne¾ na \texttt{/usr}, \texttt{/home} atd.
-Dal¹í nevýhodou mù¾e být i to, ¾e u soft updates mi smazání velkého souboru
-hned neuvolní místo.
-\item pøíklad: na bezpeènou operaci rename potøebuju pøi synchronním zápisu
-metadat 4 zápisy -- zvý¹ení poètu odkazù v inode, vytvoøení nové
-a\-dre\-sá\-øo\-vé polo¾ky, smazání staré, a opìtné sní¾ení poètu odkazù v
-inode. Kdykoli by systém spadnul, nenastane nebezpeèná situace. Napøíklad 2
-odkazy z adresáøù na inode s referenèním poètem 1 je problém, proto¾e po zru¹ení
-jednoho odkazu to bude vypadat, ¾e soubor je stále na disku, kdy¾ u¾ byla jeho
-data dávno smazána. Není te¾ké si asi pøedstavit, co by to mohlo znamenat v
-pøípadì, ¾e soubor obsahoval opravdu dùle¾itá data -- napøíklad zálohu. Opaèná
-situace, tj. jeden odkaz na inode s referencí 2 sice také není správná situace,
-ale neohro¾uje to mo¾nost filesystém namontovat a normálnì pou¾ívat. V nejhor¹ím
-se stane, ¾e soubor vypadá ¾e ji¾ na disku není a pøitom stále existuje. U soft
-updates operace rename vytvoøí kru¾nici, proto¾e nejdøíve je potøeba zapsat
-zvý¹ení poètu referencí, pak adresáøové bloky a poté sní¾ení referencí. A
-proto¾e zvý¹ení/sní¾ení se týká stejného inode, tak je pøi zápisu tøeba udìlat
-roll-back na (øeknìme) 2, zapsat inode na disk, zapsat bloky adresárù a pak
-roll-forward na poèet referencí 1. Pøi této akci je nad inodem dr¾en zámek,
-tak¾e nikdo nenaète star¹í data. Je jednoduché ukázat, ¾e nelze zapsat ¾ádný z
-tìch tøí blokù v kru¾nici tak, jak to je na konci operace rename, ¾e je opravdu
-nutný ten roll-back -- mohli bychom uva¾ovat, ¾e inode se vlastnì nezmìnil a
-není tøeba øe¹it zda se mù¾e/nemù¾e zapsat; zápis nového adresáøového odkazu bez
-zvý¹ení poètu odkazù v inodu by nás toti¾ mohl dostat pøesnì do situace, která
-je popsána o pár øádkù vý¹e.
+\item \emph{ext2} uses asynchronous metadata writes even by default and when
+in synchronous mode it is much slower to UFS.
+\item Dependent operations are for example deleting an item from directory and
+deleting disk inode. If the inode is deleted first and then the directory entry
+then if there is outage between these two operations then inonsistency follows
+-- the link points to disk file that does not exist. It is not a problem to
+avoid this when using synchronous metadata writes (we know when a what is being
+written, the ordering of writes is therefore under our control) however when
+using the write-back method it is necessary to solve dependencies of the blocks
+because with classic synchronization of cache buffers the kernel is not
+interested in which blocks is written first.
+\item Often the block dependencies for a cycle. Soft updates can recognize sych
+cycle and break it by performing \emph{roll-back} and after the write is done it
+performs \emph{roll-forward}.
+\item The soft updates performance is comparable to that of UFS with
+asynchronous metadata writes.
+\item Theoreticall soft updates guratantee that it is not necessary to use
+\texttt{fsck} after the reboot, i.e. that the filesystem is in bootable state.
+It is however necessary to use so called \emph{background fsck} for correcting
+non-grave errors -- this is considered to be one of the big drawbacks of soft
+updates, especially given how sizes of disks grow over time. Example of an error
+that does not block booting would be a block that is marked as used however is
+not used by any file.
+\item soft updates are not always recommended for the root filesystem.
+The problem is that metadata loss on root file system (see the 30 second
+period of writes) can be more dangerous than in \texttt{/usr}, \texttt{/home}
+etc. Another disadvantage is that after deleting huge file soft updates do not
+free up the space immediately.
+\item Example: it is necessary 4 writes for secure rename operations when using
+synchronous writes -- increase the number of references in inode, create new
+directory entry, delete old entry, decrease the number of references.
+If a system goes down between each of these a dangerous situation will ensue.
+For example 2 references from directories to inode with reference count of 1 is
+a problem because after deleting one of the references it would look like the
+file is still on disk, when its data has been deleted already.
+It is not hard to imagine what would it mean if the file contained important
+data -- e.g. backup.
+Opposite situation, i.e. one reference to inode with reference count equal 2 is
+not correction situation either however it does not pose a threat to mount the
+filesystem and normally use it. In the worst case the file looks as it is no
+longer on disk while it still exists. For soft updates the rename operation will
+form a cycle because it is necessary to write the increased reference count
+first, then directory blocks and then decreased reference. And because
+increase/decrease is done for the same inode, then for the write it is necessary
+to do roll-back to (say) 2, write inode to disk, write directory blocks and then
+roll-forward to reference of 1. During this operation a lock is held for the
+inode so that no one will read older data. It is simple to show that it is not
+possible to write any of these 3 blocks in a cycle to match the end of the
+rename operation so that the roll-back is truly needed -- we could consider that
+the inode did not really change and it is not necessary to decide whether to
+write it or not; the write of directory reference without increasing reference
+count in the inode could get us into situation which is descibed above.
 \end{itemize}
 
 \endinput
