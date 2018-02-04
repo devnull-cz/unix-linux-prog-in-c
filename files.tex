@@ -507,39 +507,38 @@ hence a vnode is allocated for that.
 \pdfbookmark[1]{filesystem consistency check and repair}{fsck}
 
 \begin{slide}
-\sltitle{Oprava konzistence souborového systému}
+\sltitle{Filesystem consistency check and repair}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
 \setlength{\itemsep}{0ex}
-\item pokud není filesystém pøed zastavením systému korektnì
-odpojen, mohou být data v nekonzistentním stavu. 
-\item ke kontrole a opravì svazku slou¾í pøíkaz \texttt{fsck}.
-Postupnì testuje mo¾né nekonzistence:
+\item If a filesystem is not correctly unmounted before the system is halted,
+the data can be inconsistent.
+\item The \texttt{fsck} command is used to check and correct file system.
+It tests progressively tests possible inconsistencies:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item vícenásobné odkazy na stejný blok
-    \item odkazy na bloky mimo rozsah datové oblasti systému souborù
-    \item ¹patný poèet odkazù na i-uzly
-    \item nesprávná velikost souborù a adresáøù
-    \item neplatný formát i-uzlù
-    \item bloky které nejsou obsazené ani volné
-    \item chybný obsah adresáøù
-    \item neplatný obsah superbloku
+    \item multiple references to the same block
+    \item references to blocks outside of data region of given file system
+    \item incorrect number of inode references
+    \item incorrect size of files and directories
+    \item invalid inode format
+    \item blocks that are neither used or free
+    \item invalid directory contents
+    \item invalid superblock contents
     \end{itemize}
-\item operace \texttt{fsck} je èasovì nároèná. 
-\item ¾urnálové (napø. XFS v IRIXu, Ext3 v Linuxu) a transakèní (ZFS)
-systémy souborù nepotøebují \texttt{fsck}.
+\item the \texttt{fsck} operation is time consuming.
+\item journaling (e.g. XFS in IRIXu, Ext3 in Linux) a transactional (ZFS)
+filesystems do not need \texttt{fsck}.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item data se pøepisují na disky z vyrovnávacích pamìtí se
-zpo¾dìním. Ulo¾ení v¹ech vyrovnávacích pamìtí lze vynutit systémovým
-voláním \texttt{sync()}. Periodicky vyrovnávací pamìti ukládá
-zvlá¹tní systémový proces (démon).
-\item \texttt{fsck} kontroluje pouze metadata. pokud do¹lo k poru¹e dat
-samotných, nepozná to, nato¾ aby s tím nìco mohl udìlat.
-\item zde je ukázka \texttt{fsck} na \emsl{odpojený} filesystém:
+\item The data is written to the drives from the memory with some delay.
+To save all file system buffers the \texttt{sync()} syscall can be used.
+The buffers are saved periodically by special system process (or daemon).
+\item The \texttt{fsck} command only checks metadata. If a data corruption
+happened it cannot tell, let alone do something about it.
+\item Exaple of \texttt{fsck} run on \emsl{unmounted} filesystem:
 \begin{verbatim}
 toor@shewolf:~# fsck /dev/ad0a 
 ** /dev/ad0a
