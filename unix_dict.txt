@@ -702,6 +702,15 @@ getgid
 nbyte
 LXC
 proberen
-verlagen
 Gallmeister
 stateful
+atomicity
+pdftitle
+pdfsubject
+pdfkeywords
+pagebackref
+Gingell
+Dekker
+TLS
+iOS
+verhogen

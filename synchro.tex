@@ -26,7 +26,7 @@ for( ; ; ) \{
     shared.a = val; shared.b = val;}
 \} 
 \end{alltt}
-\item if the cycle is run in 2 proceses running in parallel (or threads)
+\item if the cycle is run in 2 processes running in parallel (or threads)
 that share the same structure and have different values of the
 \texttt{val} variable, it will lead to conflicts due to non-atomic operations.
 \end{itemize}
@@ -97,7 +97,7 @@ what is used when development. Something to think about when testing.
 \pdfbookmark[1]{mutual exclusion}{mutexcl}
 
 \begin{slide}
-\sltitle{Solution: mutual process exlusion}
+\sltitle{Solution: mutual process exclusion}
 \begin{itemize}
 \item it is necessary to ensure atomic operation on the structure, i.e.
 while one processes modifies the structure, the other cannot manipulate it. 
@@ -136,7 +136,7 @@ while one processes modifies the structure, the other cannot manipulate it.
 \item It is necessary to ensure mutual exclusion also when reading,
 so that the process that is reading cannot read inconsistent state while
 another process is changing it. While writing it is necessary to exclude
-all other processes. While reading it is sufficient to exlude only writers.
+all other processes. While reading it is sufficient to exclude only writers.
 \item \emsl{\emph{critical section}} is piece of code that can be executed
 only in one process (or thread), otherwise the operations can lead to
 inconsistent state, e.g. wrongly connected linked list, mismatched database
@@ -160,7 +160,7 @@ to common log file. Each new record is appended to the end of the file.
 records can be interleaved.
 \item only single process can write.
 \item other processes read data from the log file.
-\item while reading record that is being written inconsitent data is retrieved.
+\item while reading record that is being written inconsistent data is retrieved.
 \item while writing, it is not possible to read. If no process is writing,
 multiple processes can read simultaneously.
 \end{itemize}
@@ -199,7 +199,7 @@ suitable for very short time.
 \begin{description}
 \item[active (busy waiting)] -- process test a condition in a cycle while it
 is not true.
-\item[passive] -- processer registers itself in the kernel as a waiting for
+\item[passive] -- a process registers itself in the kernel as a waiting for
 the condition and goes asleep. The kernel wakes it up if the condition becomes
 true.
 \end{description}
@@ -235,7 +235,7 @@ situations.
 \item Both Dekker and Peterson need to achieve the result only shared memory,
 i.e. several variables shared by processes.
 \item Dekker's solution is presented as a first solution to the problem of
-mutual exlusion of 2 processes, without having to apply the mechanism of
+mutual exclusion of 2 processes, without having to apply the mechanism of
 strict alternation, i.e. if second process does not express will to enter
 critical section, the first can enter how many times it wants (and vice versa).
 Dekker's solution is not trivial, compare it with 16 year younger

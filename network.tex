@@ -1215,7 +1215,7 @@ structure; there is a call \texttt{pselect}, that will not change the structure
 (besides having other properties).
 \item It is possible to use \texttt{FD\_SETSIZE} for the \emsl{nfds} parameter
 which is system constant for maximal file descriptor count. This is not the best
-solution since this constant is only 1024 on 32-bit systrems however for 64-bit
+solution since this constant is only 1024 on 32-bit systems however for 64-bit
 programs it can be significantly bigger (e.g. 65536 on Solaris), leading to more
 time spent in the syscall.
 \item If the time argument is set to 0 (not NULL), then \texttt{select} can be

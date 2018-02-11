@@ -346,7 +346,7 @@ telling the system you are not interested in the return value.
 \item Any thread can wait for another thread, not just the one that created it.
 \item We recommend to always check the return value of \funnm{pthread\_join}()
 to make sure you wait for the right thread.  If you use an incorrect thread ID,
-the funtion returns immediately with an error.
+the function returns immediately with an error.
 \item In contrast to waiting for processes to finish, \emsl{one cannot wait for
 any thread to finish}.  The rationale is that since there is not parent--child
 relation, it was not deemed necessary.  However, some system provide that
@@ -852,7 +852,7 @@ for example that the value has changed
 with exactly one mutex}
 \item one mutex can be associated with multiple conditional variables
 \item using mutexes and conditional variables it is possible to construct
-other synchronization primitives -- semaphores, barries, \dots
+other synchronization primitives -- semaphores, barriers, \dots
 \end{itemize}
 \end{slide}
 
@@ -1358,7 +1358,7 @@ by itself.
 function written like so does not help if it is called twice within
 the same call of \texttt{printf}. Each time it returns pointer with
 the same address (in one thread) which the \texttt{printf} only notes
-and only uses the contents for the final priting, therefore prints
+and only uses the contents for the final printing, therefore prints
 the representation of the last address used in \texttt{inet\_ntoa}.
 On Solaris it is possible to observe this with:
 \begin{verbatim}

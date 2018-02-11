@@ -120,7 +120,7 @@ should use \texttt{mmap}, see page \pageref{MMAP}.
 \begin{itemize}
 \item A process will enter a kernel model either by a
 \emph{trap induced by the CPU} (page fault, unknown instruction, etc.)
-\emph{timer} (to invoke scheduler), \emph{interrupt} from a peripheal device,
+\emph{timer} (to invoke scheduler), \emph{interrupt} from a peripheral device,
 or synchronous trap (a standard library uses it to hand over the control to
 the kernel to service a \emph{system call}).
 \item There is only one copy of the kernel text and data in the memory,
@@ -161,7 +161,7 @@ then serves as a cache for data of these mapped objects.
 \item This coarsely described architecture is called VM (\emph{Virtual
 Memory}), and was introduced in SunOS 4.0. The virtual memory architecture
 of SVR4 is based on this architecture.  More information can be found in
-[Vahalia], the original whitepaper from 1987 that introduced this architecture:
+[Vahalia], the original white paper from 1987 that introduced this architecture:
 Gingell, R. A., Moran J.  P., Shannon, W.  A. -- \emph{Virtual Memory
 Architecture in SunOS}.
 \item To determine what memory segments a memory space of a process consists of,
@@ -217,7 +217,7 @@ go away for good only after its parent will retrieve its return value using the
 \item In today's Unix systems processes are usually not swapped out as whole,
 only individual pages are.
 \item A process is put to sleep if it requests it, e.g. when it is waiting on a
-completion of an operation with a peripheal device. The \emph{preemption} is on
+completion of an operation with a peripheral device. The \emph{preemption} is on
 the other hand an involuntary removal of a CPU by the scheduler.
 \end{itemize}
 
@@ -1137,7 +1137,7 @@ int main(int argc, char *argv[])
 \begin{itemize}
 \item This program will reverse the bytes in a file.
 \item One of the advantages of shared memory segments is that it is possible
-to work with the data using pointer arithmetics. Generally it is necessary
+to work with the data using pointer arithmetic. Generally it is necessary
 to watch out for alignment when dereferencing a pointer, e.g. on SPARC 
 unaligned access will cause the \texttt{SIGBUS} signal, see example
 \example{mmap/aligned.c}.
