@@ -1,3 +1,3 @@
 changequote([[[, ]]])
 
-define([[[nospellcheck]]], [[[]]])
+define([[[nospellcheck]]], [[[ifelse(SPELL, [[[YES]]], [[[]]], [[[$*]]])]]])

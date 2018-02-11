@@ -66,7 +66,7 @@ clean:
 spellcheck:
 		@for file in ${SLIDES}; do \
 			echo "### Checking $$file"; \
-			$(M4) $$file | \
+			$(M4) -DSPELL=YES $$file | \
 			    sed '/\begin{verbatim}/,/\end{verbatim}/d' | \
 			    sed '/\begin{alltt}/,/\end{alltt}/d' | \
 			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
