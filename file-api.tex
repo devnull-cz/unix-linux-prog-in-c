@@ -213,7 +213,7 @@ descriptor \emph{fd} from the buffer pointed to by \emph{buf}
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
-\item For any Unix system, a file is just a sequence of bytes without any innner
+\item For any Unix system, a file is just a sequence of bytes without any inner
 structure.
 \item \emsl{Behavior of \texttt{read} and \texttt{write} depends on the type of
 the file} (regular, device, pipe, or socket) and whether the file is in a
@@ -811,8 +811,7 @@ are defined in the spec and thus portable.
 
 \begin{slide}
 \sltitle{Setting file times}
-\texttt{int \funnm{utime}(const char *\emph{path},
-const struct utimbuf *\emph{times});}
+\texttt{int \funnm{utime}(const char *\emph{path}, const struct utimbuf *\emph{times});}
 \begin{itemize}
 \item changes file last access and modification times
 \item cannot change i-node access time (ctime)
@@ -902,8 +901,8 @@ exists.  You can delete the symlink's target in which case you end up with a
 \emph{broken link}.
 \item \texttt{readlink} is useful in situation when you want to unlink the
 symlink's target.
-\item \emph{bufsize} is typically set as 1 byte less than the buffer size to
-accommodate the terminating NUL character.
+\item \texttt{\emph{bufsize}} is typically set as 1 byte less than the buffer
+size to accommodate the terminating NUL character.
 \end{itemize}
 
 %%%%%
@@ -921,9 +920,9 @@ accommodate the terminating NUL character.
 \begin{itemize}
 \item deletes directory \emph{path}.  The directory \emsl{must} be empty.
 \end{itemize}
-\texttt{DIR *\funnm{opendir}(const char *\emph{dirname});\\
-struct dirent *\funnm{readdir}(DIR *\emph{dirp});\\
-int \funnm{closedir}(DIR *\emph{dirp});}
+\texttt{DIR *\funnm{opendir}(const char *\emph{dirname});}\\
+\texttt{struct dirent *\funnm{readdir}(DIR *\emph{dirp});}\\
+\texttt{int \funnm{closedir}(DIR *\emph{dirp});}
 \begin{itemize}
 \item sequentially reads directory entries
 \item structure \texttt{dirent} contains:
@@ -1043,7 +1042,7 @@ based on there), etc.
 \texttt{int \funnm{access}(const char *\emph{path}, int \emph{amode});}
 \begin{itemize}
 \item checks whether the calling process can access the file \emph{path}
-\item \emph{amode} is an OR-combination of constants
+\item \texttt{\emph{amode}} is an OR-combination of constants
     \begin{itemize}
     \item \verb#R_OK# \dots{} read permission test
     \item \verb#W_OK# \dots{} write permission test
