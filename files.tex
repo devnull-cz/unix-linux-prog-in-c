@@ -38,7 +38,7 @@ traversing the hierarchy.  There are some exceptions though.  For example,
 \texttt{FAT32} does no provide user and access rights for files so those are
 faked when such filesystem is mounted.
 \item Upon the system boot, the root filesystem is mounted first, other
-filesystems are later mounted via the \texttt{mount} commmand, usually from
+filesystems are later mounted via the \texttt{mount} command, usually from
 specific startup services based on the system you use.  The startup services
 sometimes use file \texttt{/etc/fstab} as a source of information about what
 filesystems to mount.  You can also use \texttt{mount} manually.  To unmount a

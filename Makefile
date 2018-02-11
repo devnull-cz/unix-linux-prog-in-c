@@ -73,6 +73,7 @@ spellcheck:
 			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
 			    sed 's/\\\-//g' | \
 			    sed 's/\\texttt{[^{]*}//g' | \
+			    sed 's/\\\funnm{[^{]*}//g' | \
 			    sed 's/\\emprg{.*}//g' | \
 			    aspell -t --personal=./unix_dict.txt list; \
 		done

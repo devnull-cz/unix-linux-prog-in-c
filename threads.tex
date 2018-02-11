@@ -563,7 +563,7 @@ However, if the parent in the \emph{pre-fork} handler locks all the mutexes, and
 then unlocks them in the \emph{post-fork} handler (both for the parent and the
 child), you will avoid such deadlocks.  When locking mutexes in the
 pre-fork handler, other threads are still running so the mutexes held by them
-can be released (usually each thread exits a crititcal section in a short time
+can be released (usually each thread exits a critical section in a short time
 in well written code).  Example: \example{pthreads/atfork.c}.  For more on this
 topic, see [Butenhof].
 \item See page \pageref{MUTEXES} on why mutexes locked in other threads on
@@ -710,8 +710,8 @@ if \texttt{attr} is \texttt{NULL}, default attributes will be used)
 \item Mutex = \emph{mutual exclusion}
 \item Special form of Dijkstra semaphores -- the difference between mutexes and
 binary semaphores is that \emsl{mutex has an owner and locked mutex must be
-unlocked only by the thread that acquied it.} This is not the case with
-semephores. In order to check whether given mutex was locked by different thread
+unlocked only by the thread that acquired it.} This is not the case with
+semaphores. In order to check whether given mutex was locked by different thread
 when acquiring it, it is necessary to test return value of
 \texttt{p\-thread\_mutex\_lock}, and also have the lock checking set, see below.
 \item Mutexes are meant to be held for short time only. They are used for
@@ -766,7 +766,7 @@ can be shared between processes&Y&Y&N
 % \cline{2-4}
 \end{tabular}}
 \item Static mutex initialization using before mentioned macro will set default
-attributes. It is possbile to use initializer function also for statically
+attributes. It is possible to use initializer function also for statically
 allocated mutex. If a mutex is dynamically allocated, it is always necessary to
 use \texttt{pthread\_mutex\_init}, even if the default attributes are desired or
 not.
@@ -819,7 +819,7 @@ return error
 \item Locking a mutex that is being held by another thread is not correct.
 Sometimes a (self)deadlock can ensue, see the previous page. If you need to
 unlock a mutex locked by different thread, use binary semaphores instead.
-\item When creating a program where effectivity is paramount, it is necessary to
+\item When creating a program where efficiency is paramount, it is necessary to
 think about how many mutexes will be needed and how exactly will be used.
 Even a library that was not written with threads in mind can be converted to be
 thread-safe (see page \pageref{THREADSAFE}) by inserting arbitrary function from
@@ -873,7 +873,7 @@ associated with a concrete condition like ``\emph{\texttt{n} is greater than
 7}''. Conditional variable can be in fact compared to a flag of certain color;
 if it is lifted up, it means that the threads waiting for the flag to be waved
 are informed (= woken up) and can use this information according its own
-judgement. Some threads can wait for \texttt{n} to be bigger than 7, the other
+judgment. Some threads can wait for \texttt{n} to be bigger than 7, the other
 can be waiting solely for \texttt{n} to change anyhow. It is only up to the
 programmer, if for concrete situation uses just one condition variable or
 for all situations. For the second situation, the threads waiting on 
@@ -967,7 +967,7 @@ pthread\_cond\_timedwait}{pthreadcondunblfncs}
 \item one conditional variable can be used to announce multiple situations
 at once -- e.g. when inserting or removing an item to/from a queue.
 Because of this, it is necessary to test the condition the thread is waiting
-for. Another consequence of this is that it is neccessary to use broadcast
+for. Another consequence of this is that it is necessary to use broadcast
 in such situation. Let's assume that both readers and writers are waiting for
 condition ``state of queue has changed''. If only single wakeup event is made
 after item insertion to the queue, then another writer can be woken up,
@@ -1308,7 +1308,7 @@ one request from single client.
 \sltitle{Thread-safe versus reentrant}
 
 \begin{itemize}
-\item \emph{thead-safe} means that the function can be called from multiple
+\item \emph{thread-safe} means that the function can be called from multiple
 threads in parallel without destructive consequences
 \begin{itemize}
 \item a function which was not designed to be thread-safe can be
@@ -1390,7 +1390,7 @@ individual systems define their own calls.
 \item Solaris
 \begin{itemize}
 \item \funnm{pthread\_cond\_reltimedwait\_np}\texttt{(\dots)}
-\item[$\rightarrow$] like timedwait, however the timeout is relative
+\item[$\rightarrow$] like \texttt{timedwait}, however the timeout is relative
 \end{itemize}
 
 \item OpenBSD

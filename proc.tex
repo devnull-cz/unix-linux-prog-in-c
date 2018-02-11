@@ -462,7 +462,7 @@ If the parent exits before the child, its adoptive parent will become the
 \texttt{init} process, that will take care of the zombie after the process ends.
 \end{description}
 \begin{itemize}
-\item To get information about running processes programatically is possible
+\item To get information about running processes programmatically is possible
 using non-standard API (e.g. the \texttt{libproc} library on Solaris built
 on top of the \texttt{procfs} filesystem that is mounted under \texttt{/proc}).
 \item Note that using \texttt{getppid} value to check if parent exited is not
@@ -697,14 +697,14 @@ section header table\\
 
 \begin{itemize}
 \item The UNIX standard does not specify what executable file format systems
-should use.  While most of the UNIX and Unix-like systems (eg. Linux distros)
-use ELF, there are other widely used systems that do not.  One example is
-macOS (which is a certified UNIX system) that uses the \emph{Mach-O} file
-format, short for \emph{Mach Object}.  Each Mach-O file is made
+should use.  While most of the UNIX and Unix-like systems (eg. Linux
+distributions) use ELF, there are other widely used systems that do not. One
+example is macOS (which is a certified UNIX system) that uses the \emph{Mach-O}
+file format, short for \emph{Mach Object}. Each Mach-O file is made
 up of one Mach-O header, followed by a series of load commands, followed by one
 or more segments, each of which contains between 0 and 255 sections.
 \item On Solaris, the \texttt{elfdump} command allows listing sections of the
-ELF file in a human readable form.  On Linux distros, use \texttt{readelf}.
+ELF file in a human readable form. On Linux distributions, use \texttt{readelf}.
 \item The \emph{ELF header} contains basic information about the file.  Try
 ``\texttt{readelf -h /bin/ls}'' on any Linux distro.
 \item The \emph{program header table} is only present in files that are

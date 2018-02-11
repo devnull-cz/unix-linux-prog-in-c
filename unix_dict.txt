@@ -711,7 +711,17 @@ pdfkeywords
 pagebackref
 Gingell
 Dekker
+Dekker's
 TLS
 iOS
 verhogen
 verlagen
+programmatically
+virtualized
+namespaces
+decrement
+increment
+incrementing
+decrementing
+endianess
+Downey

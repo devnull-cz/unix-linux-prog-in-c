@@ -275,7 +275,7 @@ still open, the file data remains on the disk until the process closes the file
 or terminates.
 \item If a process needs a temporary file, it can create it, unlink it right
 away, and work with it using the existing file descriptor.  When the file
-descriptor is closed (and all of its possible duplications), the file data is
+descriptor is closed (and all of its possible duplicates), the file data is
 released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure, and if that write fails, \texttt{close} fails.

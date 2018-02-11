@@ -655,7 +655,7 @@ can be used.
 \item If \texttt{connect} was used then \texttt{send} can be used instead of
 \texttt{sendto}.
 \item Successful return from either \emsl{does not mean successful delivery of
-the message to the remote side}, but only instertion of the data to local buffer
+the message to the remote side}, but only insertion of the data to local buffer
 which is yet to be sent out.
 \item It is possible to use \texttt{sendto} for stream service, however the
 address will be ignored. The only reason not to use \texttt{write} would be to
@@ -695,7 +695,7 @@ the socket in kernel
 \item Once closed, TCP socket can remain in transitory state which is defined in
 TCP protocol for connection closing. Before the socket is completely destroyed,
 it is not possible to use another socket with the same port, unless this
-behavior was overriden with the \texttt{SO\_REUSEADDR} flag using the
+behavior was overridden with the \texttt{SO\_REUSEADDR} flag using the
 \texttt{setsockopt} function, see page \pageref{SETSOCKOPT}.
 \item Connection reset is abnormal connection termination. In case of TCP
 a packet with \texttt{RST} flag is used for such termination. The remote side
@@ -771,10 +771,10 @@ void *\emph{dst});}
 (\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} returns \texttt{dst} if everything
 is OK otherwise returns \texttt{NULL} with \texttt{errno} set.
 \item Addresses and ports in binary form are stored as big endian.
-\item \texttt{dst} has to be suffciently sized because there is no parameter
+\item \texttt{dst} has to be sufficiently sized because there is no parameter
 specifying the size. This is not a problem since according to the value of
 \texttt{af} appropriate address structure or character array can be passed in.
-For maximal lenghts of strings for addresses, 2 macros can be used --
+For maximal lengths of strings for addresses, 2 macros can be used --
 \texttt{INET\_ADDRSTR\-LEN} (16) or \texttt{INET6\_ADDRSTRLEN} (48). 
 These values contain space for terminating \texttt{\bs{}0}.
 \item \texttt{size} is string size of \texttt{dst}. If not sufficient, the call
