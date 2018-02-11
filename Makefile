@@ -46,7 +46,7 @@ all:		slides notes
 slides:		$(SLIDES)
 		@for i in ${SLIDES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
-			$(M4) $$i > $$new; \
+			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
 		$(LATEX) $(SLIDE:tex=m4.tex)
 		mv $(SLIDE:tex=m4.pdf) $(SLIDE_PDF)
@@ -54,7 +54,7 @@ slides:		$(SLIDES)
 notes:		$(NOTES)
 		@for i in $(NOTE) ${NOTES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
-			$(M4) $$i > $$new; \
+			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
 		$(LATEX) $(NOTE:tex=m4.tex)
 		mv $(NOTE:tex=m4.pdf) $(NOTE_PDF)
@@ -66,7 +66,8 @@ clean:
 spellcheck:
 		@for file in ${SLIDES}; do \
 			echo "### Checking $$file"; \
-			$(M4) -DSPELL=YES $$file | \
+			$(M4) $$file | \
+			    sed 's/NOSPELLCHECK\(.*\)//' | \
 			    sed '/\begin{verbatim}/,/\end{verbatim}/d' | \
 			    sed '/\begin{alltt}/,/\end{alltt}/d' | \
 			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
