@@ -1,2 +1,3 @@
 changequote([[[, ]]])
 
+define([[[nospellcheck]]], [[[]]])
