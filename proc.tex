@@ -396,8 +396,8 @@ information can be found in the ``JOB CONTROL'' section in the bash man page.
 \end{slide}
 
 \begin{itemize}
-\item \label{FORK} The child proces is almost an exact copy of its parent except
-for the following:
+\item \label{FORK} The child process is almost an exact copy of its parent
+except for the following:
 \begin{itemize}
 \item The child process has a unique process and parent process ID.
 \item If the parent had multiple threads, the child will only have one that
@@ -545,8 +545,8 @@ For example, \texttt{login} command prefixes the shell file name with
 function as a login shell.  A login shell reads \texttt{/etc/profile}, for
 example.
 \item \funnm{exec} does not transfer the control to the program in memory
-directly.  As desribed on page \pageref{RUNTIMELINKER}, the system (ie. the code
-of the \funnm{exec} call) first maps the dynamic linker, aka loader, to the
+directly. As described on page \pageref{RUNTIMELINKER}, the system (i.e. the
+code of the \funnm{exec} call) first maps the dynamic linker, aka loader, to the
 process address space.  The loader then maps all dynamic libraries there as
 well, then finally calls the program \texttt{main()}.
 \item A useful exercise is to write a simple program calling \texttt{open()},
@@ -714,7 +714,7 @@ the table via ``\texttt{elfdump~-p}'' or ``\texttt{readelf~-l}''.
 \item Sections contain code, data, symbol table, relocation data, etc.
 \item The \emph{section header table} contains information for the linker, see
 ``\texttt{elfdump -c}'' or ``\texttt{readelf~-S}''.
-\item Some systems sticked to a format based on the original \emph{a.out} for a
+\item Some systems stuck on a format based on the original \emph{a.out} for a
 long time.  For example, OpenBSD moved from \emph{a.out} to ELF in 2003 when
 releasing version 3.4.
 \item Today it is common that systems randomly arrange the address space
@@ -1181,11 +1181,11 @@ based on user input, or could be read from a configuration file.
 \item If you have multiple dynamic libraries that all define a symbol of the
 same name, you could link one of those during the build process, and other
 libraries can be accessed via \funnm{dlopen}.
-\item You need a file of a correct format.  For example, on a Linux distro,
-that is an ELF shared library with an \texttt{.so} suffix.  With gcc, you will
-need \texttt{-shared} to build such a library there.  If on macOS (file format
-\emph{Mach-O}), you will need \texttt{-dynamiclib}.  Libraries there have a
-\texttt{.dynlib} suffix.
+\item You need a file of a correct format.  For example, on a Linux
+distribution, that is an ELF shared library with an \texttt{.so} suffix.  With
+gcc, you will need \texttt{-shared} to build such a library there.  If on macOS
+(file format \emph{Mach-O}), you will need \texttt{-dynamiclib}.  Libraries
+there have a \texttt{.dynlib} suffix.
 \item If \emph{path} contains \texttt{/}, it is taken either as global or
 relative, if not, the dynamic linker uses its default path to search for the
 library, usually in \texttt{/lib} and \texttt{/usr/lib}.  You can extend the

@@ -424,7 +424,7 @@ specified in the standard, like \funnm{open}(), \funnm{read}(),
 the calling thread.  The \funnm{pthread\_testcancel}() function has no effect if
 cancelability is disabled.
 \item Be very careful with the use of \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} as
-it may lead to data inconsitency as the cancellation may happen any time, even
+it may lead to data inconsistency as the cancellation may happen any time, even
 in your critical sections.
 \item Cleanup functions are called on cancellation, see page
 \pageref{PTHREAD_CLEANUP}.  For example, if cancelling a thread holding a mutex,
