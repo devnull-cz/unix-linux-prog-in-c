@@ -5,8 +5,7 @@ changequote([[[, ]]])
 
 \begin{slide}
 \sltitle{System V semaphore API }
-\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int
-\emph{semflg});}
+\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int \emph{semflg});}
 \begin{itemize}
 \item returns identifier of an array of \texttt{nsems} semaphores associated
 with the \texttt{key} key (\texttt{IPC\_PRIVATE} key \dots{} private semaphores,
@@ -21,8 +20,7 @@ int \emph{cmd}, ...);}
 \item controlling function, optional 4th argument \texttt{arg} is of the
 \texttt{union~semun} type.
 \end{itemize}
-\texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t
-\emph{nsops});}
+\texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t \emph{nsops});}
 \begin{itemize}
 \item generic operations P and V.
 \end{itemize}

@@ -595,11 +595,11 @@ number to \emph{sig}.
 \item When in \funnm{pause}() or \funnm{sigsuspend}(), a signal not blocked will
 call a handler if one is set, and the signal catching function returns unless
 the process is terminated by the signal.
-\item With \funnm{sigwait}(), you can implement a synchronnous signal
+\item With \funnm{sigwait}(), you can implement a synchronous signal
 handling.  First, a process blocks signals it is interested in, then when
 convenient, it waits for them or just checks whether there are some pending
 using \funnm{sigpending}().
-\item Funtion \funnm{sigwait}() was added with POSIX-1003.1c
+\item The \funnm{sigwait}() function was added with POSIX-1003.1c
 extensions (threads) and you should use this function when dealing with signals
 in the multithreaded application.  As other POSIX thread functions, it returns
 an error number directly, and 0 on success.

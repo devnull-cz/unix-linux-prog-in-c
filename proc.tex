@@ -102,8 +102,8 @@ variable on this system, you will find out that both initialized and
 non-initialized variables share a common data segment, labeled in the image as
 ,,executable -- DATA''.  Example: \example{pmap/proc-addr-space.c}.
 \item The kernel mapping is not necessary, for example on Solaris running on
-\emph{amd64} architecture (i.e. 64-bit) the kernel is no longer mapped into
-user space.
+\texttt{\emph{amd64}} architecture (i.e. 64-bit) the kernel is no longer mapped
+into user space.
 \item \texttt{brk} nor \texttt{sbrk} are part of the standard, hence portable
 applications should not use them; if a similar functionality is needed, they
 should use \texttt{mmap}, see page \pageref{MMAP}.

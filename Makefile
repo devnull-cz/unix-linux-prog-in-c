@@ -68,5 +68,10 @@ spellcheck:
 			echo "### Checking $$file"; \
 			$(M4) $$file | \
 			    sed '/\begin{verbatim}/,/\end{verbatim}/d' | \
+			    sed '/\begin{altt}/,/\end{altt}/d' | \
+			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
+			    sed 's/\\\-//g' | \
+			    sed 's/\texttt{.*}//g' | \
+			    sed 's/\emprg{.*}//g' | \
 			    aspell -t --personal=./unix_dict.txt list; \
 		done

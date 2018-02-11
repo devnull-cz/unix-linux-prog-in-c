@@ -225,7 +225,7 @@ which are listed in the next few paragraphs.  If unsure, consult the standard.
 less then \emph{nbyte} bytes remain in a file, if the call was interrupted
 by a signal, or if the file is a pipe, device, or socket and there is less than
 \emph{nbyte} bytes available at the moment.  If there is no data, a blocking
-\texttt{read} will block unless some data gets available, a non-blockin
+\texttt{read} will block unless some data gets available, a non-blocking
 \texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
 if less then \emph{nbyte} bytes can fit the file (eg. disk full), if the call
@@ -885,13 +885,12 @@ const char *\emph{path2});}
 \item make a new symbolic name from \emph{path2} $\rightarrow$ \emph{path1}.
 \item \emph{path1} may span filesystems, and may not exist at all
 \end{itemize}
-\texttt{int \funnm{readlink}(const char *\emph{path}, char *\emph{buf},
-size\_t \emph{bufsz});} 
+\texttt{int \funnm{readlink}(const char *\emph{path}, char *\emph{buf}, size\_t \emph{bufsz});} 
 \begin{itemize}
-\item put maximum of \emph{bufsz} bytes from the symlink target path to
-\emph{buf}
-\item returns the number of bytes written to \emph{buf}. 
-\item \emph{buf} is \emsl{not} terminated by \verb#'\0'#
+\item put maximum of \texttt{\emph{bufsz}} bytes from the symlink target path to
+\texttt{\emph{buf}}
+\item returns the number of bytes written to \texttt{\emph{buf}}.
+\item \texttt{\emph{buf}} is \emsl{not} terminated by \verb#'\0'#
 \end{itemize}
 \end{slide}
 
@@ -939,7 +938,7 @@ int \funnm{closedir}(DIR *\emph{dirp});}
 \item Directory items are not ordered and
 \texttt{readdir} is allowed to return them in arbitrary order depending on the
 filesystem implementation.  \texttt{NULL} is returned on failure
-and \texttt{errno} is set.  \texttt{NULL} is also returnd upon reaching the end
+and \texttt{errno} is set.  \texttt{NULL} is also returned upon reaching the end
 of a directory but in that case \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the

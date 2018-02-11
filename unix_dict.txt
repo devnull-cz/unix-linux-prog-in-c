@@ -696,3 +696,10 @@ sparc
 IPS
 ipcs
 ipcrm
+VFS
+FFS
+getgid
+nbyte
+LXC
+proberen
+verlagen
