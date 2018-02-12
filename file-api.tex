@@ -609,7 +609,7 @@ program passed as the first argument.  We got ahead of ourselves here though, we
 will learn about the \texttt{exec} calls on page \pageref{EXEC}.
 \item To fully understand how redirection works it is good to draw the file
 descriptor table for each step and where the slots point to.  For example, for
-the 2nd example in the slide, we have the initial state, after \texttt{close(1)}
+the \nth{2} example in the slide, we have the initial state, after \texttt{close(1)}
 and \texttt{open("out", ...)}, and the final state, as follows:
 
 \begin{verbatim}
@@ -622,7 +622,7 @@ and \texttt{open("out", ...)}, and the final state, as follows:
 +-------+              +-------+              +-------+
 \end{verbatim}
 
-\item You need to pay attention to the state of descriptors.  The 2nd example
+\item You need to pay attention to the state of descriptors.  The \nth{2} example
 will not work if the descriptor 0 is already closed, as 
 \texttt{open} returns 0 (the first available descriptor) and \texttt{dup} fails
 while trying to duplicate an already closed descriptor.  Possible

@@ -295,14 +295,14 @@ The HTML version is freely available, PDF documents have to be purchased.
 
 \begin{enumerate}
 \item Uresh Vahalia: \emsl{UNIX Internals: The New Frontiers}.
- Prentice Hall; 1st edition, 1995
+ Prentice Hall; \nth{1} edition, 1995
 \item Bach, Maurice J.: \emsl{The Design of the UNIX Operating System}.
 Prentice Hall, 1986
 \item McKusick, M. K., Neville-Neil, G. V.: \emsl{The Design and
 Implementation of the FreeBSD Operating System}. Addison-Wesley, 2004
 %\item Goodheart, B.; Cox, J.: \emsl{The Magic Garden Explained: the
 %Internals of UNIX System~V Release 4}. Prentice Hall, 1994
-\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; 2nd
+\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; \nth{2}
 edition, 2006.
 \item \emsl{Linux Documentation Project}. \url{http://tldp.org/}
 \end{enumerate}
@@ -314,7 +314,7 @@ edition, 2006.
 
 \begin{enumerate}
 \item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
-and Mach systems.  The 2nd edition, scheduled for 2005, never happened,
+and Mach systems.  The \nth{2} edition, scheduled for 2005, never happened,
 unfortunately.
 \item UNIX classic book. On UNIX System~V Rel.~2, and partially 3 as well.
 While outdated, it is one of the best books ever written on Unix.  In 1993 a
@@ -335,14 +335,14 @@ book is Solaris~10.
 \sltitle{Books on Unix programming}
 \begin{enumerate}
 \item Stevens, W. R., Rago, S. A.: \emsl{Advanced Programming in UNIX(r)
-Environment}. Addison-Wesley, 2nd edition, 2005.
+Environment}. Addison-Wesley, \nth{2} edition, 2005.
 \item Rochkind, M. J.: \emsl{Advanced UNIX Programming},
-Addison-Wesley; 2nd edition, 2004
+Addison-Wesley; \nth{2} edition, 2004
 \item Stevens, W. R., Fenner B., Rudoff, A. M.: \emsl{UNIX Network
 Programming, Vol. 1 -- The Sockets Networking API}. Prentice Hall,
-3rd edition, 2004
+\nth{3} edition, 2004
 \item Butenhof, D. R.: \emsl{Programming with POSIX Threads},
-Addison-Wesley; 1st edition, 1997
+Addison-Wesley; \nth{1} edition, 1997
 % I don't why but after I switched from FreeBSD to Solaris, I can't typeset
 % word "unix" anymore. It's like it wasn't there. Using {} trick helps.
 \item UNIX specifications, see \url{http://www.unix.org}
@@ -368,7 +368,7 @@ recommended.
 \item Detailed descriptions of system calls and functions.
 \item \label{POSIX4} A book that did not fit the slide and covers topics outside
 of the scope of this class: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers
-Guide: Programming for the Real World}, O'Reilly; 1st edition, 1995.  A great
+Guide: Programming for the Real World}, O'Reilly; \nth{1} edition, 1995.  A great
 book on real-time POSIX extensions with a beautiful cover.  See also pages
 \pageref{REALTIMEEXTENSIONS} a \pageref{SIGWAITINFO}.
 \item[\ldots] Go to Amazon and search for ``unix''.  If you ever buy anything,
@@ -449,7 +449,7 @@ X3J11 to create the first C standard.  After a long and tedious process the
 standard came to existence as ANSI X3.159-1989 ``Programming Language C,'' and
 is mostly known as ``ANSI C'', or C89, and the command line name for the
 compiler itself was \texttt{c89}.
-\item The 2nd edition of the C book (1988) was updated for the upcoming
+\item The \nth{2} edition of the C book (1988) was updated for the upcoming
 standard as it used one of its final drafts.  In 1990, ANSI C was adopted by ISO
 as ISO/IEC 9899:1990; that standard is sometimes called C90.  It's the same as
 C89 but it renumbered its sections and removed the rationale document which was
@@ -1882,7 +1882,7 @@ means the process finishes.  You can also use functions \texttt{exit()} or
 \item Passing the environment in the third parameter of type
 \texttt{char**} is not part of the normative part of the C standard, only the
 informative one.  C compilers typically support that though.
-The \texttt{main} variant with the 3rd parameter looks like this:\\ \texttt{int
+The \texttt{main} variant with the \nth{3} parameter looks like this:\\ \texttt{int
 \funnm{main}(int \emph{argc}, char *\emph{argv}[], char *\emph{envp}[]);}
 \item The return value type of \texttt{main} should be always \texttt{int}.
 \emsl{Only lower 8 bits from that integer are only used though.}  It is always a
@@ -1971,7 +1971,7 @@ uses \texttt{EDITOR}, etc.  The variables are usually in caps but it is just a
 convention.  \texttt{wget} does not follow convention and uses
 \texttt{http\_proxy} and \texttt{https\_proxy} as environment variables to set
 the proxy to be used, and other lower case variables as well.
-\item If \emph{envp} is the 3rd argument of \texttt{main}, it is the same pointer
+\item If \emph{envp} is the \nth{3} argument of \texttt{main}, it is the same pointer
 as is in the standard global variable \texttt{environ}.
 \item Example: \example{main/print-env.c} (see below how to clear out inherited
 environment from the shell using the \texttt{env} command):

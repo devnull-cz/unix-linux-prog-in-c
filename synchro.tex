@@ -308,15 +308,15 @@ the same program are unwanted.
 \item to set locks for file \texttt{fildes}:
 \texttt{cmd}: 
     \begin{itemize}
-    \item \texttt{F\_GETLK} \dots{} takes lock description from 3rd argument
+    \item \texttt{F\_GETLK} \dots{} takes lock description from \nth{3} argument
     and replaces it with description of existing lock that collides with it.
-    \item \texttt{F\_SETLK} \dots{} sets or destroys lock described by the 3rd
+    \item \texttt{F\_SETLK} \dots{} sets or destroys lock described by the \nth{3}
     argument. If the lock cannot be set immediately returns $-1$.
     \item \texttt{F\_SETLKW} \dots{} like \texttt{F\_SETLK}, however puts
     the process to sleep if it is not possible to set the lock 
     (\texttt{W} means ``wait'')
     \end{itemize}
-\item 3rd argument contains lock description and is pointer to 
+\item \nth{3} argument contains lock description and is pointer to 
 \texttt{struct flock}
 \end{itemize}
 \end{slide}
