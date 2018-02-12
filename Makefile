@@ -72,7 +72,7 @@ spellcheck:
 			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
 			    sed 's/\\\-//g' | \
 			    sed 's/\\\=//g' | \
-			    sed 's/\\example{[^{]*}//g' | \
+			    sed -E 's/\\example{[[:alnum:]_\/\.\-]+}//g' | \
 			    sed 's/\\texttt{[^{]*}//g' | \
 			    sed 's/\\\funnm{[^{]*}//g' | \
 			    sed 's/\\emprg{.*}//g' | \
