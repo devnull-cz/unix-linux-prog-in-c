@@ -1,4 +1,4 @@
-personal_ws-1.1 en 328 
+personal_ws-1.1 en 333 
 Illumos
 Prog
 Ctrl
@@ -32,9 +32,10 @@ reentrant
 userland
 TLI
 args
+FIFO
 argv
-UFS
 UID
+UFS
 tracepoint
 DNS
 PCTS
@@ -59,6 +60,7 @@ lockfiles
 lockfile
 Principy
 Xlinker
+EOF
 SGID
 SUS
 VFS
@@ -138,15 +140,17 @@ filesystems
 iOS
 Rago
 lstat
-IPS
 ldd
+IPS
 acomp
+dereferencing
 gprof
 currentunix
 endianess
 ftruncate
 ipcs
 cxref
+COFF
 endian
 Malostransk
 destructors
@@ -282,6 +286,7 @@ cron
 Uresh
 DARPA
 interprocess
+RGID
 getopt
 pthreads
 NDEBUG
@@ -303,12 +308,12 @@ pdftitle
 RDONLY
 environ
 chrooted
-linker's
 Linkers
+linker's
 SAS
 CSRG
-symlinks
 symlink's
+symlinks
 OpenBSD
 SCO
 Xcurses

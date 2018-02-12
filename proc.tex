@@ -10,7 +10,9 @@ include(`macros.m4')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{text/data/bss/stack/heap}{procmem}
+]]])
 
 \begin{slide}
 \sltitle{Process memory layout in userspace}
@@ -37,9 +39,10 @@ The data segment and stack are private for each process.
 \item Each system can use a different layout of a process address space
 (and typically it is indeed so).  See the next slide which also shows
 sections for \texttt{mmap} and \emph{heap}.
-\item \emph{bss} \dots{} non-initialized variables (\texttt{bss}
-comes from the IBM 7090 assembler and stands for \uv{block started by
-symbol}). While the program is running, the \texttt{data}, \texttt{bss} and heap
+\item ifdef([[[NOSPELLCHECK]]], [[[\emph{bss}]]]) \dots{} non-initialized
+variables (\texttt{bss} comes from the IBM 7090 assembler and stands for
+\uv{block started by symbol}).
+While the program is running, the \texttt{data}, \texttt{bss} and heap
 sections (not shown in the picture) make up data segments of the process.
 Heap size can be changed using the \texttt{brk} and \texttt{sbrk} system calls.
 \item Note -- by non-initialized variables are meant static variables --
@@ -132,7 +135,7 @@ Some implementations allow to add modules to the kernel during runtime
 (e.g. when a device is connected, matching device driver module is
 automatically loaded), it is therefore not necessary to regenerate
 the kernel and reboot the system whenever a change is needed.
-\item \emph{data and kernel bss} \dots{} contain data structures used
+\item \emph{data and kernel \texttt{bss}} \dots{} contain data structures used
 by the kernel, contains the u-area of a currently running process.
 \item \emph{kernel stack} \dots{} independent for each process, is empty
 when the process is in the user mode (and therefore uses the user stack).
@@ -308,15 +311,16 @@ event, the system priority is temporarily assigned to it.  After a wake-up, such
 a process will be assigned a CPU earlier than other non-sleeping processes to
 finish the operation as soon as possible as it could hold some locks later
 needed by other processes.
-\item Fixed part of the priority in the time-shared class can be set
-using\\
+\item Fixed part of the priority in the time-shared class can be set using\\
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{setpriority}(int \emph{which}, id\_t \emph{who},
 int \emph{prio});}\\ or \\ \texttt{int \funnm{nice}(int \emph{in{}cr});} \\
+]]])
 The \emph{which} value determines what will be in the \emph{who} argument.
-If \emph{which} is e.g. \emph{PRIO\_PGRP}, the \emph{who} will store process
-group number.  Note that \funnm{nice} call will return a new nice value. As
--1 is a valid value, it is necessary to clear \texttt{errno} and then check if
-the function returns -1.
+If \emph{which} is e.g. \emph{\texttt{PRIO\_PGRP}}, the \emph{who} will store
+process group number.  Note that \funnm{nice} call will return a new nice value.
+As -1 is a valid value, it is necessary to clear \texttt{errno} and then check
+if the function returns -1.
 \item The priority class and nice value of a given process can be displayed with
 the \texttt{-l} option of the \texttt{ps} command or by explicitly specifying
 the fields to be printed out (see the \texttt{-o} option).
@@ -402,7 +406,7 @@ except for the following:
 \item The child process has a unique process and parent process ID.
 \item If the parent had multiple threads, the child will only have one that
 called \texttt{fork}; will be further explained on page \pageref{FORKALL}.
-\item Child process resource utilizations are set to 0.
+\item Child process resource utilization counters are set to 0.
 \item \texttt{alarm} settings and file locks are not inherited.
 \end{itemize}
 \item The file descriptor tables are exact copies in both processes.  That means
@@ -423,23 +427,33 @@ copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getpid, getpgrp, getppid, getsid}{getp}
+]]])
 
 \begin{slide}
 \sltitle{Process identification}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{getpid}(void);}
+]]])
 \begin{itemize}
 \item returns the process ID of the calling process.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{getpgrp}(void);}
+]]])
 \begin{itemize}
 \item returns the PGID of the calling process
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{getppid}(void);} 
+]]])
 \begin{itemize}
 \item returns the process ID of the calling process.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{getsid}(pid\_t \emph{pid});}
+]]])
 \begin{itemize}
 \item returns the session ID for process \texttt{pid} (0 means for the calling
 process)
@@ -456,7 +470,8 @@ runs in foreground (\emph{foreground process group}) and has access to the
 controlling terminal for input and output, the rest is running in the background
 (\emph{background process groups}) and have only optional access to the output
 or no at all. (disallowed operation with terminal will stop the process).
-\item[parent process:] Each process (besides \texttt{swapper}u, pid~==~0)
+\item[parent process:] Each process (besides \texttt{swapper},
+\texttt{pid~==~0})
 has a parent, i.e. process that created it with the \texttt{fork} syscall.
 If the parent exits before the child, its adoptive parent will become the
 \texttt{init} process, that will take care of the zombie after the process ends.
@@ -466,24 +481,30 @@ If the parent exits before the child, its adoptive parent will become the
 using non-standard API (e.g. the \texttt{libproc} library on Solaris built
 on top of the \texttt{procfs} filesystem that is mounted under \texttt{/proc}).
 \item Note that using \texttt{getppid} value to check if parent exited is not
-portable (commonly \texttt{init} has pid 1 however this is not true in many
-virtualized/containerized environments, e.g. in PID namespaces on Linux, Zones
-in Solaris).\\
+portable (commonly \texttt{init} has \texttt{pid} 1 however this is not true in
+many virtualized/containerized environments, e.g. in PID namespaces on Linux,
+Zones in Solaris).\\
 Example: \example{session/getppid.c}.
 \end{itemize}
 
 
 %%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{setpgrp, setsid}{setp}
+]]])
 
 \begin{slide}
 \sltitle{Creating a new process group/session}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{setpgid}(pid\_t \emph{pid}, pid\_t \emph{pgid});}
+]]])
 \begin{itemize}
-\item sets the PGID of the process specified by pid to pgid.
+\item sets the PGID of the process specified by \texttt{pid} to \texttt{pgid}.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{setsid}(void);}
+]]])
 \begin{itemize}
 \item creates a new session if the calling process is not a process
 group leader
@@ -493,8 +514,10 @@ group leader
 \begin{itemize}
 \item For the \funnm{setpgid} syscall the following is true:
 \begin{enumerate}
-\item pid == pgid : the process with \emph{pid} will become process group leader
-\item pid != pgid : the process with \emph{pid} will become process group member
+\item ifdef([[[NOSPELLCHECK]]], [[[pid == pgid]]]) : the process with
+\emph{\texttt{pid}} will become process group leader
+\item ifdef([[[NOSPELLCHECK]]], [[[pid != pgid]]]) : the process with
+\emph{\texttt{pid}} will become process group member
 \end{enumerate}
 \item The process which is not yet process group leader can both become session
 leader and process group leader using \texttt{setsid}. If the process already is
@@ -514,15 +537,18 @@ or using other implementation dependent way.
 
 \begin{slide}
 \sltitle{Execute a program: \texttt{exec}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{extern char **\funnm{environ};\\
 int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
+]]])
 \begin{itemize}
 \item replaces the current process image with a new process image
 \item runs a program defined via \emph{path}
-\item arguments that follow, including \emph{arg0}, are given to the program via
-\texttt{argc} and \texttt{argv} of its \texttt{main()}
+\item arguments that follow, including \emph{\texttt{arg0}}, are given to the
+program via \texttt{argc} and \texttt{argv} of its \texttt{main()}
 \item the argument list must end with \texttt{(char *)0}, i.e. \texttt{NULL}
-\item \emph{arg0} should contain the program name (i.e. not the full path)
+\item \emph{\texttt{arg0}} should contain the program name (i.e. not the full
+path)
 \item \emsl{open file descriptors are unaffected by \funnm{exec}}
 \begin{itemize}
 \item \dots{}aside from file descriptors with flag \texttt{FD\_CLOEXEC}
@@ -557,8 +583,10 @@ done before \texttt{open} is called in the end.
 
 \begin{slide}
 \sltitle{Execute a program: \texttt{exec} (continued)}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{extern char **\funnm{environ};\\
 int \funnm{execl}(const char *\emph{path}, const char *\emph{arg0}, ... );}
+]]])
 \begin{itemize}
 \item successful \funnm{execl} never returns as the new process (program) fully
 replaced the address space of the calling process
@@ -584,7 +612,9 @@ set to the UID of the executable program owner.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{execv, execle, execl, execve, execlp}{execvariants}
+]]])
 
 \begin{slide}
 \sltitle{Variants of the \texttt{exec} call}
@@ -592,30 +622,37 @@ set to the UID of the executable program owner.
 \texttt{int \funnm{execv}(const char *\emph{path}, char *const \emph{argv}[]);} 
 \begin{itemize}
 \item like \funnm{execl} but arguments are in the \emph{argv} array,
-the last iteam must be \texttt{NULL}
+the last item must be \texttt{NULL}
 \end{itemize}
 \begin{minipage}{\slidewidth}
 \vspace{-1ex}\texttt{\begin{tabbing}
+ifdef([[[NOSPELLCHECK]]], [[[
 int \funnm{execle}(\=const char *\emph{path}, const char *\emph{arg0},
 ... ,\\\> char *const \emph{envp}[]);
+]]])
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
 \item like \funnm{execl} but instead of the global variable \emph{environ}, 
-the \emph{envp} argument is used
+the \emph{\texttt{envp}} argument is used
 \end{itemize}
 \begin{minipage}{\slidewidth}
 \vspace{-1ex}\texttt{\begin{tabbing}
+ifdef([[[NOSPELLCHECK]]], [[[
 int \funnm{execve}(\=const char *\emph{path}, char *const \emph{argv}[],\\
 \>char *const \emph{envp}[]);
+]]])
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
-\item like \funnm{execv} but instead of \emph{environ}, \emph{envp} is used
+\item like \funnm{execv} but instead of \emph{\texttt{environ}},
+\emph{\texttt{envp}} is used
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{execlp}(const char *\emph{file}, const char *\emph{arg0},
 ...);\\
 int \funnm{execvp}(const char *\emph{file}, char *const \emph{argv}[]);}
+]]])
 \begin{itemize}
 \item like \funnm{execl} and \funnm{execv} but \texttt{PATH} is also used
 for searching for the executable file
@@ -732,19 +769,25 @@ initial TCP sequence numbers, etc.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{exit, wait, waitpid}{procexit}
+]]])
 
 \begin{slide}
 \sltitle{Program termination}
 \setlength{\baselineskip}{0.6\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{exit}(int \emph{status});}
+]]])
 \begin{itemize}
 \item terminates a process with a return value \emph{status}.  Never returns.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{wait}(int *\emph{stat\_loc});}
+]]])
 \begin{itemize}
 \item waits for a child process termination, returns its PID and puts
-termination information into \emph{stat\_loc} which can be tested as:
+termination information into \emph{\texttt{stat\_loc}} which can be tested as:
     \begin{itemize}
     \item \texttt{WIFEXITED(stat\_loc)} \dots{} process called
     \texttt{exit()}
@@ -757,16 +800,18 @@ termination information into \emph{stat\_loc} which can be tested as:
     \item \texttt{WSTOPSIG(stat\_loc)} \dots{} stop signal number
     \end{itemize}
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{waitpid}(pid\_t \emph{pid}, int *\emph{stat\_loc},
 int \emph{opts});}
+]]])
 \begin{itemize}
 \item waits for a specific child process termination
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emph{status\_loc} equal to \texttt{NULL} means to ignore the status
-information.
+\item \emph{\texttt{status\_loc}} equal to \texttt{NULL} means to ignore the
+status information.
 \item Function \funnm{\_exit} works as \funnm{exit} but it does not flush stdio
 streams and functions registered with the \funnm{atexit} call are not called.
 \item There is also \texttt{WIFCONTINUED(stat\_loc)} which means a restarted
@@ -790,7 +835,7 @@ flags:
     only use them in portable code if a macro \texttt{\_POSIX\_JOB\_CONT\-ROL}
     is defined in \texttt{<unistd.h>}.
     \end{itemize}
-\item \emph{pid} in \funnm{waitpid}:
+\item \emph{\texttt{pid}} in \funnm{waitpid}:
     \begin{itemize}
     \item \texttt{== -1} \dots{} wait for any child
     \item \texttt{> 0} \dots{} wait for a specific child
@@ -850,9 +895,9 @@ child's return value out of the status information.
     \item producer blocks on writing if the pipe is full
     \item consumer blocks on reading if the pipe is empty
     \end{itemize}
-\item consumer gets EOF (i.e. \texttt{read()} returns
+\item consumer gets \texttt{EOF} (i.e. \texttt{read()} returns
 \texttt{0}) only if all copies of \texttt{fildes[1]} are closed.
-\item named pipe (i.e. fifo, see \funnm{mkfifo}) works the same way.  The
+\item named pipe (i.e. FIFO, see \funnm{mkfifo}) works the same way.  The
 difference is any process can use it.
 \end{itemize}
 \end{slide}
@@ -894,11 +939,18 @@ file descriptors with the \texttt{FD\_CLOEXEC} flag -- those are closed in the
 \emsl{successful} \funnm{exec} call.
 \item Example: \example{pipe/pipe-and-fork.c}
 \item Closing the writing descriptor \texttt{pd[1]} (see
-{\color[rgb]{1,0,0} $\triangleright$}) in the consumer process is required
+ifdef([[[NOSPELLCHECK]]], [[[
+{\color[rgb]{1,0,0} $\triangleright$})
+]]])
+in the consumer process is required
 as the EOF would not be detected otherwise.
 \item Closing the reading descriptor \texttt{pd[0]} in the consumer process is
-desired as well (see {\color[rgb]{1,0,0} $\triangleright$}) as if the
-consumer finishes prematurely the producer properly gets a \texttt{SIGPIPE}.
+desired as well (see
+ifdef([[[NOSPELLCHECK]]], [[[
+{\color[rgb]{1,0,0} $\triangleright$}
+]]])
+) as if the consumer finishes prematurely the producer properly gets a
+\texttt{SIGPIPE}.
 If that file descriptor in the producer was not closed while the consumer died
 in the middle of processing the data, for example, the producer would not learn
 that the consumer was gone (as the producer would remain to be an existing
@@ -921,7 +973,7 @@ data from the child might still be flowing to the console.
 \item For example, the original \emph{Bourne shell} constructed a pipeline the
 way that the last process created a child as its producer, that producer itself
 created its child as its producer, and this continued until the whole pipeline
-was formed.  Ie. the first command in the pipeline was created as the last
+was formed, i.e. the first command in the pipeline was created as the last
 process.
 \item However, in \texttt{bash}, all processes in a pipeline are direct children
 of the shell itself, i.e. \texttt{bash} calls \funnm{fork} that many times as is
@@ -937,7 +989,7 @@ for all processes it directly created to finish.
 \item using pipes and files to communicate between processes requires system
 calls
 \begin{itemize}
-\item pros: processes cannot corrupt one another's address space
+\item pros: processes cannot corrupt address space of one another
 \item const: significant syscall overhead (typically \funnm{read},
 \funnm{write})
 \end{itemize}
@@ -963,25 +1015,29 @@ physical storage reads and writes.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{mmap}{mmap}
+]]])
 
 \begin{slide}
 \sltitle{Mapping files to memory (1)}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 void *\funnm{mmap}(\=void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{prot}, int \emph{flags},\\\> int \emph{fildes}, off\_t \emph{off});
+]]])
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
 
 \item A file section of \emph{l{}en} bytes, starting at position \texttt{off} in
 a file represented by a file descriptor \texttt{fildes}, mapped to the process
-space starting at address \emph{addr} (\texttt{0} \dots{}kernel assigns the
-address).
+space starting at address \emph{\texttt{addr}} (\texttt{0} \dots{}kernel assigns
+the address).
 \item Returns the address of the mapped section, or \texttt{MAP\_FAILED}. 
-\item In \emph{prot}, there is an OR combination of \texttt{PROT\_READ} (read
-allowed), \texttt{PROT\_WRITE} (write allowed), \texttt{PROT\_EXEC} (execution
-allowed), or \texttt{PROT\_NONE} (no access allowed).
+\item In \emph{\texttt{prot}}, there is an OR combination of \texttt{PROT\_READ}
+(read allowed), \texttt{PROT\_WRITE} (write allowed), \texttt{PROT\_EXEC}
+(execution allowed), or \texttt{PROT\_NONE} (no access allowed).
 \item In \emph{flags} there is an OR combination of \texttt{MAP\_PRIVATE}
 (changes private to the process, not saved to the file), and
 \texttt{MAP\_SHARED} (modifications are saved to the file)
@@ -996,10 +1052,10 @@ allowed), or \texttt{PROT\_NONE} (no access allowed).
 \item in the flags \emsl{exactly one} of \texttt{MAP\_PRIVATE},
 \texttt{MAP\_SHARED} has to be present.
 There is also \texttt{MAP\_FIXED}, with which the
-kernel tries to map the section at \emph{addr} even if it means to unmap and
-already existing mapping.  Without \texttt{MAP\_FIXED}, the kernel will try to
-use \emph{addr} but if there is an existing mapping, it will try to find another
-address to use (and returns it).
+kernel tries to map the section at \emph{\texttt{addr}} even if it means to
+destroy already existing mapping.  Without \texttt{MAP\_FIXED}, the kernel
+will try to use \emph{\texttt{addr}} but if there is an existing mapping, it
+will try to find another address to use (and returns it).
 \item mapping files in memory is alternative to processing files using
 \texttt{read}, \texttt{write}, \texttt{lseek}.  After the file is mapped it is
 possible to work with it as a data structure in memory. The file is not being
@@ -1012,7 +1068,7 @@ to the storage, i.e. the file. That is, if the \texttt{MAP\_SHARED} is used
 \item For the file to be mapped into memory it is first necessary to open it
 via \texttt{open}. The access mode in \texttt{prot} cannot be ``higher'' than
 specified in the mode for \texttt{open}.
-\item The use of \texttt{MAP\_FIXED} se not recommended, since it hampers
+\item The use of \texttt{MAP\_FIXED} is not recommended, since it hampers
 portability of the code.
 \item \textbf{warning:} w.r.t. \texttt{MAP\_SHARED} -- if the file is truncated
 by another process so that the truncation affects the mapped part, the access
@@ -1020,7 +1076,7 @@ to such area results in the \texttt{SIGBUS} resp. \texttt{SIGSEGV} or signal
 to be sent to the process. One way how to get around it is to use
 mandatory locking, however it is not implemented in all the systems.
 In case the mapped memory is used as a parameter for \texttt{write},
-the signal will not be sent and \texttt{write} wil return -1
+the signal will not be sent and \texttt{write} will return -1
 with \texttt{errno} set to \texttt{EFAULT}.
 \item when using \texttt{MAP\_PRIVATE} on Solaris all the changes done by other
 processes that have mapped the file using \texttt{MAP\_SHARED} are visible
@@ -1050,7 +1106,8 @@ never written back to the file.
 causes \texttt{SIGBUS} or \texttt{SIGSEGV} signal.
 This is not universally true, see example \example{mmap/sigbus.c}.
 \item When using \texttt{MAP\_FIXED} the new mapping will replace any existing
-mapping from \texttt{addr} to \texttt{addr+l{}en-1}, see example
+mapping from \texttt{addr} to
+ifdef([[[NOSPELLCHECK]]], [[[\texttt{addr+l{}en-1}]]]), see example
 \example{mmap/override.c}.
 \item extensions not part of SUSv3:
     \begin{itemize}
@@ -1070,15 +1127,19 @@ saving the overhead necessary for switching to kernel and back to userspace.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{msync, munmap, mprotect}{msync}
+]]])
 
 \begin{slide}
 \sltitle{Mapping files to memory (2)}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{msync}(void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{flags});}
+]]])
 \begin{itemize}
 \item will write back specified pages in the region of l{}en bytes from address
-addr. The flags is OR-combination of:
+\texttt{addr}. The flags is OR-combination of:
     \begin{itemize}
     \item \texttt{MS\_ASYNC} \dots{} asynchronous write
     \item \texttt{MS\_SYNC} \dots{} synchronous write
@@ -1086,16 +1147,20 @@ addr. The flags is OR-combination of:
     that are differ from file contents
     \end{itemize}
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{munmap}(void *\emph{addr}, size\_t \emph{l{}en});}
+]]])
 \begin{itemize}
 \item write back changes, destroy mapping of length \texttt{l{}en} from
 address \texttt{addr}.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{mprotect}(void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{prot});}
+]]])
 \begin{itemize}
 \item change access rights to mapped section of a file. The values
-prot are the same as for \texttt{mmap()}.
+\texttt{prot} are the same as for \texttt{mmap()}.
 \end{itemize}
 \end{slide}
 
@@ -1145,7 +1210,9 @@ unaligned access will cause the \texttt{SIGBUS} signal, see example
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{dlopen, dlsym, dlclose, dlerror}{dynlib}
+]]])
 
 \begin{slide}
 \sltitle{Accessing dynamic link libraries}
@@ -1183,9 +1250,9 @@ same name, you could link one of those during the build process, and other
 libraries can be accessed via \funnm{dlopen}.
 \item You need a file of a correct format.  For example, on a Linux
 distribution, that is an ELF shared library with an \texttt{.so} suffix.  With
-gcc, you will need \texttt{-shared} to build such a library there.  If on macOS
-(file format \emph{Mach-O}), you will need \texttt{-dynamiclib}.  Libraries
-there have a \texttt{.dynlib} suffix.
+\texttt{gcc}, you will need \texttt{-shared} to build such a library there.  If
+on macOS (file format \emph{Mach-O}), you will need \texttt{-dynamiclib}.
+Libraries there have a \texttt{.dynlib} suffix.
 \item If \emph{path} contains \texttt{/}, it is taken either as global or
 relative, if not, the dynamic linker uses its default path to search for the
 library, usually in \texttt{/lib} and \texttt{/usr/lib}.  You can extend the
@@ -1194,8 +1261,8 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
 \item flags for \emph{mode} of \funnm{dlopen}:
     \begin{itemize}
     \item \texttt{RTLD\_NOW} -- all undefined symbols in the library are
-    resolved before dlopen() returns.  \texttt{NULL} is returned if it cannot be
-    done.  That is the default.
+    resolved before \funnm{dlopen} returns. \texttt{NULL} is returned if it
+    cannot be done. That is the default.
     \item \texttt{RTLD\_LAZY} -- only resolves symbols as the code that
     references them is executed.  However, references to variables are always
     immediately bound when the library is loaded.  You can force the specific
@@ -1203,8 +1270,9 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     \texttt{LD\_BIND\_LAZY}.  If there is a conflict, \texttt{NOW} prevails.
     When a program is started, all linked libraries are bound right away unless
     the program or individual libraries are linked for ``lazy binding'' via
-    \texttt{-z lazy} (gcc).  See manual pages for \texttt{ld} a \texttt{ld.so.1}
-    (Solaris) or \texttt{ld.so} (Linux).  Example: \example{dyn-lib/ld-lazy.c}.
+    \texttt{-z lazy} (\texttt{gcc}).  See manual pages for \texttt{ld} a
+    \texttt{ld.so.1} (Solaris) or \texttt{ld.so} (Linux).  Example:
+    \example{dyn-lib/ld-lazy.c}.
     \item \texttt{RTLD\_GLOBAL} \dots{} symbols defined by the shared object
     will be  made available for symbol resolution of subsequently loaded
     objects.  That is the default for objects mapped when executing a program.
@@ -1218,8 +1286,11 @@ only in libraries loaded after the library that called \funnm{dlsym}.  Handy for
 redefining existing functions if we need to call the original function in our
 redefined one.  The library with a modified function is loaded first, possibly
 using \texttt{LD\_PRELOAD}, and the address of the original function can be
-found using \texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}.  Example:
-\example{dyn-lib/rtld\_next.c}.
+found using
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}.
+]]])
+Example: \example{dyn-lib/rtld\_next.c}.
 \item  All these functions are part of the dynamic linker that each dynamically
 linked program has mapped into its address space upon execution.  Also see pages
 \pageref{RUNTIMELINKER} and \pageref{EXEC}.
