@@ -19,7 +19,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 int \emph{\texttt{semnum}}, int \emph{\texttt{cmd}}, ...);}
 ]]])
 \begin{itemize}
-\item controlling function, optional 4th argument \texttt{arg} is of the
+\item controlling function, optional fourth argument \texttt{arg} is of the
 \texttt{union~semun} type.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -63,14 +63,14 @@ that private semaphores can be inherited across \texttt{fork} as well.
 \item possible values of \texttt{cmd}: 
     \begin{itemize}
     \item \texttt{GETVAL} \dots{} returns semaphore value
-    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{sets semaphore to value}
+    \item \emsl{\texttt{SETVAL}} \dots{} \emsl{sets semaphore to value}
     \texttt{arg.val}
     \item \texttt{GETPID} \dots{} PID of the process that performed the last op.
     \item \texttt{GETNCNT} \dots{} number of processes waiting on bigger value
     \item \texttt{GETZCNT} \dots{} number of processes waiting for zero value
     \item \texttt{GETALL} \dots{} saves the values of all semaphores to
     \texttt{arg.array}
-    \item \texttt{SETALL} \dots{} sets all sem. values according to
+    \item \texttt{SETALL} \dots{} sets all values according to
     \texttt{arg.array}
     \item \texttt{IPC\_STAT} \dots{} saves number of semaphores, access rights,
 times of the last \texttt{semctl()} and \texttt{semop()} into \texttt{arg.buf}
