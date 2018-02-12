@@ -1245,7 +1245,7 @@ they are not defined in the input file.  Example:
 at system make files of any Unix-like system.  A typical feature of such build
 systems is that there is no documentation on how it works internally so you have
 to dig in deep if you need to understand or modify it -- and that usually is not
-for the faint-hearted.
+for the fainthearted.
 \end{itemize}
 
 %%%%%
@@ -1882,8 +1882,11 @@ means the process finishes.  You can also use functions \texttt{exit()} or
 \item Passing the environment in the third parameter of type
 \texttt{char**} is not part of the normative part of the C standard, only the
 informative one.  C compilers typically support that though.
-The \texttt{main} variant with the \nth{3} parameter looks like this:\\ \texttt{int
-\funnm{main}(int \emph{argc}, char *\emph{argv}[], char *\emph{envp}[]);}
+The \texttt{main} variant with the \nth{3} parameter looks like this:\\
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{int \funnm{main}(int \emph{argc}, char *\emph{argv}[],
+char *\emph{envp}[]);}
+]]])
 \item The return value type of \texttt{main} should be always \texttt{int}.
 \emsl{Only lower 8 bits from that integer are only used though.}  It is always a
 non-negative number.  Note that in contrast to the C convention, the \texttt{0}
@@ -1971,8 +1974,8 @@ uses \texttt{EDITOR}, etc.  The variables are usually in caps but it is just a
 convention.  \texttt{wget} does not follow convention and uses
 \texttt{http\_proxy} and \texttt{https\_proxy} as environment variables to set
 the proxy to be used, and other lower case variables as well.
-\item If \emph{envp} is the \nth{3} argument of \texttt{main}, it is the same pointer
-as is in the standard global variable \texttt{environ}.
+\item If \texttt{envp} is the \nth{3} argument of \texttt{main}, it is the same
+pointer as is in the standard global variable \texttt{environ}.
 \item Example: \example{main/print-env.c} (see below how to clear out inherited
 environment from the shell using the \texttt{env} command):
 
@@ -2071,7 +2074,7 @@ cases.
 application to specify the ordering.
 \item The UNIX standard defines 13 rules that very precisely define the naming
 of commands and the format of options. For example the name of the command
-should be lower case, 2--9 characters long and using only chracters from
+should be lower case, 2--9 characters long and using only characters from
 the portable character set. Arguments without options should be possible to group
 after '--', etc.
 \item Using numbers of options is old fashioned; reportedly SUSv3 mentions that.
@@ -2117,7 +2120,7 @@ in the string.
 \item Usually the \texttt{getopt} function is used first to process options
 and then the rest is processed using custom functions; the remaining arguments
 are often file names and such.
-\item By convention the optinons in the \texttt{optstring} variable are sorted.
+\item By convention the options in the \texttt{optstring} variable are sorted.
 \end{itemize}
 
 %%%%%

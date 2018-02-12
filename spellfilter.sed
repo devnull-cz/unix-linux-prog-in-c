@@ -8,3 +8,4 @@ s/\\texttt{[^{]*}//g
 s/\\funnm{[^{]*}//g
 s/\\emprg{.*}//g
 s/\\verb#[[:alnum:]_\(\)]+#//g
+s/\\url{[[:alnum:]_\/:\.]+}//g
