@@ -71,6 +71,8 @@ spellcheck:
 			    sed '/\begin{alltt}/,/\end{alltt}/d' | \
 			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
 			    sed 's/\\\-//g' | \
+			    sed 's/\\\=//g' | \
+			    sed 's/\\example{[^{]*}//g' | \
 			    sed 's/\\texttt{[^{]*}//g' | \
 			    sed 's/\\\funnm{[^{]*}//g' | \
 			    sed 's/\\emprg{.*}//g' | \

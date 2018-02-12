@@ -101,7 +101,7 @@ variable on this system, you will find out that both initialized and
 non-initialized variables share a common data segment, labeled in the image as
 ,,executable -- DATA''.  Example: \example{pmap/proc-addr-space.c}.
 \item The kernel mapping is not necessary, for example on Solaris running on
-\texttt{\emph{amd64}} architecture (i.e. 64-bit) the kernel is no longer mapped
+\emph{\texttt{amd64}} architecture (i.e. 64-bit) the kernel is no longer mapped
 into user space.
 \item \texttt{brk} nor \texttt{sbrk} are part of the standard, hence portable
 applications should not use them; if a similar functionality is needed, they
@@ -706,7 +706,7 @@ or more segments, each of which contains between 0 and 255 sections.
 \item On Solaris, the \texttt{elfdump} command allows listing sections of the
 ELF file in a human readable form. On Linux distributions, use \texttt{readelf}.
 \item The \emph{ELF header} contains basic information about the file.  Try
-``\texttt{readelf -h /bin/ls}'' on any Linux distro.
+``\texttt{readelf -h /bin/ls}'' on any Linux distribution.
 \item The \emph{program header table} is only present in files that are
 executable.  For example, dynamic libraries are ELF files that are not
 executable.  It contains information on the virtual memory layout.  You can list
@@ -1088,7 +1088,7 @@ addr. The flags is OR-combination of:
 \end{itemize}
 \texttt{int \funnm{munmap}(void *\emph{addr}, size\_t \emph{l{}en});}
 \begin{itemize}
-\item write back changes, destroy mapping of lenght \texttt{l{}en} from
+\item write back changes, destroy mapping of length \texttt{l{}en} from
 address \texttt{addr}.
 \end{itemize}
 \texttt{int \funnm{mprotect}(void *\emph{addr}, size\_t \emph{l{}en},

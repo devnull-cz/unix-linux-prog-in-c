@@ -38,7 +38,7 @@ The kernel knows nothing about these files as it only uses numeric
 representation of users and groups.
 \item Passwords are long gone from \texttt{/etc/passwd}, they are stored some
 place else, for example in \texttt{/etc/shadow}, which is not readable to an
-uprivileged user.  The passwords are also salted and then hashed.  On BSD based
+unprivileged user.  The passwords are also salted and then hashed. On BSD based
 systems, eg. FreeBSD or macOS, instead of \texttt{/etc/shadow},
 \texttt{/etc/master.passwd} database is used.
 \item If \texttt{/etc/shadow} does exist, it is structured in a similar way as
@@ -203,9 +203,11 @@ belongs to (\emsl{primary GID}, \emsl{supplementary GIDs})
 \item this identification is inherited by each process
 \item file $F$ has owner ($UID_F$) and group owner ($GID_F$). 
 \item algorithm for evaluation of access rights for process:
-$P(UID_P,GID_P,SUPG)$ and file $F(UID_F,GID_F)$:
+ifdef([[[NOSPELLCHECK]]], [[[$P(UID_P,GID_P,SUPG)$]]]) and file
+ifdef([[[NOSPELLCHECK]]], [[[$F(UID_F,GID_F)$]]]):
 \begin{tabular}{ll}
-If & then $P$rocess has w.r.t. $F$ile \\ 
+If & then ifdef([[[NOSPELLCHECK]]], [[[$P$rocess]]]) has w.r.t.
+ifdef([[[NOSPELLCHECK]]], [[[$F$ile]]]) \\ 
 \hline
 \texttt{if($UID_P$ == 0)} & \dots{} all rights \\
 \texttt{else if($UID_P$ == $UID_F$)} & \dots{} owner rights \\
@@ -304,7 +306,9 @@ drwxrwxrwt   7 root     root         515 Mar 23 12:22 /tmp
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{ruid, euid, suid}{resugid}
+]]])
 
 \begin{slide}
 \sltitle{Real and effective UID/GID}
@@ -378,8 +382,10 @@ returns real group ID of the calling process.
 \item \texttt{gid\_t \funnm{getegid}(void)}
 
 returns effective group ID of the calling process.
-\item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
 
+ifdef([[[NOSPELLCHECK]]], [[[
+\item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
+]]])
 -- \texttt{glist} returns at most \texttt{gidsz} supplementary group
 IDs of the calling process and returns number of all GIDs of the process.
 \end{itemize}
@@ -419,8 +425,10 @@ $ pcred 5464
     \end{itemize}
 \item \texttt{int \funnm{setgid}(gid\_t \emph{gid});} \\
 similar to \texttt{setuid}, for group-IDs of the process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgroups}(int \emph{ngroups},
 gid\_t *\emph{gidset})} \\
+]]])
 sets the supplementary group IDs for the calling process. Can only be used
 by superuser process.
 \end{itemize}
@@ -454,7 +462,7 @@ have to be used.
 \sltitle{File system}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item directories form a tree; together with files acyclical graph
+\item directories form a tree; together with files acyclic graph
 (one file can have multiple references).
 \item each directory also contains reference to itself '\texttt{.}'
 (dot) and to its parent directory '\texttt{..}' (two dots). 
@@ -504,10 +512,10 @@ On many Unix-like systems the \texttt{/proc} tree contains information about
 kernel and running processes in the form of text files.  However, some systems,
 like Solaris, have those files in a binary form only and provide special
 commands to read those (like \texttt{pargs}, \texttt{pldd}, etc.).
-\item Modern Unix systems contain a special \emph{devfs} filesystem that
-reflects an actual system configuration w.r.t. connected devices. I.e. after
-connecting a USB stick a related device will appear under \texttt{/dev}. After
-physically disconnecting it, the item will disappear.
+\item Modern Unix systems contain a special \emph{\texttt{devfs}} filesystem
+that reflects an actual system configuration w.r.t. connected devices. I.e.
+after connecting a USB stick a related device will appear under \texttt{/dev}.
+After physically disconnecting it, the item will disappear.
 \end{itemize}
 
 \endinput

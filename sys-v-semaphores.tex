@@ -14,14 +14,18 @@ each call returns different identifier).
 \texttt{IPC\_CREAT} (create if does not exist),
 \texttt{IPC\_EXCL} (error, if exists). 
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{semctl}(int \emph{\texttt{semid}},
 int \emph{\texttt{semnum}}, int \emph{\texttt{cmd}}, ...);}
+]]])
 \begin{itemize}
 \item controlling function, optional 4th argument \texttt{arg} is of the
 \texttt{union~semun} type.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{semop}(int \emph{\texttt{semid}},
 struct sembuf *\emph{\texttt{sops}}, size\_t \emph{\texttt{nsops}});}
+]]])
 \begin{itemize}
 \item generic operations P and V.
 \end{itemize}
