@@ -66,15 +66,6 @@ clean:
 spellcheck:
 		@for file in ${SLIDES}; do \
 			echo "### Checking $$file"; \
-			$(M4) $$file | \
-			    sed '/\begin{verbatim}/,/\end{verbatim}/d' | \
-			    sed '/\begin{alltt}/,/\end{alltt}/d' | \
-			    sed 's/pdfbookmark\[[0-9]\]{\([^{}]*\)}{.*}/pdfbookmark{\1}/' | \
-			    sed 's/\\\-//g' | \
-			    sed 's/\\\=//g' | \
-			    sed -E 's/\\example{[[:alnum:]_\/\.\-]+}//g' | \
-			    sed 's/\\texttt{[^{]*}//g' | \
-			    sed 's/\\\funnm{[^{]*}//g' | \
-			    sed 's/\\emprg{.*}//g' | \
+			$(M4) $$file | sed -E -f spellfilter.sed | \
 			    aspell -t --personal=./unix_dict.txt list; \
 		done
