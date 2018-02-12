@@ -7,3 +7,4 @@ s/\\example{[[:alnum:]_\/\.\-]+}//g
 s/\\texttt{[^{]*}//g
 s/\\funnm{[^{]*}//g
 s/\\emprg{.*}//g
+s/\\verb#[[:alnum:]_\(\)]+#//g

@@ -81,8 +81,10 @@ call, and it is explained on page \pageref{FDSHARING}.
 
 \begin{slide}
 \sltitle{Opening a file: \texttt{open()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{open}(const char *\emph{path}, int \emph{oflag},
 ... );}
+]]])
 \begin{itemize}
 \item opens a file \texttt{path}, returns its file descriptor. The
 \texttt{oflag} is an OR combination of the following flags:
@@ -151,7 +153,9 @@ same is undefined.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{creat}{creat}
+]]])
 
 \begin{slide}
 \sltitle{Creating a file}
@@ -199,7 +203,7 @@ size\_t \emph{nbyte});}
 \begin{itemize}
 \item attempts to read \emph{nbyte} bytes of data from the object referenced by
 the descriptor \emph{fd} into the buffer pointed to by \emph{buf}
-\item returns the number of bytes actually read, 0 on EOF, -1 on error
+\item returns the number of bytes actually read, 0 on \texttt{EOF}, -1 on error
 \end{itemize}
 
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -685,9 +689,10 @@ is the only descriptor flag defined in SUSv4.
 \item \texttt{F\_GETFL} \dots{} get file opening flags (read/write, append,
 \dots)
 \item \texttt{F\_SETFL} \dots{} set file opening flags
-(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK}, \texttt{O\_R\-SYNC},
-and \texttt{O\_SYNC}).  Setting RO/RW is not allowed, and neither are flags for
-creation, truncation, and exclusive access.
+(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK},
+\texttt{O\_R\-SYNC}, and \texttt{O\_SYNC}).
+Setting ifdef([[[NOSPELLCHECK]]], [[[RO/RW]]]) is not allowed, and neither are
+flags for creation, truncation, and exclusive access.
 \item \texttt{F\_GETLK}, \texttt{F\_SETLK}, \texttt{F\_SETLKW} \dots{}
 for file locking
 \end{itemize}
@@ -732,8 +737,8 @@ containing file information, such as:
 \item \texttt{st\_uid}, \texttt{st\_gid} \dots{} user/group ID of owner
 \item \texttt{st\_mode} \dots{} file type and mode
 \item \texttt{st\_size}, \texttt{st\_blksize}, \texttt{st\_blocks}
-\dots{} total size in bytes, preferred blocksize for filesystem I/O, and number
-of 512B blocks allocated
+\dots{} total size in bytes, preferred block size for filesystem I/O,
+and number of 512 byte blocks allocated
 \item \texttt{st\_atime}, \texttt{st\_mtime}, \texttt{st\_ctime}
 \dots{} time of last access, last modification, and last i-node modification
 \item \texttt{st\_nlink} \dots{} number of hard links
@@ -811,7 +816,9 @@ are defined in the spec and thus portable.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{utime}{utime}
+]]])
 
 \begin{slide}
 \sltitle{Setting file times}
@@ -821,7 +828,7 @@ const struct utimbuf *\emph{times});}
 ]]])
 \begin{itemize}
 \item changes file last access and modification times
-\item cannot change i-node access time (ctime)
+\item cannot change i-node access time (\texttt{ctime})
 \item calling process must have write permission for the file
 \end{itemize}
 \end{slide}
@@ -836,7 +843,9 @@ mentioned in the slide, you cannot change the time of the i-node modification.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{link, unlink, rename}{link}
+]]])
 
 \begin{slide}
 \sltitle{File name manipulations}
@@ -881,7 +890,9 @@ operation is not atomic).
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{symlink, readlink}{symlink}
+]]])
 
 \begin{slide}
 \sltitle{Symbolic links}
@@ -917,7 +928,9 @@ size to accommodate the terminating \texttt{NULL} character.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{mkdir, rmdir, opendir, readdir, closedir}{dirfncs}
+]]])
 
 \begin{slide}
 \sltitle{Working with directories}
@@ -1006,7 +1019,9 @@ tell whether NULL means an error or an end of a directory.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{chdir, fchdir, getcwd}{pwd}
+]]])
 
 \begin{slide}
 \sltitle{Change working directory}
@@ -1063,8 +1078,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
     \item \verb#X_OK# \dots{} execution permission test
     \item \verb#F_OK# \dots{} file existence test
     \end{itemize}
-\item in contrast to \texttt{stat()}, the result depends on the process's RUID
-and RGID
+\item in contrast to \texttt{stat()}, the result depends on the process's
+\texttt{RUID} and \texttt{RGID}
 \item \emsl{never use this call, it cannot be used in a safe way.  See the notes
 below.}
 \end{itemize}
@@ -1088,7 +1103,9 @@ manipulation mentioned above would not gain the attacker anything.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{chmod, chown}{chmodchown}
+]]])
 
 \begin{slide}
 \sltitle{Setting file permissions}
