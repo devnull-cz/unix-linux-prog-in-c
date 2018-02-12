@@ -600,11 +600,11 @@ main(void)
 \item One of the most important thing of a C style (well, any style) is
 consistency.  And often it is not that important what exact C style a group
 of coders is going to pick as it is that one specific style is chosen and then
-religiously followed by all in the group.  A good and rigorously followed cstyle
+religiously followed by all in the group. A good and rigorously followed cstyle
 leads to a smaller number of bugs in code.
-\item A pre-push hook that runs a C style check script and refuses to accept any
-changesets not following the chosen C style is a working solution to avoid C
-style violations.
+\item A process that runs C style check script before integration into a source
+code repository automatically and refuses to accept any changesets not following
+the chosen C style is a working solution to avoid C style violations.
 \item \url{http://mff.devnull.cz/cstyle.html}
 \end{itemize}
 
@@ -692,9 +692,11 @@ We recommend Git (\texttt{git}) or Mercurial (\texttt{hg}).
 \end{tabular}
 
 \begin{tabular}{ll}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{/usr/inc{}lude} & system header file root\\
 \texttt{/usr/lib/lib*.a} & static libraries\\
 \texttt{/usr/lib/lib*.so} & dynamic libraries
+]]])
 \end{tabular}
 \end{slide}
 
@@ -1051,6 +1053,7 @@ msg()
 \renewcommand{\arraystretch}{0.1}
 \setlength{\tabcolsep}{0.25ex}
 \begin{tabular}{lclcl}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{main.c} &            &                 &            & \\
                 & $\searrow$ &                 &            & \\
 		&            & \texttt{main.o} &            & \\
@@ -1060,6 +1063,7 @@ msg()
 		&            & \texttt{util.o} &            & \\
 		& $\nearrow$ &                 &            & \\
 \texttt{util.c} &            &                 &            & \\
+]]])
 \end{tabular}
 \end{itemize}
 \end{minipage}\hfill
@@ -1091,8 +1095,8 @@ written makefile will cause to re-compile only what is really necessary after
 some files have been changed.  You could always do something like
 ``\texttt{make clean; make all}'' but if the whole compilation process takes
 minutes or even hours, you really want a well written \texttt{Makefile}.
-\item A line ``\verb#prog : main.o util.o#'' defines that before \texttt{prog}
-is checked, the existence of
+\item A line ifdef([[[NOSPELLCHECK]]], [[[``\verb#prog : main.o util.o#'']]])
+defines that before \texttt{prog} is checked, the existence of
 \texttt{main.o} and \texttt{util.o} needs to be checked, and also whether they
 are up to date.  That check is performed recursively.  After that, the existence
 of \texttt{prog} is checked and whether it is up-to-date, which means whether
@@ -1535,7 +1539,9 @@ binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 \sltitle{Debugger \texttt{dbx}}
 \begin{itemize}
 \item Usage:\\
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{dbx [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
+]]])
 \item Most common commands:\\
 \renewcommand{\arraystretch}{0.9}
 \begin{tabular}{ll}
@@ -1544,7 +1550,7 @@ binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 \texttt{print \emph{expr}} & print expression\\
 \texttt{set \emph{var} = \emph{expr}} & change value of variable\\
 \texttt{cont} & continue program run\\
-\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into function)\\
 \texttt{stop \emph{condition}} & set breakpoint\\
 \texttt{trace \emph{condition}} & remove tracepoint\\
 \texttt{command \emph{n}} & action on breakpoint (commands follow)\\
@@ -1566,19 +1572,19 @@ on other systems.
 option for translation, it is also necessary to have the object files and source
 files available in the same location as they were used for compilation.
 This is typically true when debugging on the system where the code is written.
-For other use cases it is necessary to provide the needed files, the dbx
-command \texttt{pathmap} can help with that.
+For other use cases it is necessary to provide the needed files, the
+\texttt{dbx} command \texttt{pathmap} can help with that.
 \item \texttt{gdb}-compatible mode can be enabled using \texttt{gdb on}.
 If you want to know the \texttt{dbx} equivalent command to concrete
 \texttt{gdb} command, see the \texttt{help FAQ}; the very first question is
-``A.1  Gdb does $<$something$>$; how do I do it in dbx?''
-\item If the option \texttt{-g} is not used, dbx will be still usable on
-Solaris, because it will print function arguments. On BSD systems and Linux
+``A.1  Gdb does $<$something$>$; how do I do it in \texttt{dbx} ?''
+\item If the option \texttt{-g} is not used, \texttt{dbx} will be still usable
+on Solaris, because it will print function arguments. On BSD systems and Linux
 distributions, the \texttt{-g} has to be used, otherwise the debuggers will not
 be of much use. This is demonstrated in the \example{debug/dbx.c} example.
-When compiling with gcc and using gdb the \texttt{where} command will not show
-the function parameters, while on Solaris with the Studio compiler and dbx
-debugger, the function parameters will be shown.
+When compiling with \texttt{gcc} and using \texttt{gdb} the \texttt{where}
+command will not show the function parameters, while on Solaris with the Studio
+compiler and \texttt{dbx} debugger, the function parameters will be shown.
 \item Example: \example{debug/coredump.c}. After compilation and running the
 program will crash and a core dump will be generated (if permitted on the system;
 also see \texttt{ulimit -c})
@@ -1633,7 +1639,7 @@ Current function is bad_memory_access
 \texttt{print \emph{expr}} & print expression\\
 \texttt{set \emph{var} = \emph{expr}} & change value of variable\\
 \texttt{cont} & continue program run\\
-\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into function)\\
 \texttt{break \emph{condition}} & set breakpoint\\
 \texttt{help [\emph{name}]} & print help\\
 \texttt{quit} & debugger exit
