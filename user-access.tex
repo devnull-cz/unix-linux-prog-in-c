@@ -97,24 +97,28 @@ that is not used anymore.
 \end{itemize}
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
+]]])
 
 \label{GETPW_FUNC}
 \begin{slide}
 \sltitle{Obtain user/group information}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{struct passwd *\funnm{getpwnam}(const char *name)}
-
+]]])
 return structure describing user found in password database or NULL.
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{struct passwd *\funnm{getpwuid}(uid\_t uid)}
-
+]]])
 ditto; perform search according to UID.
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{void \funnm{setpwent}(void)}
 \item \texttt{void \funnm{endpwent}(void)}
 \item \texttt{struct passwd *\funnm{getpwent}(void)}
-
+]]])
 these functions traverse password database. \funnm{setpwent} rewinds to the
 beginning of the password database, \funnm{getpwent} gets the current entry,
 \funnm{endpwent} closes the password database and free allocated resources.
@@ -150,11 +154,12 @@ root::0:
 \begin{itemize}
 \item today's systems are not confined to only using
 \texttt{/etc/passwd} and \texttt{/etc/groups}
-\item such systems have \emph{databases} (passwd, groups, protocols, \dots)
+\item such systems have \emph{databases} (\texttt{passwd, groups, protocols},
+\dots)
 \item database data come from \emph{sources} (files, DNS, NIS, LDAP, \dots)
 \item file \texttt{nsswitch.conf} defines what databases use what sources
 \item library functions must support this, obviously
-\item it is possible to combine some sources, eg. users may be first be searched
+\item it is possible to combine some sources, e.g. users may be first be searched
 in \texttt{/etc/passwd}, then in LDAP
 \item came first with Solaris, other systems took over the idea
 \end{itemize}
@@ -364,25 +369,30 @@ either can be used to set EUID.
 \end{itemize}
 
 %%%%%
-
+ 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getuid, getgid, geteuid, getegid, getgroups}{getuid}
+]]])
 
 \begin{slide}
 \sltitle{Process owner identification}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{getuid}(void)}
-
+]]])
 returns real user ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{geteuid}(void)}
-
+]]])
 returns effective user ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getgid}(void)}
-
+]]])
 returns real group ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getegid}(void)}
-
+]]])
 returns effective group ID of the calling process.
-
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
 ]]])
@@ -398,7 +408,9 @@ IDs of the calling process and returns number of all GIDs of the process.
 groups. When \texttt{0 < gidsz < \#groups}, it returns \texttt{-1}.
 \item In Unix, there are many data types such as \verb#uid_t#, \verb#gid_t#,
 \verb#size_t#, \verb#pid_t#, etc.  In general, these are integer types and you
-can often find them in the \texttt{/usr/inc{}lude/sys/types.h} header file.
+can often find them in the
+ifdef([[[NOSPELLCHECK]]], [[[\texttt{/usr/inc{}lude/sys/types.h}]]]) header
+file.
 \item Solaris has the \texttt{pcred} command that provides process
 identification information in a simple form:
 
@@ -411,19 +423,25 @@ $ pcred 5464
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{setuid, setgid, setgroups}{ownerchange}
+]]])
 
 \begin{slide}
 \sltitle{Process owner change}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setuid}(uid\_t \emph{uid});}
+]]])
     \begin{itemize}
     \item in process with EUID~==~0 sets RUID, EUID and saved-SUID to
     \texttt{uid}
     \item for other processes it sets just EUID, and \texttt{uid} must be
     either equal to RUID or saved UID
     \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgid}(gid\_t \emph{gid});} \\
+]]])
 similar to \texttt{setuid}, for group-IDs of the process.
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgroups}(int \emph{ngroups},

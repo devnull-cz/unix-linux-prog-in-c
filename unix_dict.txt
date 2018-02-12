@@ -1,4 +1,4 @@
-personal_ws-1.1 en 324 
+personal_ws-1.1 en 328 
 Illumos
 Prog
 Ctrl
@@ -59,6 +59,7 @@ lockfiles
 lockfile
 Principy
 Xlinker
+SGID
 SUS
 VFS
 SVR
@@ -171,6 +172,7 @@ BCPL
 DNDEBUG
 const
 MFF
+EUID
 cplusplus
 Solaris
 longopts
@@ -214,6 +216,7 @@ util
 mkfifo
 Salus
 Ressler
+EGID
 coredump
 utils
 extern
@@ -242,6 +245,7 @@ subtree
 syscall
 CFLAGS
 nbyte
+RUID
 OSPF
 ABI
 Vahalia
