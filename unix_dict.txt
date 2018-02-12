@@ -1,4 +1,4 @@
-personal_ws-1.1 en 325 
+personal_ws-1.1 en 324 
 Illumos
 Prog
 Ctrl
@@ -11,8 +11,8 @@ cmd
 errnum
 dev
 DUPFD
-bsd
 redistributable
+bsd
 Ritchie
 userspace
 OpenSSH
@@ -33,8 +33,8 @@ userland
 TLI
 args
 argv
-UID
 UFS
+UID
 tracepoint
 DNS
 PCTS
@@ -88,7 +88,6 @@ XDR
 allocators
 pathmap
 makefile
-Makefile
 Butenhof
 Xinuos
 IEC
@@ -138,8 +137,8 @@ filesystems
 iOS
 Rago
 lstat
-ldd
 IPS
+ldd
 acomp
 gprof
 currentunix
@@ -300,12 +299,12 @@ pdftitle
 RDONLY
 environ
 chrooted
-Linkers
 linker's
+Linkers
 SAS
 CSRG
-symlink's
 symlinks
+symlink's
 OpenBSD
 SCO
 Xcurses

@@ -33,9 +33,9 @@ open already open files.  Usually at least file descriptors 0, 1, and 2 are
 provided.
 \item Functions from a header file \texttt{stdio.h} (e.g. \funnm{fopen}(),
 \funnm{fprintf}(), and \funnm{fscanf}()), and their file handle \texttt{FILE}
-are defined in the standard libc library and use standard system calls like
-\funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions, we
-will only use functions for printing to the terminal output like
+are defined in the standard \texttt{libc} library and use standard system calls
+like \funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions,
+we will only use functions for printing to the terminal output like
 \funnm{fprintf}().
 \end{itemize}
 
@@ -281,8 +281,8 @@ descriptors
 can \texttt{rm} all hard links to a specific file but if a process has the file
 still open, the file data remains on the disk until the process closes the file
 or terminates.
-\item If a process needs a temporary file, it can create it, unlink it right
-away, and work with it using the existing file descriptor.  When the file
+\item If a process needs a temporary file, it can create it, \texttt{unlink} it
+right away, and work with it using the existing file descriptor.  When the file
 descriptor is closed (and all of its possible duplicates), the file data is
 released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
@@ -541,7 +541,9 @@ reads as null bytes
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{dup, dup2}{dup}
+]]])
 
 \begin{slide}
 \sltitle{Descriptor duplication: \texttt{dup()}, \texttt{dup2()}}
@@ -609,8 +611,9 @@ program passed as the first argument.  We got ahead of ourselves here though, we
 will learn about the \texttt{exec} calls on page \pageref{EXEC}.
 \item To fully understand how redirection works it is good to draw the file
 descriptor table for each step and where the slots point to.  For example, for
-the \nth{2} example in the slide, we have the initial state, after \texttt{close(1)}
-and \texttt{open("out", ...)}, and the final state, as follows:
+the \nth{2} example in the slide, we have the initial state, after
+\texttt{close(1)} and \texttt{open("out", ...)}, and the final state, as
+follows:
 
 \begin{verbatim}
 +-------+              +-------+              +-------+
@@ -622,7 +625,7 @@ and \texttt{open("out", ...)}, and the final state, as follows:
 +-------+              +-------+              +-------+
 \end{verbatim}
 
-\item You need to pay attention to the state of descriptors.  The \nth{2} example
+\item You need to pay attention to the state of descriptors. The \nth{2} example
 will not work if the descriptor 0 is already closed, as 
 \texttt{open} returns 0 (the first available descriptor) and \texttt{dup} fails
 while trying to duplicate an already closed descriptor.  Possible
@@ -726,10 +729,12 @@ if (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)
 \begin{slide}
 \sltitle{Get file status information: \texttt{stat()}}
 \setlength{\baselineskip}{0.9\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{stat}(const char *\emph{path}, struct stat *\emph{buf});\\
 int \funnm{fstat}(int \emph{fildes}, struct stat *\emph{buf});}
+]]])
 \begin{itemize}
-\item for a file specified by a path or a file descriptor, returns a struct
+\item for a file specified by a path or a file descriptor, returns a structure
 containing file information, such as:
 \begin{itemize}
 \item \texttt{st\_ino} \dots{} i-node number
@@ -794,8 +799,10 @@ constants \verb#S_IFMT# (bit mask for the file type bit field), \verb#S_IFBLK#
 \item access right masks: \verb#S_IRUSR# (owner has read permission),
 \verb#S_IWGRP# (group has write permission), etc.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{lstat}(const char *\emph{path}, struct stat
 *\emph{buf});}
+]]])
 \begin{itemize}
 \item if \emph{path} is a symlink, \texttt{stat()} returns information of the
 file the symlink refers to. This function returns information about the link
@@ -920,8 +927,8 @@ to \texttt{\emph{buf}}
 \item Calling \texttt{unlink} on a hardlink will not release the file data if
 other hardlinks exists. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
-\item \texttt{readlink} is useful in situation when you want to unlink the
-symlink's target.
+\item \texttt{readlink} is useful in situation when you want to \texttt{unlink}
+the symlink's target.
 \item \emph{\texttt{bufsize}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
 \end{itemize}
@@ -1092,7 +1099,7 @@ the calling process.
 running the process would have had access to a file if it was not for the SUID
 privileges.  However, there is an inherent security hole in this approach.
 The test and the subsequent action on the file is not an atomic operation.  An
-attacker could possibly unlink the file and immediately symlink it to a
+attacker could possibly \texttt{unlink} the file and immediately symlink it to a
 different file to what it actually had no rights to manipulate with.  If the
 timing is right, the SUID process will operate on that other file.  The correct
 solution is not to use the \texttt{access} call but return to the real UID/GID
@@ -1109,13 +1116,17 @@ ifdef([[[NOSPELLCHECK]]], [[[
 
 \begin{slide}
 \sltitle{Setting file permissions}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{chmod}(const char *\emph{path}, mode\_t \emph{mode});}
+]]])
 \begin{itemize}
 \item changes permissions of file \emph{path} to \emph{mode}.
 \item can be used by the file owner or root
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{chown}(const char *\emph{path}, uid\_t \emph{owner},
 gid\_t \emph{group});}
+]]])
 \begin{itemize}
 \item changes file owner and group for \emph{path}.  Value of
 \texttt{-1} means do not change that ID.
