@@ -31,7 +31,7 @@ we work with pipes and redirect process input and output.
 \item A process inherits file descriptors from its parent so it does not have to
 open already open files.  Usually at least file descriptors 0, 1, and 2 are
 provided.
-\item Functions from a header file \texttt{stdio.h} (eg. \funnm{fopen}(),
+\item Functions from a header file \texttt{stdio.h} (e.g. \funnm{fopen}(),
 \funnm{fprintf}(), and \funnm{fscanf}()), and their file handle \texttt{FILE}
 are defined in the standard libc library and use standard system calls like
 \funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions, we
@@ -181,7 +181,7 @@ so you need the other two calls for non-regular files.
 \item The test of a file existence using the flag \texttt{O\_EXCL} and its
 subsequent creation if it did not exist, is an atomic operation.  You can use
 that for lock files but only with the \texttt{open} call, not \texttt{creat}.
-\item You need extra privileges to create device special files (eg. to be a
+\item You need extra privileges to create device special files (e.g. to be a
 root).
 \end{itemize}
 
@@ -232,7 +232,7 @@ by a signal, or if the file is a pipe, device, or socket and there is less than
 \texttt{read} will block unless some data gets available, a non-blocking
 \texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
-if less then \emph{nbyte} bytes can fit the file (eg. disk full), if the call
+if less then \emph{nbyte} bytes can fit the file (e.g. disk full), if the call
 was interrupted by a signal, or if \verb#O_NONBLOCK# was set and only part of
 the data fits into a pipe, socket, or a device; without \verb#O_NONBLOCK#
 the call will block until all the data can be written.  If nothing can be
@@ -250,7 +250,7 @@ read or write, respectively, at least one byte, the call returns -1 and sets
 manages to read or write, respectively, at least one byte -- see the paragraphs
 above.
 \item \texttt{O\_APPEND} guarantees an atomic write to the end of a file on a
-local filesystem, ie. \emsl{every} write will add data to the file end (so
+local filesystem, i.e. \emsl{every} write will add data to the file end (so
 called \emph{append-only} file).
 \end{itemize}
 
@@ -347,7 +347,7 @@ than requested.
 \sltitle{Working with a named pipe (FIFO)}
 
 \begin{itemize}
-\item it may not be possible to create a FIFO on a distributed filesystem (eg.
+\item it may not be possible to create a FIFO on a distributed filesystem (e.g.
 NFS or AFS)
 \item you need to know the semantics of opening a FIFO
   \begin{itemize}
@@ -384,7 +384,7 @@ waiting for a producer.
 results in a return value of 0, indicating the end of file -- the process will
 not block waiting for a producer.  It is irrelevant whether the pipe was opened
 in a blocking or non-blocking mode.
-\item When writing to a pipe without a consumer (ie. the producer opened the
+\item When writing to a pipe without a consumer (i.e. the producer opened the
 pipe when there was at least one existing consumer), the kernel will send the
 producer a signal \texttt{SIGPIPE} (``broken pipe'').  See the following
 example.  For simplicity, we are using an unnamed pipe but that does not matter
@@ -419,7 +419,7 @@ up with \texttt{read} returning 0 after all producers, perhaps temporarily only,
 disappear, which could be solved by busy waiting.  A much better solution would
 be to use the \texttt{select} call, see page \pageref{SELECT}.
 \item Writing data of length \texttt{PIPE\_BUF} bytes or less
-(\texttt{limits.h}) is guaranteed as atomic, ie. data will not be intermingled
+(\texttt{limits.h}) is guaranteed as atomic, i.e. data will not be intermingled
 with data written by other writers.  For example, on Linux kernel 4.x it is 4096
 bytes, on Solaris 11 it is 5120 bytes, and on FreeBSD 8.2 it is only 512 bytes.
 It is obvious from the above that if you write less or equal than
@@ -474,7 +474,7 @@ opened file associated with a file descriptor \emph{fildes}
     \item \texttt{SEEK\_CUR} \dots{} current position plus \emph{offset}
     \item \texttt{SEEK\_END} \dots{} size of the file plus \emph{offset}
     \end{itemize}
-\item returns the resulting offset (ie. from the file beginning)
+\item returns the resulting offset (i.e. from the file beginning)
 \item \texttt{lseek(fildes, 0, SEEK\_CUR)} only returns the current file
 position
 \end{itemize}
@@ -561,7 +561,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \item We already know that the first available file descriptor is used when
 opening and creating file, see page \pageref{OPEN}.
 \item The original and duplicated file descriptors share the same slot in the
-system file table (see page \pageref{OPENFILETABLES}), ie. they share the file
+system file table (see page \pageref{OPENFILETABLES}), i.e. they share the file
 position and read/write mode.
 \item The equivalent for \texttt{dup2} is not fully equivalent.  If
 \emph{fildes} is equal to \emph{fildes2}, \texttt{close(fildes2)} does not
@@ -695,10 +695,10 @@ for file locking
 descriptor, having \texttt{FD} in the macro names (only one such exists --
 \texttt{FD\_CLOEXEC}), and flags associated with the slot in the system file
 table of opened files, having \texttt{FL} in the \texttt{fcntl} command macros
-(ie. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
+(i.e. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
 \item Devices may support reading and writing using \texttt{read} and
 \texttt{write}, and mapping files to memory (\texttt{mmap}, see page
-\pageref{MMAP}), all other operations on devices (eg. setting parameters,
+\pageref{MMAP}), all other operations on devices (e.g. setting parameters,
 locking, or eject) are performed using the \texttt{ioctl} system call.
 \item When setting flags, always get the present flags first.  Even when you
 know the flags are zero, you never know how the code is modified in the future,
@@ -767,7 +767,7 @@ members, neither it prohibits adding new.
 \item \label{STAT} Example: \example{stat/stat.c}
 \item You can call \texttt{fstat} on file descriptors 0,1,2 as well.  Unless
 redirected before, you will get information on the underlying terminal device
-(eg. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
+(e.g. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
 \end{itemize}
 
 
@@ -828,7 +828,7 @@ const struct utimbuf *\emph{times});}
 
 \begin{itemize}
 \item This call is mostly used by copy/move and also archive utilities to make
-sure the times are the same for the originals and copies.  (eg. \texttt{tar} or
+sure the times are the same for the originals and copies.  (e.g. \texttt{tar} or
 \texttt{rsync}). 
 \item The shell interface for \texttt{utime} is the command \texttt{touch}.  As
 mentioned in the slide, you cannot change the time of the i-node modification.
@@ -842,18 +842,18 @@ mentioned in the slide, you cannot change the time of the i-node modification.
 \sltitle{File name manipulations}
 \texttt{int \funnm{link}(const char *\emph{path1}, const char *\emph{path2});}
 \begin{itemize}
-\item creates a new link (aka hard link), ie. a directory entry, named
+\item creates a new link (aka hard link), i.e. a directory entry, named
 \emph{path2} to file \emph{path1}.  Hard links cannot span filesystems (use
 \funnm{symlink} for that).
 \end{itemize}
 \texttt{ int \funnm{unlink}(const char *\emph{path});}
 \begin{itemize}
-\item deletes a name (ie. a directory entry) and after deleting the last link to
+\item deletes a name (i.e. a directory entry) and after deleting the last link to
 the file and after closing the file by all processes, delete the file data.
 \end{itemize}
 \texttt{int \funnm{rename}(const char *\emph{old}, const char *\emph{new});}
 \begin{itemize}
-\item change the file name (ie. one specific link) from \emph{old} to
+\item change the file name (i.e. one specific link) from \emph{old} to
 \emph{new}.  Works within the same filesystem only.
 \end{itemize}
 \end{slide}
@@ -861,7 +861,7 @@ the file and after closing the file by all processes, delete the file data.
 \begin{itemize}
 \item It is better said again -- \emsl{Unix does not have a delete call for
 files}.  Details are on page \pageref{FILEDELETE}.
-\item The call \texttt{link} creates hardlinks, ie. a relation between a file
+\item The call \texttt{link} creates hardlinks, i.e. a relation between a file
 name and an i-node number.  I-node numbers are unique within a filesystem so for
 links between filesystems, symlinks are needed.  A number of hardlinks to a
 specific file is only limited by the size of the \texttt{st\_nlink} member of
@@ -1030,7 +1030,7 @@ its \emph{size} must be at least one byte longer than the path length.
 
 \begin{itemize}
 \item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
-directory (ie. not from \texttt{opendir}).
+directory (i.e. not from \texttt{opendir}).
 \item There is also a function \texttt{chroot} which allows to change the root
 directory of a calling process to a new one.  It is often used in various server
 implementations to limit access to the specific subtree.  For example, for an

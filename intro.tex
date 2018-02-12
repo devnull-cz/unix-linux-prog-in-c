@@ -62,7 +62,7 @@ issues on \url{https://github.com/devnull-cz/unix-linux-prog-in-c/issues}.
 \begin{itemize}
 \item This lecture is mostly about Unix principles and Unix programming in the~C
 language.
-\item \emsl{The lecture is mostly about system calls, ie. an interface between a
+\item \emsl{The lecture is mostly about system calls, i.e. an interface between a
 user space and system kernel.}
 \item For the API, we will follow the \emph{Single UNIX Specification,
 version~4} (SUSv4). Systems that submit to the Open Group for certification and
@@ -218,7 +218,8 @@ is a version of the program compliant to the respective standard.
 The options and behavior specified by the standard can be then relied upon e.g.
 when writing shell scripts.
 \item Also on Solaris, look into the
-\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h} header file.
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h}]]]) header file.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -396,7 +397,7 @@ section 2, it does \emsl{not} mean a function call
 \item Different systems might have a different list of manual page sections, the
 numbering may not match, etc.  See also \texttt{man(1)}.  For example, on
 Solaris, the manual page section needs to be provided with the \texttt{-s}
-option, ie. ``\texttt{man -s 2 chmod}''.
+option, i.e. ``\texttt{man -s 2 chmod}''.
 \item The \texttt{man} command uses a list of system directories to search for
 man pages.  If you have manual pages someplace else, perhaps in a local subtree
 after you unpacked a tar file you downloaded and you want to check the
@@ -507,7 +508,7 @@ out a file as 16-bit numbers.  The ordering of individual bytes may not be how
 they are stored in a file.  For example, take FreeBSD on i386.  The first number
 in the file is character ``i'' which represents the lower 8 bits of the first 16-bit
 number, so when the first two bytes are printed out as a 16-bit number, the byte
-representing ``i'', ie. ``69'', is shown as the second byte.  Similarly for
+representing ``i'', i.e. ``69'', is shown as the second byte.  Similarly for
 ``kl''.
 
 \begin{verbatim}
@@ -545,7 +546,8 @@ $ od -tx2 test
 \begin{itemize}
 \item in Unix, a text file line ends with a single character \emsl{LF}
 \item in Windows (and MS~DOS), a new line ends with two characters, \emsl{CR+LF}
-\item on Unix, calling \verb.putc('\n'). thus prints only one character
+\item on Unix, calling ifdef([[[NOSPELLCHECK]]], [[[\verb.putc('\n').]]])
+thus prints only one character
 \item ``classic'' Mac~OS used \emsl{CR}
 \end{itemize}
 \end{slide}
@@ -565,7 +567,7 @@ from a line separator in a file brought over from a Windows system.  Just get
 rid of them via \verb|:%s/^V^M//g| where \verb|^X| means Ctrl+X.  ViM by default
 tries to be smarter in such situations but not always to your benefit.
 \item See the \texttt{ascii} man page for the octal, hexadecimal, and decimal
-ASCII character sets (ie. up to character 127 as ASCII table has only 128
+ASCII character sets (i.e. up to character 127 as ASCII table has only 128
 characters).
 \end{itemize}
 
@@ -644,16 +646,17 @@ write beautiful code.
 \begin{slide}
 \sltitle{Standard Utilities}
 \begin{tabular}{ll}
-\emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& C compiler\\
-\emsl{CC}, \emsl{g++}$^\dagger$& C++ compiler\\
-\emsl{ld}& linker\\
-\emsl{ldd}& for listing dynamic object dependencies\\
-\emsl{cxref}$^*$& generate a C program cross-reference table\\
-\emsl{sccs}$^*$& source code management\\
-\emsl{make}$^*$& for maintaining program dependencies\\ 
-\emsl{ar}$^*$& for managing archives\\
-\emsl{dbx}, \emsl{gdb}$^\dagger$& debuggers\\
-\emsl{prof}, \emsl{gprof}$^\dagger$& profilers\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{cc}, \emsl{c99}$^*$,
+\emsl{gcc}$^\dagger$&]]]) C compiler\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{CC}, \emsl{g++}$^\dagger$&]]]) C++ compiler\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ld}&]]]) linker\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ldd}&]]]) for listing dynamic object dependencies\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{cxref}$^*$&]]]) generate a C program cross-reference table\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{sccs}$^*$&]]]) source code management\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{make}$^*$&]]]) for maintaining program dependencies\\ 
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ar}$^*$&]]]) for managing archives\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{dbx}, \emsl{gdb}$^\dagger$&]]]) debuggers\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{prof}, \emsl{gprof}$^\dagger$&]]]) profilers\\
 \end{tabular}
 
 \hspace{0.5cm}$^*$ SUSv4 $^\dagger$ GNU
@@ -864,7 +867,7 @@ syntax.
 \end{slide}
 
 \begin{itemize}
-\item \texttt{-l}/\texttt{-L} are actually options for the linker, ie. the
+\item \texttt{-l}/\texttt{-L} are actually options for the linker, i.e. the
 compiler will pass them on onto the linker.
 \item Both the compiler and linker have an extensive list of additional options
 that influence the generated code and what warnings are printed during the
@@ -884,7 +887,8 @@ pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \verb#__cplusplus#, etc.
 \> are standard macros for the compiler \\\>C/C++\\
 \verb#unix# \> always defined if on Unix\\
-\verb#mips#, \verb#i386#, \verb#sparc# \> hardware architecture\\
+ifdef([[[NOSPELLCHECK]]], [[[
+\verb#mips#, \verb#i386#, \verb#sparc# ]]]) \> hardware architecture\\
 \verb#linux#, \verb#__APPLE__#, \verb#sun#, \verb#bsd# \> operating system\\
 \verb#_POSIX_SOURCE#,\\\verb#_XOPEN_SOURCE#
 \> build using the specific standard\\
@@ -895,7 +899,8 @@ pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \sltitle{UNIX standard macros (cont.)}
 
 To build using a specific standard, you need to define one of the macros below
-before any \verb.#include..  Then include \texttt{unistd.h}.
+before any ifdef([[[NOSPELLCHECK]]], [[[\verb.#include.]]]).
+Then include \texttt{unistd.h}.
 
 \vspace{2ex}
 
@@ -909,7 +914,7 @@ before any \verb.#include..  Then include \texttt{unistd.h}.
 
 \begin{itemize}
 \item The way it works is that you use specific macros to define what you
-want (eg. \texttt{\_POSIX\_SOURCE}), and then you use other macros (eg.
+want (e.g. \texttt{\_POSIX\_SOURCE}), and then you use other macros (e.g.
 \texttt{\_POSIX\_VERSION}) to find out what you actually got.  You always have
 to include \texttt{unistd.h} after you set the macros and use a compiler that
 supports what you want.  For example, below we tried to compile
@@ -1152,7 +1157,7 @@ the following example: \example{basic-utils/Makefile07}.
 sign, see the next slide.
 \item A character \texttt{@} at the beginning of a line suppresses its printout.
 Otherwise, \texttt{make} always prints out what is gonna be executed next.
-\item For a dry run, ie. to see what would be executed, but do not execute
+\item For a dry run, i.e. to see what would be executed, but do not execute
 anything, use option \texttt{-n}.
 \item A character \texttt{-} at the beginning of a line causes \texttt{make} to
 ignore a non-zero return value (usually indicating a failure), otherwise
@@ -1186,7 +1191,7 @@ test2:
 \hspace*{5em}\texttt{\$\emph{name}} (only one character
 \texttt{\emph{name}}), \\
 \hspace*{5em}\texttt{\$\{\emph{name}\}} or \texttt{\$(\emph{name})}
-\item environment variables are accessible as macros (eg. \texttt{\$\{EDITOR\}})
+\item environment variables are accessible as macros (e.g. \texttt{\$\{EDITOR\}})
 \end{itemize}
 \end{slide}
 
@@ -1205,7 +1210,7 @@ all:
 \$ make -f Makefile05
 Variable M is recursive.
 \end{alltt}
-\item Often extended \texttt{make} versions are used, eg. GNU (\texttt{gmake})
+\item Often extended \texttt{make} versions are used, e.g. GNU (\texttt{gmake})
 or BSD.
 \item To write a non-trivial \texttt{Makefile} that will work with
 different \texttt{make} implementations is not a simple task.  Therefore
@@ -1230,7 +1235,7 @@ all:
 \item In other situations it is recommended or even needed to use utilities like
 \texttt{autoconf} or \texttt{automake}.
 \item Some \texttt{make} implementations support directives for conditional
-processing, eg.  BSD make.  Example: \example{basic-utils/Makefile08.bsd}.
+processing, e.g.  BSD make.  Example: \example{basic-utils/Makefile08.bsd}.
 \item With the \texttt{-e} option, we can force \texttt{make} to ignore a
 variable definition in the input file if an environment variable of the same
 name exists.  By default \texttt{make} accepts environment variables only if
@@ -1258,7 +1263,7 @@ program execution}. That is what a \emsl{dynamic linker} does  (\emph{run-time
 linker}, \emph{loader}).
 \item list of required dynamic libraries is in the \texttt{.dynamic} section of
 an ELF object
-\item system by default looks for shared libs in certain locations
+\item system by default looks for shared libraries in certain locations
 \item located libraries are mapped to the process address space via
 \funnm{mmap}() (will be later)
 \end{itemize}
@@ -1312,7 +1317,7 @@ all.
 are set as \texttt{NEEDED}.
 \item Finding out shared object dependencies is very easy via the
 \texttt{ldd} command (Solaris, Linux, BSD).  It displays paths to the specific
-libraries (ie. full paths) that will be used if the program is run in the
+libraries (i.e. full paths) that will be used if the program is run in the
 same environment (see right below for more information).  The command resolves
 the dependencies recursively so you will also see dynamic libraries that are used
 by other libraries and not directly by the program.  To find out what exactly
@@ -1392,8 +1397,9 @@ API -- Application Programming Interface
 
 \begin{itemize}
 \item interface used in the \emsl{source code} to use another software
-component like a library, OS kernel, or your own code -- eg.
-\texttt{exit(1)}, \texttt{printf("hello\bs{}n")} or \texttt{my\_function(1,
+component like a library, OS kernel, or your own code -- e.g.
+\texttt{exit(1)}, ifdef([[[NOSPELLCHECK]]],
+[[[\texttt{printf("hello\bs{}n")}]]]) or \texttt{my\_function(1,
 2)}
 \item \dots{}so that the same source code could be compiled on all systems
 supporting a given API
@@ -1402,7 +1408,7 @@ supporting a given API
 ABI -- Application Binary Interface
 
 \begin{itemize}
-\item low-level binary interface between \emsl{modules} (eg.  \texttt{a.out}
+\item low-level binary interface between \emsl{modules} (e.g.  \texttt{a.out}
 and \texttt{libc.so.1} or even \texttt{a.out} and \texttt{a.out})
 \item \dots{}so that the built module could be used wherever the same ABI is
 supported
@@ -1417,7 +1423,7 @@ supported
 system calls for a given system.
 \item An example of an ABI is the System V AMD64 ABI, followed on Solaris,
 Linux, FreeBSD, macOS, and other systems.
-\item ABI defines the calling convention interface to the called machine code, eg.
+\item ABI defines the calling convention interface to the called machine code, e.g.
 how parameters are passed (pushed on the stack, placed in registers, or a mix
 of both) or how return value is returned.
 \item API defines a set of functions, its parameters and their types, and
@@ -1432,7 +1438,7 @@ recompiling is often not desirable as one might end up recompiling the whole
 system.  That is why keeping backward compatibility for library ABI is so
 important.
 
-The first result is expected, ie. \texttt{3}:
+The first result is expected, i.e. \texttt{3}:
 
 \begin{verbatim}
 $ cat main.c 
@@ -1871,7 +1877,7 @@ eventually passes the control to function \texttt{main}, as explained on page
 \pageref{RUNTIMELINKER}.  If the \texttt{main} function is missing, the
 compilation fails during the linking phase.  When \texttt{main} finishes, it
 means the process finishes.  You can also use functions \texttt{exit()} or
-\verb#_exit()# from anywhere in the program, ie. not just from function
+\verb#_exit()# from anywhere in the program, i.e. not just from function
 \texttt{main}.
 \item Passing the environment in the third parameter of type
 \texttt{char**} is not part of the normative part of the C standard, only the
@@ -1981,7 +1987,9 @@ XXX=yyy
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getenv, putenv, setenv}{envfuncs}
+]]])
 
 \begin{slide}
 \sltitle{Manipulating the environment}
@@ -2075,11 +2083,14 @@ non-portable extensions.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getopt}{getopt}
+]]])
 
 \begin{slide}
 \setlength{\baselineskip}{0.8\baselineskip}
 \sltitle{Options processing: \texttt{getopt()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{tabbing}
 \texttt{int \funnm{getopt}(}\=\texttt{int \emph{argc},
 char *const \emph{argv}[],}\\
@@ -2087,6 +2098,7 @@ char *const \emph{argv}[],}\\
 \texttt{extern char *\emph{optarg};}\\
 \texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};} 
 \end{tabbing}
+]]])
 \begin{itemize}
 \item the function receives command line parameters and processes and returns
 one option. If a given option has an argument, it is set in the
@@ -2170,6 +2182,7 @@ rewritten to C language using the \texttt{getopt} function:
 by setting the \verb#POSIXLY_CORRECT# environment variable.
 \item the long options are processed using the \texttt{\funnm{getopt\_long}()}
 function using these variables and structures:
+ifdef([[[NOSPELLCHECK]]], [[[
 {\tt
 \begin{tabbing}
 stru\=ct \funnm{option} \{\\
@@ -2181,6 +2194,7 @@ stru\=ct \funnm{option} \{\\
 \textrm{and }\texttt{*flag = val}\textrm{ */} \\
 \>int val; \textrm{/* return value */} \\
 \};
+]]])
 \end{tabbing}}
 \end{itemize}
 \end{slide}
@@ -2212,12 +2226,14 @@ is set to \texttt{val}.
 
 \begin{slide}
 \sltitle{Processing long options (cont.)}
+ifdef([[[NOSPELLCHECK]]], [[[
 {\tt\begin{tabbing}
 int \funnm{getopt\_long}(\=int \emph{argc}, char * const \emph{argv}[],\\
 \>const char *\emph{optstring},\\
 \>const struct option *\emph{longopts},\\
 \>int *\emph{longindex}); 
 \end{tabbing}}
+]]])
 \begin{itemize}
 \item \texttt{optstring} contains short options,
 \texttt{longopts} contains address of array of structures for long options
@@ -2233,6 +2249,7 @@ to \texttt{*longindex} (if not \texttt{NULL})
 \begin{itemize}
 \item This is slightly modified example from the \texttt{getopt\_long}
 FreeBSD man page:
+ifdef([[[NOSPELLCHECK]]], [[[
 {\footnotesize
 \begin{verbatim}
 #include <stdio.h>
@@ -2269,6 +2286,7 @@ int main(int argc, char **argv)
   return 0;
 }
 \end{verbatim}
+]]])
 }
 \end{itemize}
 
@@ -2325,7 +2343,7 @@ is characterized by its state. All threads within single process share
 the same memory area sans registers and stack; \uv{line of execution},
 \uv{what is running} 
 \item \emsl{program} ... file with precisely defined format that contains
-instructions, data and service informations needed for execution;
+instructions, data and service information needed for execution;
 \uv{executable file on disk}
 \end{itemize}
 
@@ -2535,14 +2553,18 @@ not using these functions in the lecture (except
 \item functions to display a formatted error message and optionally exit
 \item instead of \funnm{perror}() and \funnm{exit}(), one function suffices
 \item
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{err}(int \emph{status}, const char *\emph{fmt}, ...);}
+]]])
 \begin{itemize}
 \item prints a program name, formatted string, and error based on
 \texttt{errno}
 \item exits the program with \emph{status} return value
 \end{itemize}
 \item
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{warn}(const char *\emph{fmt}, ...);}
+]]])
 \begin{itemize}
 \item same as \funnm{err}() but does not exit
 \end{itemize}
