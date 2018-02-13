@@ -114,10 +114,10 @@ non-standard system call \funnm{swapcontext}() if the system provides it.
 \item so you cannot use functions \funnm{perror}() or \funnm{err}()
 \end{itemize}
 \item the standard also defines other functions, for example those that could
-not be possible to adjust for the use with threads without changing its API (eg.
+not be possible to adjust for the use with threads without changing its API (e.g.
 \texttt{readdir\_r}, \texttt{strtok\_r}, etc.)
 \begin{itemize}
-\item \texttt{\_r} means \emph{reentrant}, ie. the function can be called by
+\item \texttt{\_r} means \emph{reentrant}, i.e. the function can be called by
 multiple threads without any side effects
 \end{itemize}
 \end{itemize}
@@ -209,7 +209,7 @@ total.
 \\\>void *(*\emph{start\_fn})(void*), void *\emph{arg});}
 \begin{itemize}
 \item creates a new thread, puts its ID to \emph{thread}
-\item with attributes from \texttt{attr}, eg. its stack size,
+\item with attributes from \texttt{attr}, e.g. its stack size,
 \texttt{NULL} means default attributes
 \item function \emph{start\_fn}() will be started in the thread using argument
 \emph{arg}.  After the function returns, the thread ceases to exist.
@@ -257,7 +257,7 @@ its implementation is not of your concern.  Usually it is an integer though used
 to map to the native threads provided by the system.  If you create several
 threads, you need to pass a different address for a \texttt{pthread\_t} variable
 otherwise you will not be able to further manipulate with the threads from the
-main thread, eg. waiting for them to finish.
+main thread, e.g. waiting for them to finish.
 \end{itemize}
 
 %%%%%
@@ -350,7 +350,7 @@ the function returns immediately with an error.
 \item In contrast to waiting for processes to finish, \emsl{one cannot wait for
 any thread to finish}.  The rationale is that since there is not parent--child
 relation, it was not deemed necessary.  However, some system provide that
-functionality, eg.  on Solaris you can use \texttt{0} for a thread ID in
+functionality, e.g.  on Solaris you can use \texttt{0} for a thread ID in
 \funnm{thr\_join}().  If you needed this functionality with POSIX thread API, it
 is easy to set threads as \emph{detached} and use a condition variable together
 with a global variable.  More on that on page \pageref{CONDITION_VARIABLES}.
@@ -546,7 +546,7 @@ subsequent \funnm{exec}(), for example,  including \funnm{popen}() or
 \item No cleanup routines or thread specific data destructors are called for
 threads not propagated to the new process.
 \item \label{FORKALL} Note that the way how \funnm{fork}() works also depends on
-the system used.  For example, in Solaris before version 10 (ie. before 2005),
+the system used.  For example, in Solaris before version 10 (i.e. before 2005),
 \funnm{fork}() in the \texttt{libthread} library (different from
 \texttt{libpthread}) was the same as \funnm{forkall}().
 \item Examples: \example{pthreads/fork.c},

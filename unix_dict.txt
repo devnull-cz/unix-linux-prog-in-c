@@ -1,4 +1,4 @@
-personal_ws-1.1 en 333 
+personal_ws-1.1 en 338 
 Illumos
 Prog
 Ctrl
@@ -31,6 +31,7 @@ Kernighan
 reentrant
 userland
 TLI
+RTS
 args
 FIFO
 argv
@@ -53,6 +54,7 @@ SunOS
 Gdb
 gdb
 FFS
+interruptible
 verlagen
 EOB
 programmatically
@@ -204,6 +206,7 @@ Pechanec
 ld
 jp
 LF
+mortem
 http
 li
 HURD
@@ -315,11 +318,13 @@ CSRG
 symlink's
 symlinks
 OpenBSD
+signalling
 SCO
 Xcurses
 microkernel
 GETFD
 virtualized
+multithreaded
 changequote
 decrement
 PWB

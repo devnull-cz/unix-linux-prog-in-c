@@ -198,7 +198,7 @@ int \emph{protocol});}
     transmits datagram
     \end{itemize}
 \item \emph{protocol}: \texttt{0} (default for a given \emph{type})
-or a valid protocol number (eg. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
+or a valid protocol number (e.g. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
 \end{itemize}
 \end{slide}
 
@@ -207,7 +207,7 @@ or a valid protocol number (eg. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
 \begin{itemize}
 \item Function is declared in \texttt{<sys/socket.h>} as well as other network
 related functions from the previous slide.
-\item Sockets use the same name space as file descriptors, ie. the same
+\item Sockets use the same name space as file descriptors, i.e. the same
 descriptor table.  If you write a simple program that only calls
 \funnm{socket}(), it will return 3 as that will be the first available slot in
 the descriptor table.
@@ -215,7 +215,7 @@ the descriptor table.
 to pipes.  However, note that pipes may not be bidirectional, see page
 \pageref{TWO_WAY_PIPES}.
 \item Sometimes you can see constants beginning with \verb#PF_# (meaning
-\emph{protocol family}, eg. \texttt{PF\_IN\-ET}, \verb#PF_UNIX#, or
+\emph{protocol family}, e.g. \texttt{PF\_IN\-ET}, \verb#PF_UNIX#, or
 \texttt{PF\_IN\-ET6}) and used in a \funnm{socket}() call. Constants \verb#AF_#
 (\emph{address family}) are then used only for naming the sockets.  While it
 might make a better sense, the UNIX specification only defines \verb#AF_#
@@ -295,8 +295,8 @@ Both values correspond to \texttt{::} (16 zero bytes).
 ports and the primary IP address on the interface through which the destination
 can be accessed.  In general, as a client, you do not need a specific outgoing
 port so \funnm{bind}() is usually not needed and the call is typically used only
-by servers as they need a specific port number to be contacted (eg. 443 for
-HTTPS).  Note that some legacy services though, eg. \texttt{rsh}, require the
+by servers as they need a specific port number to be contacted (e.g. 443 for
+HTTPS).  Note that some legacy services though, e.g. \texttt{rsh}, require the
 client to connect from a privileged port (0-1023).  Such a client must call
 \funnm{bind}() to use such a port and also have enough privileges to do that.
 \item \emsl{The address and port must always use network byte ordering.} See
@@ -435,16 +435,16 @@ systems.  Remember that protocols and APIs are two different things.
 \item The newly created socket has the same characteristics as \emph{socket}.
 For example, if \emph{socket} was non-blocking, the new socket is non-blocking
 as well.
-\item If more clients running on the same host connect to the same server (ie.
+\item If more clients running on the same host connect to the same server (i.e.
 using the same IP address and port), individual connections are distinguished
 only by the client side port number.  Do remember that a TCP connection is
-uniquely identified by two sockets, ie. ``((addr1, port1), (addr2, port2)).''
+uniquely identified by two sockets, i.e. ``((addr1, port1), (addr2, port2)).''
 \item The \emph{address} may be \texttt{NULL} which means the caller is not
 interested in the remote end address.  In that case, \emph{address\_len} should
 be \texttt{NULL} as well.
 \item If the code is written to be independent of an address family, it should
 use \texttt{struct sockaddr\_storage} for \emph{address}.  Any specific address
-struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, ie. either
+struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, i.e. either
 \texttt{struct sockaddr\_in} or \texttt{struct sockaddr\_in6}.  Also see page
 \pageref{TCPCLNTEXAMPLE}.
 \item \label{TCP_SINK_SERVER_C} Example: \example{tcp/tcp-sink-server.c}
@@ -588,7 +588,7 @@ If the message does not fit \emph{l{}en}, extra data is discarded
     \item \texttt{MSG\_OOB} \dots{} reads urgent (out-of-band)
     data 
     \item \texttt{MSG\_WAITALL} \dots{} waits for the buffer to fill up
-    ie. \emph{l{}en} bytes
+    i.e. \emph{l{}en} bytes
     \end{itemize}
 \end{itemize}
 \end{slide}
