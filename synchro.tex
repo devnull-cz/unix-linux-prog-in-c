@@ -15,7 +15,9 @@ include(`macros.m4')
 \begin{slide}
 \sltitle{Problem: conflict while sharing data}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{struct \{ int a, b; \} \emph{shared};}
+]]])
 \item
 \begin{alltt}
 for( ; ; ) \{
@@ -59,7 +61,9 @@ system resource.
 
 \begin{slide}
 \sltitle{Conflict scenario}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{tabular}{rl@{\hspace{2cm}}|c|c|}
+]]])
 \multicolumn{2}{l}{Processes \emsl{A}\texttt{(val==1)} and
 \emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
 \multicolumn{1}{c}{\texttt{b}}\\
@@ -102,7 +106,9 @@ what is used when development. Something to think about when testing.
 \item it is necessary to ensure atomic operation on the structure, i.e.
 while one processes modifies the structure, the other cannot manipulate it. 
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{tabular}{rl@{\hspace{2cm}}|c|c|}
+]]])
 \multicolumn{2}{l}{Processes \emsl{A}\texttt{(val==1)} and
 \emsl{B}\texttt{(val==2)}} & \multicolumn{1}{c}{\texttt{a}} &
 \multicolumn{1}{c}{\texttt{b}}\\
@@ -280,8 +286,8 @@ processes would wait forever. Thus it is prudent to write PID of the process
 that created the lock to the lock file. The process that is waiting for unlock
 can verify that the process with given PID number exists. If not, it can remove
 the lock file and retry. User level command that can do this is e.g.
-\emsl{shlock}(1) (on FreeBSD in \texttt{/usr/ports/sysutils/shlock}), however
-could cause situation in the following paragraph:
+\emsl{\texttt{shlock}}(1) (on FreeBSD in \texttt{/usr/ports/sysutils/shlock}),
+however could cause situation in the following paragraph:
 \item \emsl{watch out:} if multiple processes find out simultaneously that
 the process does not exist, it can lead to error. First process deletes the
 lock file and creates new one with its PID. Next process does the same,
@@ -337,7 +343,7 @@ the same program are unwanted.
         (e.g. \texttt{lockd} implements just advisory locking)
 	\item for given file they are enabled by setting the SGID bit and
         removing right to execute for the group
-	(tj. setting that otherwise does not make sense).
+	(i.e. setting that otherwise does not make sense).
 	One process sets the lock (e.g. using \texttt{fcntl}). Other processes
 	then do not have to check the lock explicitly because each
 	\texttt{open/read/write} operation is checked by the kernel against
@@ -515,13 +521,15 @@ works with them at the moment.
 \end{slide}
 
 \begin{itemize}
-\item \emsl{P} is from dutch \uv{proberen te verlagen} -- try to
-decrement, \emsl{V} from \uv{verhogen} -- increment.
+\item \emsl{P} is from dutch ifdef([[[NOSPELLCHECK]]],
+[[[\uv{proberen te verlagen}]]]) -- try to
+decrement, \emsl{V} from ifdef([[[NOSPELLCHECK]]], [[[\uv{verhogen}]]])
+-- increment.
 \item The \texttt{P(s)} and \texttt{V(s)} operations can be made generic:
 the semaphore value is possible to change with any integer
 \texttt{n} \dots{} \texttt{P(s,~n)}, \texttt{V(s,~n)}.
 \item Allen B. Downey: \emph{The Little Book of Semaphores}, Second Edition,
-on-line na \url{http://greenteapress.com/semaphores/}
+on \url{http://greenteapress.com/semaphores/}
 \item \emph{binary semaphore} has only values 0 or 1
 \end{itemize}
 
@@ -559,38 +567,49 @@ The mutexes work differently, see page \pageref{MUTEXES}.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sem\_open, sem\_wait, sam\_post, sem\_close}{posix-semaphores}
+]]])
 
 \label{NAMED_SEMAPHORES}
 \begin{slide}
 \sltitle{POSIX API for semaphores}
 
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
+ifdef([[[NOSPELLCHECK]]], [[[
 sem\_t \funnm{sem\_open}(\=const *char \emph{name}, int \emph{oflag},
 \\\>mode\_t \emph{mode}, unsigned int \emph{value});
+]]])
 \end{tabbing}}
 \end{minipage}
 \begin{itemize}
 \item creates or opens a new POSIX semaphore.  \emph{mode} is same as for
 \funnm{open}().  Use ``\texttt{/somename}'' for the \emph{name}.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sem\_wait}(sem\_t *\emph{sem});}
+]]])
 \begin{itemize}
-\item decrement \emph{sem}, if currently 0, the call will block
+\item decrement \emph{\texttt{sem}}, if currently 0, the call will block
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sem\_post}(sem\_t *\emph{sem});}
+]]])
 \begin{itemize}
-\item increment \emph{sem}.  If \emph{sem} consequently becomes greater than
-0, another thread blocked in \funnm{sem\_wait}() will be woken up.
+\item increment \emph{\texttt{sem}}. If \emph{\texttt{sem}} consequently becomes
+greater than 0, another thread blocked in \funnm{sem\_wait}() will be woken up.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sem\_close}(sem\_t *\emph{sem});}
+]]])
 \begin{itemize}
-\item close \emph{sem}, free its resources allocated to \emsl{this} process.
+\item close \emph{\texttt{sem}}, free its resources allocated to \emsl{this}
+process.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emph{oflag} can be a combination of only \texttt{O\_CREAT} and
+\item \emph{\texttt{oflag}} can be a combination of only \texttt{O\_CREAT} and
 \texttt{O\_EXCL}.  If the semaphore already exists, an invocation with only
 \texttt{O\_CREAT} silently succeeds, \texttt{O\_EXCL} will cause an error.
 \item As soon as the semaphore is created, other processes can use it as
@@ -607,7 +626,9 @@ identified by the returned handle -- and thus use less resources.  See
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{shm\_open, sem\_open, mq\_open}{posixipc}
+]]])
 
 \begin{slide}
 \sltitle{Other IPC facilities}

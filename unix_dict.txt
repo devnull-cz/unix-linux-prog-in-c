@@ -1,4 +1,4 @@
-personal_ws-1.1 en 338 
+personal_ws-1.1 en 337 
 Illumos
 Prog
 Ctrl
@@ -51,7 +51,6 @@ proberen
 PDPs
 Libes
 SunOS
-Gdb
 gdb
 FFS
 interruptible
