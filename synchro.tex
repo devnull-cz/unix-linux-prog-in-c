@@ -575,13 +575,13 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{slide}
 \sltitle{POSIX API for semaphores}
 
-\begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 ifdef([[[NOSPELLCHECK]]], [[[
+\begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 sem\_t \funnm{sem\_open}(\=const *char \emph{name}, int \emph{oflag},
 \\\>mode\_t \emph{mode}, unsigned int \emph{value});
-]]])
 \end{tabbing}}
 \end{minipage}
+]]])
 \begin{itemize}
 \item creates or opens a new POSIX semaphore.  \emph{mode} is same as for
 \funnm{open}().  Use ``\texttt{/somename}'' for the \emph{name}.

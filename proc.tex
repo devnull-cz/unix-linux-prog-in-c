@@ -625,24 +625,24 @@ ifdef([[[NOSPELLCHECK]]], [[[
 the last item must be \texttt{NULL}
 \end{itemize}
 \begin{minipage}{\slidewidth}
-\vspace{-1ex}\texttt{\begin{tabbing}
 ifdef([[[NOSPELLCHECK]]], [[[
+\vspace{-1ex}\texttt{\begin{tabbing}
 int \funnm{execle}(\=const char *\emph{path}, const char *\emph{arg0},
 ... ,\\\> char *const \emph{envp}[]);
-]]])
 \end{tabbing}}
+]]])
 \end{minipage}
 \begin{itemize}
 \item like \funnm{execl} but instead of the global variable \emph{environ}, 
 the \emph{\texttt{envp}} argument is used
 \end{itemize}
 \begin{minipage}{\slidewidth}
-\vspace{-1ex}\texttt{\begin{tabbing}
 ifdef([[[NOSPELLCHECK]]], [[[
+\vspace{-1ex}\texttt{\begin{tabbing}
 int \funnm{execve}(\=const char *\emph{path}, char *const \emph{argv}[],\\
 \>char *const \emph{envp}[]);
-]]])
 \end{tabbing}}
+]]])
 \end{minipage}
 \begin{itemize}
 \item like \funnm{execv} but instead of \emph{\texttt{environ}},
@@ -1025,8 +1025,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 void *\funnm{mmap}(\=void *\emph{addr}, size\_t \emph{l{}en},
 int \emph{prot}, int \emph{flags},\\\> int \emph{fildes}, off\_t \emph{off});
-]]])
 \end{tabbing}}
+]]])
 \end{minipage}
 \begin{itemize}
 

@@ -368,8 +368,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 int \funnm{sigaction}(\=int \emph{sig},
 const struct sigaction *\emph{act},\\\> struct sigaction *\emph{oact});
-]]])
 \end{tabbing}}
+]]])
 \end{minipage}
 \begin{itemize}
 \item assigns an action \emph{\texttt{act}} for a signal \emph{\texttt{sig}},
@@ -505,13 +505,13 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{itemize}
 \item blocked signals are delivered to the process after getting unblocked again
 \end{itemize}
-\begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
 ifdef([[[NOSPELLCHECK]]], [[[
+\begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
 int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
 \>sigset\_t *\emph{oset});
-]]])
 \end{tabbing}}
 \end{minipage}
+]]])
 \begin{itemize}
 \item sets the blocked signal mask and returns the old one
 \item \emph{how} -- \texttt{SIG\_BLOCK} adds signals to block,
