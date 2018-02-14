@@ -1,4 +1,4 @@
-personal_ws-1.1 en 337 
+personal_ws-1.1 en 342 
 Illumos
 Prog
 Ctrl
@@ -30,13 +30,14 @@ UDP
 Kernighan
 reentrant
 userland
-TLI
 RTS
+TLI
 args
 FIFO
+casted
 argv
-UID
 UFS
+UID
 tracepoint
 DNS
 PCTS
@@ -78,6 +79,7 @@ XBD
 verhogen
 ASLR
 SETFD
+async
 XOPEN
 syscallretvals
 SUSv
@@ -133,6 +135,7 @@ mountpoint
 McDougall
 ZFS
 Gallmeister
+datagrams
 init
 XSH
 Stallman
@@ -141,8 +144,8 @@ filesystems
 iOS
 Rago
 lstat
-ldd
 IPS
+ldd
 acomp
 dereferencing
 gprof
@@ -243,6 +246,7 @@ profilers
 IRIX
 MULTIplexed
 inode
+multibyte
 RTLD
 arglist
 shmat
@@ -267,6 +271,7 @@ preprocessor's
 ICMP
 WG
 VM
+natively
 longindex
 ipcrm
 PID
@@ -310,12 +315,12 @@ pdftitle
 RDONLY
 environ
 chrooted
-Linkers
 linker's
+Linkers
 SAS
 CSRG
-symlink's
 symlinks
+symlink's
 OpenBSD
 signalling
 SCO

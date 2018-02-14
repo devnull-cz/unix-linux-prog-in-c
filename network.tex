@@ -22,8 +22,8 @@ between UNIX systems connected directly or via modems, in Version~7 UNIX (1978)
 bidirectional communication channel created between two processes either on the
 same computer or across a network.
 \item[TLI (Transport Layer Interface)] -- SVR3 (1987); API providing network
-communication within the 4th layer of ISO OSI.  Counterpart to the BSD sockets
-API.
+communication within the \nth{4} layer of ISO OSI.  Counterpart to the BSD
+sockets API.
 \item[RPC (Remote Procedure Call)] -- SunOS (1984); provides access to services
 running on a remote machine, data transferred in XDR format (External Data
 Representation)
@@ -73,7 +73,7 @@ and works on top of TCP and UDP.  RPC was developed as a communication protocol
 for the \emph{Network Filesystem} (NFS).  There are several mutually
 incompatible RPC implementations.
 \item TLI is designed from an OSI model-oriented viewpoint, and it corresponds
-to the 4th layer -- transport.  TLI API looks similar to sockets.
+to the \nth{4} layer -- transport.  TLI API looks similar to sockets.
 \item Sockets for communication within the same host are in the
 \texttt{AF\_UNIX} domain and their names correspond to special files that
 represent the sockets in the filesystem.  \texttt{ls -F} uses the equal sign
@@ -94,7 +94,7 @@ over the loopback interface \texttt{localhost} (\texttt{127.0.0.1}).  See page
     not accessible for a non-privileged user
     \item \emsl{TCP (Transmission Control Protocol)} -- reliable, ordered, and
     error-checked delivery of a stream of bytes
-    \item \emsl{UDP (User Datagram Protocol)} -- datagram, connectionless,
+    \item \emsl{UDP (User Datagram Protocol)} -- datagram, connection-less,
     unreliable
     \end{itemize}
 \item \emsl{IP address} -- 4 bytes (IPv4) / 16 bytes (IPv6), defines a network
@@ -114,7 +114,8 @@ connection is uniquely identified by a pair of sockets.
 them.  For example, \emph{root} can access those.  See \texttt{/etc/services}
 for the textual database of port numbers and corresponding service names.
 \item To learn about networking and the Internet in general, we very much
-recommend networking lectures by Ji\v{r}\'{i} Peterka.  You can either
+recommend networking lectures by
+ifdef([[[NOSPELLCHECK]]], [[[Ji\v{r}\'{i} Peterka]]]).  You can either
 attend them at MFF~UK or you can find those online.
 \item \emph{IP} -- protocol of the internet layer within the TCP/IP network
 stack, provides data transfer between two interfaces identified by an IP
@@ -127,7 +128,7 @@ numbers.  Still unreliable and datagram oriented.  Defined in RFC~768.
 Provides a continuous stream of data, congestion control and reliable
 delivery.  To create a connection, a so called \emph{handshake} must be
 performed.  The protocol is defined in RFC~793 and other follow-up RFCs.
-\item \emph{DNS} -- hieararchicaly organized database, its structure does not
+\item \emph{DNS} -- hierarchically organized database, its structure does not
 have to follow the IP address structure.
 \end{itemize}
 
@@ -194,7 +195,7 @@ int \emph{protocol});}
     \begin{itemize}
     \item \texttt{SOCK\_STREAM} \dots{} connection-oriented reliable service,
     provides bidirectional data stream
-    \item \texttt{SOCK\_DGRAM} \dots{} connectionless unreliable service,
+    \item \texttt{SOCK\_DGRAM} \dots{} connection-less unreliable service,
     transmits datagram
     \end{itemize}
 \item \emph{protocol}: \texttt{0} (default for a given \emph{type})
@@ -240,22 +241,31 @@ $ ls -l /usr/sbin/ping
 
 \begin{slide}
 \sltitle{Naming the socket: \texttt{bind()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{bind}(\=int \emph{socket},
 const struct sockaddr *\emph{address}, \\\>socklen\_t \emph{address\_len});}
+]]])
 \begin{itemize}
 \item binds a \emph{socket} with an address
 \item \texttt{struct sockaddr} is universal and not used to fill out the address
     \begin{itemize}
-    \item \texttt{sa\_family\_t \emph{sa\_family}} \dots{} domain
-    \item \texttt{char \emph{sa\_data}[]} \dots{} address
+    \item ifdef([[[NOSPELLCHECK]]],
+    [[[\texttt{sa\_family\_t \emph{sa\_family}}]]]) \dots{} domain
+    \item ifdef([[[NOSPELLCHECK]]], [[[\texttt{char \emph{sa\_data}[]}]]])
+     \dots{} address
     \end{itemize}
-\item for \texttt{AF\_INET}, \texttt{struct sockaddr\_in} is used:
+    \item for \texttt{AF\_INET}, \texttt{struct sockaddr\_in} is used:
     \begin{itemize}
-    \item \texttt{sa\_family\_t \emph{sin\_family}} \dots{} domain
+    \item ifdef([[[NOSPELLCHECK]]],
+    [[[\texttt{sa\_family\_t \emph{sin\_family}}]]]) \dots{} domain
     (\texttt{AF\_INET}) 
-    \item \texttt{in\_port\_t \emph{sin\_port}} \dots{} port number (16 bits) 
-    \item \texttt{struct in\_addr \emph{sin\_addr}} \dots{} IP address (32 bits)
-    \item \texttt{unsigned char \emph{sin\_zero}[8]} \dots padding
+    \item ifdef([[[NOSPELLCHECK]]],
+    [[[\texttt{in\_port\_t \emph{sin\_port}}]]]) \dots{} port number (16 bits) 
+    \item ifdef([[[NOSPELLCHECK]]],
+    [[[\texttt{struct in\_addr \emph{sin\_addr}}]]]) \dots{}
+    IP address (32 bits)
+    \item ifdef([[[NOSPELLCHECK]]],
+    [[[\texttt{unsigned char \emph{sin\_zero}[8]}]]]) \dots padding
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -306,14 +316,16 @@ More information is on page \pageref{HTON}.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{struct sockaddr\_in}{sockaddrin}
+]]])
 
 \begin{slide}
 \sltitle{Structure for IPv4 addresses}
 
 \begin{itemize}
 \item each address family has its structure and a header file
-\item the structure is in \funnm{bind}() casted to \texttt{struct sockaddr}
+\item the structure is in \funnm{bind}() type-casted to \texttt{struct sockaddr}
 \end{itemize}
 
 \begin{verbatim}
@@ -354,11 +366,13 @@ may forget to add \funnm{htonl}() and you are going to run into some issues
 right away.  And again, if you write code agnostic to specific address families,
 you do not need to worry about network byte ordering for addresses and ports
 whatsoever.
-\item In the \texttt{AF\_UNIX} domain, \texttt{struct
-sockaddr\_un} is used, defined in \texttt{<sys/un.h>}:
+\item In the \texttt{AF\_UNIX} domain,
+\texttt{struct sockaddr\_un} is used, defined in \texttt{<sys/un.h>}:
 \begin{itemize}
-\item \texttt{sa\_family\_t \emph{sun\_family}} \dots{} domain
-\item \texttt{char \emph{sun\_path}[]} \dots{} socket name
+\item ifdef([[[NOSPELLCHECK]]], [[[\texttt{sa\_family\_t \emph{sun\_family}}]]])
+\dots{} domain
+\item ifdef([[[NOSPELLCHECK]]], [[[\texttt{char \emph{sun\_path}[]}]]])
+\dots{} socket name
 \item The size of \emph{sun\_path} has intentionally been left undefined in the
 UNIX specification. This is because different implementations use different
 sizes.  For example, 4.3~BSD uses a size of 108, and 4.4~BSD uses a size of 104.
@@ -413,16 +427,18 @@ Solaris use value of 128.
 
 \begin{slide}
 \sltitle{Accepting connection: \texttt{accept()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{accept}(\=int \emph{socket}, struct sockaddr *\emph{address},
 \\\>socklen\_t *\emph{address\_len});}
+]]])
 \begin{itemize}
 \item creates a connection between the local, already listening \texttt{socket}
 and a remote end
 \item returns a new socket descriptor that can be used to communicate with the
 remote process.  Original socket can be used to accept another connection.
 \item returns a remote IP address/port in \emph{address} unless NULL
-\item \emph{*address\_len} is a size of the \emph{address} structure, is updated
-with its real size on return
+\item \emph{\texttt{*address\_len}} is a size of the \emph{address} structure,
+is updated with its real size on return
 \end{itemize}
 \end{slide}
 
@@ -438,13 +454,14 @@ as well.
 \item If more clients running on the same host connect to the same server (i.e.
 using the same IP address and port), individual connections are distinguished
 only by the client side port number.  Do remember that a TCP connection is
-uniquely identified by two sockets, i.e. ``((addr1, port1), (addr2, port2)).''
+uniquely identified by two sockets, i.e.
+ifdef([[[NOSPELLCHECK]]], [[[``((addr1, port1), (addr2, port2)).'']]])
 \item The \emph{address} may be \texttt{NULL} which means the caller is not
-interested in the remote end address.  In that case, \emph{address\_len} should
-be \texttt{NULL} as well.
+interested in the remote end address. In that case,
+\emph{\texttt{address\_len}} should be \texttt{NULL} as well.
 \item If the code is written to be independent of an address family, it should
 use \texttt{struct sockaddr\_storage} for \emph{address}.  Any specific address
-struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, i.e. either
+structure is guaranteed to fit in \texttt{struct sockaddr\_storage}, i.e. either
 \texttt{struct sockaddr\_in} or \texttt{struct sockaddr\_in6}.  Also see page
 \pageref{TCPCLNTEXAMPLE}.
 \item \label{TCP_SINK_SERVER_C} Example: \example{tcp/tcp-sink-server.c}
@@ -454,11 +471,13 @@ struct is guaranteed to fit in \texttt{struct sockaddr\_storage}, i.e. either
 
 \begin{slide}
 \sltitle{Initiating a connection: \texttt{connect()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{connect}(\=int \emph{sock}, struct sockaddr *\emph{address},
 \\\>socklen\_t \texttt{address\_len});}
+]]])
 \begin{itemize}
 \item attempts to make a connection to a remote socket waiting on \emph{address}
-(of \emph{address\_len} length) 
+(of \emph{\texttt{address\_len}} length) 
 \item if \emph{sock} was not bound before, the kernel will assign an available
 local address based on the chosen address family
 \item you should close \emph{sock} on a connection failure
@@ -521,7 +540,7 @@ Another way is to set to ignore \texttt{SIGCHLD} in which case you
 completely avoid the grave danger of the living dead attack (see page
 \pageref{IGNORE_SIG_CHLD}).  You could also catch the signal and call
 one of the \funnm{wait}() calls from the handler itself which is fine as the
-call is async-signal safe (see page \pageref{ASYNCSIGNALSAFE}).
+call is async-signal-safe (see page \pageref{ASYNCSIGNALSAFE}).
 \end{itemize}
 
 %%%%%
@@ -534,17 +553,17 @@ call is async-signal safe (see page \pageref{ASYNCSIGNALSAFE}).
 \begin{itemize}
 \item After calling \funnm{bind}() and \funnm{listen}(), the parent creates
 several children who sequentially serve connection requests.  Kernel,
-non-deterministically from the user point of view, distributes the connection
-requests between child processes waiting in \funnm{accept}().  The parent itself
-does not serve any connection but possibly \funnm{wait}()s and creates new
-processes as needed.
+from the user point of view in non-deterministic fashion, distributes the
+connection requests between child processes waiting in \funnm{accept}().
+The parent itself does not serve any connection but possibly \funnm{wait}()s and
+creates new processes as needed.
 \item The parent should monitor the number of existing children serving
 connections and spawn new processes as necessary.
 It is a good idea for child processes to voluntarily exit after serving a
 certain number of connections to avoid issues like memory leaks to affect the
 host as a whole. Apache web server can be configured to work like this.
 \item All server side ways of serving the connections work with the same client.
-The way a client works does not depend on which approach the server choses.
+The way a client works does not depend on which approach the server chooses.
 \end{itemize}
 
 \begin{slide}
@@ -558,7 +577,7 @@ sends the first datagram.
 \item As in TCP, a client does not need \funnm{bind}() unless it requires a
 specific local address to bind to.  The server gets the client address from the
 received datagram.
-\item In contrast to connection-oriented service, the connectionless one has
+\item In contrast to connection-oriented service, the connection-less one has
 less overhead and one can use the same socket to communicate with multiple
 remote processes.
 \item You can use \funnm{connect}() for UDP as well, see page
@@ -567,21 +586,26 @@ remote processes.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{recvfrom}{recvfrom}
+]]])
 
 \begin{slide}
 \sltitle{Receiving message: \texttt{recvfrom()}}
 \setlength{\baselineskip}{0.8\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{ssize\_t \funnm{recvfrom}(\=int \emph{sock}, void *\emph{buf},
 size\_t \emph{l{}en}, \\\>int \emph{flg}, struct sockaddr *\emph{address},
 \\\>socklen\_t *\emph{address\_len});}
+]]])
 \begin{itemize}
-\item receives a message from \emph{sock}, stores it to \emph{buf}
-of size \emph{l{}en}, puts the sender's address to \emph{address},
-and address length to \emph{address\_len}.  Returns message length.
+\item receives a message from \emph{\texttt{sock}}, stores it to
+\emph{\texttt{buf}}
+of size \emph{\texttt{l{}en}}, puts the sender's address to \emph{address},
+and address length to \emph{\texttt{address\_len}}.  Returns message length.
 If the message does not fit \emph{l{}en}, extra data is discarded
 (\texttt{SOCK\_STREAM} does not divide data, nothing is discarded).
-\item flags \emph{flg} can be:
+\item flags \emph{\texttt{flg}} can be:
     \begin{itemize}
     \item \texttt{MSG\_PEEK} \dots{} message it considered not read, next
     \texttt{recvfrom} will return it again
@@ -602,7 +626,7 @@ UDP datagram before reading it out from kernel buffer. On Linux the
 \texttt{MSG\_TRUNC|MSG\_PEEK} flags can be used for \texttt{recvfrom} to get the
 size. On other systems the generic \texttt{recvmsg} syscall can be used to at
 least provide awareness of the truncation (\texttt{MSG\_TRUNC} flag in the
-\texttt{msghdr} struct).
+\texttt{msghdr} structure).
 Depending on the application, using large buffer (based on lower network layer
 constraints) might be the answer (at the cost of wasting memory).
 \item \texttt{address\_len} \emsl{must} be initialized with buffer size if
@@ -623,16 +647,20 @@ service. That said, getting remote's address is better via
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sendto}{sendto}
+]]])
 
 \begin{slide}
 \sltitle{Sending message: \texttt{sendto()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{ssize\_t \funnm{sendto}(\=int \emph{socket}, void *\emph{msg},
 size\_t \emph{l{}en},\\\>int \emph{flags}, struct sockaddr *\emph{addr},
 \\\>socklen\_t \emph{addr\_len});}
+]]])
 \begin{itemize}
-\item sends a message \emph{msg} via \emph{socket} of \emph{l{}en} bytes to
-address \emph{addr} (of \emph{addr\_len} length). 
+\item sends a message \emph{\texttt{msg}} via \emph{socket} of \emph{l{}en}
+bytes to address \emph{\texttt{addr}} (of \emph{\texttt{addr\_len}} length). 
 \item \emph{flags} can carry:
     \begin{itemize}
     \item \texttt{MSG\_EOB} \dots{} finish a record (if supported by the
@@ -732,7 +760,9 @@ The remote side will get \texttt{EOF} while reading however it can still write.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{inet\_pton, inet\_ntop}{ipaddrfncs}
+]]])
 
 \begin{slide}
 \sltitle{Working with IPv4 and IPv6 addresses}
@@ -741,17 +771,19 @@ The remote side will get \texttt{EOF} while reading however it can still write.
 \item string representation of IP address cannot be used when working with
 \texttt{sockaddr} structures
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{inet\_pton}(int \emph{af}, const char *\emph{src},
 void *\emph{dst});}
+]]])
 \begin{itemize}
 \item converts string to binary representation, i.e. something usable for
 \texttt{in\_addr} or \texttt{in6\_addr} members of \texttt{sockaddr} structures
 \item returns 1 (OK), 0 (wrong address) or -1 (and sets \texttt{errno})
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{cont char *\funnm{inet\_ntop}(\=int \emph{af}, const void *\emph{src},
 \\\>char *\emph{dst}, size\_t \emph{size});}
+]]])
 \begin{itemize}
 \item counterpart to \texttt{inet\_pton}; returns \emph{\texttt{dst}} or
 \texttt{NULL} (and sets \texttt{errno})
@@ -767,7 +799,7 @@ void *\emph{dst});}
 \begin{itemize}
 \item The functions are declared in \texttt{arpa/inet.h}.
 \item \texttt{inet\_pton} returns 1 if the conversion successfully happened,
-0 if given string is not an address or -1 if \emph{af} is not supported
+0 if given string is not an address or -1 if \emph{\texttt{af}} is not supported
 (\texttt{EAFNOSUPPORT}). \texttt{inet\_ntop} returns \texttt{dst} if everything
 is OK otherwise returns \texttt{NULL} with \texttt{errno} set.
 \item Addresses and ports in binary form are stored as big endian.
@@ -793,29 +825,39 @@ Example: \example{resolving/addresses.c}.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{setsockopt, getsockopt, getsockname, getpeername}{socketfncs}
+]]])
 
 \begin{slide}
 \sltitle{More socket functions}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{setsockopt}(\=int \emph{socket}, int \emph{level},
 int \emph{opt\_name}, \\\>const void *\emph{opt\_value},
 socklen\_t \emph{option\_len});}
+]]])
 \begin{itemize}
 \item sets socket parameters
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{getsockopt}(\=int \emph{socket}, int \emph{level},
 int \emph{opt\_name},\\\>void *\emph{opt\_value},
 socklen\_t *\emph{option\_len});}
+]]])
 \begin{itemize}
 \item reads socket parameters
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{getsockname}(\=int \emph{socket},
 struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
+]]])
 \begin{itemize}
 \item get local socket address
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{getpeername}(\=int \emph{socket},
 struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
+]]])
 \begin{itemize}
 \item get address of the remote end
 \end{itemize}
@@ -832,11 +874,13 @@ the \texttt{option\_len} value \emsl{must} be initialized to
 the size of \texttt{opt\_value}.
 \item \texttt{getsockname} is used when not using \texttt{bind} syscall
 to determine what is the (local !) address assigned to the socket by the kernel.
-\item \verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)# returns
+\item ifdef([[[NOSPELLCHECK]]],
+[[[\verb#getsockopt(sock, SOL_SOCKET, SO_ERROR, &val, &len)#]]]) returns
 (and erases) error indication for given socket. This is mainly useful to
 get result of non-blocking \texttt{connect}, see page \pageref{CONNECT}.
-\item When using \verb#SO_REUSEADDR# it is possible to immediately create
-new server (i.e. to successfully call \texttt{socket},
+\item When using ifdef([[[NOSPELLCHECK]]], [[[\verb#SO_REUSEADDR#]]]) it is
+possible to immediately create new server (i.e. to successfully call
+\texttt{socket},
 \texttt{bind}, \texttt{listen} and \texttt{accept}) listening on address and
 port previously used even though there are still TCP connections in their final
 stage from the previous instance of the server:
@@ -854,7 +898,9 @@ anyway.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{htonl, ntohl, htons, ntohs}{byteorderfncs}
+]]])
 
 \begin{slide}
 \sltitle{Byte order}
@@ -862,14 +908,18 @@ anyway.
 \item network services can use byte ordering that differs from the native
 one on the system. Conversion functions (macros):
     \begin{itemize}
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item\texttt{uint32\_t \funnm{htonl}(uint32\_t \emph{hostlong});}\\
-    host $\rightarrow$ network, 32 bits
+    ]]]) host $\rightarrow$ network, 32 bits
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item\texttt{uint16\_t \funnm{htons}(uint16\_t \emph{hostshort});}\\
-    host $\rightarrow$ network, 16 bits
+    ]]]) host $\rightarrow$ network, 16 bits
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{uint32\_t \funnm{ntohl}(uint32\_t \emph{netlong});}\\
-    network $\rightarrow$ host, 32 bits
+    ]]]) network $\rightarrow$ host, 32 bits
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{uint16\_t \funnm{ntohs}(uint16\_t \emph{netshort});}\\
-    network $\rightarrow$ host, 16 bits 
+    ]]]) network $\rightarrow$ host, 16 bits 
     \end{itemize}
 \item network byte order is big-endian, i.e. most significant byte first.
 Both network addresses and port numbers are multibyte values.
@@ -883,24 +933,28 @@ Both network addresses and port numbers are multibyte values.
 become no-ops.
 \item Simple and sufficient test is to run your program in 2 instances 
 against each other (if possible) on two systems with different endianess.
-
-
 \end{itemize}
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getprotobyname, getservbyname}{protonumfncs}
+]]])
 
 \begin{slide}
 \sltitle{Protocol and port numbers}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{struct protoent *\funnm{getprotobyname}(const char *\emph{name});}
+]]])
 \begin{itemize}
 \item returns protocol number in \texttt{p\_proto} with \emph{name}
 (e.g. for \texttt{"tcp"} returns 6). 
 \item protocol numbers are stored in the \texttt{/etc/protocols} file.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{struct servent *\funnm{getservbyname}(\=const char *\emph{name},
 \\\>const char *\emph{proto});}
+]]])
 \begin{itemize}
 \item for service name \texttt{name} and protocol name \texttt{proto}
 returns port number in \texttt{s\_port}.
@@ -916,7 +970,7 @@ database.
 the result of \funnm{getservbyname} is for \texttt{bind}.
 \item Next to \texttt{getservbyname} there is also \texttt{getservbyport}
 that finds service entry according to port number (in network byte order !)
-and function \texttt{getservent} et al. for entry traversal.
+and function \texttt{getservent} and others. for entry traversal.
 \item All these functions search only "official" lists of services and
 protocols, which are located in the files mentioned on the slide.
 \item These files define the mapping for names and numbers for standard
@@ -930,22 +984,26 @@ by port numbers.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getaddrinfo}{getaddrinfo}
+]]])
 
 \label{GETADDRINF}
 
 \begin{slide}
-\sltitle{Convert hostnam to addresses: \texttt{getaddrinfo()}}
+\sltitle{Convert hostname to addresses: \texttt{getaddrinfo()}}
 
 \begin{itemize}
 \item generates \texttt{sockaddr} structures from given parameters
 \item works with both IP addresses and ports
 \item can influence the behavior with \emph{hints}
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{getaddrinfo}(\=const char *\emph{nodename},
 \\\>const char *\emph{servicename},
 \\\>const struct addrinfo *\emph{hint},
 \\\>struct addrinfo **\emph{res});}
+]]])
 \item \texttt{addrinfo} structure members:
 \texttt{ai\_flags} (for hints), \texttt{ai\_family} (address family),
 \texttt{ai\_socktype}, \texttt{ai\_protocol}, \texttt{ai\_addrlen},
@@ -980,8 +1038,8 @@ address if \texttt{NULL} address is specified.)
 therefore considered legacy and not recommended to use. The functions
 \texttt{getipnodebyname} and \texttt{getipnodebyaddr} can be used instead
 (\texttt{getipnode*} is found in many systems, nevertheless they were removed
-from GNU libc, so cannot be relied on universally). Moreover they are not
-part of UNIX standards.
+from GNU \texttt{libc}, so cannot be relied on universally). Moreover they are
+not part of UNIX standards.
 \texttt{get\-addr\-info} and \texttt{getnameinfo} are part of the POSIX.1-2001
 standard.
 \item It is not strictly necessary to convert old IPv4 specific code to the
@@ -992,7 +1050,9 @@ think the program will only use IPv4.
 
 %%%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getnameinfo}{getnameinfo}
+]]])
 
 \begin{slide}
 \sltitle{Convert address to hostname: \texttt{getnameinfo()}}
@@ -1002,7 +1062,7 @@ think the program will only use IPv4.
 \item gets \texttt{sockaddr} structures, therefore works with both
 IPv4 and IPv6 addresses, as opposed to the \texttt{gethostbyaddr} function.
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{getnameinfo}(\=const struct sockaddr *\emph{sa},
 \\\>socklen\_t *\emph{sa\_len},
 \\\>char *\emph{nodename},
@@ -1010,6 +1070,7 @@ IPv4 and IPv6 addresses, as opposed to the \texttt{gethostbyaddr} function.
 \\\>char *\emph{servicename},
 \\\>socketlen\_t *\emph{servicelen},
 \\\>unsigned \emph{flags});}
+]]])
 \end{slide}
 
 \begin{itemize}
@@ -1129,25 +1190,32 @@ successful.
 \begin{slide}
 \sltitle{Waiting for data: \texttt{select()}}
 \setlength{\baselineskip}{0.9\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{select}(\=int \emph{nfds}, fd\_set *\emph{readfds},
 \\\>fd\_set *\emph{writefds}, fd\_set *\emph{errorfds},
 \\\>struct timeval *\emph{timeout});}
+]]])
 \begin{itemize}
 \item determines which out of given file descriptors are ready for reading,
 writing or which experienced exceptional state. If no such descriptor is
 found, waits till \texttt{timeout} expires.
 (\texttt{NULL} \dots means arbitrary long wait). The \texttt{nfds} parameter
-sets the range of file descriptor values (\texttt{0,~...,~\emsl{nfds-1}}).
+sets the range of file descriptor values
+ifdef([[[NOSPELLCHECK]]], [[[(\texttt{0,~...,~\emsl{nfds-1}}).]]])
 \item functions for setting file descriptor masks:
     \begin{itemize}
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{void \funnm{FD\_ZERO}(fd\_set *\emph{fdset})} \dots{}
-    initialization
+    ]]]) initialization
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{void \funnm{FD\_SET}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots set
+    ]]]) \dots set
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{void \funnm{FD\_CLR}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots{} unset
+    ]]]) \dots{} unset
+    ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{int \funnm{FD\_ISSET}(int \emph{fd}, fd\_set *\emph{fdset})}
-    \dots{} test
+    ]]]) \dots{} test
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -1213,11 +1281,11 @@ tested as well.
 \item Beware that \texttt{select} \emsl{can} change the \texttt{timeval}
 structure; there is a call \texttt{pselect}, that will not change the structure
 (besides having other properties).
-\item It is possible to use \texttt{FD\_SETSIZE} for the \emsl{nfds} parameter
-which is system constant for maximal file descriptor count. This is not the best
-solution since this constant is only 1024 on 32-bit systems however for 64-bit
-programs it can be significantly bigger (e.g. 65536 on Solaris), leading to more
-time spent in the syscall.
+\item It is possible to use \texttt{FD\_SETSIZE} for the \emsl{\texttt{nfds}}
+parameter which is system constant for maximal file descriptor count. This is
+not the best solution since this constant is only 1024 on 32-bit systems however
+for 64-bit programs it can be significantly bigger (e.g. 65536 on Solaris),
+leading to more time spent in the syscall.
 \item If the time argument is set to 0 (not NULL), then \texttt{select} can be
 used for so called \emph{polling} -- it will check the current state and return
 immediately.
@@ -1275,12 +1343,16 @@ however does not read anything. Example: \example{select/write-select.c}.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{poll}{poll}
+]]])
 
 \begin{slide}
 \sltitle{Waiting for data: \texttt{poll()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{poll}(struct pollfd \emph{fds}[], nfds\_t \emph{nfds},
 int \emph{timeout});}
+]]])
 \begin{itemize}
 \item waits for event on one of the descriptors in the \texttt{fds} array
 of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
