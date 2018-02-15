@@ -88,7 +88,7 @@ than if such code was run with maximum privileges.  This technique is called a
 \item Original Unix systems used library models.  Today in general the kernel
 model is used.
 \item Threads implemented in a library may be either preemptive or
-non-pre\-emp\-tive.  To achieve preemptiveness, you can use timers and signals.
+non-pre\-emp\-tive. To achieve preemption, you can use timers and signals.
 However, if the objective is more in better modular programming than real
 parallelism, usually non-preemptive threads do fine.  Switching threads will be
 done when a process would normally block in system calls.
@@ -129,8 +129,10 @@ multiple threads without any side effects
 \begin{itemize}
 \item General information on POSIX is on page \pageref{POSIX}.
 \item There are more threading API, the POSIX thread API is just one of them.
-For example, there is a system call \texttt{sproc()} on IRIX, then Cthreads,
-Solaris threads, GNU Ptr threads (= portable), \dots
+For example, there is a system call \texttt{sproc()} on IRIX, then
+ifdef([[[NOSPELLCHECK]]], [[[Cthreads]]]),
+Solaris threads, GNU ifdef([[[NOSPELLCHECK]]], [[[Ptr threads]]]) (= portable),
+\dots
 \item The POSIX thread API is available in different libraries on different
 systems.  For example, on Linux you usually need \texttt{-lpthread} but on
 Solaris the API is part of standard \texttt{libc}.  With \texttt{gcc}, instead
@@ -154,7 +156,7 @@ as it will print possibly something like the following on error (unless
 confusing):
 
 \begin{itemize}
-\item ``\texttt{a.out: pthread\_create: Success}'' on Linux distros
+\item ``\texttt{a.out: pthread\_create: Success}'' on Linux distributions
 \item ``\texttt{a.out: pthread\_create: Error 0}'' on Solaris
 \item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' on FreeBSD
 \item or something else based on the system and the concrete message it uses for
@@ -199,20 +201,25 @@ total.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_create}{thrcreate}
+]]])
 
 \begin{slide}
 \label{PTHREAD_T}
 \sltitle{Thread creation}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_create}(\=pthread\_t *\emph{thread},
 \\\>const pthread\_attr\_t *\emph{attr},
 \\\>void *(*\emph{start\_fn})(void*), void *\emph{arg});}
+]]])
 \begin{itemize}
 \item creates a new thread, puts its ID to \emph{thread}
 \item with attributes from \texttt{attr}, e.g. its stack size,
 \texttt{NULL} means default attributes
-\item function \emph{start\_fn}() will be started in the thread using argument
-\emph{arg}.  After the function returns, the thread ceases to exist.
+\item function \emph{\texttt{start\_fn}}() will be started in the thread using
+argument \emph{\texttt{arg}}. After the function returns, the thread ceases to
+exist.
 \item with the \texttt{pthread\_attr\_t} objects can be manipulated using
 \funnm{pthread\_attr\_init}(), \funnm{pthread\_attr\_destroy}(),
 \funnm{pthread\_attr\_setstackaddr}(), etc\dots{}
@@ -262,8 +269,10 @@ main thread, e.g. waiting for them to finish.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_self, pthread\_key\_create}{pthreadkey}
 \label{THREAD_ATTRS}
+]]])
 
 \begin{slide}
 \sltitle{Thread private attributes}
@@ -271,11 +280,15 @@ main thread, e.g. waiting for them to finish.
 \item instruction pointer
 \item stack (automatic variables)
 \item thread ID, available through\\
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pthread\_t \funnm{pthread\_self}(void);}
+]]])
 \item scheduling priority and policy
 \item value of \texttt{errno}
 \item thread specific data -- a pair of
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{(pthread\_key\_t \emph{key}, void *\emph{ptr})} 
+]]])
     \begin{itemize}
     \item a key created by \funnm{pthread\_key\_create}() is visible from all
     threads
@@ -289,8 +302,9 @@ main thread, e.g. waiting for them to finish.
 \item Each thread has a fixed size stack which \emsl{does not automatically
 increase.}  It is usually anywhere from 64 kilobytes to a few megabytes.  If you
 cross that limit, the program will quite probably crash.  If you want a stack of
-a greater size than what is the system default, you have to use \emph{attr} when
-creating a thread.  Example: \example{pthreads/pthread-stack-overflow.c}
+a greater size than what is the system default, you have to use
+\emph{\texttt{attr}} when creating a thread.
+Example: \example{pthreads/pthread-stack-overflow.c}
 \item You can read more about thread specific data on page
 \pageref{THREAD_SPECIFIC_DATA}.
 \item Each thread also has its own signal mask.  More on that on page
@@ -299,26 +313,34 @@ creating a thread.  Example: \example{pthreads/pthread-stack-overflow.c}
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_exit, pthread\_join, pthread\_detach}{pthreadexit}
+]]])
 
 \begin{slide}
 \sltitle{Terminating the calling thread}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{pthread\_exit}(void *\emph{val\_ptr});}
+]]])
 \begin{itemize}
 \item terminates the calling thread, it is similar to \funnm{exit}() for
 processes
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_join}(pthread\_t \emph{thr},
 void **\emph{val\_ptr});}
+]]])
 \begin{itemize}
-\item waits for thread \emph{thr} to finish, the value passed to
+\item waits for thread \emph{\texttt{thr}} to finish, the value passed to
 \funnm{pthread\_exit}() or the return value is stored in the location referenced
-by \emph{val\_ptr}
+by \emph{\texttt{val\_ptr}}
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_detach}(pthread\_t \emph{thr});}
+]]])
 \begin{itemize}
-\item indicate that storage for the \emph{thr} can be reclaimed when the thread
-terminates.  \funnm{pthread\_join}() can no longer be used.
+\item indicate that storage for the \emph{\texttt{thr}} can be reclaimed when
+the thread terminates. \funnm{pthread\_join}() can no longer be used.
 \end{itemize}
 \end{slide}
 
@@ -327,7 +349,7 @@ terminates.  \funnm{pthread\_join}() can no longer be used.
 thread terminates with the value from the function \texttt{return}.
 \item The contents the finishing thread stack is undefined so you should not use
 pointers to the function local variables from memory pointed to by
-\emph{val\_ptr}.
+\emph{\texttt{val\_ptr}}.
 \item If you do not intend to call \funnm{pthread\_join}(), you need to call
 \funnm{pthread\_det\-ach}() or use the attributes (see below).  If you do not, a
 memory needed to carry information for a subsequent \funnm{pthread\_join}() will
@@ -341,8 +363,9 @@ pthread\_detach(pthread\_self());
 \texttt{PTHREAD\_CREATE\_DETACHED} on the attribute variable and then use that
 in \funnm{pthread\_create}().  Example on setting the attributes:
 \example{pthreads/set-detachstate.c}
-\item You can use \texttt{NULL} as \emph{val\_ptr} in \funnm{pthread\_join}(),
-telling the system you are not interested in the return value.
+\item You can use \texttt{NULL} as \emph{\texttt{val\_ptr}} in
+\funnm{pthread\_join}(), telling the system you are not interested in the return
+value.
 \item Any thread can wait for another thread, not just the one that created it.
 \item We recommend to always check the return value of \funnm{pthread\_join}()
 to make sure you wait for the right thread.  If you use an incorrect thread ID,
@@ -361,16 +384,22 @@ with a global variable.  More on that on page \pageref{CONDITION_VARIABLES}.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_once}{pthreadonce}
+]]])
 
 \begin{slide}
 \sltitle{Initialization}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_once}(\=pthread\_once\_t *\emph{once\_control},
 \\\>void (*\emph{init\_routine})(void));}
+]]])
 \begin{itemize}
 \item in \emph{once\_control} you pass a pointer to statically initialized
-variable \\ \texttt{pthread\_once\_t
-\emph{once\_control} = PTHREAD\_ONCE\_INIT;}
+variable \\
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{pthread\_once\_t \emph{once\_control} = PTHREAD\_ONCE\_INIT;}
+]]])
 \item first thread that calls \funnm{pthread\_once}() calls
 \emph{init\_routine()}.  Other threads will not call the function, and if it has
 not finished yet, will block waiting for it to finish.
@@ -388,12 +417,16 @@ have an expected value.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_cancel, pthread\_setcancelstate, pthread\_setcanceltype}{pthreadcancel}
+]]])
 
 \begin{slide}
 \sltitle{Cancel execution of a thread}
 \setlength{\baselineskip}{0.9\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cancel}(pthread\_t \emph{thread});}
+]]])
 \begin{itemize}
 \item cancel \emph{thread}.  Depends on:
 \end{itemize}
@@ -402,7 +435,7 @@ int *\emph{old});}
 \begin{itemize}
 \item sets new state and returns the old value:
     \begin{itemize}
-    \item \texttt{PTHREAD\_CANCEL\_ENABLE} \dots{} cancelation allowed
+    \item \texttt{PTHREAD\_CANCEL\_ENABLE} \dots{} cancellation allowed
     \item \texttt{PTHREAD\_CANCEL\_DISABLE} \dots{} cancellation requests
     against the target thread are held pending
     \end{itemize}
@@ -422,7 +455,7 @@ specified in the standard, like \funnm{open}(), \funnm{read}(),
 \texttt{pthread\_setcancelstate} man page.
 \item The \funnm{pthread\_testcancel}() function creates a cancellation point in
 the calling thread.  The \funnm{pthread\_testcancel}() function has no effect if
-cancelability is disabled.
+the ability to cancel is disabled.
 \item Be very careful with the use of \texttt{PTHREAD\_CANCEL\_ASYNCHRONOUS} as
 it may lead to data inconsistency as the cancellation may happen any time, even
 in your critical sections.
@@ -437,28 +470,38 @@ manipulating a signal mask to processes.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_key\_create, pthread\_key\_delete,
 pthread\_setspecific, pthread\_getspecific}{pthreadglobals}
+]]])
 
 \begin{slide}
 \sltitle{Global variables per thread}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_key\_create}(\=pthread\_key\_t *\emph{key},
 \\\>void (*\emph{destructor})(void *));}
+]]])
 \begin{itemize}
 \item creates a key that can be associated with a value of
 \texttt{(void *)} type.  Function \emph{destructor()} are called for all keys
 whose value is not \texttt{NULL} on thread termination.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_key\_delete}(pthread\_key\_t \emph{key});}
+]]])
 \begin{itemize}
 \item deletes the key, does not change the associated data
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_setspecific}(\=pthread\_key\_t \emph{key},
 \\\>const void *\emph{value});}
+]]])
 \begin{itemize}
 \item sets pointer \emph{value} to \emph{key}
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void *\funnm{pthread\_getspecific}(pthread\_key\_t \emph{key});}
+]]])
 \begin{itemize}
 \item returns the value of \emph{key}
 \end{itemize}
@@ -490,7 +533,9 @@ could end up with an infinite loop) stop calling destructors.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_cleanup\_push, pthread\_cleanup\_pop}{pthreadcleanup}
+]]])
 
 \begin{slide}
 \sltitle{Cleanup functions}
@@ -501,8 +546,10 @@ could end up with an infinite loop) stop calling destructors.
 \item after cleanup functions are called, thread specific data destructors are
 called in unspecified order
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{void \funnm{pthread\_cleanup\_push}(\=void (*\emph{routine})(void *),
 \\\>void *\emph{arg});}
+]]])
 \begin{itemize}
 \item add \emph{routine} to the top of the stack
 \end{itemize}
@@ -559,20 +606,22 @@ After \funnm{fork}(), all variables in the child are in the state as in the
 parent, so if a thread not propagated to the child held a mutex (see page
 \pageref{MUTEXES}), the mutex stays
 locked in the child, and trying to lock in the child will lead to a deadlock.
-However, if the parent in the \emph{pre-fork} handler locks all the mutexes, and
-then unlocks them in the \emph{post-fork} handler (both for the parent and the
-child), you will avoid such deadlocks.  When locking mutexes in the
-pre-fork handler, other threads are still running so the mutexes held by them
-can be released (usually each thread exits a critical section in a short time
-in well written code).  Example: \example{pthreads/atfork.c}.  For more on this
-topic, see [Butenhof].
+However, if the parent in the \emph{\texttt{pre-fork}} handler locks all the
+mutexes, and then unlocks them in the \emph{\texttt{post-fork}} handler (both
+for the parent and the child), you will avoid such deadlocks.  When locking
+mutexes in the \emph{\texttt{pre-fork}} handler, other threads are still running
+so the mutexes held by them can be released (usually each thread exits a
+critical section in a short time in well written code).
+Example: \example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
 \item See page \pageref{MUTEXES} on why mutexes locked in other threads on
 \funnm{fork}() stay locked forever.
 \end{itemize}
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_sigmask}{pthreadsigmask}
+]]])
 
 \begin{slide}
 \sltitle{Signals and threads}
@@ -583,8 +632,10 @@ for a thread (error conditions, the \texttt{pthread\_kill} call).
 \item signal handling is the same for all threads in the process,
 the mask of blocked signals is specific for each thread, can be set with
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_sigmask}(\=int \emph{how},
 const sigset\_t *\emph{set},\\\> sigset\_t *\emph{oset});}
+]]])
 \begin{itemize}
 \item a signal for a process is handled by one of its threads, one of those
 that do not have such signal blocked.
@@ -620,9 +671,10 @@ work as mentioned on page \pageref{SPECIALSIGNALS}. Some systems
 normally deliver these signals, making the process exit. The standard says:
 
 \begin{quote}
-\emph{If any of the SIGFPE, SIGILL, SIGSEGV, or SIGBUS signals are generated
-while they are blocked, the result is undefined, unless the signal was generated
-by the kill() function, the sigqueue() function, or the raise() function.}
+\emph{If any of the \texttt{SIGFPE, SIGILL, SIGSEGV}, or \texttt{SIGBUS} signals
+are generated while they are blocked, the result is undefined, unless the signal
+was generated by the \texttt{kill} function, the \texttt{sigqueue} function, or
+the \texttt{raise} function.}
 \end{quote}
 
 Example: \example{pthreads/sigwait-with-sync-signals.c}. This example shows that
@@ -673,9 +725,10 @@ the thread waiting for the lock).
 \end{itemize}
 
 %%%%%
-%%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_mutex\_init, pthread\_mutex\_destroy}{pthreadinit}
+]]])
 
 \begin{slide}
 \sltitle{Thread synchronization: mutexes (1)}
@@ -685,23 +738,24 @@ the thread waiting for the lock).
 threads
 \item initialization of statically defined mutex:
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pthread\_mutex\_t mutex = PTHREAD\_MUTEX\_INITIALIZER;}
-
+]]])
 \begin{itemize}
 \item initialization of dynamically allocated mutex \texttt{mx} with attributes
 \texttt{attr} (these are set using \texttt{pthread\_mutexattr\_...};
 if \texttt{attr} is \texttt{NULL}, default attributes will be used)
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_mutex\_init}(\=pthread\_mutex\_t *\emph{mx},
 \\\>const pthread\_mutexattr\_t *\emph{attr});}
-
+]]])
 \begin{itemize}
 \item after done using the mutex it is possible to destroy it:
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_mutex\_destroy}(pthread\_mutex\_t *\emph{mx});}
+]]])
 \end{slide}
 
 \label{MUTEXES}
@@ -778,13 +832,15 @@ allocated). Destroying locked mutex is not defined by the standard.
 \item Copying mutexes is also not defined by the standard -- the result of such
 operation depends on implementation. It is possible to copy pointer to mutex
 and work with that.
-\item Mutex destroy means its de-initialization.
+\item Mutex destroy means its deinitialization.
 \end{itemize}
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_mutex\_lock, pthread\_mutex\_unlock,%
 pthread\_mutex\_trylock}{pthreadmutexfncs}
+]]])
 
 \begin{slide}
 \sltitle{Mutexes (2)}
@@ -792,21 +848,21 @@ pthread\_mutex\_trylock}{pthreadmutexfncs}
 \begin{itemize}
 \item to lock and unlock mutex:
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_mutex\_lock}(pthread\_mutex\_t *\emph{mx});}
-\linebreak
+]]])
 and
-\linebreak
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_mutex\_unlock}(pthread\_mutex\_t *\emph{mx});}
-
+]]])
 \begin{itemize}
 \item If a mutex is already locked, the attempt to acquire it will result on the
 thread being locked (depending on mutex type).
 It is possible to use:
 \end{itemize}
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_mutex\_trylock}(pthread\_mutex\_t *\emph{mx});}
-
+]]])
 \begin{itemize}
 \item[\dots] that will attempt to acquire the mutex and if that fails it will
 return error
@@ -890,35 +946,45 @@ another thread.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_cond\_init, pthread\_cond\_destroy,%
 pthread\_cond\_wait}{pthreadcondvarfncs}
+]]])
 
 \begin{slide}
 \sltitle{Conditional variables (2)}
 \prgchars
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_cond\_init}(\=pthread\_cond\_t *\emph{cond},
 \\\>const pthread\_condattr\_t *\emph{attr});}
+]]])
 \begin{itemize}
 \item initializes conditional variable \texttt{cond} with attributes \texttt{attr}
 (they are set with the \texttt{pthread\_condattr\_...()} functions),
 \texttt{NULL} = default.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_destroy}(pthread\_cond\_t *\emph{cond});}
+]]])
 \begin{itemize}
 \item destroys conditional variable.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_cond\_wait}(\=pthread\_cond\_t *\emph{cond},
 \\\>pthread\_mutex\_t *\emph{mutex});}
+]]])
 \begin{itemize}
 \item waits on conditional variable until another thread calls
+ifdef([[[NOSPELLCHECK]]], [[[
 \funnm{pthread\_cond\_signal()} or \funnm{pthread\_cond\_broadcast()}.
+]]])
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item It is necessary to test the condition after the thread locks the mutex
 and before the \texttt{pthread\_cond\_wait} is called. If the thread does not
-peform this operation, it could be put to sleep indefinitely because the 
+perform this operation, it could be put to sleep indefinitely because the 
 message from another thread about the condition changing could go ``unnoticed''.
 In other words, a thread cannot enter sleep to wait for situation which happened
 in the meantime. It does not work like signals which are ``held'' by the system
@@ -938,24 +1004,32 @@ threads in critical section.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_cond\_signal, pthread\_cond\_broadcast,
 pthread\_cond\_timedwait}{pthreadcondunblfncs}
+]]])
 
 \begin{slide}
 \sltitle{Conditional variables (3)}
 \prgchars
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_signal}(pthread\_cond\_t *\emph{cond});}
+]]])
 \begin{itemize}
 \item wakes up one thread waiting on conditional variable
 \texttt{cond}.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_broadcast}(pthread\_cond\_t *\emph{cond});}
+]]])
 \begin{itemize}
 \item wakes all threads waiting on conditional variable
 \texttt{cond}.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_cond\_timedwait}(\=pthread\_cond\_t *\emph{cond}, 
 \\\>pthread\_mutex\_t *\emph{mutex},\\\> const struct timespec *\emph{atime});}
+]]])
 \begin{itemize}
 \item waits for \texttt{pthread\_cond\_signal()} or
 \texttt{pthread\_cond\_broadcast()} or until the system time to reaches the
@@ -969,7 +1043,7 @@ at once -- e.g. when inserting or removing an item to/from a queue.
 Because of this, it is necessary to test the condition the thread is waiting
 for. Another consequence of this is that it is necessary to use broadcast
 in such situation. Let's assume that both readers and writers are waiting for
-condition ``state of queue has changed''. If only single wakeup event is made
+condition ``state of queue has changed''. If only single wake-up event is made
 after item insertion to the queue, then another writer can be woken up,
 which is however waiting for different event -- item removal. Thus, the message
 will remain in the queue until a reader is woken up.
@@ -987,7 +1061,8 @@ true due to concrete implementation. That's another reason to use the cycle.
 \item The \texttt{abstime} parameter of the \texttt{pthread\_cond\_timedwait}
 function is absolute time, i.e. the timeout expires when system time reaches
 the value greater or equal to \texttt{abstime}. The absolute time is used
-so that it is not necessary to recompute the time difference after wakeups.
+so that it is not necessary to recompute the time difference after wake-up
+events.
 \end{itemize}
 
 %%%%%
@@ -1025,37 +1100,46 @@ and only after that \texttt{pthread\_cond\_wait} will return.
 the change the condition will be true. Moreover,
 \texttt{pthread\_cond\_wait} can return even if no thread called
 \texttt{pthread\_cond\_signal} or \texttt{pthread\_cond\_broadcast}.
-This is another reason for testing the condition after wakeup and possibly
+This is another reason for testing the condition after wake-up and possibly
 going to sleep again.
 \item The mutex in the example above is unlocked only after the condition
 was signalled however it is not necessary. The signalling can be done
 after unlocking and in such case it can be more efficient (depending on
 given implementation) because the thread that has been woken up will not
 get blocked by the mutex which is held when signalling in critical section.
-\item \label{QUEUESIMULATION} Example: \example{cond-variables/queue-simulation.c}
+\item \label{QUEUESIMULATION} Example:
+\example{cond-variables/queue-simulation.c}
 \end{itemize}
 
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_rwlock\_init, pthread\_rwlock\_rdlock,%
 pthread\_rwlock\_tryrdlock}{pthreadrwlockfncs}
+]]])
 
 \begin{slide}
 \sltitle{Read-write locks (1)}
 \prgchars
+ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_rwlock\_init}(\=pthread\_rwlock\_t *\emph{l},
 \\\>const pthread\_rwlockattr\_t *\emph{attr}); }
+]]])
 \begin{itemize}
 \item creates a lock with attributes according to \texttt{attr}
 (set via \texttt{pthread\_rwlockattr\_...()} functions, \emph{NULL} = default)
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_rwlock\_destroy}(pthread\_rwlock\_t *\emph{l});}
+]]])
 \begin{itemize}
 \item destroys the mutex
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_rwlock\_rdlock}(pthread\_rwlock\_t *\emph{l});}\\
 \texttt{int \funnm{pthread\_rwlock\_tryrdlock}(pthread\_rwlock\_t *\emph{rwlock});}
+]]])
 \begin{itemize}
 \item acquires the lock for reading (more than one thread can hold the lock
 for reading); if anyone holds the lock for writing, the calling thread is put
@@ -1067,7 +1151,7 @@ to sleep (\texttt{rdlock()}) or returns an error (\texttt{tryrdlock()}).
 
 \begin{itemize}
 \item Not a part of POSIX threads from POSIX.1c, rather part of extension
-POSIX.1j called ``advanced realtime extensions''.
+POSIX.1j called ``advanced real-time extensions''.
 \item More than one thread can hold the lock for reading or at most one
 thread for writing (and no one for reading).
 \item Read-write locks are semantically similar to locking files using
@@ -1083,23 +1167,31 @@ waiting in \funnm{pthread\_rwlock\_wrlock}, the writer will be given precedence.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_rwlock\_wrlock, pthread\_rwlock\_trywrlock,%
 pthread\_rwlock\_unlock}{pthreadrwlockfncsw}
+]]])
 
 \begin{slide}
 \sltitle{Read-write locks (2)}
 \prgchars
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_rwlock\_wrlock}(pthread\_rwlock\_t *\emph{rwlock});}
+]]])
 \begin{itemize}
 \item acquires the lock for writing; Blocks if anyone owns the lock for reading
 or writing.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_rwlock\_trywrlock}(pthread\_rwlock\_t *\emph{rwlock});}
+]]])
 \begin{itemize}
 \item like \texttt{pthread\_rwlock\_wrlock()}, however if the lock cannot be
 acquired it will return error.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_rwlock\_unlock}(pthread\_rwlock\_t *\emph{rwlock});}
+]]])
 \begin{itemize}
 \item unlocks the lock
 \end{itemize}
@@ -1114,7 +1206,7 @@ The same is true for mutexes and condition variables.
 
 %%%%%
 
-\pdfbookmark[1]{atomic\_add}{atomicadd}
+\pdfbookmark[1]{Atomic arithmetic operations}{atomicadd}
 
 \begin{slide}
 \sltitle{Atomic arithmetic operations}
@@ -1126,7 +1218,7 @@ thanks to using native CPU instructions ensuring atomicity.
 (e.g. \texttt{atomic\_add(3c)} in Solaris \texttt{libc} or
 \texttt{\_\_sync*} API in GCC)
 \item generally it is better to use the routines from C11 standard
-via \emph{stdatomic.h}, e.g. addition:
+via \emph{\texttt{stdatomic.h}}, e.g. addition:
 \end{itemize}
 \begin{verbatim}
     #include <stdatomic.h>
@@ -1140,7 +1232,8 @@ via \emph{stdatomic.h}, e.g. addition:
 \item \label{ATOMIC_ADD} Example \example{race/atomic-add.c} demonstrates
 the race condition problem when performing addition and its possible solutions.
 The program spawns two threads, each thread works with the same global variable
-\emsl{x}, into which it adds the numbers from 1 to specified value \emsl{arg}.
+\emsl{x}, into which it adds the numbers from 1 to specified value
+\emsl{\texttt{arg}}.
 The threads run in parallel, each performs this cycle:
 
 \begin{verbatim}
@@ -1159,7 +1252,7 @@ using mutexes. There is difference in completion times between
 arithmetic operation functions and mutexes is especially notable on
 CPUs with hardware parallelism support.
 \item Similarly there is API for subtraction, bit operations
-AND and OR, value assignment atd.
+AND and OR, value assignment etc.
 \item The atomic primitives and types in C11 is optional feature, so should
 be wrapped under \texttt{\_\_STDC\_NO\_ATOMICS\_\_} negative define.
 \item Good description of the C11 atomic API can be found on
@@ -1169,8 +1262,10 @@ be wrapped under \texttt{\_\_STDC\_NO\_ATOMICS\_\_} negative define.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_barrier\_init, pthread\_barrier\_wait,%
 pthread\_barrier\_destroy}{barrier}
+]]])
 
 \begin{slide}
 \sltitle{Barrier}
@@ -1181,16 +1276,22 @@ w.r.t. execution.
 reaches it; then they can all continue together.
 \item typical use case is parallel data processing
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_barrier\_init}(pthread\_barrier\_t *\emph{barrier},
 \emph{attr}, unsigned \emph{count});}
+]]])
 \begin{itemize}
 \item initializes barrier for \emph{count} entrances
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_barrier\_wait}(pthread\_barrier\_t *\emph{barrier});}
+]]])
 \begin{itemize}
 \item blocks until the function is called \emph{count} times
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_barrier\_destroy}(pthread\_barrier\_t *\emph{barrier});}
+]]])
 \begin{itemize}
 \item destroys the barrier
 \end{itemize}
@@ -1203,7 +1304,7 @@ reaches it; then they can all continue together.
 \texttt{pthread\_\-barrier\_init}, however they can be created using
 mutexes and condition variables.
 \item The barrier API is non-mandatory part of POSIX (it belongs to
-Advanced realtime threads extension) and hence SUS certified system does not
+Advanced real-time threads extension) and hence SUS certified system does not
 have to implement it, which is e.g. the case of macOS.
 \item The barrier can be used e.g. in situation when it is necessary to perform
 some initialization between individual phases of processing. The threads
@@ -1237,30 +1338,37 @@ How would you solve this problem ?
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sem\_init, sem\_post, sem\_wait}{semaphores}
+]]])
 
 \begin{slide}
 \sltitle{POSIX Semaphores -- unnamed}
 \begin{itemize}
 \item semaphores come from POSIX-1003.1b (real-time extensions)
-\item the function names do not begin with \emsl{pthread\_}, but \emsl{sem\_}
+\item the function names do not begin with \emsl{\texttt{pthread\_}},
+but \emsl{\texttt{sem\_}}
 \item possible to use them with threads
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sem\_init}(sem\_t *\emph{s},
 int \emph{pshared}, unsigned int \emph{value});}
+]]])
 \begin{itemize}
 \item initialize semaphore
 \item The \funnm{sem\_post} and \funnm{sem\_wait} are the same as for named
 semaphores (see page \pageref{NAMED_SEMAPHORES})
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sem\_destroy}(sem\_t *\emph{s});}
+]]])
 \begin{itemize}
 \item destroys the unnamed semaphore
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item Sempahores created using this API do not have a name (as opposed to
+\item Semaphores created using this API do not have a name (as opposed to
 those created via the \texttt{sem\_open} function), hence they are called
 unnamed.
 \item The semaphore functions adhere to the classical UNIX semantics --
@@ -1372,7 +1480,9 @@ any constraints. The levels are described in the attributes(5) man page.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_set\_name\_np, pthread\_main\_np}{threadnpapis}
+]]])
 
 \begin{slide}
 \sltitle{Non-portable thread APIs}
