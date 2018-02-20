@@ -5,7 +5,7 @@ include(`macros.m4')
 \begin{slide}
 \sltitle{File API}
 \begin{itemize}
-\item before working with a file, it must be first open via
+\item before working with a file, it must be first opened via
 \funnm{open}() or \funnm{creat}()
 \item open files are accessible via \emph{file descriptors}, numbered from 0.
 More descriptors can share the same file opening (read/write mode, position).
@@ -112,12 +112,12 @@ defines the access mode for the newly create file
 current mask that can be changed via a shell command \texttt{umask} -- those
 bits in \emph{mode}, also set in the process umask, are nullified.  The
 default umask value is typically (and historically) \texttt{022}.  We recommend
-you to always set it to \texttt{077} in your profile script.  Never do that for
+that you always set it to \texttt{077} in your profile script.  Never do that for
 root though otherwise you will end up with a system in a non-supported
 configuration -- installed software will not be possible to run by
 non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
-whatever is on the stack.  Both flags and the mode are stored in the system file
+whatever is on the stack.  Both flags and mode are stored in the system file
 table, see page \pageref{OPENFILETABLES}.
 \item Macros for use with \emph{mode} can be usually found in the manual page
 for \texttt{chmod(2)}, and you can find them also in the \texttt{stat.h} header
@@ -142,8 +142,8 @@ set to \texttt{EAGAIN} in such a case.
 as historically, implementations used 0 for the read-only flag.  The standard
 defines that only one of those three flags may be used.
 \item Is is possible to open and create a file for writing so that writing is
-disallowed by its mode.  It will work for that file opening but any other file
-opening for writing will fail.
+disallowed by its mode.  It will work for the initial file opening but any subsequent
+attempts to write will fail.
 \item You need write permission to use \texttt{O\_TRUNC}.
 \item The behavior of \texttt{O\_EXCL} without using \texttt{O\_CREAT} at the
 same is undefined.
@@ -179,10 +179,10 @@ dev\_t \emph{dev});}
 \label{CREAT}
 
 \begin{itemize}
-\item The \texttt{open} call allows to open a regular file, a device, or a named
+\item The \texttt{open} call allows opening of a regular file, device, or named
 pipe.  However, it (and \texttt{creat} as well) can only create a regular file,
 so you need the other two calls for non-regular files.
-\item The test of a file existence using the flag \texttt{O\_EXCL} and its
+\item The test of a file's existence using the flag \texttt{O\_EXCL} and its
 subsequent creation if it did not exist, is an atomic operation.  You can use
 that for lock files but only with the \texttt{open} call, not \texttt{creat}.
 \item You need extra privileges to create device special files (e.g. to be a
@@ -223,7 +223,7 @@ descriptor \emph{fd} from the buffer pointed to by \emph{buf}
 \setlength{\itemsep}{0.8\itemsep}
 \item For any Unix system, a file is just a sequence of bytes without any inner
 structure.
-\item \emsl{Behavior of \texttt{read} and \texttt{write} depends on the type of
+\item The \emsl{behavior of \texttt{read} and \texttt{write} depends on the type of
 the file} (regular, device, pipe, or socket) and whether the file is in a
 blocking or non-blocking mode (flag \texttt{O\_NONBLOCK} on file opening, see
 page \pageref{O_NONBLOCK}).
@@ -236,7 +236,7 @@ by a signal, or if the file is a pipe, device, or socket and there is less than
 \texttt{read} will block unless some data gets available, a non-blocking
 \texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
-if less then \emph{nbyte} bytes can fit the file (e.g. disk full), if the call
+if less then \emph{nbyte} bytes can fit into the file (e.g. disk full), if the call
 was interrupted by a signal, or if \verb#O_NONBLOCK# was set and only part of
 the data fits into a pipe, socket, or a device; without \verb#O_NONBLOCK#
 the call will block until all the data can be written.  If nothing can be
@@ -268,9 +268,9 @@ called \emph{append-only} file).
 \begin{itemize}
 \item releases \texttt{fildes}, if it was the last descriptor for a file
 opening, closes the file
-\item if number of links is 0, the file data is released
-\item if the last pipe descriptor is closed, remaining data is lost
-\item on a process termination, implicit \texttt{close} is called on all
+\item if the number of links is 0, the file data is released
+\item if the last pipe descriptor is closed, any remaining data is lost
+\item on process termination, an implicit \texttt{close} is called on all
 descriptors
 \end{itemize}
 \end{slide}
@@ -391,8 +391,8 @@ in a blocking or non-blocking mode.
 \item When writing to a pipe without a consumer (i.e. the producer opened the
 pipe when there was at least one existing consumer), the kernel will send the
 producer a signal \texttt{SIGPIPE} (``broken pipe'').  See the following
-example.  For simplicity, we are using an unnamed pipe but that does not matter
-as it would have behaved in the same manner.  The \texttt{date(1)} command never
+example.  For simplicity, we are using an unnamed pipe but a named pipe
+would behave in the same manner.  The \texttt{date(1)} command never
 reads anything from its standard input so it is guaranteed that the producer,
 \texttt{dd(1)}, will be writing to a pipe without a consumer.  If a process is
 killed by a signal, the shell provides a signal number added to 128 as its
@@ -409,17 +409,17 @@ PIPE
 
 \item When opening a pipe for writing only with \texttt{O\_NONBLOCK} and without
 an existing consumer, the call returns -1 and \texttt{errno} is set to
-\texttt{ENXIO}.  This asymmetry to opening a pipe for reading in a non-blocking
+\texttt{ENXIO}.  This asymmetry in opening a pipe for reading in non-blocking
 mode is due to the fact that it is not desirable to have data in a pipe that may
 not be read in a short period of time.  The Unix system does not allow for
-storing pipe data for arbitrary length of time.  Without the
+storing pipe data for an arbitrary length of time.  Without the
 \texttt{O\_NONBLOCK} flag, the process will block while waiting for a consumer.
-By asymmetry we mean that the system does not mind to keep consumers without
+By asymmetry, we mean that the system allows consumers without
 producers but it tries to avoid writers without existing readers.
 \item  If you want to create a process that sits on a named pipe and processes
 data from producers, you need to open it with the flag \texttt{O\_RDWR} even
-that you do not intend to write it.  If you do not use the flag, you might end
-up with \texttt{read} returning 0 after all producers, perhaps temporarily only,
+if you do not intend to write to it.  If you do not use the flag, you might end
+up with \texttt{read} returning 0 after all producers, perhaps only temporarily,
 disappear, which could be solved by busy waiting.  A much better solution would
 be to use the \texttt{select} call, see page \pageref{SELECT}.
 \item Writing data of length \texttt{PIPE\_BUF} bytes or less
@@ -486,9 +486,9 @@ position
 
 \begin{itemize}
 \item \label{LSEEK} The first byte is at position 0.  If it makes sense, you may
-use a negative number for setting \emph{offset}.  Example:
+use a negative number for setting the \emph{offset}.  Example:
 \example{read/lseek.c}.
-\item If it legal to move beyond the end of the file.  If data is written there,
+\item It is legal to move beyond the end of the file.  If data is written there,
 the file size will be set accordingly, the ``holes'' will be read as zeros.
 Note that just changing the file position will not increase the file size.
 \item You can get the file size via \texttt{lseek(fildes, 0, SEEK\_END)}.
@@ -496,19 +496,19 @@ Note that just changing the file position will not increase the file size.
 position from the beginning of a file, setting the position to the end of a
 file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
 \item There is no I/O involved when calling \texttt{lseek}.
-\item You can obviously use \texttt{lseek} not only for subsequent calls
+\item You can obviously use \texttt{lseek} not only for subsequent calls to
 \texttt{read} and \texttt{write} but also for another call to \texttt{lseek}.
 \item \label{BIG_FILE} Beware of files with holes as it may lead to problems
 with backing up the data.  Example: \example{read/big-file.c} demonstrates that
-moving a sparse file may end up in the actual storage data occupation increase.
-It greatly depends on the system you run, what an archiving utility is used, and
-their versions.  Some utilities provide means to preserve holes, for example,
+moving a sparse file may end up in an actual storage data occupation increase.
+It greatly depends on the system you run, what archiving utility is used, and
+their versions.  Some utilities provide the means to preserve holes, for example,
 \texttt{dd} with \texttt{conv=sparse}, \texttt{tar} with \texttt{-S},
 \texttt{rsync} with \texttt{--sparse}, etc.
 \item Beware of confusing the parameters.  The second line below looks OK but
 the arguments are in reversed order.  What is more, \texttt{SEEK\_SET} is
 defined as 0 and \texttt{SEEK\_CUR} is 1, so the file position is not moved
-which is not by itself a disastrous thing, and makes it more difficult to find
+which is not by itself a disastrous thing, which makes it more difficult to find
 it:
 
 \begin{verbatim}
@@ -529,13 +529,13 @@ int \funnm{ftruncate}(int \emph{fildes}, off\_t \emph{length});}
 \item causes the regular file to be truncated to a size of precisely
 \emph{length} bytes.
 \item if the file was larger than \emph{length}, the extra data is lost
-\item if the file previously was shorter, it is extended, and the extended part
+\item if the file was previously shorter, it is extended, and the extended part
 reads as null bytes
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item To truncate the file when opening it can be achieved via using the 
+\item Truncating the file when opening it can be achieved via the 
 \texttt{O\_TRUNC} flag in \texttt{open}, see page \pageref{OPEN}.
 \end{itemize}
 
@@ -605,13 +605,13 @@ dup(1);
 \texttt{>>}.
 \item \label{REDIRECT} Another example of \texttt{dup} use will be provided when
 we start working with pipes.  The first redirection example from the slide
-(without \texttt{stderr}) is in \example{read/redirect.c}.  The call
-\texttt{execl} in that example replaces the current process image with the
-program passed as the first argument.  We got ahead of ourselves here though, we
+(without \texttt{stderr}) is in \example{read/redirect.c}.  In that example, the
+\texttt{execl} call replaces the current process image with the
+program passed in the first argument.  We got ahead of ourselves here though, we
 will learn about the \texttt{exec} calls on page \pageref{EXEC}.
 \item To fully understand how redirection works it is good to draw the file
-descriptor table for each step and where the slots point to.  For example, for
-the \nth{2} example in the slide, we have the initial state, after
+descriptor table for each step and where the slots point to.  In 
+the \nth{2} example in the slide above, we have the initial state, after
 \texttt{close(1)} and \texttt{open("out", ...)}, and the final state, as
 follows:
 
@@ -626,7 +626,7 @@ follows:
 \end{verbatim}
 
 \item You need to pay attention to the state of descriptors. The \nth{2} example
-will not work if the descriptor 0 is already closed, as 
+above will not work if the descriptor 0 is already closed, as 
 \texttt{open} returns 0 (the first available descriptor) and \texttt{dup} fails
 while trying to duplicate an already closed descriptor.  Possible
 solutions:
@@ -765,7 +765,7 @@ times, length, owner, group, etc.  Metadata does \emsl{not} include the file
 data itself, neither the filename as the file data can be accesses through
 several different hard links and those hardlinks are in the data of directories.
 In other words, metadata is data about the actual file data.
-\item Metadata can be read even when the process has not rights to read the file
+\item Metadata can be read even when the process has no rights to read the file
 data.
 \item These functions do not provide file descriptor flags or flags from the
 system file table.  These functions are about file information as stored on some
@@ -773,7 +773,7 @@ mountable media.
 \item \texttt{st\_ctime} is not the creation time but the change time -- the
 last modification of the inode.
 \item The UNIX norm does not specify the ordering of the \texttt{struct stat}
-members, neither it prohibits adding new.
+members, nor does it prohibit adding new ones.
 \item \label{STAT} Example: \example{stat/stat.c}
 \item You can call \texttt{fstat} on file descriptors 0,1,2 as well.  Unless
 redirected before, you will get information on the underlying terminal device
