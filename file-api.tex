@@ -1,4 +1,4 @@
-changequote([[[, ]]])
+include(`macros.m4')
 
 \pdfbookmark[1]{standard file descriptors}{stdfds}
 
@@ -31,11 +31,11 @@ we work with pipes and redirect process input and output.
 \item A process inherits file descriptors from its parent so it does not have to
 open already open files.  Usually at least file descriptors 0, 1, and 2 are
 provided.
-\item Functions from a header file \texttt{stdio.h} (eg. \funnm{fopen}(),
+\item Functions from a header file \texttt{stdio.h} (e.g. \funnm{fopen}(),
 \funnm{fprintf}(), and \funnm{fscanf}()), and their file handle \texttt{FILE}
-are defined in the standard libc library and use standard system calls like
-\funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions, we
-will only use functions for printing to the terminal output like
+are defined in the standard \texttt{libc} library and use standard system calls
+like \funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions,
+we will only use functions for printing to the terminal output like
 \funnm{fprintf}().
 \end{itemize}
 
@@ -81,8 +81,10 @@ call, and it is explained on page \pageref{FDSHARING}.
 
 \begin{slide}
 \sltitle{Opening a file: \texttt{open()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{open}(const char *\emph{path}, int \emph{oflag},
 ... );}
+]]])
 \begin{itemize}
 \item opens a file \texttt{path}, returns its file descriptor. The
 \texttt{oflag} is an OR combination of the following flags:
@@ -110,7 +112,7 @@ defines the access mode for the newly create file
 current mask that can be changed via a shell command \texttt{umask} -- those
 bits in \emph{mode}, also set in the process umask, are nullified.  The
 default umask value is typically (and historically) \texttt{022}.  We recommend
-you to always se it to \texttt{077} in your profile script.  Never do that for
+you to always set it to \texttt{077} in your profile script.  Never do that for
 root though otherwise you will end up with a system in a non-supported
 configuration -- installed software will not be possible to run by
 non-privileged users, what worked before may stop working, etc.
@@ -151,7 +153,9 @@ same is undefined.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{creat}{creat}
+]]])
 
 \begin{slide}
 \sltitle{Creating a file}
@@ -181,7 +185,7 @@ so you need the other two calls for non-regular files.
 \item The test of a file existence using the flag \texttt{O\_EXCL} and its
 subsequent creation if it did not exist, is an atomic operation.  You can use
 that for lock files but only with the \texttt{open} call, not \texttt{creat}.
-\item You need extra privileges to create device special files (eg. to be a
+\item You need extra privileges to create device special files (e.g. to be a
 root).
 \end{itemize}
 
@@ -192,16 +196,20 @@ root).
 \begin{slide}
 \sltitle{Reading and writing files: \texttt{read()}, \texttt{write()}}
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{ssize\_t \funnm{read}(int \emph{fd}, void *\emph{buf},
 size\_t \emph{nbyte});}
+]]])
 \begin{itemize}
 \item attempts to read \emph{nbyte} bytes of data from the object referenced by
 the descriptor \emph{fd} into the buffer pointed to by \emph{buf}
-\item returns the number of bytes actually read, 0 on EOF, -1 on error
+\item returns the number of bytes actually read, 0 on \texttt{EOF}, -1 on error
 \end{itemize}
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{ssize\_t \funnm{write}(int \emph{fd}, const void *\emph{buf},
 size\_t \emph{nbyte});}
+]]])
 \begin{itemize}
 \item attempts to write \emph{nbyte} of data to the object referenced by the
 descriptor \emph{fd} from the buffer pointed to by \emph{buf}
@@ -213,7 +221,7 @@ descriptor \emph{fd} from the buffer pointed to by \emph{buf}
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
-\item For any Unix system, a file is just a sequence of bytes without any innner
+\item For any Unix system, a file is just a sequence of bytes without any inner
 structure.
 \item \emsl{Behavior of \texttt{read} and \texttt{write} depends on the type of
 the file} (regular, device, pipe, or socket) and whether the file is in a
@@ -225,10 +233,10 @@ which are listed in the next few paragraphs.  If unsure, consult the standard.
 less then \emph{nbyte} bytes remain in a file, if the call was interrupted
 by a signal, or if the file is a pipe, device, or socket and there is less than
 \emph{nbyte} bytes available at the moment.  If there is no data, a blocking
-\texttt{read} will block unless some data gets available, a non-blockin
+\texttt{read} will block unless some data gets available, a non-blocking
 \texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
-if less then \emph{nbyte} bytes can fit the file (eg. disk full), if the call
+if less then \emph{nbyte} bytes can fit the file (e.g. disk full), if the call
 was interrupted by a signal, or if \verb#O_NONBLOCK# was set and only part of
 the data fits into a pipe, socket, or a device; without \verb#O_NONBLOCK#
 the call will block until all the data can be written.  If nothing can be
@@ -246,7 +254,7 @@ read or write, respectively, at least one byte, the call returns -1 and sets
 manages to read or write, respectively, at least one byte -- see the paragraphs
 above.
 \item \texttt{O\_APPEND} guarantees an atomic write to the end of a file on a
-local filesystem, ie. \emsl{every} write will add data to the file end (so
+local filesystem, i.e. \emsl{every} write will add data to the file end (so
 called \emph{append-only} file).
 \end{itemize}
 
@@ -273,9 +281,9 @@ descriptors
 can \texttt{rm} all hard links to a specific file but if a process has the file
 still open, the file data remains on the disk until the process closes the file
 or terminates.
-\item If a process needs a temporary file, it can create it, unlink it right
-away, and work with it using the existing file descriptor.  When the file
-descriptor is closed (and all of its possible duplications), the file data is
+\item If a process needs a temporary file, it can create it, \texttt{unlink} it
+right away, and work with it using the existing file descriptor.  When the file
+descriptor is closed (and all of its possible duplicates), the file data is
 released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure, and if that write fails, \texttt{close} fails.
@@ -343,7 +351,7 @@ than requested.
 \sltitle{Working with a named pipe (FIFO)}
 
 \begin{itemize}
-\item it may not be possible to create a FIFO on a distributed filesystem (eg.
+\item it may not be possible to create a FIFO on a distributed filesystem (e.g.
 NFS or AFS)
 \item you need to know the semantics of opening a FIFO
   \begin{itemize}
@@ -380,7 +388,7 @@ waiting for a producer.
 results in a return value of 0, indicating the end of file -- the process will
 not block waiting for a producer.  It is irrelevant whether the pipe was opened
 in a blocking or non-blocking mode.
-\item When writing to a pipe without a consumer (ie. the producer opened the
+\item When writing to a pipe without a consumer (i.e. the producer opened the
 pipe when there was at least one existing consumer), the kernel will send the
 producer a signal \texttt{SIGPIPE} (``broken pipe'').  See the following
 example.  For simplicity, we are using an unnamed pipe but that does not matter
@@ -415,7 +423,7 @@ up with \texttt{read} returning 0 after all producers, perhaps temporarily only,
 disappear, which could be solved by busy waiting.  A much better solution would
 be to use the \texttt{select} call, see page \pageref{SELECT}.
 \item Writing data of length \texttt{PIPE\_BUF} bytes or less
-(\texttt{limits.h}) is guaranteed as atomic, ie. data will not be intermingled
+(\texttt{limits.h}) is guaranteed as atomic, i.e. data will not be intermingled
 with data written by other writers.  For example, on Linux kernel 4.x it is 4096
 bytes, on Solaris 11 it is 5120 bytes, and on FreeBSD 8.2 it is only 512 bytes.
 It is obvious from the above that if you write less or equal than
@@ -462,7 +470,7 @@ example, a pipe can hold only a limited number of bytes), the call will fail.
 \texttt{off\_t \funnm{lseek}(int \emph{fildes}, off\_t \emph{offset},
 int \emph{whence});}
 \begin{itemize}
-\item will reposition the file offset for reading and writing in an already
+\item will set the file offset for reading and writing in an already
 opened file associated with a file descriptor \emph{fildes}
 \item based on value of \texttt{whence}, the file offset is set to:
     \begin{itemize}
@@ -470,7 +478,7 @@ opened file associated with a file descriptor \emph{fildes}
     \item \texttt{SEEK\_CUR} \dots{} current position plus \emph{offset}
     \item \texttt{SEEK\_END} \dots{} size of the file plus \emph{offset}
     \end{itemize}
-\item returns the resulting offset (ie. from the file beginning)
+\item returns the resulting offset (i.e. from the file beginning)
 \item \texttt{lseek(fildes, 0, SEEK\_CUR)} only returns the current file
 position
 \end{itemize}
@@ -484,7 +492,7 @@ use a negative number for setting \emph{offset}.  Example:
 the file size will be set accordingly, the ``holes'' will be read as zeros.
 Note that just changing the file position will not increase the file size.
 \item You can get the file size via \texttt{lseek(fildes, 0, SEEK\_END)}.
-\item The most common operations with \texttt{lseek} are three: seeting the
+\item The most common operations with \texttt{lseek} are three: setting the
 position from the beginning of a file, setting the position to the end of a
 file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
 \item There is no I/O involved when calling \texttt{lseek}.
@@ -500,7 +508,7 @@ their versions.  Some utilities provide means to preserve holes, for example,
 \item Beware of confusing the parameters.  The second line below looks OK but
 the arguments are in reversed order.  What is more, \texttt{SEEK\_SET} is
 defined as 0 and \texttt{SEEK\_CUR} is 1, so the file position is not moved
-which is not by itself a disasterous thing, and makes it more difficult to find
+which is not by itself a disastrous thing, and makes it more difficult to find
 it:
 
 \begin{verbatim}
@@ -533,7 +541,9 @@ reads as null bytes
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{dup, dup2}{dup}
+]]])
 
 \begin{slide}
 \sltitle{Descriptor duplication: \texttt{dup()}, \texttt{dup2()}}
@@ -557,7 +567,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \item We already know that the first available file descriptor is used when
 opening and creating file, see page \pageref{OPEN}.
 \item The original and duplicated file descriptors share the same slot in the
-system file table (see page \pageref{OPENFILETABLES}), ie. they share the file
+system file table (see page \pageref{OPENFILETABLES}), i.e. they share the file
 position and read/write mode.
 \item The equivalent for \texttt{dup2} is not fully equivalent.  If
 \emph{fildes} is equal to \emph{fildes2}, \texttt{close(fildes2)} does not
@@ -601,8 +611,9 @@ program passed as the first argument.  We got ahead of ourselves here though, we
 will learn about the \texttt{exec} calls on page \pageref{EXEC}.
 \item To fully understand how redirection works it is good to draw the file
 descriptor table for each step and where the slots point to.  For example, for
-the 2nd example in the slide, we have the initial state, after \texttt{close(1)}
-and \texttt{open("out", ...)}, and the final state, as follows:
+the \nth{2} example in the slide, we have the initial state, after
+\texttt{close(1)} and \texttt{open("out", ...)}, and the final state, as
+follows:
 
 \begin{verbatim}
 +-------+              +-------+              +-------+
@@ -614,7 +625,7 @@ and \texttt{open("out", ...)}, and the final state, as follows:
 +-------+              +-------+              +-------+
 \end{verbatim}
 
-\item You need to pay attention to the state of descriptors.  The 2nd example
+\item You need to pay attention to the state of descriptors. The \nth{2} example
 will not work if the descriptor 0 is already closed, as 
 \texttt{open} returns 0 (the first available descriptor) and \texttt{dup} fails
 while trying to duplicate an already closed descriptor.  Possible
@@ -681,9 +692,10 @@ is the only descriptor flag defined in SUSv4.
 \item \texttt{F\_GETFL} \dots{} get file opening flags (read/write, append,
 \dots)
 \item \texttt{F\_SETFL} \dots{} set file opening flags
-(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK}, \texttt{O\_R\-SYNC},
-and \texttt{O\_SYNC}).  Setting RO/RW is not allowed, and neither are flags for
-creation, truncation, and exclusive access.
+(\texttt{O\_APPEND}, \texttt{O\_DSYNC}, \texttt{O\_NONBLOCK},
+\texttt{O\_R\-SYNC}, and \texttt{O\_SYNC}).
+Setting ifdef([[[NOSPELLCHECK]]], [[[RO/RW]]]) is not allowed, and neither are
+flags for creation, truncation, and exclusive access.
 \item \texttt{F\_GETLK}, \texttt{F\_SETLK}, \texttt{F\_SETLKW} \dots{}
 for file locking
 \end{itemize}
@@ -691,10 +703,10 @@ for file locking
 descriptor, having \texttt{FD} in the macro names (only one such exists --
 \texttt{FD\_CLOEXEC}), and flags associated with the slot in the system file
 table of opened files, having \texttt{FL} in the \texttt{fcntl} command macros
-(ie. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
+(i.e. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
 \item Devices may support reading and writing using \texttt{read} and
 \texttt{write}, and mapping files to memory (\texttt{mmap}, see page
-\pageref{MMAP}), all other operations on devices (eg. setting parameters,
+\pageref{MMAP}), all other operations on devices (e.g. setting parameters,
 locking, or eject) are performed using the \texttt{ioctl} system call.
 \item When setting flags, always get the present flags first.  Even when you
 know the flags are zero, you never know how the code is modified in the future,
@@ -717,10 +729,12 @@ if (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)
 \begin{slide}
 \sltitle{Get file status information: \texttt{stat()}}
 \setlength{\baselineskip}{0.9\baselineskip}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{stat}(const char *\emph{path}, struct stat *\emph{buf});\\
 int \funnm{fstat}(int \emph{fildes}, struct stat *\emph{buf});}
+]]])
 \begin{itemize}
-\item for a file specified by a path or a file descriptor, returns a struct
+\item for a file specified by a path or a file descriptor, returns a structure
 containing file information, such as:
 \begin{itemize}
 \item \texttt{st\_ino} \dots{} i-node number
@@ -728,8 +742,8 @@ containing file information, such as:
 \item \texttt{st\_uid}, \texttt{st\_gid} \dots{} user/group ID of owner
 \item \texttt{st\_mode} \dots{} file type and mode
 \item \texttt{st\_size}, \texttt{st\_blksize}, \texttt{st\_blocks}
-\dots{} total size in bytes, preferred blocksize for filesystem I/O, and number
-of 512B blocks allocated
+\dots{} total size in bytes, preferred block size for filesystem I/O,
+and number of 512 byte blocks allocated
 \item \texttt{st\_atime}, \texttt{st\_mtime}, \texttt{st\_ctime}
 \dots{} time of last access, last modification, and last i-node modification
 \item \texttt{st\_nlink} \dots{} number of hard links
@@ -763,7 +777,7 @@ members, neither it prohibits adding new.
 \item \label{STAT} Example: \example{stat/stat.c}
 \item You can call \texttt{fstat} on file descriptors 0,1,2 as well.  Unless
 redirected before, you will get information on the underlying terminal device
-(eg. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
+(e.g. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
 \end{itemize}
 
 
@@ -785,11 +799,14 @@ constants \verb#S_IFMT# (bit mask for the file type bit field), \verb#S_IFBLK#
 \item access right masks: \verb#S_IRUSR# (owner has read permission),
 \verb#S_IWGRP# (group has write permission), etc.
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{lstat}(const char *\emph{path}, struct stat
 *\emph{buf});}
+]]])
 \begin{itemize}
-\item if \emph{path} is a symlink, \texttt{stat()} returns informace on the file
-the symlink refers to. This function returns information about the link itself.
+\item if \emph{path} is a symlink, \texttt{stat()} returns information of the
+file the symlink refers to. This function returns information about the link
+itself.
 \end{itemize}
 \end{slide}
 
@@ -806,22 +823,26 @@ are defined in the spec and thus portable.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{utime}{utime}
+]]])
 
 \begin{slide}
 \sltitle{Setting file times}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{utime}(const char *\emph{path},
 const struct utimbuf *\emph{times});}
+]]])
 \begin{itemize}
 \item changes file last access and modification times
-\item cannot change i-node access time (ctime)
+\item cannot change i-node access time (\texttt{ctime})
 \item calling process must have write permission for the file
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item This call is mostly used by copy/move and also archive utilities to make
-sure the times are the same for the originals and copies.  (eg. \texttt{tar} or
+sure the times are the same for the originals and copies.  (e.g. \texttt{tar} or
 \texttt{rsync}). 
 \item The shell interface for \texttt{utime} is the command \texttt{touch}.  As
 mentioned in the slide, you cannot change the time of the i-node modification.
@@ -829,24 +850,26 @@ mentioned in the slide, you cannot change the time of the i-node modification.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{link, unlink, rename}{link}
+]]])
 
 \begin{slide}
 \sltitle{File name manipulations}
 \texttt{int \funnm{link}(const char *\emph{path1}, const char *\emph{path2});}
 \begin{itemize}
-\item creates a new link (aka hard link), ie. a directory entry, named
+\item creates a new link (aka hard link), i.e. a directory entry, named
 \emph{path2} to file \emph{path1}.  Hard links cannot span filesystems (use
 \funnm{symlink} for that).
 \end{itemize}
 \texttt{ int \funnm{unlink}(const char *\emph{path});}
 \begin{itemize}
-\item deletes a name (ie. a directory entry) and after deleting the last link to
+\item deletes a name (i.e. a directory entry) and after deleting the last link to
 the file and after closing the file by all processes, delete the file data.
 \end{itemize}
 \texttt{int \funnm{rename}(const char *\emph{old}, const char *\emph{new});}
 \begin{itemize}
-\item change the file name (ie. one specific link) from \emph{old} to
+\item change the file name (i.e. one specific link) from \emph{old} to
 \emph{new}.  Works within the same filesystem only.
 \end{itemize}
 \end{slide}
@@ -854,7 +877,7 @@ the file and after closing the file by all processes, delete the file data.
 \begin{itemize}
 \item It is better said again -- \emsl{Unix does not have a delete call for
 files}.  Details are on page \pageref{FILEDELETE}.
-\item The call \texttt{link} creates hardlinks, ie. a relation between a file
+\item The call \texttt{link} creates hardlinks, i.e. a relation between a file
 name and an i-node number.  I-node numbers are unique within a filesystem so for
 links between filesystems, symlinks are needed.  A number of hardlinks to a
 specific file is only limited by the size of the \texttt{st\_nlink} member of
@@ -865,8 +888,8 @@ the \texttt{link} call.
 \item \texttt{unlink} does not work on directories.
 \item The shell command \texttt{mv} uses \texttt{rename} to move objects within
 the same filesystems.  To move files between filesystems, a file needs to be
-copied first, then unlinked from the originating filesystem (the whole operation
-is not atomic).
+copied first, then \texttt{unlink} it from the originating filesystem (the whole
+operation is not atomic).
 \item \texttt{rename} renames symlinks, not the files those symlinks point to.
 \item There is also a more generic call \texttt{remove}, see page
 \pageref{REMOVE}.
@@ -874,7 +897,9 @@ is not atomic).
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{symlink, readlink}{symlink}
+]]])
 
 \begin{slide}
 \sltitle{Symbolic links}
@@ -884,31 +909,35 @@ const char *\emph{path2});}
 \item make a new symbolic name from \emph{path2} $\rightarrow$ \emph{path1}.
 \item \emph{path1} may span filesystems, and may not exist at all
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{readlink}(const char *\emph{path}, char *\emph{buf},
 size\_t \emph{bufsz});} 
+]]])
 \begin{itemize}
-\item put maximum of \emph{bufsz} bytes from the symlink target path to
-\emph{buf}
-\item returns the number of bytes written to \emph{buf}. 
-\item \emph{buf} is \emsl{not} terminated by \verb#'\0'#
+\item put maximum of \emph{\texttt{bufsz}} bytes from the symlink target path
+to \texttt{\emph{buf}}
+\item returns the number of bytes written to \texttt{\emph{buf}}.
+\item \texttt{\emph{buf}} is \emsl{not} terminated by \verb#'\0'#
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
 \item The shell command \texttt{ln} uses either the \texttt{symlink} or
 \texttt{link} syscall depending on whether the \texttt{-s} option was used.
-\item Unlinking a hardlink will not release the file data if other hardlinks
-exists.  You can delete the symlink's target in which case you end up with a
-\emph{broken link}.
-\item \texttt{readlink} is useful in situation when you want to unlink the
-symlink's target.
-\item \emph{bufsize} is typically set as 1 byte less than the buffer size to
-accomodate the terminating NUL character.
+\item Calling \texttt{unlink} on a hardlink will not release the file data if
+other hardlinks exists. You can delete the symlink's target in which case you
+end up with a \emph{broken link}.
+\item \texttt{readlink} is useful in situation when you want to \texttt{unlink}
+the symlink's target.
+\item \emph{\texttt{bufsize}} is typically set as 1 byte less than the buffer
+size to accommodate the terminating \texttt{NULL} character.
 \end{itemize}
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{mkdir, rmdir, opendir, readdir, closedir}{dirfncs}
+]]])
 
 \begin{slide}
 \sltitle{Working with directories}
@@ -921,15 +950,17 @@ accomodate the terminating NUL character.
 \begin{itemize}
 \item deletes directory \emph{path}.  The directory \emsl{must} be empty.
 \end{itemize}
-\texttt{DIR *\funnm{opendir}(const char *\emph{dirname});\\
-struct dirent *\funnm{readdir}(DIR *\emph{dirp});\\
-int \funnm{closedir}(DIR *\emph{dirp});}
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{DIR *\funnm{opendir}(const char *\emph{dirname});}\\
+\texttt{struct dirent *\funnm{readdir}(DIR *\emph{dirp});}\\
+\texttt{int \funnm{closedir}(DIR *\emph{dirp});}
+]]])
 \begin{itemize}
 \item sequentially reads directory entries
 \item structure \texttt{dirent} contains:
     \begin{itemize}
-    \item \verb#d_ino# \dots{} i-node number
-    \item \verb#d_name# \dots{} file name
+    \item \texttt{d\_ino} \dots{} i-node number
+    \item \texttt{d\_name} \dots{} file name
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -938,7 +969,7 @@ int \funnm{closedir}(DIR *\emph{dirp});}
 \item Directory items are not ordered and
 \texttt{readdir} is allowed to return them in arbitrary order depending on the
 filesystem implementation.  \texttt{NULL} is returned on failure
-and \texttt{errno} is set.  \texttt{NULL} is also returnd upon reaching the end
+and \texttt{errno} is set.  \texttt{NULL} is also returned upon reaching the end
 of a directory but in that case \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
@@ -955,8 +986,8 @@ expect.
 \texttt{d\_type}.  It can have values of \texttt{DT\_REG}, \texttt{DT\_DIR},
 \texttt{DT\_FIFO} etc., see the man page for \texttt{dirent}.  It was a BSD
 specific thing and subsequently copied by other systems, including Linux.
-However, it is not part of SUSv4 and thus not portable, unfortunatelly.  The
-portable way is to call \texttt{stat} on each directory entry.
+However, it is not part of SUSv4 and thus not portable, unfortunately.
+The portable way is to call \texttt{stat} on each directory entry.
 \item \texttt{rmdir} does not work on directories that are not empty.  You have
 to remove all entries before you can delete a directory.  You you use 
 \texttt{system("rm -r xxx")} etc. but be careful to sanitize the environment and
@@ -995,7 +1026,9 @@ tell whether NULL means an error or an end of a directory.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{chdir, fchdir, getcwd}{pwd}
+]]])
 
 \begin{slide}
 \sltitle{Change working directory}
@@ -1019,7 +1052,7 @@ its \emph{size} must be at least one byte longer than the path length.
 
 \begin{itemize}
 \item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
-directory (ie. not from \texttt{opendir}).
+directory (i.e. not from \texttt{opendir}).
 \item There is also a function \texttt{chroot} which allows to change the root
 directory of a calling process to a new one.  It is often used in various server
 implementations to limit access to the specific subtree.  For example, for an
@@ -1040,18 +1073,20 @@ based on there), etc.
 
 \begin{slide}
 \sltitle{Check permissions for access: \texttt{access()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{access}(const char *\emph{path}, int \emph{amode});}
+]]])
 \begin{itemize}
 \item checks whether the calling process can access the file \emph{path}
-\item \emph{amode} is an OR-combination of contants 
+\item \emph{\texttt{amode}} is an OR-combination of constants
     \begin{itemize}
     \item \verb#R_OK# \dots{} read permission test
     \item \verb#W_OK# \dots{} write permission test
     \item \verb#X_OK# \dots{} execution permission test
     \item \verb#F_OK# \dots{} file existence test
     \end{itemize}
-\item in contrast to \texttt{stat()}, the result depends on the process's RUID
-and RGID
+\item in contrast to \texttt{stat()}, the result depends on the process's
+\texttt{RUID} and \texttt{RGID}
 \item \emsl{never use this call, it cannot be used in a safe way.  See the notes
 below.}
 \end{itemize}
@@ -1064,7 +1099,7 @@ the calling process.
 running the process would have had access to a file if it was not for the SUID
 privileges.  However, there is an inherent security hole in this approach.
 The test and the subsequent action on the file is not an atomic operation.  An
-attacker could possibly unlink the file and immediatelly symlink it to a
+attacker could possibly \texttt{unlink} the file and immediately symlink it to a
 different file to what it actually had no rights to manipulate with.  If the
 timing is right, the SUID process will operate on that other file.  The correct
 solution is not to use the \texttt{access} call but return to the real UID/GID
@@ -1075,17 +1110,23 @@ manipulation mentioned above would not gain the attacker anything.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{chmod, chown}{chmodchown}
+]]])
 
 \begin{slide}
 \sltitle{Setting file permissions}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{chmod}(const char *\emph{path}, mode\_t \emph{mode});}
+]]])
 \begin{itemize}
 \item changes permissions of file \emph{path} to \emph{mode}.
 \item can be used by the file owner or root
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{chown}(const char *\emph{path}, uid\_t \emph{owner},
 gid\_t \emph{group});}
+]]])
 \begin{itemize}
 \item changes file owner and group for \emph{path}.  Value of
 \texttt{-1} means do not change that ID.
@@ -1103,7 +1144,7 @@ masks.
 \item Only the owner of a file can change its mode.  Mode like
 \texttt{rw-rw-rw-} has nothing to do with that.
 \item In some implementations it was possible to pass the file ownership to
-someone else.  Today this is usually not allowed.  Just think aobut how you
+someone else.  Today this is usually not allowed.  Just think about how you
 could work around a per-user filesystem quota with this.
 \end{itemize}
 

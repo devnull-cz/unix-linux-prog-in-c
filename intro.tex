@@ -1,6 +1,6 @@
 % The title slide
 
-changequote([[[, ]]])
+include(`macros.m4')
 
 \begin{slide}
 \centerslidestrue
@@ -62,7 +62,7 @@ issues on \url{https://github.com/devnull-cz/unix-linux-prog-in-c/issues}.
 \begin{itemize}
 \item This lecture is mostly about Unix principles and Unix programming in the~C
 language.
-\item \emsl{The lecture is mostly about system calls, ie. an interface between a
+\item \emsl{The lecture is mostly about system calls, i.e. an interface between a
 user space and system kernel.}
 \item For the API, we will follow the \emph{Single UNIX Specification,
 version~4} (SUSv4). Systems that submit to the Open Group for certification and
@@ -112,7 +112,7 @@ tested on Solaris, macOS and Linux.
 \item all BSD variants have roots in the 4.3BSD-Lite source code
 \end{itemize}
 \item \emsl{Minix}, micro-kernel based
-\item \emsl{OpenSolaris}, discontinued
+\item \emsl{Illumos}, based on Solaris
 \end{itemize}
 \end{slide}
 
@@ -129,7 +129,7 @@ complicated, as usual.
 conformance tests defined in the Single UNIX Specification (SUS).
 \item From those systems listed above, only Solaris, macOS, AIX, and HP-UX are
 UNIX~03 compliant (\url{http://www.opengroup.org/openbrand/register/}).  Other
-uncertified systems, are often described as ``Unix-like'', even when in many
+non-certified systems, are often described as ``Unix-like'', even when in many
 cases they closely follow the standard.  However, the word ``Unix'' is often used
 for systems from either group.
 \item The above list is a tiny fraction of the whole Unix world.  Every
@@ -218,7 +218,8 @@ is a version of the program compliant to the respective standard.
 The options and behavior specified by the standard can be then relied upon e.g.
 when writing shell scripts.
 \item Also on Solaris, look into the
-\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h} header file.
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{/usr/inc{}lude/sys/fea\-ture\-\_tests.h}]]]) header file.
 \end{itemize}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -253,7 +254,7 @@ and miscellaneous, formerly standalone extensions.
 \item The first document is \emph{IEEE Std POSIX1003.1-1988}, formerly simply
 referred to as POSIX, then referenced as \emph{POSIX.1}, because by POSIX it is
 currently meant a set of related standards. POSIX.1 in back then contained
-programming API, i.e. work with proceses, signals, files, timers etc.
+programming API, i.e. work with processes, signals, files, timers etc.
 It was accepted by the ISO organization (\emph{ISO 9945-1:1990}) With small
 changes and is referred to as POSIX1990. IEEE reference is
 \emph{IEEE Std POSIX1003.1-1990}. This standard was a great success on its own
@@ -270,7 +271,7 @@ project in 1983.
 POSIX.4, because that was its original naming before renumbering.
 Most of this extension is optional, therefore the claim ``system supports
 POSIX.1b'' gives even worse testimony that ``system is POSIX compatible'', i.e.
-practially zero. The only mandatory part of POSIX.4 is a simple addendum to
+practically zero. The only mandatory part of POSIX.4 is a simple addendum to
 signals compared to POSIX1990. It is therefore always necessary to state
 what exactly out of POSIX.4 is implemented -- e.g. shared memory, semaphores,
 real-time signals, memory locking, asynchronous I/O, timers, etc.
@@ -294,14 +295,14 @@ The HTML version is freely available, PDF documents have to be purchased.
 
 \begin{enumerate}
 \item Uresh Vahalia: \emsl{UNIX Internals: The New Frontiers}.
- Prentice Hall; 1st edition, 1995
+ Prentice Hall; \nth{1} edition, 1995
 \item Bach, Maurice J.: \emsl{The Design of the UNIX Operating System}.
 Prentice Hall, 1986
 \item McKusick, M. K., Neville-Neil, G. V.: \emsl{The Design and
 Implementation of the FreeBSD Operating System}. Addison-Wesley, 2004
 %\item Goodheart, B.; Cox, J.: \emsl{The Magic Garden Explained: the
 %Internals of UNIX System~V Release 4}. Prentice Hall, 1994
-\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; 2nd
+\item McDougall, R.; Mauro, J.: \emsl{Solaris Internals}. Prentice Hall; \nth{2}
 edition, 2006.
 \item \emsl{Linux Documentation Project}. \url{http://tldp.org/}
 \end{enumerate}
@@ -313,12 +314,13 @@ edition, 2006.
 
 \begin{enumerate}
 \item A great book on Unix in general and compares SVR4.2, 4.4BSD, Solarix~2.x
-and Mach systems.  The 2nd edition, scheduled for 2005, never happened,
+and Mach systems.  The \nth{2} edition, scheduled for 2005, never happened,
 unfortunately.
 \item UNIX classic book. On UNIX System~V Rel.~2, and partially 3 as well.
 While outdated, it is one of the best books ever written on Unix.  In 1993 a
-Czech translation was released as \emsl{Principy opera\v{c}n\'{\i}ho syst\'{e}mu
-UNIX}, SAS.
+Czech translation was released as
+ifdef([[[NOSPELLCHECK]]],
+[[[\emsl{Principy opera\v{c}n\'{\i}ho syst\'{e}mu UNIX}]]]), SAS.
 \item Structures, functions, and algorithms of the FreeBSD 5.2 kernel; it is
 based on another Unix classic book \emsl{The Design and Implementation of the
 4.4 BSD Operating System} by the same author.
@@ -333,14 +335,14 @@ book is Solaris~10.
 \sltitle{Books on Unix programming}
 \begin{enumerate}
 \item Stevens, W. R., Rago, S. A.: \emsl{Advanced Programming in UNIX(r)
-Environment}. Addison-Wesley, 2nd edition, 2005.
+Environment}. Addison-Wesley, \nth{2} edition, 2005.
 \item Rochkind, M. J.: \emsl{Advanced UNIX Programming},
-Addison-Wesley; 2nd edition, 2004
+Addison-Wesley; \nth{2} edition, 2004
 \item Stevens, W. R., Fenner B., Rudoff, A. M.: \emsl{UNIX Network
 Programming, Vol. 1 -- The Sockets Networking API}. Prentice Hall,
-3rd edition, 2004
+\nth{3} edition, 2004
 \item Butenhof, D. R.: \emsl{Programming with POSIX Threads},
-Addison-Wesley; 1st edition, 1997
+Addison-Wesley; \nth{1} edition, 1997
 % I don't why but after I switched from FreeBSD to Solaris, I can't typeset
 % word "unix" anymore. It's like it wasn't there. Using {} trick helps.
 \item UNIX specifications, see \url{http://www.unix.org}
@@ -366,8 +368,8 @@ recommended.
 \item Detailed descriptions of system calls and functions.
 \item \label{POSIX4} A book that did not fit the slide and covers topics outside
 of the scope of this class: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers
-Guide: Programming for the Real World}, O'Reilly; 1st edition, 1995.  A great
-book on real-time POSIX extensions with a beatiful cover.  See also pages
+Guide: Programming for the Real World}, O'Reilly; \nth{1} edition, 1995.  A great
+book on real-time POSIX extensions with a beautiful cover.  See also pages
 \pageref{REALTIMEEXTENSIONS} a \pageref{SIGWAITINFO}.
 \item[\ldots] Go to Amazon and search for ``unix''.  If you ever buy anything,
 always check whether there is a newer edition of the same book.  Note that they
@@ -395,7 +397,7 @@ section 2, it does \emsl{not} mean a function call
 \item Different systems might have a different list of manual page sections, the
 numbering may not match, etc.  See also \texttt{man(1)}.  For example, on
 Solaris, the manual page section needs to be provided with the \texttt{-s}
-option, ie. ``\texttt{man -s 2 chmod}''.
+option, i.e. ``\texttt{man -s 2 chmod}''.
 \item The \texttt{man} command uses a list of system directories to search for
 man pages.  If you have manual pages someplace else, perhaps in a local subtree
 after you unpacked a tar file you downloaded and you want to check the
@@ -415,7 +417,7 @@ command for \texttt{less(1)} which is usually the default pager (or possibly
 \begin{slide}
 \sltitle{The C Programming Language}
 \begin{itemize}
-\item virtually all Unix kernels are written in C.  Only some HW dependend parts
+\item virtually all Unix kernels are written in C. Only some HW dependent parts
 are written in assembler.
 \item C came into existence in the years 1969-1973, by Dennis M. Ritchie (\dag
 2011)
@@ -447,7 +449,7 @@ X3J11 to create the first C standard.  After a long and tedious process the
 standard came to existence as ANSI X3.159-1989 ``Programming Language C,'' and
 is mostly known as ``ANSI C'', or C89, and the command line name for the
 compiler itself was \texttt{c89}.
-\item The 2nd edition of the C book (1988) was updated for the upcoming
+\item The \nth{2} edition of the C book (1988) was updated for the upcoming
 standard as it used one of its final drafts.  In 1990, ANSI C was adopted by ISO
 as ISO/IEC 9899:1990; that standard is sometimes called C90.  It's the same as
 C89 but it renumbered its sections and removed the rationale document which was
@@ -506,7 +508,7 @@ out a file as 16-bit numbers.  The ordering of individual bytes may not be how
 they are stored in a file.  For example, take FreeBSD on i386.  The first number
 in the file is character ``i'' which represents the lower 8 bits of the first 16-bit
 number, so when the first two bytes are printed out as a 16-bit number, the byte
-representing ``i'', ie. ``69'', is shown as the second byte.  Similarly for
+representing ``i'', i.e. ``69'', is shown as the second byte.  Similarly for
 ``kl''.
 
 \begin{verbatim}
@@ -544,7 +546,8 @@ $ od -tx2 test
 \begin{itemize}
 \item in Unix, a text file line ends with a single character \emsl{LF}
 \item in Windows (and MS~DOS), a new line ends with two characters, \emsl{CR+LF}
-\item on Unix, calling \verb.putc('\n'). thus prints only one character
+\item on Unix, calling ifdef([[[NOSPELLCHECK]]], [[[\verb.putc('\n').]]])
+thus prints only one character
 \item ``classic'' Mac~OS used \emsl{CR}
 \end{itemize}
 \end{slide}
@@ -564,7 +567,7 @@ from a line separator in a file brought over from a Windows system.  Just get
 rid of them via \verb|:%s/^V^M//g| where \verb|^X| means Ctrl+X.  ViM by default
 tries to be smarter in such situations but not always to your benefit.
 \item See the \texttt{ascii} man page for the octal, hexadecimal, and decimal
-ASCII character sets (ie. up to character 127 as ASCII table has only 128
+ASCII character sets (i.e. up to character 127 as ASCII table has only 128
 characters).
 \end{itemize}
 
@@ -597,11 +600,11 @@ main(void)
 \item One of the most important thing of a C style (well, any style) is
 consistency.  And often it is not that important what exact C style a group
 of coders is going to pick as it is that one specific style is chosen and then
-religiously followed by all in the group.  A good and rigorously followed cstyle
+religiously followed by all in the group. A good and rigorously followed cstyle
 leads to a smaller number of bugs in code.
-\item A pre-push hook that runs a C style check script and refuses to accept any
-changesets not following the chosen C style is a working solution to avoid C
-style violations.
+\item A process that runs C style check script before integration into a source
+code repository automatically and refuses to accept any changesets not following
+the chosen C style is a working solution to avoid C style violations.
 \item \url{http://mff.devnull.cz/cstyle.html}
 \end{itemize}
 
@@ -643,16 +646,17 @@ write beautiful code.
 \begin{slide}
 \sltitle{Standard Utilities}
 \begin{tabular}{ll}
-\emsl{cc}, \emsl{c99}$^*$, \emsl{gcc}$^\dagger$& C compiler\\
-\emsl{CC}, \emsl{g++}$^\dagger$& C++ compiler\\
-\emsl{ld}& linker\\
-\emsl{ldd}& for listing dynamic object dependencies\\
-\emsl{cxref}$^*$& generate a C program cross-reference table\\
-\emsl{sccs}$^*$& source code management\\
-\emsl{make}$^*$& for maintaining program dependencies\\ 
-\emsl{ar}$^*$& for managing archives\\
-\emsl{dbx}, \emsl{gdb}$^\dagger$& debuggers\\
-\emsl{prof}, \emsl{gprof}$^\dagger$& profilers\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{cc}, \emsl{c99}$^*$,
+\emsl{gcc}$^\dagger$&]]]) C compiler\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{CC}, \emsl{g++}$^\dagger$&]]]) C++ compiler\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ld}&]]]) linker\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ldd}&]]]) for listing dynamic object dependencies\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{cxref}$^*$&]]]) generate a C program cross-reference table\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{sccs}$^*$&]]]) source code management\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{make}$^*$&]]]) for maintaining program dependencies\\ 
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{ar}$^*$&]]]) for managing archives\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{dbx}, \emsl{gdb}$^\dagger$&]]]) debuggers\\
+ifdef([[[NOSPELLCHECK]]], [[[\emsl{prof}, \emsl{gprof}$^\dagger$&]]]) profilers\\
 \end{tabular}
 
 \hspace{0.5cm}$^*$ SUSv4 $^\dagger$ GNU
@@ -688,9 +692,11 @@ We recommend Git (\texttt{git}) or Mercurial (\texttt{hg}).
 \end{tabular}
 
 \begin{tabular}{ll}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{/usr/inc{}lude} & system header file root\\
 \texttt{/usr/lib/lib*.a} & static libraries\\
 \texttt{/usr/lib/lib*.so} & dynamic libraries
+]]])
 \end{tabular}
 \end{slide}
 
@@ -854,18 +860,18 @@ syntax.
 \texttt{-E} & only preprocessor\\ 
 \texttt{-l} & link with the specified library\\
 \texttt{-L\emph{directory}} & add a directory to search when using \texttt{-l}\\
-\texttt{-O\emph{level}} & optimalization level\\
+\texttt{-O\emph{level}} & optimization level\\
 \texttt{-g} & compile with debug information\\
-\texttt{-D\emph{jméno}} & define a macro for the preprocessor\\
+\texttt{-D\emph{name}} & define a macro for the preprocessor\\
 \texttt{-I\emph{directory}} & add a directory to search for \texttt{\#include} files
 \end{tabular}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \texttt{-l}/\texttt{-L} are actually options for the linker, ie. the
+\item \texttt{-l}/\texttt{-L} are actually options for the linker, i.e. the
 compiler will pass them on onto the linker.
-\item Both the compiler and linker have an extensive list of additonal options
+\item Both the compiler and linker have an extensive list of additional options
 that influence the generated code and what warnings are printed during the
 compilation/linking based on the chosen language and the standard.  See manual
 pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
@@ -883,7 +889,8 @@ pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \verb#__cplusplus#, etc.
 \> are standard macros for the compiler \\\>C/C++\\
 \verb#unix# \> always defined if on Unix\\
-\verb#mips#, \verb#i386#, \verb#sparc# \> hardware architecture\\
+ifdef([[[NOSPELLCHECK]]], [[[
+\verb#mips#, \verb#i386#, \verb#sparc# ]]]) \> hardware architecture\\
 \verb#linux#, \verb#__APPLE__#, \verb#sun#, \verb#bsd# \> operating system\\
 \verb#_POSIX_SOURCE#,\\\verb#_XOPEN_SOURCE#
 \> build using the specific standard\\
@@ -894,7 +901,8 @@ pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
 \sltitle{UNIX standard macros (cont.)}
 
 To build using a specific standard, you need to define one of the macros below
-before any \verb.#include..  Then include \texttt{unistd.h}.
+before any ifdef([[[NOSPELLCHECK]]], [[[\verb.#include.]]]).
+Then include \texttt{unistd.h}.
 
 \vspace{2ex}
 
@@ -908,7 +916,7 @@ before any \verb.#include..  Then include \texttt{unistd.h}.
 
 \begin{itemize}
 \item The way it works is that you use specific macros to define what you
-want (eg. \texttt{\_POSIX\_SOURCE}), and then you use other macros (eg.
+want (e.g. \texttt{\_POSIX\_SOURCE}), and then you use other macros (e.g.
 \texttt{\_POSIX\_VERSION}) to find out what you actually got.  You always have
 to include \texttt{unistd.h} after you set the macros and use a compiler that
 supports what you want.  For example, below we tried to compile
@@ -932,9 +940,9 @@ options invalid; UNIX 03 and POSIX.1-2001 applications require
 the use of c99"
 cc: acomp failed for standards.c
 \end{verbatim}
-%\item zdroj maker pro standard tedy mù¾e být ji¾ na stranì
-%\pageref{UNIXSTANDARDS} zmiòovaný hla\-viè\-ko\-vý soubor
-%\texttt{feature\_tests.h} na Solarisu.
+%\item the source of macros for standard can be mentioned already on page
+%\pageref{UNIXSTANDARDS}. Mentioned header file \texttt{feature\_tests.h}
+%on Solaris
 \item See the documentation for your compiler about what other macros can be
 used.
 \item See page \pageref{C_LANGUAGE} for more information on standards.
@@ -966,8 +974,8 @@ main(void)
 \sltitle{Link editor (linker)}
 \begin{itemize}
 \item Invocation:\\
-\texttt{ld [\emph{options}] \emph{soubor} \dots}\\
-\texttt{cc [\emph{options}] \emph{soubor} \dots}
+\texttt{ld [\emph{options}] \emph{file} \dots}\\
+\texttt{cc [\emph{options}] \emph{file} \dots}
 \item Often used options:\\
 \begin{tabular}{ll}
 \texttt{-o \emph{file}} & output file name (default \texttt{a.out})\\
@@ -1045,6 +1053,7 @@ msg()
 \renewcommand{\arraystretch}{0.1}
 \setlength{\tabcolsep}{0.25ex}
 \begin{tabular}{lclcl}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{main.c} &            &                 &            & \\
                 & $\searrow$ &                 &            & \\
 		&            & \texttt{main.o} &            & \\
@@ -1054,6 +1063,7 @@ msg()
 		&            & \texttt{util.o} &            & \\
 		& $\nearrow$ &                 &            & \\
 \texttt{util.c} &            &                 &            & \\
+]]])
 \end{tabular}
 \end{itemize}
 \end{minipage}\hfill
@@ -1085,8 +1095,8 @@ written makefile will cause to re-compile only what is really necessary after
 some files have been changed.  You could always do something like
 ``\texttt{make clean; make all}'' but if the whole compilation process takes
 minutes or even hours, you really want a well written \texttt{Makefile}.
-\item A line ``\verb#prog : main.o util.o#'' defines that before \texttt{prog}
-is checked, the existence of
+\item A line ifdef([[[NOSPELLCHECK]]], [[[``\verb#prog : main.o util.o#'']]])
+defines that before \texttt{prog} is checked, the existence of
 \texttt{main.o} and \texttt{util.o} needs to be checked, and also whether they
 are up to date.  That check is performed recursively.  After that, the existence
 of \texttt{prog} is checked and whether it is up-to-date, which means whether
@@ -1147,11 +1157,11 @@ $ make -f Makefile02
 
 \item The backslash works as a word separator and a space is inserted.  See
 the following example: \example{basic-utils/Makefile07}.
-\item Using a double \texttt{\$} supresses the special meaning of a dollar sign,
-see the next slide.
-\item A character \texttt{@} at the beginning of a line supresses its printout.
+\item Using a double \texttt{\$} suppresses the special meaning of a dollar
+sign, see the next slide.
+\item A character \texttt{@} at the beginning of a line suppresses its printout.
 Otherwise, \texttt{make} always prints out what is gonna be executed next.
-\item For a dry run, ie. to see what would be executed, but do not execute
+\item For a dry run, i.e. to see what would be executed, but do not execute
 anything, use option \texttt{-n}.
 \item A character \texttt{-} at the beginning of a line causes \texttt{make} to
 ignore a non-zero return value (usually indicating a failure), otherwise
@@ -1182,10 +1192,10 @@ test2:
 \item defining a macro on a command line: \\
 \hspace*{5em}\texttt{make \emph{target} \emph{name}=\emph{string}}
 \item macro invocation: \\
-\hspace*{5em}\texttt{\$\emph{name}} (pouze jednoznakové
+\hspace*{5em}\texttt{\$\emph{name}} (only one character
 \texttt{\emph{name}}), \\
 \hspace*{5em}\texttt{\$\{\emph{name}\}} or \texttt{\$(\emph{name})}
-\item environment variables are accessible as macros (eg. \texttt{\$\{EDITOR\}})
+\item environment variables are accessible as macros (e.g. \texttt{\$\{EDITOR\}})
 \end{itemize}
 \end{slide}
 
@@ -1204,7 +1214,7 @@ all:
 \$ make -f Makefile05
 Variable M is recursive.
 \end{alltt}
-\item Often extended \texttt{make} versions are used, eg. GNU (\texttt{gmake})
+\item Often extended \texttt{make} versions are used, e.g. GNU (\texttt{gmake})
 or BSD.
 \item To write a non-trivial \texttt{Makefile} that will work with
 different \texttt{make} implementations is not a simple task.  Therefore
@@ -1229,7 +1239,7 @@ all:
 \item In other situations it is recommended or even needed to use utilities like
 \texttt{autoconf} or \texttt{automake}.
 \item Some \texttt{make} implementations support directives for conditional
-processing, eg.  BSD make.  Example: \example{basic-utils/Makefile08.bsd}.
+processing, e.g.  BSD make.  Example: \example{basic-utils/Makefile08.bsd}.
 \item With the \texttt{-e} option, we can force \texttt{make} to ignore a
 variable definition in the input file if an environment variable of the same
 name exists.  By default \texttt{make} accepts environment variables only if
@@ -1239,7 +1249,7 @@ they are not defined in the input file.  Example:
 at system make files of any Unix-like system.  A typical feature of such build
 systems is that there is no documentation on how it works internally so you have
 to dig in deep if you need to understand or modify it -- and that usually is not
-for the faint-hearted.
+for the fainthearted.
 \end{itemize}
 
 %%%%%
@@ -1257,7 +1267,7 @@ program execution}. That is what a \emsl{dynamic linker} does  (\emph{run-time
 linker}, \emph{loader}).
 \item list of required dynamic libraries is in the \texttt{.dynamic} section of
 an ELF object
-\item system by default looks for shared libs in certain locations
+\item system by default looks for shared libraries in certain locations
 \item located libraries are mapped to the process address space via
 \funnm{mmap}() (will be later)
 \end{itemize}
@@ -1297,7 +1307,7 @@ used within an address space of an executed program.  The program, dynamic
 linker, and dynamic libraries constitute a single process.
 
 \item The following examples \emsl{are from Solaris}.  Finding equivalent
-commands and/or options on Linux is left as an excercise to the reader.
+commands and/or options on Linux is left as an exercise to the reader.
 \begin{itemize}
 \item ELF sections are listed via \texttt{elfdump -c} (GNU has
 \texttt{objdump} and \texttt{readelf}).  More on program sections on page
@@ -1311,7 +1321,7 @@ all.
 are set as \texttt{NEEDED}.
 \item Finding out shared object dependencies is very easy via the
 \texttt{ldd} command (Solaris, Linux, BSD).  It displays paths to the specific
-libraries (ie. full paths) that will be used if the program is run in the
+libraries (i.e. full paths) that will be used if the program is run in the
 same environment (see right below for more information).  The command resolves
 the dependencies recursively so you will also see dynamic libraries that are used
 by other libraries and not directly by the program.  To find out what exactly
@@ -1320,17 +1330,23 @@ use \texttt{otool -L} instead.
 \item What libraries are eventually used when running the program could be
 different from what \texttt{ldd} shows.  For example, 
 one could use the \texttt{LD\_PRELOAD} mechanism.  For that reason,
-Solaris has a \texttt{pldd} command which provides the library dependcies for a
-running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}: use
-already mentioned \texttt{Ma\-ke\-file01}, and compile
-\example{basic-utils/preload.c} like this: ``\texttt{gcc -shared -o
-lib\-pre\-load.so preload.c}''.  Run the program then which interposes a system
-call \texttt{close()}: ``\verb#LD_PRELOAD=./libpreload.so ./a.out#''.
+Solaris has a \texttt{pldd} command which provides the library dependencies for
+a running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}:
+use already mentioned \texttt{Ma\-ke\-file01}, and compile
+\example{basic-utils/preload.c} like this:
+\begin{verbatim}
+gcc -shared -o libpreload.so preload.c
+\end{verbatim}
+Run the program then which interposes a system
+call \texttt{close()} like this:
+\begin{verbatim}
+LD_PRELOAD=./libpreload.so ./a.out
+\end{verbatim}
 \item Most of the information listed here can be found in the manual page for the
 Solaris dynamic linker, \texttt{ld.so.1(1)}, and much more in the excellent
 \emph{Linkers and Libraries Guide} on \texttt{docs.oracle.com}.  If you use
-FreeBSD, its dynamic linker is \texttt{ld-elf.so.1}, on Linux distros it is
-usually \texttt{ld-linux.so.1}, it is \texttt{rld} on SGI IRIX etc.
+FreeBSD, its dynamic linker is \texttt{ld-elf.so.1}, on Linux distributions it
+is usually \texttt{ld-linux.so.1}, it is \texttt{rld} on SGI IRIX etc.
 \item You can also configure the dynamic linker via setting environment
 variables.  For example, try this on Solaris:
 \begin{verbatim}
@@ -1385,8 +1401,9 @@ API -- Application Programming Interface
 
 \begin{itemize}
 \item interface used in the \emsl{source code} to use another software
-component like a library, OS kernel, or your own code -- eg.
-\texttt{exit(1)}, \texttt{printf("hello\bs{}n")} or \texttt{my\_function(1,
+component like a library, OS kernel, or your own code -- e.g.
+\texttt{exit(1)}, ifdef([[[NOSPELLCHECK]]],
+[[[\texttt{printf("hello\bs{}n")}]]]) or \texttt{my\_function(1,
 2)}
 \item \dots{}so that the same source code could be compiled on all systems
 supporting a given API
@@ -1395,7 +1412,7 @@ supporting a given API
 ABI -- Application Binary Interface
 
 \begin{itemize}
-\item low-level binary interface between \emsl{modules} (eg.  \texttt{a.out}
+\item low-level binary interface between \emsl{modules} (e.g.  \texttt{a.out}
 and \texttt{libc.so.1} or even \texttt{a.out} and \texttt{a.out})
 \item \dots{}so that the built module could be used wherever the same ABI is
 supported
@@ -1410,7 +1427,7 @@ supported
 system calls for a given system.
 \item An example of an ABI is the System V AMD64 ABI, followed on Solaris,
 Linux, FreeBSD, macOS, and other systems.
-\item ABI defines the calling convention interface to the called machine code, eg.
+\item ABI defines the calling convention interface to the called machine code, e.g.
 how parameters are passed (pushed on the stack, placed in registers, or a mix
 of both) or how return value is returned.
 \item API defines a set of functions, its parameters and their types, and
@@ -1425,7 +1442,7 @@ recompiling is often not desirable as one might end up recompiling the whole
 system.  That is why keeping backward compatibility for library ABI is so
 important.
 
-The first result is expected, ie. \texttt{3}:
+The first result is expected, i.e. \texttt{3}:
 
 \begin{verbatim}
 $ cat main.c 
@@ -1522,7 +1539,9 @@ binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 \sltitle{Debugger \texttt{dbx}}
 \begin{itemize}
 \item Usage:\\
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{dbx [ \emph{options} ] [ \emph{program} [ \emph{core} ] ]}
+]]])
 \item Most common commands:\\
 \renewcommand{\arraystretch}{0.9}
 \begin{tabular}{ll}
@@ -1531,7 +1550,7 @@ binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 \texttt{print \emph{expr}} & print expression\\
 \texttt{set \emph{var} = \emph{expr}} & change value of variable\\
 \texttt{cont} & continue program run\\
-\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into function)\\
 \texttt{stop \emph{condition}} & set breakpoint\\
 \texttt{trace \emph{condition}} & remove tracepoint\\
 \texttt{command \emph{n}} & action on breakpoint (commands follow)\\
@@ -1543,7 +1562,7 @@ binaries that depend on OpenSSL, even on a binary compatible micro upgrade.
 
 \begin{itemize}
 \item Basic line oriented debugger with symbols; to fully use it, the program to
-be debugged has to be compiled with debuggin data (\texttt{cc -g}). The program
+be debugged has to be compiled with debugging data (\texttt{cc -g}). The program
 is then started from debugger using the \texttt{run} command, or the debugger
 can be connected to an already running process. \texttt{dbx} can also be used to
 analyze program crashes, provided a \texttt{core} file was generated.
@@ -1553,19 +1572,19 @@ on other systems.
 option for translation, it is also necessary to have the object files and source
 files available in the same location as they were used for compilation.
 This is typically true when debugging on the system where the code is written.
-For other use cases it is necessary to provide the needed files, the dbx
-command \texttt{pathmap} can help with that.
+For other use cases it is necessary to provide the needed files, the
+\texttt{dbx} command \texttt{pathmap} can help with that.
 \item \texttt{gdb}-compatible mode can be enabled using \texttt{gdb on}.
 If you want to know the \texttt{dbx} equivalent command to concrete
 \texttt{gdb} command, see the \texttt{help FAQ}; the very first question is
-``A.1  Gdb does $<$something$>$; how do I do it in dbx?''
-\item If the option \texttt{-g} is not used, dbx will be still usable on
-Solaris, because it will print function arguments. On BSD systems and Linux
+``A.1  Gdb does $<$something$>$; how do I do it in \texttt{dbx} ?''
+\item If the option \texttt{-g} is not used, \texttt{dbx} will be still usable
+on Solaris, because it will print function arguments. On BSD systems and Linux
 distributions, the \texttt{-g} has to be used, otherwise the debuggers will not
 be of much use. This is demonstrated in the \example{debug/dbx.c} example.
-When compiling with gcc and using gdb the \texttt{where} command will not show
-the function parameters, while on Solaris with the Studio compiler and dbx
-debugger, the function parameters will be shown.
+When compiling with \texttt{gcc} and using \texttt{gdb} the \texttt{where}
+command will not show the function parameters, while on Solaris with the Studio
+compiler and \texttt{dbx} debugger, the function parameters will be shown.
 \item Example: \example{debug/coredump.c}. After compilation and running the
 program will crash and a core dump will be generated (if permitted on the system;
 also see \texttt{ulimit -c})
@@ -1615,12 +1634,12 @@ Current function is bad_memory_access
 \item Most common commands:\\
 \renewcommand{\arraystretch}{0.9}
 \begin{tabular}{ll}
-\texttt{run [\emph{arglist}]} & programu start\\
+\texttt{run [\emph{arglist}]} & program start\\
 \texttt{bt} & print stack\\
 \texttt{print \emph{expr}} & print expression\\
 \texttt{set \emph{var} = \emph{expr}} & change value of variable\\
 \texttt{cont} & continue program run\\
-\texttt{next}, \texttt{step} & execute a line (with/out going into func)\\
+\texttt{next}, \texttt{step} & execute a line (with/out going into function)\\
 \texttt{break \emph{condition}} & set breakpoint\\
 \texttt{help [\emph{name}]} & print help\\
 \texttt{quit} & debugger exit
@@ -1864,13 +1883,16 @@ eventually passes the control to function \texttt{main}, as explained on page
 \pageref{RUNTIMELINKER}.  If the \texttt{main} function is missing, the
 compilation fails during the linking phase.  When \texttt{main} finishes, it
 means the process finishes.  You can also use functions \texttt{exit()} or
-\verb#_exit()# from anywhere in the program, ie. not just from function
+\verb#_exit()# from anywhere in the program, i.e. not just from function
 \texttt{main}.
 \item Passing the environment in the third parameter of type
 \texttt{char**} is not part of the normative part of the C standard, only the
 informative one.  C compilers typically support that though.
-The \texttt{main} variant with the 3rd parameter looks like this:\\ \texttt{int
-\funnm{main}(int \emph{argc}, char *\emph{argv}[], char *\emph{envp}[]);}
+The \texttt{main} variant with the \nth{3} parameter looks like this:\\
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{int \funnm{main}(int \emph{argc}, char *\emph{argv}[],
+char *\emph{envp}[]);}
+]]])
 \item The return value type of \texttt{main} should be always \texttt{int}.
 \emsl{Only lower 8 bits from that integer are only used though.}  It is always a
 non-negative number.  Note that in contrast to the C convention, the \texttt{0}
@@ -1958,8 +1980,8 @@ uses \texttt{EDITOR}, etc.  The variables are usually in caps but it is just a
 convention.  \texttt{wget} does not follow convention and uses
 \texttt{http\_proxy} and \texttt{https\_proxy} as environment variables to set
 the proxy to be used, and other lower case variables as well.
-\item If \emph{envp} is the 3rd argument of \texttt{main}, it is the same pointer
-as is in the standard global variable \texttt{environ}.
+\item If \texttt{envp} is the \nth{3} argument of \texttt{main}, it is the same
+pointer as is in the standard global variable \texttt{environ}.
 \item Example: \example{main/print-env.c} (see below how to clear out inherited
 environment from the shell using the \texttt{env} command):
 
@@ -1974,7 +1996,9 @@ XXX=yyy
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getenv, putenv, setenv}{envfuncs}
+]]])
 
 \begin{slide}
 \sltitle{Manipulating the environment}
@@ -2056,7 +2080,7 @@ cases.
 application to specify the ordering.
 \item The UNIX standard defines 13 rules that very precisely define the naming
 of commands and the format of options. For example the name of the command
-should be lower case, 2--9 characters long and using only chracters from
+should be lower case, 2--9 characters long and using only characters from
 the portable character set. Arguments without options should be possible to group
 after '--', etc.
 \item Using numbers of options is old fashioned; reportedly SUSv3 mentions that.
@@ -2068,11 +2092,14 @@ non-portable extensions.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getopt}{getopt}
+]]])
 
 \begin{slide}
 \setlength{\baselineskip}{0.8\baselineskip}
 \sltitle{Options processing: \texttt{getopt()}}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{tabbing}
 \texttt{int \funnm{getopt}(}\=\texttt{int \emph{argc},
 char *const \emph{argv}[],}\\
@@ -2080,6 +2107,7 @@ char *const \emph{argv}[],}\\
 \texttt{extern char *\emph{optarg};}\\
 \texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};} 
 \end{tabbing}
+]]])
 \begin{itemize}
 \item the function receives command line parameters and processes and returns
 one option. If a given option has an argument, it is set in the
@@ -2098,7 +2126,7 @@ in the string.
 \item Usually the \texttt{getopt} function is used first to process options
 and then the rest is processed using custom functions; the remaining arguments
 are often file names and such.
-\item By convention the optinons in the \texttt{optstring} variable are sorted.
+\item By convention the options in the \texttt{optstring} variable are sorted.
 \end{itemize}
 
 %%%%%
@@ -2163,6 +2191,7 @@ rewritten to C language using the \texttt{getopt} function:
 by setting the \verb#POSIXLY_CORRECT# environment variable.
 \item the long options are processed using the \texttt{\funnm{getopt\_long}()}
 function using these variables and structures:
+ifdef([[[NOSPELLCHECK]]], [[[
 {\tt
 \begin{tabbing}
 stru\=ct \funnm{option} \{\\
@@ -2174,6 +2203,7 @@ stru\=ct \funnm{option} \{\\
 \textrm{and }\texttt{*flag = val}\textrm{ */} \\
 \>int val; \textrm{/* return value */} \\
 \};
+]]])
 \end{tabbing}}
 \end{itemize}
 \end{slide}
@@ -2205,12 +2235,14 @@ is set to \texttt{val}.
 
 \begin{slide}
 \sltitle{Processing long options (cont.)}
+ifdef([[[NOSPELLCHECK]]], [[[
 {\tt\begin{tabbing}
 int \funnm{getopt\_long}(\=int \emph{argc}, char * const \emph{argv}[],\\
 \>const char *\emph{optstring},\\
 \>const struct option *\emph{longopts},\\
 \>int *\emph{longindex}); 
 \end{tabbing}}
+]]])
 \begin{itemize}
 \item \texttt{optstring} contains short options,
 \texttt{longopts} contains address of array of structures for long options
@@ -2226,6 +2258,7 @@ to \texttt{*longindex} (if not \texttt{NULL})
 \begin{itemize}
 \item This is slightly modified example from the \texttt{getopt\_long}
 FreeBSD man page:
+ifdef([[[NOSPELLCHECK]]], [[[
 {\footnotesize
 \begin{verbatim}
 #include <stdio.h>
@@ -2262,6 +2295,7 @@ int main(int argc, char **argv)
   return 0;
 }
 \end{verbatim}
+]]])
 }
 \end{itemize}
 
@@ -2287,7 +2321,7 @@ calling kernel services or asynchronously (clock, I/O). In kernel mode
 the exceptional states are handled (page fault, memory protection failure,
 unknown instruction etc.). Some special tasks are handled by system processes
 running in kernel mode all the time.
-\item Classic UNIX kernel is monolitic. Originally it was necessary to
+\item Classic UNIX kernel is monolithic. Originally it was necessary to
 regenerate the kernel (i.e. compile from source code and link) whenever some
 kernel parameter had to be changed or add a device driver. In modern
 implementations it is possible to set many kernel parameters dynamically using
@@ -2318,7 +2352,7 @@ is characterized by its state. All threads within single process share
 the same memory area sans registers and stack; \uv{line of execution},
 \uv{what is running} 
 \item \emsl{program} ... file with precisely defined format that contains
-instructions, data and service informations needed for execution;
+instructions, data and service information needed for execution;
 \uv{executable file on disk}
 \end{itemize}
 
@@ -2528,14 +2562,18 @@ not using these functions in the lecture (except
 \item functions to display a formatted error message and optionally exit
 \item instead of \funnm{perror}() and \funnm{exit}(), one function suffices
 \item
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{err}(int \emph{status}, const char *\emph{fmt}, ...);}
+]]])
 \begin{itemize}
 \item prints a program name, formatted string, and error based on
 \texttt{errno}
 \item exits the program with \emph{status} return value
 \end{itemize}
 \item
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{warn}(const char *\emph{fmt}, ...);}
+]]])
 \begin{itemize}
 \item same as \funnm{err}() but does not exit
 \end{itemize}

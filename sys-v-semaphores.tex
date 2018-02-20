@@ -1,12 +1,11 @@
-
-changequote([[[, ]]])
+include(`macros.m4')
 
 \pdfbookmark[1]{System V Semaphores}{sys-v-semaphores}
 
 \begin{slide}
 \sltitle{System V semaphore API }
-\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{nsems}, int
-\emph{semflg});}
+\texttt{int \funnm{semget}(key\_t \emph{key}, int \emph{\texttt{nsems}},
+int \emph{\texttt{semflg}});}
 \begin{itemize}
 \item returns identifier of an array of \texttt{nsems} semaphores associated
 with the \texttt{key} key (\texttt{IPC\_PRIVATE} key \dots{} private semaphores,
@@ -15,14 +14,18 @@ each call returns different identifier).
 \texttt{IPC\_CREAT} (create if does not exist),
 \texttt{IPC\_EXCL} (error, if exists). 
 \end{itemize}
-\texttt{int \funnm{semctl}(int \emph{semid}, int \emph{semnum},
-int \emph{cmd}, ...);}
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{int \funnm{semctl}(int \emph{\texttt{semid}},
+int \emph{\texttt{semnum}}, int \emph{\texttt{cmd}}, ...);}
+]]])
 \begin{itemize}
-\item controlling function, optional 4th argument \texttt{arg} is of the
+\item controlling function, optional fourth argument \texttt{arg} is of the
 \texttt{union~semun} type.
 \end{itemize}
-\texttt{int \funnm{semop}(int \emph{semid}, struct sembuf *\emph{sops}, size\_t
-\emph{nsops});}
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{int \funnm{semop}(int \emph{\texttt{semid}},
+struct sembuf *\emph{\texttt{sops}}, size\_t \emph{\texttt{nsops}});}
+]]])
 \begin{itemize}
 \item generic operations P and V.
 \end{itemize}
@@ -60,14 +63,14 @@ that private semaphores can be inherited across \texttt{fork} as well.
 \item possible values of \texttt{cmd}: 
     \begin{itemize}
     \item \texttt{GETVAL} \dots{} returns semaphore value
-    \item \texttt{\emsl{SETVAL}} \dots{} \emsl{sets semaphore to value}
+    \item \emsl{\texttt{SETVAL}} \dots{} \emsl{sets semaphore to value}
     \texttt{arg.val}
     \item \texttt{GETPID} \dots{} PID of the process that performed the last op.
     \item \texttt{GETNCNT} \dots{} number of processes waiting on bigger value
     \item \texttt{GETZCNT} \dots{} number of processes waiting for zero value
     \item \texttt{GETALL} \dots{} saves the values of all semaphores to
     \texttt{arg.array}
-    \item \texttt{SETALL} \dots{} sets all sem. values according to
+    \item \texttt{SETALL} \dots{} sets all values according to
     \texttt{arg.array}
     \item \texttt{IPC\_STAT} \dots{} saves number of semaphores, access rights,
 times of the last \texttt{semctl()} and \texttt{semop()} into \texttt{arg.buf}
@@ -124,7 +127,9 @@ locked by the process (used as locks) will become unlocked.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{ftok}{ftok}
+]]])
 
 \begin{slide}
 \sltitle{Creating System V IPC resources}

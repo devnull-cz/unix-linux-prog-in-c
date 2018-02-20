@@ -1,3 +1,5 @@
+include(`macros.m4')
+
 \pdfbookmark[0]{signals}{signals}
 
 \begin{slide}
@@ -7,8 +9,6 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-changequote([[[, ]]])
-
 \begin{slide}
 \sltitle{Introduction to signals}
 \begin{itemize}
@@ -17,10 +17,10 @@ changequote([[[, ]]])
 \item signal categories:
     \begin{itemize}
     \item \emsl{asynchronous events} happening independently of the main program
-    flow, eg. a signal sent from another process, a timer expiration
+    flow, e.g. a signal sent from another process, a timer expiration
     (\texttt{SIGALRM}), terminal disconnect (\texttt{SIGHUP}), or pressing
     \texttt{Ctrl-C} (\texttt{SIGINT})
-    \item \emsl{exceptions} caused by a running process, eg.
+    \item \emsl{exceptions} caused by a running process, e.g.
     attempt to access a restricted area of memory (\texttt{SIGSEGV})
     \end{itemize}
 \end{itemize}
@@ -64,7 +64,7 @@ $ dd if=/dev/zero of=/dev/null
 \begin{slide}
 \sltitle{Introduction to signals (continued)}
 \begin{itemize}
-\item it is the simplest interprocess communication -- it only carries
+\item it is the simplest inter process communication -- it only carries
 information that an event happened
 \begin{itemize}
 \item there is a real-time POSIX extension that allows for more information,
@@ -92,12 +92,14 @@ page \pageref{SIGWAIT}.
 
 \begin{slide}
 \sltitle{Sending signals}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{kill}(pid\_t \emph{pid}, int \emph{sig});}
+]]])
 \begin{itemize}
-\item sends signal \emph{sig} to a process or a process group
-based on value of \emph{pid}: 
+\item sends signal \emph{\texttt{sig}} to a process or a process group
+based on value of \emph{\texttt{pid}}: 
     \begin{itemize}
-    \item \texttt{> 0} \dots{} to process with \emph{pid}
+    \item \texttt{> 0} \dots{} to process with \emph{\texttt{pid}}
     \item \texttt{== 0} \dots{} to all processes in the same group
     \item \texttt{== -1} \dots{} to all aside from system processes
     \item \texttt{< -1} \dots{} to processes in a group \texttt{abs(pid)} 
@@ -148,13 +150,13 @@ called a \emsl{handler}
 \end{itemize}
 
 Signals \texttt{SIGKILL} and \texttt{SIGSTOP} \emsl{always} trigger an implicit
-action, ie. exit or stop, respectively.
+action, i.e. exit or stop, respectively.
 \end{slide}
 
 \begin{itemize}
 \item Creating a core dump means to store the contents of the process virtual
 address space to a file.  Usually such file has a word \texttt{core} in its
-filename.  Some systems, eg. macOS, may not generate core dumps by default even
+filename.  Some systems, e.g. macOS, may not generate core dumps by default even
 if its for signals with default core dump action.
 \item Most of the signals implicitly terminate the process, some create a core
 dump on top of that to enable a post-mortem analysis.
@@ -185,10 +187,10 @@ We could divide signals into a few groups\dots
 \emsl{Detected errors:}
 
 \begin{tabular}{ll}
-\texttt{SIGBUS} & bus error, eg. wrong alignment (core) \\
+\texttt{SIGBUS} & bus error, e.g. wrong alignment (core) \\
 \texttt{SIGFPE} & floating point exception (core) \\
 \texttt{SIGILL} & illegal instructions (core) \\
-\texttt{SIGSEGV} & sigmentation violation (core) \\
+\texttt{SIGSEGV} & segmentation violation (core) \\
 \texttt{SIGPIPE} & write on a pipe with no reader (exit) \\
 \texttt{SIGSYS} & non-existent system call invoked (core) \\
 \texttt{SIGXCPU} & CPU time limit exceeded (core) \\
@@ -231,7 +233,7 @@ signal-catching function.
 \item If such a signal is masked while the signal is being delivered, the
 program behavior is undefined.
 \end{itemize}
-\item Bottom line is that if a hardware generated error is real (ie. the signal
+\item Bottom line is that if a hardware generated error is real (i.e. the signal
 is not send via \funnm{kill} or similar functions), the process may never get
 over that error at all.  It is not safe to ignore such errors, continue after
 returning from a handler, or mask such signals.  You can catch such signals
@@ -240,7 +242,7 @@ so only to deal with the situation and exit.
 You can check \example{signals/catch-SIGSEGV.c}. More information and another
 example can be found on page \pageref{THREADS_SIGWAIT}.
 \item Note: if the standard specifies any behavior as \emph{undefined}, it means
-the specification does not state what should happend and that whatever happens
+the specification does not state what should happen and that whatever happens
 does not violate the standard.  So, if you trigger such a behavior and your
 computer burns down or even flies off to the Moon, possibly still in flames,
 that does not violate the standard either.
@@ -275,8 +277,8 @@ to generate core files, your system must allow it.  Check command
 know what you are doing.  For example, if a running process does not respond to
 user input nor any other signal.  Many applications, mainly daemons, rely on the
 fact that they are sent \texttt{SIGTERM} on termination, which they often handle
-and perform pre-exit actions.  For example, flushing the database, removing
-temporary files and file locks, etc.  So, do not use \texttt{SIGKILL} right away
+and perform actions before exit. For example, flushing the database, removing
+temporary files and file locks, etc. So, do not use \texttt{SIGKILL} right away
 only because "it's the simplest way to kill a process" as you might run in
 trouble.
 \item Example on using \texttt{SIGQUIT} on Solaris:
@@ -339,10 +341,10 @@ catch the signal. \label{SIGTSTP}
 \texttt{SIGVTALRM} & virtual time alarm (exit; also see \funnm{setitimer}(2)) \\
 \end{tabular}
 
-\emsl{Miscelaneous:}
+\emsl{Miscellaneous:}
 
 \begin{tabular}{ll}
-\texttt{SIGPOLL} & event occured on explicitly watched file descriptor (exit) \\
+\texttt{SIGPOLL} & event occurred on explicitly watched file descriptor (exit)\\
 \texttt{SIGTRAP} & trace trap (core) \\
 \texttt{SIGURG} & urgent condition present on socket (ignore) \\
 
@@ -356,28 +358,36 @@ timer alarms, useful for implementation of timeouts, for example.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sigaction}{sigaction}
+]]])
 
 \begin{slide}
 \sltitle{Setting actions for signals}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{minipage}{\slidewidth}\vspace{-1\baselineskip}\texttt{\begin{tabbing}
 int \funnm{sigaction}(\=int \emph{sig},
 const struct sigaction *\emph{act},\\\> struct sigaction *\emph{oact});
 \end{tabbing}}
+]]])
 \end{minipage}
 \begin{itemize}
-\item assigns an action \emph{act} for a signal \emph{sig},
-previous setting is returned in \emph{oact}, if non-zero
+\item assigns an action \emph{\texttt{act}} for a signal \emph{\texttt{sig}},
+previous setting is returned in \emph{\texttt{oact}}, if non-zero
 \item structure \texttt{sigaction} contains:
     \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
     \item \texttt{void (*\emph{sa\_handler})(int)} \dots{} \texttt{SIG\_DFL},
-    \texttt{SIG\_IGN}, or a handler address (ie. a handler function name)
-    \item \texttt{sigset\_t \emph{sa\_mask}} \dots{} signals blocked while in
-    handler; plus \emph{sig} is blocked by default
-    \item \texttt{int \emph{sa\_flags}} \dots{} \texttt{SA\_RESETHAND} (handler
+]]])
+    \texttt{SIG\_IGN}, or a handler address (i.e. a handler function name)
+    \item ifdef([[[NOSPELLCHECK]]], [[[\texttt{sigset\_t \emph{sa\_mask}}]]])
+     \dots{} signals blocked while in
+    handler; plus \emph{\texttt{sig}} is blocked by default
+    \item ifdef([[[NOSPELLCHECK]]], [[[\texttt{int \emph{sa\_flags}}]]])
+     \dots{} \texttt{SA\_RESETHAND} (handler
     is reset to \texttt{SIG\_DFL} at the moment the signal is delivered),
     \texttt{SA\_RESTART} (restart pending calls), \texttt{SA\_NODEFER}
-    (do not block \emph{sig} while in handler)
+    (do not block \emph{\texttt{sig}} while in handler)
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -385,7 +395,7 @@ previous setting is returned in \emph{oact}, if non-zero
 \begin{itemize}
 \item If \texttt{act == NULL} you only get the present setting and nothing is
 changed.  If not interested in previous setting, use \texttt{NULL} for
-\emph{oact}.
+\emph{\texttt{oact}}.
 \item If \texttt{SA\_RESTART} is not set, the system call interrupted by the
 signal will return an error with \texttt{errno} set to \texttt{EINTR} (some
 calls actually return directly the \texttt{errno} value but that is not relevant
@@ -400,7 +410,8 @@ from a handler}.  By safe it is meant either use reentrant functions or you need
 to make sure the signal is not delivered in the wrong time (for example, the
 signal is delivered within a function and the same function is called from the
 handler, and the function is not ready for that).  Minimal set of functions
-that must be \emsl{\emph{async-signal-safe}} is listed in SUSv4 in section
+that must be ifdef([[[NOSPELLCHECK]]], [[[\emsl{\emph{async-signal-safe}}]]])
+is listed in SUSv4 in section
 \emph{System Interfaces: General Information $\Rightarrow$ Signal Concepts
 $\Rightarrow$ Signal Actions (2.4.3)}.  Systems can extend the list, of course.
 Whether a function is safe to use in a signal handler or not should be
@@ -485,18 +496,22 @@ like \funnm{printf}() are generally not safe to use in signal handlers, see page
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sigprocmask, sigpending}{sigblock}
+]]])
 
 \begin{slide}
 \sltitle{Signal blocking}
 \begin{itemize}
 \item blocked signals are delivered to the process after getting unblocked again
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \begin{minipage}{\slidewidth}\texttt{\begin{tabbing}
 int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
 \>sigset\_t *\emph{oset});
 \end{tabbing}}
 \end{minipage}
+]]])
 \begin{itemize}
 \item sets the blocked signal mask and returns the old one
 \item \emph{how} -- \texttt{SIG\_BLOCK} adds signals to block,
@@ -506,7 +521,9 @@ use \texttt{SIG\_SETMASK}
 \funnm{sigdelset}(), \funnm{sigemptyset}(), \funnm{sigfillset}(),
 \funnm{sigismember}()
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sigpending}(sigset\_t *\emph{set});}
+]]])
 \begin{itemize}
 \item returns a mask for the signals pending for delivery
 \end{itemize}
@@ -520,14 +537,15 @@ use \texttt{SIG\_SETMASK}
 \item It is a difference to ignore and block a signal.  A signal ignored will
 never be delivered to the process, while a blocked signal is remembered by the
 kernel and is delivered if the process unblocks it.
-\item It is implementation dependend if a signal received multiple times while
+\item It is implementation dependent if a signal received multiple times while
 blocked will be delivered only once or multiple times after unblocking.
 \item If POSIX.4 extension is used (see page
 \pageref{REALTIMEEXTENSIONS} and the use of \texttt{SA\_SIGINFO}), signals are
 delivered through a queue and multiple signals are never squeezed into one
 delivery.
-\item Both arguments \emph{oset} and \emph{set} may be \texttt{NULL}.  If both
-are \texttt{NULL} in the same invocation of the function, nothing happens.
+\item Both arguments \emph{\texttt{oset}} and \emph{set} may be \texttt{NULL}.
+If both are \texttt{NULL} in the same invocation of the function, nothing
+happens.
 \end{itemize}
 
 %%%%%
@@ -570,7 +588,9 @@ it is not a good thing.
 %%%%%
 
 \label{SIGWAIT}
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pause, sigsuspend, sigwait}{sigwait}
+]]])
 
 \begin{slide}
 \sltitle{Waiting for a signal}
@@ -579,14 +599,18 @@ it is not a good thing.
 \item suspends the caller until delivery of a signal that is not blocked or
 ignored
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sigsuspend}(const sigset\_t *\emph{sigmask});}
+]]])
 \begin{itemize}
 \item like \funnm{pause}(), also temporarily changes the blocked signal mask
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sigwait}(const sigset\_t *\emph{set}, int *\emph{sig});}
+]]])
 \begin{itemize}
 \item waits for a signal from \emph{set} (must be blocked) and puts the signal
-number to \emph{sig}.
+number to \emph{\texttt{sig}}.
 \item the signal handler is not called
 \end{itemize}
 \end{slide}
@@ -595,11 +619,11 @@ number to \emph{sig}.
 \item When in \funnm{pause}() or \funnm{sigsuspend}(), a signal not blocked will
 call a handler if one is set, and the signal catching function returns unless
 the process is terminated by the signal.
-\item With \funnm{sigwait}(), you can implement a synchronnous signal
+\item With \funnm{sigwait}(), you can implement a synchronous signal
 handling.  First, a process blocks signals it is interested in, then when
 convenient, it waits for them or just checks whether there are some pending
 using \funnm{sigpending}().
-\item Funtion \funnm{sigwait}() was added with POSIX-1003.1c
+\item The \funnm{sigwait}() function was added with POSIX-1003.1c
 extensions (threads) and you should use this function when dealing with signals
 in the multithreaded application.  As other POSIX thread functions, it returns
 an error number directly, and 0 on success.

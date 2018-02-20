@@ -1,0 +1,27 @@
+
+In the Makefile there is the 'spellcheck' target. This is meant pretty much for
+non-interactive runs (e.g. via Travis). For spell checking, aspell is used.
+
+The spell checking works by transforming the file via m4 (using macros.m4)
+and sed (using spellfilter.sed).
+
+The sed filters are not very smart, especially they cannot deal with multi line
+LateX commands. For those, wrap the lines inside the ifdef, like so:
+
+ifdef([[[NOSPELLCHECK]]], [[[                                                   
+\texttt{void \funnm{err}(int \emph{status},
+const char *\emph{fmt}, ...);}      
+]]])
+
+The [[[ and ]]] character sequences are left and right quotation marks,
+respectively (see macros.m4) not to interfere with LateX quotation.
+
+There is a personal dictionary in unix_dict.txt. Try not to add too much stuff
+there, especially names of functions, headers, varibles, constants etc. as these
+should be eradicated using either m4 or sed.
+
+Sometimes it is not obvious from the output from the 'spellcheck' makefile
+target where particular problem is. To do that it is necessary to enter
+interactive mode on file processed by m4/sed and then run aspell with the
+'check' command (that requires file name as argument) in one terminal window and
+edit the original .tex file in another window.

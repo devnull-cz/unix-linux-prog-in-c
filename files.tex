@@ -1,5 +1,5 @@
 
-changequote([[[, ]]])
+include(`macros.m4')
 
 %%%%%
 
@@ -17,7 +17,7 @@ The filesystem structure provides for storing directories (folders), files,
 metadata, etc.
 \item Each filesystem has a specific structure type it uses, for example
 \texttt{ext4} (Linux specific), \texttt{XFS} (used on Linux but coming from SGI
-IRIX), \texttt{JFS} (used on Linux but came from IBM AIX), \texttt{ufs} (BSD
+IRIX), \texttt{JFS} (used on Linux but came from IBM AIX), \texttt{UFS} (BSD
 systems), \texttt{FAT32} (Win), \texttt{ZFS} (Solaris born, then ported to other
 systems), \texttt{APFS} (macOS and iOS since 2017), etc.  A filesystem can be
 either used on local or remote storage, and in case of a remote storage network
@@ -38,7 +38,7 @@ traversing the hierarchy.  There are some exceptions though.  For example,
 \texttt{FAT32} does no provide user and access rights for files so those are
 faked when such filesystem is mounted.
 \item Upon the system boot, the root filesystem is mounted first, other
-filesystems are later mounted via the \texttt{mount} commmand, usually from
+filesystems are later mounted via the \texttt{mount} command, usually from
 specific startup services based on the system you use.  The startup services
 sometimes use file \texttt{/etc/fstab} as a source of information about what
 filesystems to mount.  You can also use \texttt{mount} manually.  To unmount a
@@ -382,62 +382,63 @@ na disk
 
 %%%%%
 
-\pdfbookmark[1]{Virtual FIle System}{VFS}
+\pdfbookmark[1]{Virtual File System}{VFS}
 
 \begin{slide}
-\sltitle{Virtuální systém souborù (Virtual File System)}
+\sltitle{Virtual File System}
 \begin{center}
 \input{img/tex/vfs.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item \emph{FFS} uvedený ve 4.2BSD byl historicky druhý unixový filesystém.
-Nìkteøí dodavatelé unixových systémù ho zaèali preferovat vzhledem k jeho
-lep¹ímu výkonu a novým mo¾nostem, jiný zùstávali dále u \emph{s5fs} z dùvodu
-zpìtné kompatibility. To dále prohlubovalo problém ji¾ tak nedostateèné
-interoperability mezi rùznými unixovými systémy. Nìkterým aplikacím navíc plnì
-nevyhovoval ani jeden z tìchto filesystémù. Postupnì se také objevovala
-potøeba pracovat s ne-unixovými filesystémy, napø. \emph{FAT}. A s rostoucí
-popularitou poèítaèových sítí se zvy¹ovala poptávka po sdíl{}ení souborù mezi
-jednotlivými systémy, co¾ mìlo za následek vznik distribuovaných filesystémù
--- napø. \emph{NFS} (Network File System).
-\item vzhledem k vý¹e popsané situaci bylo jen otázkou èasu, kdy dojde k
-fundamentálním zmìnám v infrastruktuøe systému souborù, aby souèasnì
-podporoval více typù filesystémù. Vzniklo nìkolik rùzných implementací od
-rùzných výrobcù, a¾ se nakonec de facto standardem stala \emph{VFS/vnode}
-architektura od firmy Sun Microsystems. V dne¹ní dobì prakticky v¹echny
-unixové a u{}nix-like systémy podporují VFS, i kdy¾ èasto se vzájemnì
-nekompatibilními úpravami. VFS se poprvé objevilo v roce 1985 v Solarisu 2.0;
-brzy bylo pøevzato BSD -- FFS s podporou VFS se zaèal nazývat UFS.
-\item hlavní my¹lenka: ka¾dému otevøenému souboru v systému pøíslu¹í struktura
-\texttt{file}; to by vlastnì byl jeden slot v námi ji¾ známé systémové tabulce
-otevøených souborù. Ta ukazuje na \emph{vnode} (\emph{virtual node}).  Vnode
-obsahuje èást nezávislou na konkrétním systému souborù a èást závislou, co¾
-mù¾e být napøíklad struktura \emph{inode}. Ta je specifická pro ka¾dý typ
-souborového systému. \emsl{Ka¾dý typ filesystému implementuje pevnì danou
-sadu funkcí pro jednotlivé operace nad soubory}, na kterou se odkazují v¹echny
-virtuální uzly odpovídající danému typu filesystému. \emsl{Tato sada funkcí
-tedy definuje vnode interface.} Kdy¾ tedy zavoláte napøíklad \texttt{open},
-jádro zavolá pøíslu¹nou implementaci v závislosti na typu filesystému (napø. z
-modulu \emph{ext2fs}). Implementaènì závislá èást struktury vnode je pøístupná
-pouze z funkcí pøíslu¹ného typu filesystému; jádro do ní tedy ,,nevidí''
-pøímo. Jak uvidíte na dal¹ím slajdu, existuje je¹tì jedna sada funkcí, která
-se týka práce s filesystémy jako takovými. \emsl{Ta pak definuje VFS interface.}
-Tyto \emsl{dvì sady spoleènì} tvoøí vnode/VFS rozhraní, kterému se bì¾nì øíká
-jen VFS.
-\item (nebudu zkou¹et) -- u speciálních souborù je situace slo¾itìj¹í, v SVR4
-struktura \texttt{file} ukazuje na \emph{snode} (\emph{shadow-special-vnode}),
-který definuje operace se zaøízením (pomocí souborového systému \emph{spec}) a
-prostøednictvím ukazatele \texttt{s\_realvp} se odkazuje na reálný vnode pro
-operace se speciálním souborem; ten je potøeba napøíklad pro kontrolu práv
-pøístupu. Ka¾dému zaøízení mù¾e odpovídat více speciálních souborù, a tedy více
-snodes a pøíslu¹ných reálných vnodes. V¹echny takové snodes pro jedno zaøízení
-mají ukazatel \texttt{s\_commonvp} na jeden spoleèný snode, to ale není na
-obrázku zachyceno.  Pøi otevøení speciálního souboru se hledá v hash tabulce
-snodes otevøených zaøízení po\-lo¾\-ka odpovídající speciálnímu souboru (podle
-major a minor èísla zaøízení). Kdy¾ snode není nalezen, vytvoøí se nový. Tento
-snode se pak pou¾ívá pøi operacích se zaøízením. Více viz napøíklad [Vahalia].
+\item The \emph{FFS} filesystem introduced in 4.2BSD was historically the second
+unix filesystem. Some manufacturers of unix system started to prefer its
+considering its better performance and new features, others remained with 
+\emph{s5fs} from compatibility reasons. This deepened the problem with already
+insufficient interoperability between different unix systems. For some
+applications neither of these filesystems was enough. Gradually the need to work
+with non-unix systems started appearing, e.g. with \emph{FAT}. With growing
+popularity of computer networks the demand for file sharing between systems
+started to increase. This lead to the inception of distributed filesystems
+-- e.g. \emph{NFS} (Network File System).
+\item Given the above described situation it was just a matter of time when
+fundamental changes in the filesystem infrastructure will happen to support
+multiple filesystem types simultaneously. Several different implementations from
+multiple manufacturers were made; in the end the de facto standard became
+the \emph{VFS/vnode} architecture from Sun Microsystems. Today practically all
+unix u{}nix-like systems support VFS, even though with often non-compatible
+changes. VFS appeared for the first time in 1985 in Solaris 2.0;
+soon it was adopted by BSD -- FFS with VFS support started to be called UFS.
+\item the main idea: for each open file there is a \texttt{file} structure;
+it would be actually one slot in the already known system table of open files.
+This shows to \emph{vnode} (\emph{virtual node}). Vnode contains one part which
+is independent on given file system and one part dependent that could be e.g.
+the \emph{inode} structure. This is specific for each type of file system.
+\emsl{Each file system type implements concrete set of functions for individual
+file operations}. This set is referenced by each vnodes corresponding to given
+file system. \emsl{This set of functions define vnode interface.} When e.g.
+\texttt{open} is called, the kernel will call the corresponding implementation
+depending on file system type (e.g. from the \emph{ext2fs} module).
+Implementation dependent part of vnode structure is accessible only from
+functions of given filesystem; for kernel it is opaque. Next slide will shown
+another set of functions that works with filesystems themselves.
+\emsl{This set defines VFS interface.}
+These \emsl{two sets together} constitute the vnode/VFS interface, generally
+referred to as VFS.
+\item For special file types the situation is a bit more complicated, in SVR4
+the \texttt{file} structure points to \emph{snode}
+(\emph{shadow-special-vnode}), that defines operations with a device (using the
+\emph{spec} filesystem) and using the \texttt{s\_realvp} pointer it refers to
+real vnode for the operations with the special file; this file is necessary for
+example for checking file access rights. Each device can have multiple special
+files, hence more snodes and corresponding real vnodes. All such snodes for one
+device have the \texttt{s\_commonvp} pointer to one common snode, this is
+however not captured in the picture. When opening a special file, an item
+corresponding to the special file is searched in hash table of snodes of opened
+devices according to major and minor device number. If the snode is not found,
+new one is created. This snode will be then used for operations with the device.
+More in [Vahalia].
 \end{itemize}
 
 %%%%%
@@ -445,30 +446,30 @@ snode se pak pou¾ívá pøi operacích se zaøízením. Více viz napøíklad [Vahalia].
 \pdfbookmark[1]{file system hierarchy}{fshier}
 
 \begin{slide}
-\sltitle{Hierarchie souborových systémù}
+\sltitle{File system hierarchy}
 \begin{center}
 \input{img/tex/mount.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item struktura \texttt{vfs} obsahuje implementaènì nezávislé informace o
-filesystému, nezávislé na konkrétním typu filesystému, tedy podobnì jako vnode
-funguje pro soubory. Tato struktura reprezentuje jeden konkrétní fyzický
-filesystém, aktuálnì pøimontovaný do hierarchie souborù. V tomto vázaném seznamu
-tedy mù¾e být více struktur stejného typu souborového systému.
-\item \texttt{rootvfs} -- odkaz na root file system
-\item \texttt{vfsops} -- tabulka funkcí pro konkrétní typ systému souborù
-\item \texttt{vfssw[]} -- pole odkazù na tabulky \texttt{vfsops} pro v¹echny
-systémem podporované typy filesystémù, z tabulky se vybírá pøi pøipojování
-svazku podle typu filesystému zadaného pøi volání \texttt{mount}
-\item \texttt{v\_vfsp} -- odkaz z vnode na filesystém (strukturu
-\texttt{vfs}), na kterém le¾í soubor reprezentovaný pomocí vnode
-\item \texttt{v\_vfsmountedhere} -- pouze ve vnode, který reprezentuje mount
-point (adresáø, na kterém je pøipojen koøen jiného filesystému); odkazuje na
-strukturu \texttt{vfs} reprezentující pøipojený filesystém
-\item \texttt{v\_vnodecovered} -- odkaz na vnode adresáøe, na kterém je
-filesystém pøipojen
+\item The \texttt{vfs} structure contains implementation independent
+information about given filesystem, similarly to how vnode works for files.
+This structure represents once concrete physical filesystem, currently mounted
+to the hierarchy of files. In this linked list there can be more structures of
+the same filesystem type.
+\item \texttt{rootvfs} -- root file system reference
+\item \texttt{vfsops} -- function table for given file system type
+\item \texttt{vfssw[]} -- array of pointers to the \texttt{vfsops} tables for
+all file system types supported by the system. This table is used for selection
+based on filesystem type upon \texttt{mount} syscall.
+\item \texttt{v\_vfsp} -- reference from vnode to filesystem (the \texttt{vfs}
+structure), on which the file represented by the vnode lies
+\item \texttt{v\_vfsmountedhere} -- only in vnode representing a mount point
+(directory where root of different file system is mounted); points to
+the \texttt{vfs} structure represented mounted filesystem
+\item \texttt{v\_vnodecovered} -- pointer to the vnode of directory where
+the filesystem is mounted to
 \end{itemize}
 
 %%%%%
@@ -481,24 +482,23 @@ filesystém pøipojen
 \end{slide}
 
 \begin{itemize}
-\item struktury \texttt{proc} a \texttt{user} vytváøí jádro pro
-ka¾dý proces a dr¾í v nich slu¾ební informace o procesu.
-\item struktura \texttt{ufchunk} obsahuje \texttt{NFPCHUNK} (obvykle
-24) \emph{deskriptorù souborù}, po zaplnìní se alokuje dal¹í
-\texttt{ufchunk}.
-\item struktura \texttt{file} (\emph{otevøení souboru}) obsahuje mód
-souboru (otevøen pro ètení, zápis, atd.), poèet deskriptorù, které
-se na ni odkazují, ukazatel na \texttt{vnode} a pozici v souboru.
-Jedno otevøení souboru mù¾e být sdíleno více deskriptory, jestli¾e
-byl pùvodní deskriptor zkopírován, napø. voláním \texttt{fork()}
-nebo \texttt{dup()}.
-\item struktura \texttt{cred} obsahuje u¾ivatelskou a skupinovou
-identitu procesu, který otevøel soubor.
-\item jeden vnode odpovídající jednomu souboru mù¾e být sdíl{}en nìkolika
-strukturami file, pokud byl daný soubor vícekrát otevøen.
-\item ne v¹echny vnodes jsou asociovány s tabulkou otevøených
-souborù. Napø. pøi spu¹tìní programu je potøeba pøistupovat do
-spustitelného souboru a proto se alokuje vnode.
+\item The \texttt{proc} and \texttt{user} strucures are created by the kernel
+for each process. They contain service information about the process.
+\item The \texttt{ufchunk} structure contains \texttt{NFPCHUNK} (usually 24)
+\emph{file descriptors}, after it is full new \texttt{ufchunk} is allocated.
+\item The \texttt{file} structure (\emph{file opening}) contains the mode
+of file (whether it is opened for reading, writing, etc.), number of descriptors
+that refers to it, the \texttt{vnode} pointer and file position.
+One opening of file can be shared by multiple file descriptors,
+if the original descriptor was copied e.g. with the \texttt{fork()}
+or \texttt{dup()} syscalls.
+\item The \texttt{cred} structure contains user and group identity of the
+process that opened the file.
+\item One vnode corresponding to one file can be shared by multiple file
+structures if given file was opened multiple times.
+\item Not all vnodes are associated with the table of opened files.
+E.g. when executing a program it is necessary to access the executable file and
+hence a vnode is allocated for that.
 \end{itemize}
 
 
@@ -507,39 +507,38 @@ spustitelného souboru a proto se alokuje vnode.
 \pdfbookmark[1]{filesystem consistency check and repair}{fsck}
 
 \begin{slide}
-\sltitle{Oprava konzistence souborového systému}
+\sltitle{Filesystem consistency check and repair}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
 \setlength{\itemsep}{0ex}
-\item pokud není filesystém pøed zastavením systému korektnì
-odpojen, mohou být data v nekonzistentním stavu. 
-\item ke kontrole a opravì svazku slou¾í pøíkaz \texttt{fsck}.
-Postupnì testuje mo¾né nekonzistence:
+\item If a filesystem is not correctly unmounted before the system is halted,
+the data can be inconsistent.
+\item The \texttt{fsck} command is used to check and correct file system.
+It tests progressively tests possible inconsistencies:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item vícenásobné odkazy na stejný blok
-    \item odkazy na bloky mimo rozsah datové oblasti systému souborù
-    \item ¹patný poèet odkazù na i-uzly
-    \item nesprávná velikost souborù a adresáøù
-    \item neplatný formát i-uzlù
-    \item bloky které nejsou obsazené ani volné
-    \item chybný obsah adresáøù
-    \item neplatný obsah superbloku
+    \item multiple references to the same block
+    \item references to blocks outside of data region of given file system
+    \item incorrect number of inode references
+    \item incorrect size of files and directories
+    \item invalid inode format
+    \item blocks that are neither used or free
+    \item invalid directory contents
+    \item invalid superblock contents
     \end{itemize}
-\item operace \texttt{fsck} je èasovì nároèná. 
-\item ¾urnálové (napø. XFS v IRIXu, Ext3 v Linuxu) a transakèní (ZFS)
-systémy souborù nepotøebují \texttt{fsck}.
+\item the \texttt{fsck} operation is time consuming.
+\item journaling (e.g. XFS in IRIXu, Ext3 in Linux) a transactional (ZFS)
+filesystems do not need \texttt{fsck}.
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item data se pøepisují na disky z vyrovnávacích pamìtí se
-zpo¾dìním. Ulo¾ení v¹ech vyrovnávacích pamìtí lze vynutit systémovým
-voláním \texttt{sync()}. Periodicky vyrovnávací pamìti ukládá
-zvlá¹tní systémový proces (démon).
-\item \texttt{fsck} kontroluje pouze metadata. pokud do¹lo k poru¹e dat
-samotných, nepozná to, nato¾ aby s tím nìco mohl udìlat.
-\item zde je ukázka \texttt{fsck} na \emsl{odpojený} filesystém:
+\item The data is written to the drives from the memory with some delay.
+To save all file system buffers the \texttt{sync()} syscall can be used.
+The buffers are saved periodically by special system process (or daemon).
+\item The \texttt{fsck} command only checks metadata. If a data corruption
+happened it cannot tell, let alone do something about it.
+\item Exaple of \texttt{fsck} run on \emsl{unmounted} filesystem:
 \begin{verbatim}
 toor@shewolf:~# fsck /dev/ad0a 
 ** /dev/ad0a
@@ -556,32 +555,32 @@ toor@shewolf:~# fsck /dev/ad0a
 
 %%%%%
 
-\pdfbookmark[1]{more ways to for ensuring filesystem consistency}{fsconsistency}
+\pdfbookmark[1]{more ways for ensuring filesystem consistency}{fsconsistency}
 
 \begin{slide}
-\sltitle{Dal¹í zpùsoby zaji¹tìní konzistence filesystému}
+\sltitle{More ways for ensuring filesystem consistency}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
 \setlength{\itemsep}{0ex}
-\item tradièní UFS -- synchronní zápis metadat
+\item traditional UFS -- synchronous metadata writes
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item aplikace vytváøející nový soubor èeká na inicializaci inode na
-    disku; tyto operace pracují rychlostí disku a ne rychlostí CPU
-    \item asynchronní zápis ale èastìji zpùsobí nekontistenci metadat
+    \item an application creating new file is waiting till the inode is
+    initialized on disk; these operations are done with disk speed, not CPU
+    speed
+    \item however asynchronous writes more often cause metadata inconsistencies
     \end{itemize}
-\item øe¹ení problémù s nekonzistencí metadat na disku:
+\item solutions to metadata inconsistency problem:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item \emph{journalling} -- skupina na sobì závislých operací se
-    nejdøíve atomicky ulo¾í do ¾urnálu; pøi problémech se pak ¾urnál
-    mù¾e ``pøehrát''
-    \item bloky metadat se nejdøíve zapí¹í do non-volatile pamìti
-    \item \emph{soft-updates} -- sleduje závislosti mezi ukazately
-    na diskové struktury a zapisuje data na disk metodou
-    \emph{write-back} tak, ¾e data na disku jsou v¾dy konzistentní
-    \item \emph{ZFS} je nový filesystém v Solarisu, který pou¾ívá
-    \emph{copy-on-write} transakèní model
+    \item \emph{journalling} -- one group of operations dependent on each other
+    is written to a journal first; if a problem is encountered the journal can
+    be ``replayed''
+    \item metadata blocks are written to non-volatile memory first
+    \item \emph{soft-updates} -- follows dependencies between pointers to disk
+    structures and writes the data using the \emph{write-back} method so that
+    the data are always consistent on disk.
+    \item \emph{transactions}
     \end{itemize}
 \end{itemize}
 \end{slide}
@@ -589,56 +588,58 @@ toor@shewolf:~# fsck /dev/ad0a
 \begin{itemize}
 \item filesystem \emph{metadata} = inodes, directories, free block
 maps
-\item \emph{ext2} dokonce defaultnì pou¾ívá asynchronní zápis metadat a je pøi
-pou¾ítí synchronního zápisu výraznì pomalej¹í ne¾ UFS
-\item závislé operace jsou napøíklad smazání polo¾ky z adresáøe a smazání
-diskového inode. Pokud by se stalo, ¾e se nejdøíve sma¾e diskový inode a pak
-teprve polo¾ka v adresáøi, pøi výpadku mezi tìmito dvìmi operacemi vniká
-nekonzistence -- link ukazuje na diskový soubor, který neexistuje. Není
-problém se tomuto vyhnout pøi synchronním zápisu metadat (víme kdy a co
-zapisujeme, urèujeme tedy poøadí zápisu), ale pøi metodì write-back je ji¾
-nutné øe¹it závislosti jednotlivých blokù na sebe, proto¾e pøi klasické
-synchronizaci vyrovnávacích pamìtí na disk jádro nezajímá, který blok se
-zapí¹e døív a který pozdìji.
-\item èasto jsou bloky na sobì závislé ve smyèce. Soft updates doká¾e takovou
-smyèku rozbít tím, ¾e provede \emph{roll-back} a po zápisu pak
-\emph{roll-forward}
-\item výkon soft updates je srovnatelný výkonu UFS filesystému s asynchronním
-zápisem metadat
-\item teoreticky soft updates zaruèují, ¾e po rebootu není potøeba pou¾ít
-\texttt{fsck}, tj. ¾e filesystém bude v takovém stavu, ¾e je mo¾né nabootovat.
-Je v¹ak nutné pou¾ít tzv. \emph{background fsck} pro opravy nezáva¾ných chyb
--- to je pova¾ováno stále za velkou nevýhodu soft updates zvlá¹tì s tím, jak
-rostou velikosti bì¾nì pou¾ívaných diskù. Takovou chybou, která nebrání
-nabootování, ale je nutné ji odstranit je napøíklad blok, který je oznaèen
-jako pou¾itý, ale ¾ádný soubor ho nepou¾ívá.
-\item soft updates nejsou v¾dy doporuèovány pro root filesystém. Problém je
-to, ¾e ztráta metadat na root filesystému (viz 30-ti sekundová perioda zápisu)
-mù¾e být výraznì vìt¹í hrozbou zde ne¾ na \texttt{/usr}, \texttt{/home} atd.
-Dal¹í nevýhodou mù¾e být i to, ¾e u soft updates mi smazání velkého souboru
-hned neuvolní místo.
-\item pøíklad: na bezpeènou operaci rename potøebuju pøi synchronním zápisu
-metadat 4 zápisy -- zvý¹ení poètu odkazù v inode, vytvoøení nové
-a\-dre\-sá\-øo\-vé polo¾ky, smazání staré, a opìtné sní¾ení poètu odkazù v
-inode. Kdykoli by systém spadnul, nenastane nebezpeèná situace. Napøíklad 2
-odkazy z adresáøù na inode s referenèním poètem 1 je problém, proto¾e po zru¹ení
-jednoho odkazu to bude vypadat, ¾e soubor je stále na disku, kdy¾ u¾ byla jeho
-data dávno smazána. Není te¾ké si asi pøedstavit, co by to mohlo znamenat v
-pøípadì, ¾e soubor obsahoval opravdu dùle¾itá data -- napøíklad zálohu. Opaèná
-situace, tj. jeden odkaz na inode s referencí 2 sice také není správná situace,
-ale neohro¾uje to mo¾nost filesystém namontovat a normálnì pou¾ívat. V nejhor¹ím
-se stane, ¾e soubor vypadá ¾e ji¾ na disku není a pøitom stále existuje. U soft
-updates operace rename vytvoøí kru¾nici, proto¾e nejdøíve je potøeba zapsat
-zvý¹ení poètu referencí, pak adresáøové bloky a poté sní¾ení referencí. A
-proto¾e zvý¹ení/sní¾ení se týká stejného inode, tak je pøi zápisu tøeba udìlat
-roll-back na (øeknìme) 2, zapsat inode na disk, zapsat bloky adresárù a pak
-roll-forward na poèet referencí 1. Pøi této akci je nad inodem dr¾en zámek,
-tak¾e nikdo nenaète star¹í data. Je jednoduché ukázat, ¾e nelze zapsat ¾ádný z
-tìch tøí blokù v kru¾nici tak, jak to je na konci operace rename, ¾e je opravdu
-nutný ten roll-back -- mohli bychom uva¾ovat, ¾e inode se vlastnì nezmìnil a
-není tøeba øe¹it zda se mù¾e/nemù¾e zapsat; zápis nového adresáøového odkazu bez
-zvý¹ení poètu odkazù v inodu by nás toti¾ mohl dostat pøesnì do situace, která
-je popsána o pár øádkù vý¹e.
+\item \emph{ext2} uses asynchronous metadata writes even by default and when
+in synchronous mode it is much slower to UFS.
+\item Dependent operations are for example deleting an item from directory and
+deleting disk inode. If the inode is deleted first and then the directory entry
+then if there is outage between these two operations then inonsistency follows
+-- the link points to disk file that does not exist. It is not a problem to
+avoid this when using synchronous metadata writes (we know when a what is being
+written, the ordering of writes is therefore under our control) however when
+using the write-back method it is necessary to solve dependencies of the blocks
+because with classic synchronization of cache buffers the kernel is not
+interested in which blocks is written first.
+\item Often the block dependencies for a cycle. Soft updates can recognize sych
+cycle and break it by performing \emph{roll-back} and after the write is done it
+performs \emph{roll-forward}.
+\item The soft updates performance is comparable to that of UFS with
+asynchronous metadata writes.
+\item Theoreticall soft updates guratantee that it is not necessary to use
+\texttt{fsck} after the reboot, i.e. that the filesystem is in bootable state.
+It is however necessary to use so called \emph{background fsck} for correcting
+non-grave errors -- this is considered to be one of the big drawbacks of soft
+updates, especially given how sizes of disks grow over time. Example of an error
+that does not block booting would be a block that is marked as used however is
+not used by any file.
+\item soft updates are not always recommended for the root filesystem.
+The problem is that metadata loss on root file system (see the 30 second
+period of writes) can be more dangerous than in \texttt{/usr}, \texttt{/home}
+etc. Another disadvantage is that after deleting huge file soft updates do not
+free up the space immediately.
+\item Example: it is necessary 4 writes for secure rename operations when using
+synchronous writes -- increase the number of references in inode, create new
+directory entry, delete old entry, decrease the number of references.
+If a system goes down between each of these a dangerous situation will ensue.
+For example 2 references from directories to inode with reference count of 1 is
+a problem because after deleting one of the references it would look like the
+file is still on disk, when its data has been deleted already.
+It is not hard to imagine what would it mean if the file contained important
+data -- e.g. backup.
+Opposite situation, i.e. one reference to inode with reference count equal 2 is
+not correction situation either however it does not pose a threat to mount the
+filesystem and normally use it. In the worst case the file looks as it is no
+longer on disk while it still exists. For soft updates the rename operation will
+form a cycle because it is necessary to write the increased reference count
+first, then directory blocks and then decreased reference. And because
+increase/decrease is done for the same inode, then for the write it is necessary
+to do roll-back to (say) 2, write inode to disk, write directory blocks and then
+roll-forward to reference of 1. During this operation a lock is held for the
+inode so that no one will read older data. It is simple to show that it is not
+possible to write any of these 3 blocks in a cycle to match the end of the
+rename operation so that the roll-back is truly needed -- we could consider that
+the inode did not really change and it is not necessary to decide whether to
+write it or not; the write of directory reference without increasing reference
+count in the inode could get us into situation which is descibed above.
 \end{itemize}
 
 \endinput

@@ -1,5 +1,5 @@
 % Unix programming in C
-% (c) 1999-2017, Martin Beran, Jan Pechanec, Vladimir Kotal
+% (c) 1999-2018, Martin Beran, Jan Pechanec, Vladimir Kotal
 
 % (janp) notes
 %
@@ -12,7 +12,7 @@
 %   \includegraphics[width=30mm]{circle.eps}
 %
 
-changequote([[[, ]]])
+include(`macros.m4')
 
 %\documentclass[article]{seminar}
 %\documentclass[slidesonly]{seminar}
@@ -21,14 +21,18 @@ changequote([[[, ]]])
 \usepackage{multicol}
 \usepackage{tabularx}
 
+\usepackage{nth}
+
 %\input{seminar.bg2}
 %\usepackage{seminar}
 
 % color doc: http://en.wikibooks.org/wiki/LaTeX/Colors
 % color defs: http://www.w3schools.com/html/html_colors.asp
 \usepackage{color}
+ifdef([[[NOSPELLCHECK]]], [[[
 \definecolor{MyDarkBlue}{RGB}{71,57,146} % BlueViolet
 \definecolor{MyDarkRed}{RGB}{139,00,00}
+]]])
 
 % hyperref docs:
 %   http://www.tug.org/applications/hyperref/manual.html
@@ -37,7 +41,7 @@ changequote([[[, ]]])
 \usepackage[bookmarks,breaklinks=true,%
 	colorlinks=true,linkcolor=MyDarkBlue,urlcolor=MyDarkRed,%
 	pdftex,%
-	pdfauthor={Vladimír Kotal, Jan Pechanec},%
+	pdfauthor={Vladimir Kotal, Jan Pechanec},%
 	pdftitle={Unix programming in C},%
 	pdfsubject={Materials for the NSWI015 class at MFF-UK},%
 	pdfkeywords={Unix, programming, C, MFF, MFF-UK},%
@@ -86,14 +90,16 @@ changequote([[[, ]]])
 % bold
 \newcommand{\emsl}[1]{\textbf{#1}} % Emphasizing in slides
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \newcommand{\emprg}[1]{\emph{\color[rgb]{1,0,0} #1}} % Emphasize in programs
 \newcommand{\emblue}[1]{\emph{\color[rgb]{0,0,1} #1}} % emph in blue
 
 % my very important note
 \newcommand{\rednote}[1]{\color[rgb]{1,0,0} #1}
 
-\newcommand{\CHECK}[1]{{\color[rgb]{1,0,0} $\star$#1$\star$}} % What should be
-							      % checked
+% What should be checked
+\newcommand{\CHECK}[1]{{\color[rgb]{1,0,0} $\star$#1$\star$}}
+]]])
 
 \newenvironment{itemize2} % Itemize with smaller font
     {\begin{itemize}\small} {\end{itemize}}

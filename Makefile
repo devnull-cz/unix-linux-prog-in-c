@@ -46,7 +46,7 @@ all:		slides notes
 slides:		$(SLIDES)
 		@for i in ${SLIDES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
-			$(M4) $$i > $$new; \
+			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
 		$(LATEX) $(SLIDE:tex=m4.tex)
 		mv $(SLIDE:tex=m4.pdf) $(SLIDE_PDF)
@@ -54,10 +54,18 @@ slides:		$(SLIDES)
 notes:		$(NOTES)
 		@for i in $(NOTE) ${NOTES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
-			$(M4) $$i > $$new; \
+			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
 		$(LATEX) $(NOTE:tex=m4.tex)
 		mv $(NOTE:tex=m4.pdf) $(NOTE_PDF)
 
 clean:
 		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp *.out
+
+# Once translation is finished, make this return 1 on non-empty output.
+spellcheck:
+		@for file in ${SLIDES}; do \
+			echo "### Checking $$file"; \
+			$(M4) $$file | sed -E -f spellfilter.sed | \
+			    aspell -t --personal=./unix_dict.txt list; \
+		done

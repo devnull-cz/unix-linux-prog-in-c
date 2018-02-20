@@ -1,8 +1,7 @@
-
-changequote([[[, ]]])
+include(`macros.m4')
 
 \pagebreak
-\pdfbookmark[0]{access rights, peripheal devices, file system}{soubory}
+\pdfbookmark[0]{access rights, peripheral devices, file system}{user access}
 
 \begin{slide}
 \sltitle{Contents}
@@ -39,12 +38,12 @@ The kernel knows nothing about these files as it only uses numeric
 representation of users and groups.
 \item Passwords are long gone from \texttt{/etc/passwd}, they are stored some
 place else, for example in \texttt{/etc/shadow}, which is not readable to an
-uprivileged user.  The passwords are also salted and then hashed.  On BSD based
-systems, eg. FreeBSD or macOS, instead of \texttt{/etc/shadow},
+unprivileged user.  The passwords are also salted and then hashed. On BSD based
+systems, e.g. FreeBSD or macOS, instead of \texttt{/etc/shadow},
 \texttt{/etc/master.passwd} database is used.
 \item If \texttt{/etc/shadow} does exist, it is structured in a similar way as
 \texttt{/etc/passwd}.
-\item There are also protocols used for autentization that do not use
+\item There are also protocols used for authentication that do not use
 \texttt{/etc/passwd} at all, for example NIS (Network Information Service) or
 LDAP (Lightweight Directory Access Protocol).
 \item The user group in \texttt{/etc/passwd} is called \emph{primary} for the
@@ -98,24 +97,28 @@ that is not used anymore.
 \end{itemize}
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
+]]])
 
 \label{GETPW_FUNC}
 \begin{slide}
 \sltitle{Obtain user/group information}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{struct passwd *\funnm{getpwnam}(const char *name)}
-
+]]])
 return structure describing user found in password database or NULL.
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{struct passwd *\funnm{getpwuid}(uid\_t uid)}
-
+]]])
 ditto; perform search according to UID.
-
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{void \funnm{setpwent}(void)}
 \item \texttt{void \funnm{endpwent}(void)}
 \item \texttt{struct passwd *\funnm{getpwent}(void)}
-
+]]])
 these functions traverse password database. \funnm{setpwent} rewinds to the
 beginning of the password database, \funnm{getpwent} gets the current entry,
 \funnm{endpwent} closes the password database and free allocated resources.
@@ -151,11 +154,12 @@ root::0:
 \begin{itemize}
 \item today's systems are not confined to only using
 \texttt{/etc/passwd} and \texttt{/etc/groups}
-\item such systems have \emph{databases} (passwd, groups, protocols, \dots)
+\item such systems have \emph{databases} (\texttt{passwd, groups, protocols},
+\dots)
 \item database data come from \emph{sources} (files, DNS, NIS, LDAP, \dots)
 \item file \texttt{nsswitch.conf} defines what databases use what sources
 \item library functions must support this, obviously
-\item it is possible to combine some sources, eg. users may be first be searched
+\item it is possible to combine some sources, e.g. users may be first be searched
 in \texttt{/etc/passwd}, then in LDAP
 \item came first with Solaris, other systems took over the idea
 \end{itemize}
@@ -204,9 +208,11 @@ belongs to (\emsl{primary GID}, \emsl{supplementary GIDs})
 \item this identification is inherited by each process
 \item file $F$ has owner ($UID_F$) and group owner ($GID_F$). 
 \item algorithm for evaluation of access rights for process:
-$P(UID_P,GID_P,SUPG)$ and file $F(UID_F,GID_F)$:
+ifdef([[[NOSPELLCHECK]]], [[[$P(UID_P,GID_P,SUPG)$]]]) and file
+ifdef([[[NOSPELLCHECK]]], [[[$F(UID_F,GID_F)$]]]):
 \begin{tabular}{ll}
-If & then $P$rocess has w.r.t. $F$ile \\ 
+If & then ifdef([[[NOSPELLCHECK]]], [[[$P$rocess]]]) has w.r.t.
+ifdef([[[NOSPELLCHECK]]], [[[$F$ile]]]) \\ 
 \hline
 \texttt{if($UID_P$ == 0)} & \dots{} all rights \\
 \texttt{else if($UID_P$ == $UID_F$)} & \dots{} owner rights \\
@@ -305,7 +311,9 @@ drwxrwxrwt   7 root     root         515 Mar 23 12:22 /tmp
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{ruid, euid, suid}{resugid}
+]]])
 
 \begin{slide}
 \sltitle{Real and effective UID/GID}
@@ -332,7 +340,7 @@ supplementary GIDs}
 
 \begin{itemize}
 \item \label{SUID_BIT} The SUID and SGID bits are used for programs that need
-bigger privileges thatn the user who executes them. One example is the
+bigger privileges than the user who executes them. One example is the
 \texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
 \texttt{/etc/shadow}, where the ordinary user cannot modify the first and
 cannot write into the the second. Another example is the \texttt{su} program,
@@ -361,26 +369,33 @@ either can be used to set EUID.
 \end{itemize}
 
 %%%%%
-
+ 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getuid, getgid, geteuid, getegid, getgroups}{getuid}
+]]])
 
 \begin{slide}
 \sltitle{Process owner identification}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{getuid}(void)}
-
+]]])
 returns real user ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{geteuid}(void)}
-
+]]])
 returns effective user ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getgid}(void)}
-
+]]])
 returns real group ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getegid}(void)}
-
+]]])
 returns effective group ID of the calling process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
-
+]]])
 -- \texttt{glist} returns at most \texttt{gidsz} supplementary group
 IDs of the calling process and returns number of all GIDs of the process.
 \end{itemize}
@@ -390,12 +405,14 @@ IDs of the calling process and returns number of all GIDs of the process.
 \item The \texttt{getuid} returns real UID, there is nothing like
 \texttt{getruid}.
 \item \texttt{getgroups}: when \texttt{gidsz~==~0}, it returns the number of
-groups. When \texttt{0 < gidsz < \#skupin}, it returns \texttt{-1}.
+groups. When \texttt{0 < gidsz < \#groups}, it returns \texttt{-1}.
 \item In Unix, there are many data types such as \verb#uid_t#, \verb#gid_t#,
 \verb#size_t#, \verb#pid_t#, etc.  In general, these are integer types and you
-can often find them in the \texttt{/usr/inc{}lude/sys/types.h} header file.
+can often find them in the
+ifdef([[[NOSPELLCHECK]]], [[[\texttt{/usr/inc{}lude/sys/types.h}]]]) header
+file.
 \item Solaris has the \texttt{pcred} command that provides process
-idenfitication information in a simple form:
+identification information in a simple form:
 
 \begin{verbatim}
 $ pcred 5464
@@ -406,22 +423,30 @@ $ pcred 5464
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{setuid, setgid, setgroups}{ownerchange}
+]]])
 
 \begin{slide}
 \sltitle{Process owner change}
 \begin{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setuid}(uid\_t \emph{uid});}
+]]])
     \begin{itemize}
     \item in process with EUID~==~0 sets RUID, EUID and saved-SUID to
     \texttt{uid}
     \item for other processes it sets just EUID, and \texttt{uid} must be
     either equal to RUID or saved UID
     \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgid}(gid\_t \emph{gid});} \\
+]]])
 similar to \texttt{setuid}, for group-IDs of the process.
+ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgroups}(int \emph{ngroups},
 gid\_t *\emph{gidset})} \\
+]]])
 sets the supplementary group IDs for the calling process. Can only be used
 by superuser process.
 \end{itemize}
@@ -437,7 +462,7 @@ effective IDs.
 \item If a process with UID~==~0 wants to change its identity, it has to call
 \texttt{setgid} first and then \texttt{setgroups}. Only after that it can call
 \texttt{setuid}. Any other ordering would mean that the process would lack the
-rights to perform the opearation in question, e.g. once \texttt{setuid} returns
+rights to perform the operation in question, e.g. once \texttt{setuid} returns
 it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 \item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
 \item RUID/EUID are saved in the kernel process structure and also in the so
@@ -455,7 +480,7 @@ have to be used.
 \sltitle{File system}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item directories form a tree; together with files acyclical graph
+\item directories form a tree; together with files acyclic graph
 (one file can have multiple references).
 \item each directory also contains reference to itself '\texttt{.}'
 (dot) and to its parent directory '\texttt{..}' (two dots). 
@@ -464,7 +489,7 @@ entities such as:
     \begin{itemize2}
 \setlength{\itemsep}{-3pt}
 \setlength{\topsep}{0pt}
-    \item peripheal devices
+    \item peripheral devices
     \item named pipes
     \item sockets
     \item processes (\texttt{/proc}) 
@@ -472,7 +497,7 @@ entities such as:
     \item pseudo files (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
     \end{itemize2}
 \item from kernel's perspective each regular file is an array of bytes.
-\item all (including network) dirves are connected to single tree.
+\item all (including network) drives are connected to single tree.
 \end{itemize}
 \end{slide}
 
@@ -494,22 +519,21 @@ drwx------   2 janp     staff        512 Mar 23 12:46 test
 \item The root user can in some systems create cycle in directory structure
 however that might confuse file system traversal tools; hence the cyclical
 structure is not used much. Symbolic links to directories work everywhere.
-\item Named pipes (see page \pageref{MKFIFO}) can be used between processes that
-do not have ''family'' relationship.  They work as unnamed pipes otherwise.
+\item Named pipes (see page \pageref{MKFIFO}) can be used between processes
+that do not have ''family'' relationship.  They work as unnamed pipes otherwise.
 \item The sockets noticed above are in the UNIX domain, i.e. they serve for
 communication within one system. The INET domain sockets, used for network
-communication (see page \pageref{NETWORKING}) are not visible in the file system. 
-jednoho systému. Sokety z domény INET, pøes které probíhá sí»ová komunikace,
-se v systému souborù neobjevují. Sí»ová komunikace zaèíná na stranì
+communication (see page \pageref{NETWORKING}) are not visible in the file
+system.
 \item Debuggers use process images available through \texttt{/proc}.
 On many Unix-like systems the \texttt{/proc} tree contains information about
 kernel and running processes in the form of text files.  However, some systems,
 like Solaris, have those files in a binary form only and provide special
 commands to read those (like \texttt{pargs}, \texttt{pldd}, etc.).
-\item Modern Unix systems contain a special \emph{devfs} filesystem that
-reflects an actual system configuration w.r.t. connected devices. I.e. after
-connecting a USB stick a related device will appear under \texttt{/dev}. After
-physically disconnecting it, the item will disappear.
+\item Modern Unix systems contain a special \emph{\texttt{devfs}} filesystem
+that reflects an actual system configuration w.r.t. connected devices. I.e.
+after connecting a USB stick a related device will appear under \texttt{/dev}.
+After physically disconnecting it, the item will disappear.
 \end{itemize}
 
 \endinput
