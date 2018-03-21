@@ -52,95 +52,96 @@ for more information.
 
 %%%%%
 
-\pdfbookmark[1]{typical layout of directories}{hier}
+\pdfbookmark[1]{typical layout of system directories}{hier}
 
 \begin{slide}
-\sltitle{Typická skladba adresáøù}
+\sltitle{Typical layout of system directories}
 \begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
-\texttt{/bin} & základní systémové pøíkazy\\
-\texttt{/dev} & speciální soubory (zaøízení, devices)\\
-\texttt{/etc} & konfiguraèní adresáø\\
-\texttt{/lib} & základní systémové knihovny\\
-\texttt{/tmp} & veøejný adresáø pro doèasné soubory\\
-\texttt{/home} & koøen domovských adresáøù\\
-\texttt{/var/adm} & administrativní soubory (ne na BSD) \\
-\texttt{/usr/in{}clude} & hlavièkové soubory pro C\\
-\texttt{/usr/local} & lokálnì instalovaný software\\
-\texttt{/usr/man} & manuálové stránky\\
-\texttt{/var/spool} & spool (po¹ta, tisk,...)
+\texttt{/bin} & basic system commands\\
+\texttt{/dev} & devices\\
+\texttt{/etc} & configuration\\
+\texttt{/lib} & basic system libraries\\
+\texttt{/tmp} & public directory for temporary files\\
+\texttt{/home} & root of home directories\\
+\texttt{/var/adm} & administrative files (not on BSD) \\
+\texttt{/usr/in{}clude} & header files for C\\
+\texttt{/usr/local} & locally installed software\\
+\texttt{/usr/man} & man pages\\
+\texttt{/var/spool} & spool (mail, printing,...)
 \end{tabular}
 \end{slide}
 
 \begin{itemize}
-\item v \texttt{/bin}, \texttt{/lib}, \texttt{/sbin} jsou pøíkazy a knihovny
-potøebné pøi startu systému, kdy je pøipojen pouze koøenový filesystém. Ostatní
-pøíkazy a knihovny jsou typicky v \texttt{/usr/bin}, \texttt{/usr/lib} a
-\texttt{/usr/sbin}. \texttt{/usr} bývá èasto samostatný filesystém, èím¾ jeho
-obsah není dostupný bìhem startu systému.
-\item \texttt{s} v \texttt{sbin} znaèí ,,system'', ne SUID. Jsou to binárky, u
-kterých se pøedpokládá, ¾e je bì¾ný u¾ivatel nebude typicky potøebovat.
-\item podstrom \texttt{/usr} obsahuje soubory, které se nemìní pøi bì¾ném
-provozu a nejsou závislé na konkrétním poèítaèi. Proto by mìl jít sdílet
-read-only. Na své stanici doma ho ale vìt¹inou budete mít read-write.
-\item \texttt{/lib} typicky obsahuje knihovny potøebné pro programy z koøenového
-svazku. Pokud by v¹echny knihovny byly v \texttt{/usr/lib} a \texttt{/usr} byl
-samostatný svazek, problém s pøipojením \texttt{/usr} by kompletnì ochromil celý
-systém, proto¾e by ne¹lo spustit nic. Nìkdy to systémy øe¹í tak, ¾e koøenový
-svazek obsahuje sadu základních programù, které jsou staticky slinkované.
-Napøíklad FreeBSD má takové binárky v adresáøi \texttt{/rescue}, má ale i
-samostatné adresáøe \texttt{/lib} a \texttt{/usr/lib}.
-\item v podstromu \texttt{/var} jsou data, která se za provozu mìní a jsou
-specifická pro ka¾dý poèítaè.
-\item rùzné systémy i instalace jednoho systému se èasto li¹í.
-\item \texttt{hier(7)} na FreeBSD a Linuxu popisuje adresáøovou hierarchii
-tohoto systému, Solaris má \texttt{filesystem(5)}.
+\item The \texttt{/bin}, \texttt{/lib}, \texttt{/sbin} directories contain
+commands and libraries needed for the start of the system when only root
+filesystem is mounted. The rest of the commands is located typically in
+\texttt{/usr/bin}, \texttt{/usr/lib} and \texttt{/usr/sbin}.
+\texttt{/usr} may be a separate file system, possibly not accessible during
+system startup.
+\item The \texttt{s} letter in \texttt{sbin} means ,,system'', not SUID.
+It contain binaries not needed by typical user.
+\item The \texttt{/usr} directory tree contains files that are not changing
+while the system is running and are not dependent on given machine.
+This property should make it elegible for read-only sharing. On your own
+machine it will be typically read-write, though.
+\item The \texttt{/lib} directory typically contains libraries needed for
+programs from the root file system. If all libraries were in \texttt{/usr/lib}
+and \texttt{/usr} was separate file system, a problem with mounting
+\texttt{/usr} could paralyze complete system, because no program could be run.
+In some systems the root file system contains base set of programs that are
+statically linked. For example FreeBSD has such binaries under the
+\texttt{/rescue} directories. It also has separate directories \texttt{/lib} and
+\texttt{/usr/lib}.
+\item The \texttt{/var} directory tree contains data that change while the
+system is running and are specific for given machine.
+\item There can be differences in directory layout found between installations
+of the same operating system.
+\item The \texttt{hier(7)} manual page on FreeBSD and Linuxu describes directory
+hierarchy on these systems. Solaris uses \texttt{filesystem(5)}.
 \end{itemize}
 
 %%%%%
 
 \begin{slide}
-\sltitle{Pøístup k periferním zaøízením}
+\sltitle{Peripheral device access}
 \begin{itemize}
-\item adresáø \texttt{/dev} obsahuje speciální soubory zaøízení.
-Proces otevøe speciální soubor systémovým voláním \texttt{open()} a
-dále komunikuje se zaøízením pomocí volání \texttt{read()},
-\texttt{write()}, \texttt{ioctl()}, apod. 
-\item speciální soubory se dìlí na 
+\item The \texttt{/dev} directory contains special device files.
+A process opens special file via \texttt{open()} and communicates with the
+device via \texttt{read()}, \texttt{write()}, \texttt{ioctl()}, etc.
+\item special files are divided into:
     \begin{itemize2}
-    \item \emsl{znakové} \dots{} data se pøená¹í pøímo mezi procesem a
-    ovladaèem zaøízení, napø. sériové porty 
-    \item \emsl{blokové} \dots{} data prochází systémovou
-    vyrovnávací pamìtí (buffer cache) po blocích pevnì dané
-    velikosti, napø. disky 
+    \item \emsl{character} \dots{} data is transferred directly between process
+    and device driver, e.g. serial ports
+    \item \emsl{block} \dots{} data is passed through system cache
+    (buffer cache) in blocks of given size, e.g. disks
     \end{itemize2}
-\item speciální soubor identifikuje zaøízení dvìma èísly 
+\item special device identifies concrete device with two numbers
     \begin{itemize2}
-    \item \emsl{hlavní (major) èíslo} \dots{} èíslo ovladaèe v jádru 
-    \item \emsl{vedlej¹í (minor) èíslo} \dots{} èíslo v rámci
-    jednoho ovladaèe
+    \item \emsl{major} \dots{} number of device driver in the kernel
+    \item \emsl{minor} \dots{} number within single device driver
     \end{itemize2}
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item vyrovnávací pamìti (cache) urychlují periferní operace. Pøi ètení se data
-hledají nejprve v~bufferu. Teprve kdy¾ nejsou k dispozici, tak se ètou z disku.
-Pøi pøí¹tím ètení stejného bloku jsou data v bufferu. Pøi zápisu se data ulo¾í
-do bufferu. Na disk je systém pøepí¹e pozdìji. Lze si vynutit i okam¾itý zápis
-dat na disk. Dnes ji¾ cache typicky není samostatná struktura, v¹e je zastøe¹eno
-modulem vitruální pamìti.
-\item disky v UNIXu jsou obvykle pøístupné pøes znakové (pou¾ívané pøi
-\texttt{mkfs} -- vytvoøení svazku -- a \texttt{fsck} -- kontrola konzistence) i
-blokové rozhraní (pou¾ívané pøi normálním provozu systému souborù). Nìkteré
-systémy (FreeBSD) ale u¾ v \texttt{/dev} vùbec soubory pro bloková zaøízení
-nemají, pouze znaková.
-\item døíve musel administrátor systému po zmìnì hardwarové konfigurace upravit
-obsah adresáøe \texttt{/dev} skriptem \texttt{MAKEDEV} nebo ruènì. Dnes (Linux,
-IRIX, Free\-BSD, Solaris, \dots) ji¾ speciální soubory dynamicky vznikají a
-zanikají podle toho, jak jádro detekuje pøidání nebo odebrání hardwarových
-komponent (viz \emph{devfs} na stranì \pageref{DEVFS}).
-\item okam¾itý zápis na disk lze vynutit pøes \texttt{O\_DIRECT} command ve
-volání \texttt{fcntl}.
+\item The cache speeds up operations with peripheral devices. When reading the
+data is searched in the buffer first. When not present there, they are being
+read from disk. For the next read they are already available in the buffer.
+For writing the data is stored into a buffer that is written to the disk later.
+It is possible to force immediate write to disk. In today's systems the cache is
+not a standalone structure, rather it is part of virtual memory system.
+\item Disks in Unix are usually accessible using both character and block
+interface. The former is used by \texttt{mkfs} when creating the file system and
+also by \texttt{fsck} when performing file system consistency check.
+The latter is used for normal reads and writes. Some systems (FreeBSD) do not
+have block devices under \texttt{/dev}.
+\item In the past, the contents of the \texttt{/dev} directory had to be
+refreshed by a shell script (\texttt{MAKEDEV}) or by hand whenever hardware
+configuration changed. Today most of the systems populate the directory on the
+fly as kernel detects addition or removal of hardware components
+(see \emph{devfs} on page \pageref{DEVFS}).
+\item Immediate write to disk can be forced by using the \texttt{O\_DIRECT}
+command via the \texttt{fcntl} system call.
 \end{itemize}
 
 %%%%%
