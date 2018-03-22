@@ -147,16 +147,16 @@ command via the \texttt{fcntl} system call.
 %%%%%
 
 \begin{slide}
-\sltitle{Fyzické ulo¾ení systému souborù}
+\sltitle{Physical layout of file system}
 \begin{itemize}
-\item \emsl{systém souborù} (svazek, \emsl{filesystem}) lze vytvoøit na: 
+\item \emsl{filesystem} can be created on:
     \begin{itemize2}
-    \item \emsl{oddílu disku} (\emsl{partition}) -- èást disku, na jednom
-    disku mù¾e být více oddílù 
-    \item \emsl{logickém oddílu} (\emsl{logical volume}) -- takto lze spojit
-    více oddílù, které mohou být i na nìkolika discích, do jednoho svazku. 
+    \item \emsl{partition} -- part of disk, one disk can have multiple
+    partitions
+    \item \emsl{logickém volume} -- can be used to connect multiple partitions
+    (that can reside on distinct disks) into one file system.
     \end{itemize2}
-\item dal¹í mo¾nosti: striping, mirroring, RAID
+\item more choices: striping, mirroring, RAID
 \end{itemize}
 \begin{center}
 \input{img/tex/partitions.pstex_t}
@@ -164,30 +164,28 @@ command via the \texttt{fcntl} system call.
 \end{slide}
 
 \begin{itemize}
-\item výraz systém souborù se pou¾ívá v nìkolika významech:
+\item the expression \emsl{file system} has multiple meanings:
     \begin{itemize}
-    \item jeden filesystém, tj. to, co vyrobí pøíkaz \texttt{mkfs}
-    \item celá hierarchie pøipojených svazkù v systému (výstup pøíkazu
-    \texttt{mount})
-    \item zpùsob organizace svazku (tj. typ fs) a tomu odpovídající
-    modul jádra, který s daty manipuluje (UFS2, Ext3, XFS, ...)
+    \item one file system, i.e. what the \texttt{mkfs} command creates
+    \item whole hierarchy of file systems (the output of the
+    \texttt{mount} command)
+    \item way of organizing given file system and its corresponding kernel
+    module that manipulates the data (UFS2, Ext3, XFS, ...)
     \end{itemize}
-\item striping je od slova stripe, ne strip; podle toho se také
-vyslovuje. Znamená, ¾e za sebou následující bloky dat se ukládají
-paralelnì na rùzné disky a tím se zvy¹uje pøenosová rychlost.
-\item mirroring ukládá kopie dat více diskù pro pøípad havárie nìkterého z nich.
-\item paritní disky: data se ukládají na dva disky, na tøetí se ukládá XOR
-prvních dvou, po havárii libovolného disku jsou v¹echna data stále èitelná.
-\item jednotlivé úrovnì RAID (Redundant Array of Inexpensive Disks)
-zahrnují striping, mirroring a vyu¾ití paritních diskù.
-\item na terminologii je tøeba dát velký pozor. Napø. to, co se v
-DOS svìtì nazývá \emph{partition}, se v BSD nazývá \emph{slice}.
-Tam jsou pak partitions definovány v rámci jednoho slice a v nich se
-vytváøejí filesystémy.
-\item pokud vás to zajímá nebo se s tím setkáváte v praxi, doporuèuji va¹í
-pozornosti ZFS, co¾ je filesystém a mana¾er logických oddílù v jednom. Ze
-Solarisu se ji¾ dostal do FreeBSD od verze 7.0. Mù¾ete okam¾itì zapomenout na
-jednotlivé disky, co je dùle¾ité je pouze celková disková kapacita v systému.
+\item striping means that data blocks that follow each other are stored in
+parallel on distinct drives, boosting the speed of read operations.
+\item mirroring stores copies of data to multiple disks to provide redundancy.
+\item parity disks: data is saved to e.g. 2 drives and the \nth{3} drive is used
+for storing XOR value of the first two. If any single disk fails, the data can
+be reconstructed.
+\item individual RAID (Redundant Array of Inexpensive Disks) levels include
+striping, mirroring and parity disks.
+\item The terminology has to be used with care. For example what is meant by
+\emph{partition} in the DOS world, is being called \emph{slice} in BSD.
+There the partitions are defined within one slice and the file systems are
+created therein.
+\item ZFS combines both volume manager and file system. It was ported from
+Solaris to BSD systems.
 \end{itemize}
 
 %%%%%
@@ -195,46 +193,44 @@ jednotlivé disky, co je dùle¾ité je pouze celková disková kapacita v systému.
 \pdfbookmark[1]{UNIX System V file system}{sysVfs}
 
 \begin{slide}
-\sltitle{Organizace systému souborù \texttt{s5}}
+\sltitle{The \texttt{s5} file system organization}
 \begin{center}
 \input{img/tex/s5.tex}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item pùvodní UNIXový systém souborù standardnì pou¾ívaný do verze
-System V Release 3; v BSD se primárnì pou¾íval do verze 4.1
-\item vlastnosti:
+\item the original UNIX file system used by default until System V Release 3;
+used in BSD until 4.1
+\item properties:
     \begin{itemize}
-    \item bloky délky 512, 1024 nebo 2048 bajtù 
-    \item jediný (neduplikovaný) superblok
-    \item datový prostor pevnì rozdìl{}ený na oblast \emph{i-uzlù} a
-    oblast \emph{datových blokù}
-    \item pøi velikosti bloku 1024 bajtù byla teoretická velikost
-    filesystému pøes 16 GB
+    \item 512, 1024 or 2048 byte blocks
+    \item single (non-duplicated) superblock
+    \item data area divided into \emph{i-node} and \emph{data block} parts
+    \item with 1024 byte blocks the theoretical size is over 16 GB
     \end{itemize}
-\item \emph{boot block} -- pro ulo¾ení zavadìèe OSu
-\item \emph{superblok} -- základní informace o svazku: poèet blokù pro i-uzly,
-poèet blokù svazku, seznam volných blokù (pokraèuje ve volných blocích), seznam
-volných i-uzlù (po vyèerpání se prohledává tabulka i-uzlù), zámky pro seznamy
-vol\-ných blokù a i-uzlù, pøíznak modifikace pou¾ívaný pro kontrolu korektního
-odpojení svazku, èas poslední aktualizace, informace o zaøízení
-\item \emph{i-uzel} -- typ souboru, pøístupová práva, vlastník, skupina, èasy
-posledního pøístupu, modifikace dat a modifikace i-uzlu, poèet odkazù na soubor,
-velikost souboru, 10 odkazù na datové bloky a 3 odkazy na nepøímé bloky. Pozor
-na to, ¾e èas vytvoøení souboru není ulo¾en.
-\item maximální velikost souboru: 2113674 blokù, tj. pøibli¾nì 1 GB pøi pou¾ití
-blokù velikosti 512 B
-\item jména souborù -- max. 14 znakù (14 + 2 = 16, tedy mocnina dvou a tedy
-bezproblémové ulo¾ení adresáøových polo¾ek do blokù)
-\item pøi pou¾ití tohoto filesystému byla výkonnost diskù vyu¾ita jen cca na 2\%
-a rychlost ètení byla v øádu jen nìkolika desítek kilobajtù za sekundu (!!!)
-\item pro srovnání -- MS-DOS 2.0 z roku 1983 podporoval pouze FAT12, poèítající
-s maximální velikostí filesystému 16 MB. Velikost svazku do 2 GB byla umo¾nìna
-a¾ ve verzi 4.0 (1988); tato verze zároveò zavedla diskové vyrovnávací pamìti,
-tedy to, co UNIX má od svého vzniku v roce 1970.
+\item \emph{boot block} -- for OS boot loader
+\item \emph{superblock} -- basic information about the file system: number of
+blocks for i-nodes, number of file system block, list of feee blocks (continues
+in the free block area), list of free i-nodes (after it is exhausted the i-node
+table is searched), locks for the lists of free data blocks and i-nodes,
+modification flag (used for checking whether the file system was correctly
+unmounted), time of the last update, device information.
+\item \emph{i-node} -- file type, access rights, owner, group, times of last
+access, modification and i-node modification, number of references, file size,
+10 pointers to data blocks and 3 indirect pointers. Note that the time of file
+creation is not stored.
+\item maximal file system size: 2113674 blocks, .i.e approximately 1 GB when
+using 512 byte blocks
+\item file names -- max. 14 characters (14 + 2 = 16, .i.e. power of 2 and
+therefore seamless storage of directory entries into blocks)
+\item the file system was able to utilize the disks only to approximately 2\%
+and read operations were able to fetch tens of kilobytes per second.
+\item for comparison -- MS-DOS 2.0 from 1983 supported only FAT12, with maximal
+file system size of 16 MB. The maximal size up to 2 GB was made possible only in
+version 4.0 (1988); this version also introduced disk caches, i.e. feature that
+UNIX has had since its inception in 1970.
 \end{itemize}
-
 
 %%%%%
 
