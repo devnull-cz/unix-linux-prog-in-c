@@ -380,7 +380,7 @@ keyboard (i.e. those triggered by combination of keys, not by executing the
 the shell will not be waiting for its completion.  There exists only one group of
 processes, and keyboard generated signals are sent to all processes running in
 the foreground and background.  Processes cannot be moved to the background from
-the foreground and vice versa.
+the foreground and ifdef([[[NOSPELLCHECK]]], [[[vice versa]]]).
 \item When a process that has a controlling terminal opens the \texttt{/dev/tty}
 file, it gets associated with its controlling terminal, i.e. if two different
 processes open this file, each will be accessing a different terminal.
