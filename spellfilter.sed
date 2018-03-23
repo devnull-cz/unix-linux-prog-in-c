@@ -1,6 +1,6 @@
 /\\begin\{verbatim\}/,/\\end\{verbatim\}/d
 /\\begin\{alltt\}/,/\\end\{alltt\}/d
-s/pdfbookmark\[[0-9]\]{([^{}]*)}{.*}/pdfbookmark{\1}/
+s/pdfbookmark\[[0-9]\]\{([^{}]*)\}\{.*\}/pdfbookmark{\1}/
 s/\\\-//g
 s/\\\=//g
 s/\\example{[[:alnum:]_\/\.\-]+}//g
