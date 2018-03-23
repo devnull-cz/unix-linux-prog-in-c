@@ -682,7 +682,7 @@ On some systems, the above has very interesting consequences.  As \texttt{NULL}
 is taken as an expected \texttt{argv[0]}, the data on the stack are then
 accepted as the program arguments until the next \texttt{NULL} is found there.
 In the following example, run on some version of the FreeBSD system, \texttt{ls}
-is trying to list filenames that are environment variable names and values (the
+is trying to list file names that are environment variable names and values (the
 environment array contain strings \texttt{<varname>=<value>}), as those were on
 the stack because the environment was passed to the program being executed, as
 we already know.  In my case, the output was:
@@ -1006,7 +1006,7 @@ of multiple processes
 
 \begin{itemize}
 \item Memory file mapping is one of the implementations of shared memory.  A
-filename is used to describe the shared piece of memory.
+file name is used to describe the shared piece of memory.
 \item A memory mapped file is regularly written to disk.
 \item Memory based disks and filesystem are provided by today's system.  They
 primarily rely on main memory for data storage, thus avoiding overhead of

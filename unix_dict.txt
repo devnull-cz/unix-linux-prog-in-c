@@ -3,6 +3,7 @@ Illumos
 Prog
 Ctrl
 O'Reilly
+API
 APIs
 DragonflyBSD
 tcp
@@ -359,3 +360,12 @@ Rochkind
 janp
 corrigendums
 syscalls
+RISC
+NRU
+CVS
+IEEE
+PDF
+GitHub
+metadata
+login
+IP
