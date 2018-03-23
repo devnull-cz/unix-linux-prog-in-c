@@ -235,22 +235,21 @@ UNIX has had since its inception in 1970.
 %%%%%
 
 \begin{slide}
-\sltitle{Navigace v adresáøové struktuøe}
+\sltitle{Directory structure navigation}
 \begin{center}
 \input{img/tex/nav_dir.pstex_t}
 \end{center}
 \end{slide}
 
 \begin{itemize}
-\item kdy¾ cesta zaèíná znakem '\texttt{/}', zaèíná navigace v koøenovém
-adresáøi, jinak zaène v~pracovním adresáøi procesu.
-\item koøenový adresáø má typicky èíslo 2. 0 je pro oznaèení prázdného uzlu a
-1 byla døíve pou¾ívaná pro soubor, do kterého se vkládaly vadné bloky, aby je
-systém u¾ dále nepou¾íval.
+\item if a path begins with '\texttt{/}', the navigation starts in the root
+directory, otherwise it starts in the working directory of given process.
+\item the i-node number of root directory is typically 2. 0 is reserved for
+empty i-node and 1 used to be a file into which bad blocks were inserted to
+avoid them being used.
 
-
-\item cesta ve které je více lomítek za sebou je stále platná, tj.
-\texttt{///a///b///c} je ekvivaletní \texttt{/a/b/c}.
+\item path that has multiple consecutive slashes is still valid, i.e.
+\texttt{///a///b///c} is equivalent to \texttt{/a/b/c}.
 \end{itemize}
 
 
@@ -259,50 +258,47 @@ systém u¾ dále nepou¾íval.
 \pdfbookmark[1]{links and their properties}{links}
 
 \begin{slide}
-\sltitle{Linky}
+\sltitle{Links}
 \begin{center}
 \input{img/tex/links.tex}
 \end{center}
 
-Hard linky lze vytváøet pouze v rámci jednoho (logického)
-filesystému.
+Hard links can be created within one (logical) file system.
 \end{slide}
 
 \begin{itemize}
-\item to co ``normálnì'' vidíte pøi výpisu adresáøù jsou vìt¹inou hardlinky,
-tak¾e rozdìl{}ení není na soubory, hardlinky a symbolické linky. Co se týèe
-souborù, jsou \emsl{pouze} hardlinky a symlinky.
+\item what is ``normally'' visible in directory listings are hard links.
+W.r.t. files there are \emsl{only} hardlink a symlinks.
 
 \begin{description}
 \item[hardlink]~
 
     \begin{itemize}
-    \item odkaz na stejný i-uzel
-    \item vlastnì druhé jméno souboru
-    \item není rozdíl mezi originálem a hardlinkem
-    \item lze vytváøet jen v rámci filesystému
-    \item nelze vytváøet pro adresáøe
+    \item reference to the same i-node
+    \item actually second name of a file
+    \item no difference between original and hard link
+    \item can be created only within one file system
+    \item not possible to create for directories
     \end{itemize}
-\item [symbolický link (symlink, softlink)]~
+\item [symbolic link (symlink, softlink)]~
 
     \begin{itemize}
-    \item pouze odkaz na skuteènou cestu k souboru jiného typu (\texttt{ls -l}
-    jej o\-zna\-èu\-je '\texttt{l}'), tj. symbolický link je typem odli¹ný od
-    bì¾ného souboru a jeho data obsahují obyèejný øetìzec -- jméno cesty, a»
-    ji¾ relativní nebo absolutní
-    \item odli¹né chování pro originál a link (napø. pøi mazání)
-    \item pozor na relativní a absolutní cesty pøi pøesouvání
-    symbolického linku
-    \item mù¾e ukazovat i na adresáø nebo na neexistující soubor
+    \item only reference to the real path of file of different type
+    (it is marked as '\texttt{l}' in the \texttt{ls -l} output), i.e. the type
+    of symbolic differs from ordinary file. Its data contain a simple string
+    -- name of the path, either relative or absolute.
+    \item different behavior for original and symlink (e.g. upon unlink)
+    \item watch out for relative and absolute paths when moving symbolic link
+    \item can point to directory or non-existing file
     \end{itemize}
 \end{description}
 
-\item nejjednodu¹¹í zpùsob jak si ovìøit, zda dané dva linky ukazují na
-stejný soubor na disku je pou¾ít \texttt{-i} pøepínaè pøíkazu
-\texttt{ls}, který vám uká¾e èíslo indexového uzlu.
+\item the simplest way how to verify that two links point to the same file is to
+use the \texttt{-i} option of the \texttt{ls} command, that will show the i-node
+number.
 
 \begin{verbatim}
-$ ls -i /etc/passwd 
+$ ls -i /etc/passwd
 172789 /etc/passwd
 \end{verbatim}
 \end{itemize}
