@@ -159,8 +159,8 @@ deletion. Usually not because the key often reflects inode number.
 Linux the key is determined using the combination of 16-bit inode number, 8 bits
 of \texttt{id} and 8 bits of minor device number. Same key is returned if the
 inode numbers have the same 16 lower bits.
-\item If unrelated processes need to use the same semaphore, \emsl{the filename
-used for the key needs to be agreed on beforehand.}
+\item If unrelated processes need to use the same semaphore,
+\emsl{the file name used for the key needs to be agreed on beforehand.}
 \item \label{SEM_FIXED_RACE_C} Example: \example{race/sem-fixed-race.c}
 (this is the \example{race/race.c} example from page \pageref{RACE_C} fixed
 with semaphores)

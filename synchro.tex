@@ -243,11 +243,12 @@ i.e. several variables shared by processes.
 \item Dekker's solution is presented as a first solution to the problem of
 mutual exclusion of 2 processes, without having to apply the mechanism of
 strict alternation, i.e. if second process does not express will to enter
-critical section, the first can enter how many times it wants (and vice versa).
+critical section, the first can enter how many times it wants
+(and ifdef([[[NOSPELLCHECK]]], [[[vice versa]]])).
 Dekker's solution is not trivial, compare it with 16 year younger
 Peterson solution, e.g. on \texttt{en.wikipedia.org}.
 \item We are not going to deal with theoretical algorithms or compare hardware
-mechanisms used by the kernel. Instead we are going to focus on the use of 
+mechanisms used by the kernel. Instead we are going to focus on the use of
 file level locking (which use the atomicity of some file operations)
 and special synchronization primitives offered by the kernel.
 \end{itemize}
@@ -561,7 +562,8 @@ to enter the critical section simultaneously. Here semaphore works like a lock.
 The same process is unlocking (incrementing the value) and locking
 (decrementing the value).
 \item In general, the increment operation can be done by different process
-than the one which performed the decrement operation (and vice versa).
+than the one which performed the decrement operation (and
+ifdef([[[NOSPELLCHECK]]], [[[vice versa]]])).
 The mutexes work differently, see page \pageref{MUTEXES}.
 \end{itemize}
 
