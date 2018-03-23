@@ -69,5 +69,6 @@ spellcheck:
 			$(M4) $$file | sed -E -f spellfilter.sed | \
 			    aspell -t --personal=./unix_dict.txt list | \
 			    tee -a /tmp/aspell.out; \
+			if [ $$? -ne 0 ]; then exit 1; fi; \
 		done
 		@if [ -s /tmp/aspell.out ]; then exit 1; fi
