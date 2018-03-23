@@ -3,12 +3,12 @@
 \sltitle{Virtual memory implementation}
 \begin{itemize}
 \item processes in UNIX use virtual addresses to access physical memory.
-The virtual - physical convertion is performed by hardware with the help
+The virtual - physical conversion is performed by hardware with the help
 of kernel.
 \item in case of memory shortage unused parts of memory are stored to
-(\emsl{swap}) space on disk. 
+(\emsl{swap}) space on disk.
 \item before SVR2 the \texttt{swapper} process (nowadays
-\texttt{sched}) swapped out whole processes. 
+\texttt{sched}) swapped out whole processes.
 \item from SVR2 on (\emsl{demand paging}) is used with \emsl{copy-on-write}.
 Pages are allocated only after first use and private pages are copied only
 after modification. Freeing and swapping of individual pages is performed
@@ -18,32 +18,30 @@ when critically low on memory.
 \end{slide}
 
 \begin{description}
-\item[pøeklad adres:] pøístup na neplatnou adresu nebo pokus o zápis
-do pamìti pouze pro ètení vyvolá signál \texttt{SIGSEGV}.
-\item[swap:] odkládací prostor se vytváøí na samostatném oddílu
-disku, od SVR4 mù¾e být i v~souboru.
-\item[swapper:] proces \texttt{swapper} se sna¾í odlo¾it na disk nìjaký
-proces, který není zam\-èen v~pamìti, a na uvolnìné místo zavést døíve
-odlo¾ený proces.
-\item[demand paging:] pøi ¾ádosti procesu o pamì» se pouze upraví
-tabulka stránek. První instrukce adresující obsah stránky vyvolá
-výjimku. Jádro ji o¹etøí tím, ¾e alokuje stránku. 
-\item[copy-on-write:] více procesù mù¾e sdílet zapisovatelnou
-fyzickou stránku, která je ale logicky privátní pro ka¾dý proces
-(tato situace nastane napø. po vytvoøení procesu voláním
-\texttt{fork}). Dokud procesy z pamìti pouze ètou, pøistupují ke
-sdíl{}ené stránce. Pokud se proces pokusí obsah stránky zmìnit, vyvolá
-výjimku. Jádro zkopíruje stránku, pøidìlí procesu kopii, která u¾ je
-privátní a proces ji mù¾e dále libovolnì mìnit. Ostatní procesy
-pou¾ívají stále ne\-zmì\-nì\-nou pùvodní stránku.
-\item stránky k odlo¾ení se hledají algoritmem \emph{NRU} (not recently
-used): ka¾dá stránka má pøíznaky \texttt{referenced} a
-\texttt{modified}, na zaèátku vynulované. Pøi prvním pøístupu se
-nastaví \texttt{referenced}, pøi zmìnì \texttt{modified}. Oba
-pøíznaky se periodicky nulují. Pøednostnì se uvolòují stránky, které
-nejsou modifikované ani pou¾ité. Stránky kódu programu a mapovaných
-souborù se neukládají do odkládacího prostoru, ale obnovují se z
-pøíslu¹ného souboru.
+\item[address translation:] access to invalid address or attempt to write into
+read-only memory will result in the \texttt{SIGSEGV} signal to be delivered.
+\item[swap:] swap area is created on separate disk partition, since
+SVR4 it can be also in a file.
+\item[swapper:] the \texttt{swapper} process tries to saved a process that is
+not into memory to disk and use the free space for process that was swapped out
+earlier.
+\item[demand paging:] when a process requests a memory only the page is
+modified. The first instruction addressing the page contents will result in an
+exception. The kernel will handle it by allocating a page.
+\item[copy-on-write:] multiple processes can share writable physical page that
+is however logically private to each process (such situation happens e.g. when a
+process is created by the \texttt{fork} system call). Until the processes only
+read from the memory, they access the shared page. First attempt to write will
+cause an exception. The kernel will copy the page and assign a copy of the
+page to the process that is already a private and the process can change it.
+The other process keep using the original page.
+\item The pages to be swapped out are searched for by the \emph{NRU} (not
+recently used) algorithm: each page has the \texttt{referenced} and
+\texttt{modified} flags, both zero initially. First access will set
+\texttt{referenced}, a change will set \texttt{modified}.
+Both flags are periodically nullified. The pages that are neither modified or
+used are freed first. The program code pages and pages of mapped files are not
+stored into swap area, they are fetched from given file.
 \end{description}
 
 %%%%%
