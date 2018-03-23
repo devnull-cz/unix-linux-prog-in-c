@@ -306,71 +306,64 @@ $ ls -i /etc/passwd
 %%%%%
 
 \begin{slide}
-\sltitle{Vylep¹ení systému souborù}
+\sltitle{File system enhancements}
 \begin{itemize}
-\item cíl: sní¾ení fragmentace souborù, omezení pohybu hlav disku umístìním
-i-uzlù a datových blokù blí¾ k sobì 
-\item UFS (Unix File System), pùvodnì Berkeley FFS (Fast File System) 
-\item èle{}nìní na skupiny cylindrù, ka¾dá skupina obsahuje 
+\item the goal: lower file fragmentation, reduce head moves by storing i-nodes
+and data blocks closer
+\item UFS (Unix File System), originally Berkeley FFS (Fast File System)
+\item divided into cylinder groups, each contains:
     \begin{itemize}
-    \item kopii superbloku 
-    \item øídicí blok skupiny 
-    \item tabulku i-uzlù 
-    \item bitmapy volných i-uzlù a datových blokù 
-    \item datové bloky 
+    \item superblock copy
+    \item cylinder group header
+    \item i-node table
+    \item bitmaps for free i-nodes and data blocks
+    \item data blocks
     \end{itemize}
-\item bloky velikosti 4 a¾ 8 kB, men¹í èásti do fragmentù blokù 
-\item jména dlouhá 255 znakù
+\item bloks of size 4 to ¾ 8 kB, smaller parts stored into block fragments
+\item file names up to 255 characters
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item superblok v ka¾dé cylinder skupinì posunut tak, aby superbloky nebyly na
-stejné plotnì.
-\item dal¹í typy filesystémù: UFS2, Ext3, ReiserFS, XFS, ZFS aj.
-\item v \url{http://mff.devnull.cz/pvu/common/docs/filesystems.ps} je
-po\-rov\-ná\-ní osmi rùzných filesystémù podle rùzných implementaèních
-kritérií; nezahrnuje v sobì ale vývoj posledních let.
-\item UFS byl stále 32-bitový, co¾ se odrá¾elo na maximální délce souboru i na
-maximální velikosti filesystému. (Oznaèení file systému jako 32-bitového
-znamená, ¾e èísla i-uzlù jsou reprezentována jako 32-bitová. To pak dává
-teoretický limit pro velikost filesystému.)
-\item ¾urnálování (XFS, Ext3, ReiserFS) -- snaha o zmen¹ení nebezpeèí ztráty
-dat v pøípadì havárie, urychlení zotavení po havárii
-\item ZFS -- moderní 128-bitový filesystém vyvinutý v Sun Microsystems, od
-Solarisu 10, teï ji¾ také v FreeBSD 7.
+\item The superblock in each cylinder group was shifted so that superblocks do
+not share the same platter.
+\item more file systems: UFS2, Ext3, ReiserFS, XFS, ZFS etc.
+\item UFS was still 32-bit, that reflected on maximum file length and maximum
+file system size. The 32-bit notation means that i-node numbers are represented
+as 32 bit integers. This gives the theoretical filesystem limits.
+\item journalling (XFS, Ext3, ReiserFS) -- an effort to reduce the risk of data
+loss in case of crash and also to speed up the recovery after crash.
+\item ZFS -- modern 128-bit file system developed in Sun Microsystems, since
+Solarisu 10; also present in FreeBSD since version 7.
 \end{itemize}
-
 
 %%%%%
 
 \begin{slide}
-\sltitle{Vývoj ve správì adresáøových polo¾ek}
+\sltitle{The development in directory entry management}
 \begin{itemize}
-\item maximální délka jména souboru 14 znakù nebyla dostaèující
-\item FFS -- délka a¾ 255; ka¾dá polo¾ka zároveò obsahuje i její délku
-\item nové filesystémy pou¾ívají pro vnitøní strukturu adresáøù rùzné varianty
-B-stromù
+\item maximum file name length of 14 characters was not enough
+\item FFS -- up to 255 characters; each entry also contains its length
+\item new file systems use B-trees for internal directory structure
+representation
     \begin{itemize}
-    \item výraznì zrychluje práci s adresáøi obsahující velké
-    mno¾ství souborù
+    \item considerably speeds up the work with directories that contain huge
+    number of files
     \item XFS, JFS, ReiserFS, \dots
     \end{itemize}
-\item UFS2 zavádí zpìtnì kompatibilní tzv. \emph{dirhash} pro zrychlení
-pøístupu k adresáøùm s velkým poètem souborù
+\item UFS2 introduced backward compatible \emph{dirhash} for speeding up
+the access to directories with lots of files
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item \emph{dirhash} pracuje tak, ¾e pøi prvním pøeètení adresáøe se vytvoøí v
-pamìti hash struktura, následné pøístupy do adresáøe jsou pak srovnatelné se
-systémy pou¾ívající B-stromy. Tímto zpùsobem je dosa¾eno zlep¹ení bez toho,
-aby se mìnila struktura filesystému na disku. Taková vylep¹ení ale nelze
-v implementaci filesysému dìlat do nekoneèna, nakonec je typicky nutná
-zmìna on-disk formátu pro adaptaci na výkonostní po¾adavky (nebo pøechod
-na jiný filesystém).
-\item malé soubory se èasto ukládají v i-nodech, èím¾ se u¹etøí dal¹í pøístupy
-na disk
+\item The principle of \emph{dirhash} is that after first read of a directory a
+hash structure is created in memory. Subsequent directory accesses are then
+comparable to the implementations using B-trees. This way an enhancement is made
+without changing on-disk layout of the file system. Such enhancements cannot be
+made forever, eventually on-disk format has to change or transition to another
+file system is necessary.
+\item small files are often stored in i-nodes, which saves disk I/O
 \end{itemize}
 
 %%%%%
