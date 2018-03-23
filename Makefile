@@ -64,6 +64,8 @@ clean:
 
 spellcheck:
 		@rm -f /tmp/aspell.out
+		@echo "test" | sed -E -f spellfilter.sed >/dev/null; \
+		if [ $$? -ne 0 ]; then echo "sed failed"; exit 1; fi
 		@for file in ${SLIDES}; do \
 			echo "### Checking $$file"; \
 			$(M4) $$file | sed -E -f spellfilter.sed | \
