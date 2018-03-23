@@ -8,9 +8,9 @@ and sed (using spellfilter.sed).
 The sed filters are not very smart, especially they cannot deal with multi line
 LateX commands. For those, wrap the lines inside the ifdef, like so:
 
-ifdef([[[NOSPELLCHECK]]], [[[                                                   
+ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{err}(int \emph{status},
-const char *\emph{fmt}, ...);}      
+const char *\emph{fmt}, ...);}
 ]]])
 
 The [[[ and ]]] character sequences are left and right quotation marks,
@@ -24,4 +24,8 @@ Sometimes it is not obvious from the output from the 'spellcheck' makefile
 target where particular problem is. To do that it is necessary to enter
 interactive mode on file processed by m4/sed and then run aspell with the
 'check' command (that requires file name as argument) in one terminal window and
-edit the original .tex file in another window.
+edit the original .tex file in another window. For example:
+
+  $ m4 files.tex | sed -E -f spellfilter.sed > /tmp/p
+  $ aspell -t --personal=./unix_dict.txt -c /tmp/p
+

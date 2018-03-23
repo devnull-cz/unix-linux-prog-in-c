@@ -1,4 +1,4 @@
-personal_ws-1.1 en 349 
+personal_ws-1.1 en 361 
 Illumos
 Prog
 Ctrl
@@ -16,6 +16,7 @@ bsd
 Ritchie
 userspace
 OpenSSH
+transactional
 OpenSSL
 signalled
 buf
@@ -31,14 +32,14 @@ UDP
 Kernighan
 reentrant
 userland
-RTS
 TLI
+RTS
 args
 FIFO
 casted
 argv
-UFS
 UID
+UFS
 tracepoint
 DNS
 PCTS
@@ -51,6 +52,7 @@ tmp
 SVID
 proberen
 PDPs
+journaling
 Libes
 SunOS
 gdb
@@ -125,6 +127,7 @@ inet
 sandboxing
 XPG
 McKusick
+JFS
 ing
 SONAME
 GIDs
@@ -148,8 +151,8 @@ iOS
 Rago
 lstat
 cancelling
-IPS
 ldd
+IPS
 acomp
 dereferencing
 gprof
@@ -158,11 +161,14 @@ endianess
 ftruncate
 ipcs
 cxref
+automounter
 COFF
 multithreading
 endian
 Malostransk
+superblocks
 destructors
+interoperability
 pdfkeywords
 localhost
 symlink
@@ -202,6 +208,7 @@ FreeBSD
 changesets
 DGRAM
 namespaces
+bootable
 Rudoff
 Dekker's
 ke
@@ -268,10 +275,12 @@ Beran
 PDP
 UI
 cstyle
+dirhash
 commitee
 ascii
 mutex
 ACM
+ReiserFS
 preprocessor's
 ICMP
 WG
@@ -287,6 +296,7 @@ UX
 intructions
 OOB
 Moder
+swapper
 lclcl
 timesharing
 fildes
@@ -295,6 +305,7 @@ CompactFlash
 AFS
 NSS
 destructor
+superblock
 cron
 Uresh
 DARPA
@@ -321,13 +332,13 @@ pdftitle
 RDONLY
 environ
 chrooted
-linker's
 Linkers
+linker's
 cancellation
 SAS
 CSRG
-symlinks
 symlink's
+symlinks
 OpenBSD
 signalling
 SCO
@@ -348,5 +359,3 @@ Rochkind
 janp
 corrigendums
 syscalls
-swapper
-NRU

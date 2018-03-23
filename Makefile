@@ -62,10 +62,12 @@ notes:		$(NOTES)
 clean:
 		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp *.out
 
-# Once translation is finished, make this return 1 on non-empty output.
 spellcheck:
+		@rm -f /tmp/aspell.out
 		@for file in ${SLIDES}; do \
 			echo "### Checking $$file"; \
 			$(M4) $$file | sed -E -f spellfilter.sed | \
-			    aspell -t --personal=./unix_dict.txt list; \
+			    aspell -t --personal=./unix_dict.txt list | \
+			    tee -a /tmp/aspell.out; \
 		done
+		@if [ -s /tmp/aspell.out ]; then exit 1; fi
