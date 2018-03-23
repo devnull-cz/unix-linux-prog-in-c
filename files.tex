@@ -22,14 +22,14 @@ systems), \texttt{FAT32} (Win), \texttt{ZFS} (Solaris born, then ported to other
 systems), \texttt{APFS} (macOS and iOS since 2017), etc.  A filesystem can be
 either used on local or remote storage, and in case of a remote storage network
 filesystem protocols like \texttt{NFS} or \texttt{AFS} are used to access the
-data.  Note that these network filesystems do not define the filesystem
+data.  Note that these network file systems do not define the filesystem
 structure itself, they only provide for accessing existing filesystems remotely.
 Each filesystem also has its limits, a largest file size or the maximum size of
 the filesystem itself, for example.
 \item Unix does not have A, B, C, D\dots disks as Windows and other systems.
 All filesystems are mounted to a single directory hierarchy on any Unix system,
 as shown on the slide where you can see the root filesystem and three other
-fileystems, mounted on \texttt{/usr}, \texttt{/dev/tty}, and \texttt{/home}
+file systems, mounted on \texttt{/usr}, \texttt{/dev/tty}, and \texttt{/home}
 directories.  You could also further mount other filesystems on directories that
 are part of these non-root filesystems.
 \item Each filesystem mounted to the common hierarchy may be formatted using a
@@ -41,8 +41,9 @@ faked when such filesystem is mounted.
 filesystems are later mounted via the \texttt{mount} command, usually from
 specific startup services based on the system you use.  The startup services
 sometimes use file \texttt{/etc/fstab} as a source of information about what
-filesystems to mount.  You can also use \texttt{mount} manually.  To unmount a
-filesystem, the \texttt{umount} command is used.
+filesystems to mount.  You can also use \texttt{mount} manually.
+To ifdef([[[NOSPELLCHECK]]], [[[unmount]]]) a filesystem, the \texttt{umount}
+command is used.
 \item Some systems also provide for auto mounting where filesystems are mounted
 during the first access attempt, and may be automatically unmounted after a
 period of inactivity.  Such functionality is usually called an
@@ -64,7 +65,7 @@ for more information.
 \texttt{/tmp} & public directory for temporary files\\
 \texttt{/home} & root of home directories\\
 \texttt{/var/adm} & administrative files (not on BSD) \\
-\texttt{/usr/in{}clude} & header files for C\\
+\texttt{/usr/include} & header files for C\\
 \texttt{/usr/local} & locally installed software\\
 \texttt{/usr/man} & man pages\\
 \texttt{/var/spool} & spool (mail, printing,...)
@@ -82,7 +83,7 @@ system startup.
 It contain binaries not needed by typical user.
 \item The \texttt{/usr} directory tree contains files that are not changing
 while the system is running and are not dependent on given machine.
-This property should make it elegible for read-only sharing. On your own
+This property should make it eligible for read-only sharing. On your own
 machine it will be typically read-write, though.
 \item The \texttt{/lib} directory typically contains libraries needed for
 programs from the root file system. If all libraries were in \texttt{/usr/lib}
@@ -96,7 +97,7 @@ statically linked. For example FreeBSD has such binaries under the
 system is running and are specific for given machine.
 \item There can be differences in directory layout found between installations
 of the same operating system.
-\item The \texttt{hier(7)} manual page on FreeBSD and Linuxu describes directory
+\item The \texttt{hier(7)} manual page on FreeBSD and Linux describes directory
 hierarchy on these systems. Solaris uses \texttt{filesystem(5)}.
 \end{itemize}
 
@@ -139,7 +140,7 @@ have block devices under \texttt{/dev}.
 refreshed by a shell script (\texttt{MAKEDEV}) or by hand whenever hardware
 configuration changed. Today most of the systems populate the directory on the
 fly as kernel detects addition or removal of hardware components
-(see \emph{devfs} on page \pageref{DEVFS}).
+(see \emph{\texttt{devfs}} on page \pageref{DEVFS}).
 \item Immediate write to disk can be forced by using the \texttt{O\_DIRECT}
 command via the \texttt{fcntl} system call.
 \end{itemize}
@@ -153,7 +154,7 @@ command via the \texttt{fcntl} system call.
     \begin{itemize2}
     \item \emsl{partition} -- part of disk, one disk can have multiple
     partitions
-    \item \emsl{logickém volume} -- can be used to connect multiple partitions
+    \item \emsl{logical volume} -- can be used to connect multiple partitions
     (that can reside on distinct disks) into one file system.
     \end{itemize2}
 \item more choices: striping, mirroring, RAID
@@ -211,7 +212,7 @@ used in BSD until 4.1
     \end{itemize}
 \item \emph{boot block} -- for OS boot loader
 \item \emph{superblock} -- basic information about the file system: number of
-blocks for i-nodes, number of file system block, list of feee blocks (continues
+blocks for i-nodes, number of file system block, list of free blocks (continues
 in the free block area), list of free i-nodes (after it is exhausted the i-node
 table is searched), locks for the lists of free data blocks and i-nodes,
 modification flag (used for checking whether the file system was correctly
@@ -280,14 +281,14 @@ W.r.t. files there are \emsl{only} hardlink a symlinks.
     \item can be created only within one file system
     \item not possible to create for directories
     \end{itemize}
-\item [symbolic link (symlink, softlink)]~
+\item [symbolic link (symlink, ifdef([[[NOSPELLCHECK]]], [[[softlink]]]))]~
 
     \begin{itemize}
     \item only reference to the real path of file of different type
     (it is marked as '\texttt{l}' in the \texttt{ls -l} output), i.e. the type
     of symbolic differs from ordinary file. Its data contain a simple string
     -- name of the path, either relative or absolute.
-    \item different behavior for original and symlink (e.g. upon unlink)
+    \item different behavior for original and symlink (e.g. upon deletion)
     \item watch out for relative and absolute paths when moving symbolic link
     \item can point to directory or non-existing file
     \end{itemize}
@@ -319,7 +320,7 @@ and data blocks closer
     \item bitmaps for free i-nodes and data blocks
     \item data blocks
     \end{itemize}
-\item bloks of size 4 to ¾ 8 kB, smaller parts stored into block fragments
+\item blocks of size 4 to 8 kilobytes, smaller parts stored into block fragments
 \item file names up to 255 characters
 \end{itemize}
 \end{slide}
@@ -330,11 +331,11 @@ not share the same platter.
 \item more file systems: UFS2, Ext3, ReiserFS, XFS, ZFS etc.
 \item UFS was still 32-bit, that reflected on maximum file length and maximum
 file system size. The 32-bit notation means that i-node numbers are represented
-as 32 bit integers. This gives the theoretical filesystem limits.
-\item journalling (XFS, Ext3, ReiserFS) -- an effort to reduce the risk of data
+as 32 bit integers. This gives the theoretical file system limits.
+\item journaling (XFS, Ext3, ReiserFS) -- an effort to reduce the risk of data
 loss in case of crash and also to speed up the recovery after crash.
 \item ZFS -- modern 128-bit file system developed in Sun Microsystems, since
-Solarisu 10; also present in FreeBSD since version 7.
+Solaris 10; also present in FreeBSD since version 7.
 \end{itemize}
 
 %%%%%
@@ -378,20 +379,22 @@ file system is necessary.
 \end{slide}
 
 \begin{itemize}
-\item The \emph{FFS} filesystem introduced in 4.2BSD was historically the second
-unix filesystem. Some manufacturers of unix system started to prefer its
-considering its better performance and new features, others remained with 
-\emph{s5fs} from compatibility reasons. This deepened the problem with already
-insufficient interoperability between different unix systems. For some
-applications neither of these filesystems was enough. Gradually the need to work
-with non-unix systems started appearing, e.g. with \emph{FAT}. With growing
+\item The \emph{FFS} file system introduced in 4.2BSD was historically the
+second unix file system. Some manufacturers of unix system started to prefer its
+considering its better performance and new features, others remained with
+ifdef([[[NOSPELLCHECK]]], [[[\emph{s5fs}]]]) from compatibility reasons. This
+deepened the problem with already insufficient interoperability between
+different unix systems. For some
+applications neither of these file systems was enough. Gradually the need to
+work with non-unix systems started appearing, e.g. with \emph{FAT}. With growing
 popularity of computer networks the demand for file sharing between systems
-started to increase. This lead to the inception of distributed filesystems
+started to increase. This lead to the inception of distributed file systems
 -- e.g. \emph{NFS} (Network File System).
 \item Given the above described situation it was just a matter of time when
-fundamental changes in the filesystem infrastructure will happen to support
-multiple filesystem types simultaneously. Several different implementations from
-multiple manufacturers were made; in the end the de facto standard became
+fundamental changes in the file system infrastructure will happen to support
+multiple file system types simultaneously. Several different implementations
+from multiple manufacturers were made; in the end the ifdef([[[NOSPELLCHECK]]],
+[[[de facto]]]) standard became
 the \emph{VFS/vnode} architecture from Sun Microsystems. Today practically all
 unix u{}nix-like systems support VFS, even though with often non-compatible
 changes. VFS appeared for the first time in 1985 in Solaris 2.0;
@@ -405,26 +408,28 @@ the \emph{inode} structure. This is specific for each type of file system.
 file operations}. This set is referenced by each vnodes corresponding to given
 file system. \emsl{This set of functions define vnode interface.} When e.g.
 \texttt{open} is called, the kernel will call the corresponding implementation
-depending on file system type (e.g. from the \emph{ext2fs} module).
+depending on file system type (e.g. from the ifdef([[[NOSPELLCHECK]]],
+[[[\emph{ext2fs}]]]) module).
 Implementation dependent part of vnode structure is accessible only from
-functions of given filesystem; for kernel it is opaque. Next slide will shown
-another set of functions that works with filesystems themselves.
+functions of given file system; for kernel it is opaque. Next slide will shown
+another set of functions that works with file systems themselves.
 \emsl{This set defines VFS interface.}
 These \emsl{two sets together} constitute the vnode/VFS interface, generally
 referred to as VFS.
 \item For special file types the situation is a bit more complicated, in SVR4
-the \texttt{file} structure points to \emph{snode}
+the \texttt{file} structure points to \texttt{snode}
 (\emph{shadow-special-vnode}), that defines operations with a device (using the
-\emph{spec} filesystem) and using the \texttt{s\_realvp} pointer it refers to
+\emph{spec} file system) and using the \texttt{s\_realvp} pointer it refers to
 real vnode for the operations with the special file; this file is necessary for
 example for checking file access rights. Each device can have multiple special
-files, hence more snodes and corresponding real vnodes. All such snodes for one
-device have the \texttt{s\_commonvp} pointer to one common snode, this is
-however not captured in the picture. When opening a special file, an item
-corresponding to the special file is searched in hash table of snodes of opened
-devices according to major and minor device number. If the snode is not found,
-new one is created. This snode will be then used for operations with the device.
-More in [Vahalia].
+files, hence more \texttt{snodes} and corresponding real vnodes. All such
+\texttt{snodes} for one device have the \texttt{s\_commonvp} pointer to one
+common \texttt{snode}, this is however not captured in the picture. When opening
+a special file, an item corresponding to the special file is searched in hash
+table of \texttt{snodes} of opened devices according to major and minor device
+number. If the \texttt{snode} is not found, new one is created. This
+\texttt{snode} will be then used for operations with the device. More in
+[Vahalia].
 \end{itemize}
 
 %%%%%
@@ -468,7 +473,7 @@ the filesystem is mounted to
 \end{slide}
 
 \begin{itemize}
-\item The \texttt{proc} and \texttt{user} strucures are created by the kernel
+\item The \texttt{proc} and \texttt{user} structures are created by the kernel
 for each process. They contain service information about the process.
 \item The \texttt{ufchunk} structure contains \texttt{NFPCHUNK} (usually 24)
 \emph{file descriptors}, after it is full new \texttt{ufchunk} is allocated.
@@ -513,8 +518,8 @@ It tests progressively tests possible inconsistencies:
     \item invalid superblock contents
     \end{itemize}
 \item the \texttt{fsck} operation is time consuming.
-\item journaling (e.g. XFS in IRIXu, Ext3 in Linux) a transactional (ZFS)
-filesystems do not need \texttt{fsck}.
+\item journaling (e.g. XFS in IRIX, Ext3 in Linux) a transactional (ZFS)
+file systems do not need \texttt{fsck}.
 \end{itemize}
 \end{slide}
 
@@ -524,9 +529,9 @@ To save all file system buffers the \texttt{sync()} syscall can be used.
 The buffers are saved periodically by special system process (or daemon).
 \item The \texttt{fsck} command only checks metadata. If a data corruption
 happened it cannot tell, let alone do something about it.
-\item Exaple of \texttt{fsck} run on \emsl{unmounted} filesystem:
+\item Example of \texttt{fsck} run on \emsl{unmounted} filesystem:
 \begin{verbatim}
-toor@shewolf:~# fsck /dev/ad0a 
+toor@shewolf:~# fsck /dev/ad0a
 ** /dev/ad0a
 ** Last Mounted on /mnt/flashcard
 ** Phase 1 - Check Blocks and Sizes
@@ -559,7 +564,7 @@ toor@shewolf:~# fsck /dev/ad0a
 \item solutions to metadata inconsistency problem:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
-    \item \emph{journalling} -- one group of operations dependent on each other
+    \item \emph{journaling} -- one group of operations dependent on each other
     is written to a journal first; if a problem is encountered the journal can
     be ``replayed''
     \item metadata blocks are written to non-volatile memory first
@@ -572,31 +577,31 @@ toor@shewolf:~# fsck /dev/ad0a
 \end{slide}
 
 \begin{itemize}
-\item filesystem \emph{metadata} = inodes, directories, free block
+\item filesystem \emph{metadata} = i-nodes, directories, free block
 maps
 \item \emph{ext2} uses asynchronous metadata writes even by default and when
 in synchronous mode it is much slower to UFS.
 \item Dependent operations are for example deleting an item from directory and
 deleting disk inode. If the inode is deleted first and then the directory entry
-then if there is outage between these two operations then inonsistency follows
+then if there is outage between these two operations then inconsistency follows
 -- the link points to disk file that does not exist. It is not a problem to
 avoid this when using synchronous metadata writes (we know when a what is being
 written, the ordering of writes is therefore under our control) however when
 using the write-back method it is necessary to solve dependencies of the blocks
 because with classic synchronization of cache buffers the kernel is not
 interested in which blocks is written first.
-\item Often the block dependencies for a cycle. Soft updates can recognize sych
+\item Often the block dependencies for a cycle. Soft updates can recognize such
 cycle and break it by performing \emph{roll-back} and after the write is done it
 performs \emph{roll-forward}.
 \item The soft updates performance is comparable to that of UFS with
 asynchronous metadata writes.
-\item Theoreticall soft updates guratantee that it is not necessary to use
+\item Theoretically soft updates guarantee that it is not necessary to use
 \texttt{fsck} after the reboot, i.e. that the filesystem is in bootable state.
-It is however necessary to use so called \emph{background fsck} for correcting
-non-grave errors -- this is considered to be one of the big drawbacks of soft
-updates, especially given how sizes of disks grow over time. Example of an error
-that does not block booting would be a block that is marked as used however is
-not used by any file.
+It is however necessary to use so called ifdef([[[NOSPELLCHECK]]],
+[[[\emph{background fsck}]]]) for correcting non-grave errors -- this is
+considered to be one of the big drawbacks of soft updates, especially given how
+sizes of disks grow over time. Example of an error that does not block booting
+would be a block that is marked as used however is not used by any file.
 \item soft updates are not always recommended for the root filesystem.
 The problem is that metadata loss on root file system (see the 30 second
 period of writes) can be more dangerous than in \texttt{/usr}, \texttt{/home}
@@ -625,7 +630,7 @@ possible to write any of these 3 blocks in a cycle to match the end of the
 rename operation so that the roll-back is truly needed -- we could consider that
 the inode did not really change and it is not necessary to decide whether to
 write it or not; the write of directory reference without increasing reference
-count in the inode could get us into situation which is descibed above.
+count in the inode could get us into situation which is described above.
 \end{itemize}
 
 \endinput
