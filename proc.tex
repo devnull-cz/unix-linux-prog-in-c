@@ -939,16 +939,11 @@ file descriptors with the \texttt{FD\_CLOEXEC} flag -- those are closed in the
 \emsl{successful} \funnm{exec} call.
 \item Example: \example{pipe/pipe-and-fork.c}
 \item Closing the writing descriptor \texttt{pd[1]} (see
-ifdef([[[NOSPELLCHECK]]], [[[
-{\color[rgb]{1,0,0} $\triangleright$})
-]]])
-in the consumer process is required
-as the EOF would not be detected otherwise.
+ifdef([[[NOSPELLCHECK]]], [[[{\color[rgb]{1,0,0} $\triangleright$}]]]))
+in the consumer process is required as the EOF would not be detected otherwise.
 \item Closing the reading descriptor \texttt{pd[0]} in the consumer process is
 desired as well (see
-ifdef([[[NOSPELLCHECK]]], [[[
-{\color[rgb]{1,0,0} $\triangleright$}
-]]])
+ifdef([[[NOSPELLCHECK]]], [[[{\color[rgb]{1,0,0} $\triangleright$}]]])
 ) as if the consumer finishes prematurely the producer properly gets a
 \texttt{SIGPIPE}.
 If that file descriptor in the producer was not closed while the consumer died
