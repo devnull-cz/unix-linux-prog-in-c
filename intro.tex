@@ -2547,13 +2547,12 @@ returns 0 on failure, which can also be a valid value in some cases
 (and $-1$ is also a valid result value).
 \item It is therefore necessary to always read the appropriate man page for the 
 system call or library function.
-\item Note that from the failure return values from \texttt{stdio.h}, it is necessary
-to test using\\
-\texttt{int \funnm{ferror}(FILE *\emph{stream})}, because it is not otherwise
-possible to distinguish between an error and end of stream. Considering we are
-not using these functions in the lecture (except 
-\texttt{printf} and \texttt{fprintf} for \texttt{stdout} and
-\texttt{stderr}), you should not need it.
+\item Note that to test for failures of the functions from \texttt{stdio.h}, it
+is necessary to test using the function ``\texttt{int \funnm{ferror}(FILE
+*\emph{stream})}'' as it is not otherwise possible to distinguish between an
+error and end of a stream. Considering we are not using these functions in the
+lecture (except for \texttt{printf} and \texttt{fprintf}), you should not need
+it.
 \end{itemize}
 
 \begin{slide}
