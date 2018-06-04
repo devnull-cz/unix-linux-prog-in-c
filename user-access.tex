@@ -76,8 +76,8 @@ systems, see below)
 \item The sticky bit for directories means that when the directory is writable
 for a given user (possibly because all users can write), the user can create any
 file that does not exist in that directory yet.  However, if the file exists but
-is not owned by the user, he/she can not remove nor rename it even that by
-itself he/she can write the directory.  Sticky bit is denoted by ``t'' and is
+is not owned by the user, he/she can not remove nor rename it even if
+he/she can write the directory.  The sticky bit is denoted by ``t'' and is
 typically used for temporary directories:
 
 \begin{verbatim}
@@ -85,7 +85,7 @@ $ ls -ld /tmp
 drwxrwxrwt 9 root root 356352 Jan 27 22:37 /tmp/
 \end{verbatim}
 
-\item The SGID bit on directories on BSD based systems means that files and
+\item The SGID bit for directories on BSD based systems means that files and
 directories created in this directory will have the same owner as the directory
 itself.  The filesystem must be mounted with an \texttt{suiddir} flag and
 the kernel may need an additional non-default option \texttt{SUIDDIR}.  It also
@@ -130,11 +130,11 @@ beginning of the password database, \funnm{getpwent} gets the current entry,
 user information, see page \pageref{name_service_switch} for more information on
 naming databases.
 \item All these functions are part of POSIX 1003.1-2008.
-\item \funnm{setpwent}() is needed to call before first calling
+\item \funnm{setpwent}() must be call before the first call to
 \funnm{getpwent}().
 \item There are also functions \funnm{getgrnam}() and \funnm{getgrent}() which
 can be used to get group information.
-\item To search and list naming databases, you can use program \texttt{getent}.
+\item To search and list naming databases, you can use the program \texttt{getent}.
 For example:
 
 \begin{verbatim}
@@ -161,18 +161,18 @@ root::0:
 \item library functions must support this, obviously
 \item it is possible to combine some sources, e.g. users may be first be searched
 in \texttt{/etc/passwd}, then in LDAP
-\item came first with Solaris, other systems took over the idea
+\item came first with Solaris, other systems borrowed the idea
 \end{itemize}
 \end{slide}
 
 \label{name_service_switch}
 
 \begin{itemize}
-\item Systems using the name service switch typically have
-\texttt{nsswitch.conf(4)} where you can find information about what databases
+\item Systems using the name service switch typically use the
+\texttt{nsswitch.conf(4)} file to store information about what databases
 are supported, including the API.  For example, with the \texttt{passwd}
 database, standard calls like \texttt{getpwnam(3)} and \texttt{getpwent(3)} use
-it.  In general, it is not needed to process such databases manually as there is
+it.  In general, it is not needed to process such databases manually, as there is
 always an API to use for that.
 \item Example of an existing \texttt{nsswitch.conf} on Solaris:
 
@@ -203,11 +203,11 @@ ethers:     files
 \sltitle{Access rights testing}
 \setlength{\baselineskip}{0.9\baselineskip}
 \begin{itemize}
-\item user is identified with a \emsl{UID} number and numbers for groups he
+\item a user is identified with a \emsl{UID} number and numbers for groups he
 belongs to (\emsl{primary GID}, \emsl{supplementary GIDs})
 \item this identification is inherited by each process
 \item file $F$ has owner ($UID_F$) and group owner ($GID_F$). 
-\item algorithm for evaluation of access rights for process:
+\item the algorithm for evaluation of access rights for process:
 ifdef([[[NOSPELLCHECK]]], [[[$P(UID_P,GID_P,SUPG)$]]]) and file
 ifdef([[[NOSPELLCHECK]]], [[[$F(UID_F,GID_F)$]]]):
 \begin{tabular}{ll}
@@ -225,14 +225,14 @@ ifdef([[[NOSPELLCHECK]]], [[[$F$ile]]]) \\
 
 \begin{itemize}
 \item The processes of the \texttt{root} user can change its user and group
-identity. This is used by e.g. the \texttt{login} process, that runs as
-\texttt{root} and after performing authentication check successfully it runs
-shell process with identity of given user (using the \texttt{setuid} syscall
+identity. This is used e.g. by the \texttt{login} process, which runs as
+\texttt{root} and after performing an authentication check successfully, runs
+a shell process with the identity of the given user (using the \texttt{setuid} syscall
 -- see upcoming slides).
-\item The implication of the algorithm is that for the \texttt{root} user the
+\item The implication of the algorithm is that for the \texttt{root} user, the
 access rights are not relevant (it has always unlimited access -- at least in
 classic UNIX without fine grained privileges). If the user is equal, the
-group/other rights are not used even though them permit more than what user
+group/other rights are not used even though they permit more than what user
 rights do. Similarly the others rights are not used if the group is equal.
 \emsl{Therefore if a file owned by a user has the rights set to
 \texttt{---rwxrwx}, the user cannot read/write/execute it until he/she changes
@@ -242,8 +242,8 @@ were running under a user with UID 0. A security vulnerability in such an
 application meant total control of the system. To thwart this, these systems
 employ models like \emph{least privilege} in Solaris or \emph{privilege
 separation} and \emph{pledge} in OpenBSD.
-\item \label{FILEDELETE} In order to delete a file, the user has to have a right
-to write to the \emsl{directory} containing the file, because that is actually
+\item \label{FILEDELETE} In order to delete a file, the user has to have write
+permission for the \emsl{directory} containing the file, because that is actually
 the ``file'' being changed. \emsl{The rights of the file to be deleted are
 not relevant}; the shell might give you a warning that you are about to delete a
 file for which you do not have the right to write, however that is just a
@@ -278,8 +278,8 @@ contents because:
 \texttt{janp} is not an owner of the sub-directory containing the file
 \end{itemize}
 \item If the read bit is removed from a directory rights, it is not possible to
-read its contents, therefore neither list files contained therein. However if I
-know the name of the file in the directory and the execute bit is set, I can
+read its contents, therefore you cannot list files contained therein. However if you
+know the name of the file in the directory and the execute bit is set, you can
 read the file:
 \begin{verbatim}
 $ mkdir foo
@@ -325,13 +325,13 @@ ifdef([[[NOSPELLCHECK]]], [[[
 process
     \item \emsl{saved UID} -- original effective UID
     \end{itemize}
-\item similarly each process has real, effective and saved GID.
+\item similarly each process has the real, effective and saved GID.
 \item usually \texttt{RUID==EUID \&\& RGID==EGID}.
 \item \emsl{right vesting} \dots{} execution of a program with
-SUID (\emsl{set user ID}) bit set changes EUID and saved UID of the process
-to the UID of the program owner, RUID stays the same.
-\item similarly SGID bit changes EGID of the process. 
-\item \emsl{access rights checking always consults EUID, EGID a
+the SUID (\emsl{set user ID}) bit set changes the EUID and the saved UID of the process
+to the UID of the program owner, the RUID stays the same.
+\item similarly the SGID bit changes the EGID of the process. 
+\item \emsl{access rights checking always consults the EUID, EGID, and
 supplementary GIDs}
 \end{itemize}
 \end{slide}
@@ -347,7 +347,7 @@ cannot write into the the second. Another example is the \texttt{su} program,
 which has to have the right to arbitrarily change user and group identity,
 which is a privilege of programs running with UID 0.
 \item Programs using the SUID and SGID bits should be carefully programmed
-to allow only such operations for which they were designed and prevent misuse
+to allow only the operations for which they were designed and prevent misuse
 of their privileges for non-authorized actions (root shell execution).
 Such programs used to be one of the most frequent causes of security problems
 in Unix systems.
@@ -358,13 +358,13 @@ them} if it is not absolutely necessary.  It is not easy to produce a correct
 \begin{itemize}
 \item an ordinary user cannot change its RUID or saved UID (the \texttt{exec} is
 an exception to that, see page \pageref{EXEC})
-\item the process can always change its EUID to that of RUID or saved UID.
-This guarantees that in SUID program it is possible to arbitrarily change EUID
+\item the process can always change its EUID to that of the RUID or saved UID.
+This guarantees that in a SUID program, it is possible to arbitrarily change the EUID
 between the one that enabled the process to gain ownership rights and the
 UID of the real user that executed the process originally.
-\item \emsl{root can do everything}, and when it changes RUID, it will also
-change saved UID -- it does not make sense to change just one of them when
-either can be used to set EUID.
+\item \emsl{root can do everything}, and when it changes the RUID, it will also
+change saved the UID -- it does not make sense to change just one of them when
+either can be used to set the EUID.
 \end{itemize}
 \end{itemize}
 
@@ -380,19 +380,19 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{getuid}(void)}
 ]]])
-returns real user ID of the calling process.
+returns the real user ID of the calling process.
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{uid\_t \funnm{geteuid}(void)}
 ]]])
-returns effective user ID of the calling process.
+returns the effective user ID of the calling process.
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getgid}(void)}
 ]]])
-returns real group ID of the calling process.
+returns the real group ID of the calling process.
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{gid\_t \funnm{getegid}(void)}
 ]]])
-returns effective group ID of the calling process.
+returns the effective group ID of the calling process.
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{getgroups}(int \emph{gidsz}, gid\_t \emph{glist}[])}
 ]]])
@@ -402,7 +402,7 @@ IDs of the calling process and returns number of all GIDs of the process.
 \end{slide}
 
 \begin{itemize}
-\item The \texttt{getuid} returns real UID, there is nothing like
+\item The \texttt{getuid} returns real the UID, there is nothing like
 \texttt{getruid}.
 \item \texttt{getgroups}: when \texttt{gidsz~==~0}, it returns the number of
 groups. When \texttt{0 < gidsz < \#groups}, it returns \texttt{-1}.
@@ -434,10 +434,10 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setuid}(uid\_t \emph{uid});}
 ]]])
     \begin{itemize}
-    \item in process with EUID~==~0 sets RUID, EUID and saved-SUID to
+    \item for a process with EUID~==~0, sets the RUID, EUID and saved-SUID to
     \texttt{uid}
-    \item for other processes it sets just EUID, and \texttt{uid} must be
-    either equal to RUID or saved UID
+    \item for other processes it sets just the EUID, and \texttt{uid} must be
+    either equal to the RUID or saved UID
     \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \item \texttt{int \funnm{setgid}(gid\_t \emph{gid});} \\
@@ -453,23 +453,23 @@ by superuser process.
 \end{slide}
 
 \begin{itemize}
-\item W.r.t. setting UID for a process with EUID 0 see also the notes on page
+\item W.r.t. setting the UID for a process with EUID == 0, see also the notes on page
 \pageref{ROOT_SETUID}.
 \item To recap the above: a process with effective rights of a superuser can
 arbitrarily change its identity. The rest can only switch between its real and
 effective IDs.
 \item The \emph{login} program uses the \texttt{setuid} syscall.
 \item If a process with UID~==~0 wants to change its identity, it has to call
-\texttt{setgid} first and then \texttt{setgroups}. Only after that it can call
+\texttt{setgid} first and then \texttt{setgroups}. Only after that can it call
 \texttt{setuid}. Any other ordering would mean that the process would lack the
 rights to perform the operation in question, e.g. once \texttt{setuid} returns
 it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 \item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
 \item RUID/EUID are saved in the kernel process structure and also in the so
 called \emph{u-area} (see e.g. [Bach]).
-\item If a root SUID program calls \texttt{setuid} for UID other than 0, it can
-no longer return to EUID==0 (this makes sense, imagine a user logging into the
-system). For a different behavior, \texttt{seteuid} (that sets just EUID) would
+\item If a root SUID program calls \texttt{setuid} for a UID other than 0, it can
+no longer return the EUID to 0 (this makes sense, imagine a user logging into the
+system). For a different behavior, \texttt{seteuid} (that sets just the EUID) would
 have to be used.
 \item Example: \example{setuid/screate-file.c}
 \end{itemize}
@@ -480,11 +480,11 @@ have to be used.
 \sltitle{File system}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{itemize}
-\item directories form a tree; together with files acyclic graph
+\item directories form a tree and together with files form an acyclic graph
 (one file can have multiple references).
 \item each directory also contains reference to itself '\texttt{.}'
 (dot) and to its parent directory '\texttt{..}' (two dots). 
-\item using file system interfaces it is possible to access other system
+\item using file system interfaces, it is possible to access other system
 entities such as:
     \begin{itemize2}
 \setlength{\itemsep}{-3pt}
@@ -496,7 +496,7 @@ entities such as:
     \item memory (\texttt{/dev/mem}, \texttt{/dev/kmem}) 
     \item pseudo files (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
     \end{itemize2}
-\item from kernel's perspective each regular file is an array of bytes.
+\item from the kernel's perspective, each regular file is an array of bytes.
 \item all (including network) drives are connected to single tree.
 \end{itemize}
 \end{slide}
@@ -507,7 +507,7 @@ entities such as:
 \item Devices, files in \texttt{/proc}, terminals, memory etc. are of one type
 - special files. More types: regular file (hardlink), directory, named pipe,
 socket, symbolic link.
-\item Newly created directory has 2 references to itself -- one from its parent
+\item A newly created directory has 2 references to itself -- one from its parent
 directory and one of itself, '\texttt{.}':
 
 \begin{verbatim}
@@ -516,23 +516,23 @@ $ ls -ld test
 drwx------   2 janp     staff        512 Mar 23 12:46 test
 \end{verbatim}
 
-\item The root user can in some systems create cycle in directory structure
-however that might confuse file system traversal tools; hence the cyclical
+\item The root user can in some systems, create a cycle in a directory structure.
+However that might confuse file system traversal tools, hence the cyclical
 structure is not used much. Symbolic links to directories work everywhere.
 \item Named pipes (see page \pageref{MKFIFO}) can be used between processes
-that do not have ''family'' relationship.  They work as unnamed pipes otherwise.
-\item The sockets noticed above are in the UNIX domain, i.e. they serve for
+that do not have a ''family'' relationship.  They work as unnamed pipes otherwise.
+\item The sockets noted above are in the UNIX domain, i.e. they are used for
 communication within one system. The INET domain sockets, used for network
 communication (see page \pageref{NETWORKING}) are not visible in the file
 system.
 \item Debuggers use process images available through \texttt{/proc}.
-On many Unix-like systems the \texttt{/proc} tree contains information about
-kernel and running processes in the form of text files.  However, some systems,
+On many Unix-like systems, the \texttt{/proc} tree contains information about
+kernel and running processes in the form of text files.  However, some systems
 like Solaris, have those files in a binary form only and provide special
 commands to read those (like \texttt{pargs}, \texttt{pldd}, etc.).
 \item Modern Unix systems contain a special \emph{\texttt{devfs}} filesystem
-that reflects an actual system configuration w.r.t. connected devices. I.e.
-after connecting a USB stick a related device will appear under \texttt{/dev}.
+that reflects an actual system configuration w.r.t. connected devices. E.g.
+after connecting a USB stick, a related device will appear under \texttt{/dev}.
 After physically disconnecting it, the item will disappear.
 \end{itemize}
 

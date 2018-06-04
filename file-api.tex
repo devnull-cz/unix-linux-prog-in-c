@@ -434,29 +434,29 @@ example, a pipe can hold only a limited number of bytes), the call will fail.
 \item All the information here applies to a unnamed pipes as well, see page
 \pageref{PIPE}.
 
-%%%\item pro z·pis platÌ toto (p¯evzato z [Rochkind]):
+%%%\item pro z√°pis plat√≠ toto (p√∏evzato z [Rochkind]):
 %%%
 %%%\renewcommand{\arraystretch}{1.3}
 %%%
 %%%\begin{tabularx}{1.0\textwidth}{|l|l|l|l|l|}
 %%%\hline
-%%%\texttt{O\_NONBLOCK} ? & bajt˘ k z·pisu & nic nelze zapsat & Ë·steËn˝ z·pis
-%%%moæn˝ & kompletnÌ z·pis moæn˝ \\
+%%%\texttt{O\_NONBLOCK} ? & bajt√π k z√°pisu & nic nelze zapsat & √®√°ste√®n√Ω z√°pis
+%%%mo¬æn√Ω & kompletn√≠ z√°pis mo¬æn√Ω \\
 %%%\hline
-%%%nenÌ & \texttt{<= PIPE\_BUF} & zablokuje se; kompletnÌ z·pis; atomickÈ &
-%%%zablokuje se; kompletnÌ z·pis; atomickÈ & nezablokuje se; kompletnÌ z·pis;
-%%%atomickÈ \\
+%%%nen√≠ & \texttt{<= PIPE\_BUF} & zablokuje se; kompletn√≠ z√°pis; atomick√© &
+%%%zablokuje se; kompletn√≠ z√°pis; atomick√© & nezablokuje se; kompletn√≠ z√°pis;
+%%%atomick√© \\
 %%%\hline
-%%%nenÌ & \texttt{> PIPE\_BUF} & zablokuje se; kompletnÌ z·pis; nenÌ atomickÈ &
-%%%zablokuje se; kompletnÌ z·pis; nenÌ atomickÈ & m˘æe se zablokovat; kompletnÌ
-%%%z·pis; nenÌ atomickÈ \\
+%%%nen√≠ & \texttt{> PIPE\_BUF} & zablokuje se; kompletn√≠ z√°pis; nen√≠ atomick√© &
+%%%zablokuje se; kompletn√≠ z√°pis; nen√≠ atomick√© & m√π¬æe se zablokovat; kompletn√≠
+%%%z√°pis; nen√≠ atomick√© \\
 %%%\hline
 %%%nastaven & \texttt{<= PIPE\_BUF} & \texttt{EAGAIN} & \texttt{EAGAIN} &
-%%%nezablokuje se; kompletnÌ z·pis; atomickÈ \\
+%%%nezablokuje se; kompletn√≠ z√°pis; atomick√© \\
 %%%\hline
-%%%nastaven & \texttt{> PIPE\_BUF} & \texttt{EAGAIN} & nezablokuje se; Ë·steËn˝
-%%%z·pis nebo \texttt{EAGAIN}; nenÌ atomickÈ & nezablokuje se; kompletnÌ,
-%%%Ë·steËn˝ z·pis nebo \texttt{EAGAIN}; nenÌ atomickÈ \\
+%%%nastaven & \texttt{> PIPE\_BUF} & \texttt{EAGAIN} & nezablokuje se; √®√°ste√®n√Ω
+%%%z√°pis nebo \texttt{EAGAIN}; nen√≠ atomick√© & nezablokuje se; kompletn√≠,
+%%%√®√°ste√®n√Ω z√°pis nebo \texttt{EAGAIN}; nen√≠ atomick√© \\
 %%%\hline
 %%%\end{tabularx}
 \end{itemize}
@@ -775,7 +775,7 @@ last modification of the inode.
 \item The UNIX norm does not specify the ordering of the \texttt{struct stat}
 members, nor does it prohibit adding new ones.
 \item \label{STAT} Example: \example{stat/stat.c}
-\item You can call \texttt{fstat} on file descriptors 0,1,2 as well.  Unless
+\item You can call \texttt{fstat} on file descriptors 0, 1, and 2 as well.  Unless
 redirected before, you will get information on the underlying terminal device
 (e.g. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
 \end{itemize}
@@ -791,7 +791,7 @@ redirected before, you will get information on the underlying terminal device
 \item for a file type, in \texttt{<sys/stat.h>} there are
 constants \verb#S_IFMT# (bit mask for the file type bit field), \verb#S_IFBLK#
 (block device), \verb#S_IFCHR# (character device), \verb#S_IFIFO#
-(FIFO), \verb#S_IFREG# (regular), \verb#S_IFDIR# (directory),
+(FIFO), \verb#S_IFREG# (regular), \verb#S_IFDIR# (directory), and
 \verb#S_IFLNK# (symlink). 
 \item macros for file type checking: \verb#S_ISBLK(m)#,
 \verb#S_ISCHR(m)#, \verb#S_ISFIFO(m)#, \verb#S_ISREG(m)#,
@@ -804,8 +804,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 *\emph{buf});}
 ]]])
 \begin{itemize}
-\item if \emph{path} is a symlink, \texttt{stat()} returns information of the
-file the symlink refers to. This function returns information about the link
+\item if \emph{path} is a symlink, \texttt{stat()} returns information about the
+file the symlink refers to. \texttt{lstat()} function returns information about the link
 itself.
 \end{itemize}
 \end{slide}
@@ -865,11 +865,11 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{ int \funnm{unlink}(const char *\emph{path});}
 \begin{itemize}
 \item deletes a name (i.e. a directory entry) and after deleting the last link to
-the file and after closing the file by all processes, delete the file data.
+the file and after closing the file by all processes, deletes the file data.
 \end{itemize}
 \texttt{int \funnm{rename}(const char *\emph{old}, const char *\emph{new});}
 \begin{itemize}
-\item change the file name (i.e. one specific link) from \emph{old} to
+\item changes the file name (i.e. one specific link) from \emph{old} to
 \emph{new}.  Works within the same filesystem only.
 \end{itemize}
 \end{slide}
@@ -882,13 +882,13 @@ name and an i-node number.  I-node numbers are unique within a filesystem so for
 links between filesystems, symlinks are needed.  A number of hardlinks to a
 specific file is only limited by the size of the \texttt{st\_nlink} member of
 \texttt{struct stat}, and the specification does not specify the size, it only
-says its type \texttt{nlink\_t} is of an integer value.
+says its type \texttt{nlink\_t} is an integer value.
 \item The parameter \emph{path2} must not exist.  So, you cannot rename using
 the \texttt{link} call.
 \item \texttt{unlink} does not work on directories.
 \item The shell command \texttt{mv} uses \texttt{rename} to move objects within
-the same filesystems.  To move files between filesystems, a file needs to be
-copied first, then \texttt{unlink} it from the originating filesystem (the whole
+the same filesystem.  To move files between filesystems, a file needs to be
+copied first, then \texttt{unlink}ed from the originating filesystem (the whole
 operation is not atomic).
 \item \texttt{rename} renames symlinks, not the files those symlinks point to.
 \item There is also a more generic call \texttt{remove}, see page
@@ -927,7 +927,7 @@ to \texttt{\emph{buf}}
 \item Calling \texttt{unlink} on a hardlink will not release the file data if
 other hardlinks exists. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
-\item \texttt{readlink} is useful in situation when you want to \texttt{unlink}
+\item \texttt{readlink} is useful in the situation where you want to \texttt{unlink}
 the symlink's target.
 \item \emph{\texttt{bufsize}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
@@ -944,7 +944,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{mkdir}(const char *\emph{path}, mode\_t \emph{mode});}
 \begin{itemize}
 \item attempts to create an empty directory \emph{path} with entries
-'\texttt{.}' a '\texttt{..}' 
+'\texttt{.}' and '\texttt{..}' 
 \end{itemize}
 \texttt{int \funnm{rmdir}(const char *\emph{path});}
 \begin{itemize}
@@ -970,7 +970,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{readdir} is allowed to return them in arbitrary order depending on the
 filesystem implementation.  \texttt{NULL} is returned on failure
 and \texttt{errno} is set.  \texttt{NULL} is also returned upon reaching the end
-of a directory but in that case \texttt{errno} is not changed.
+of a directory but in that case, \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
 directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
@@ -1041,7 +1041,7 @@ current working directory of the process.
 \texttt{int \funnm{chdir}(const char *\emph{path});}\\
 \texttt{int \funnm{fchdir}(int \emph{fildes});}
 \begin{itemize}
-\item changes working directory for the process
+\item changes the working directory for the process
 \end{itemize}
 \texttt{char *\funnm{getcwd}(char *\emph{buf}, size\_t \emph{size});}
 \begin{itemize}
@@ -1053,7 +1053,7 @@ its \emph{size} must be at least one byte longer than the path length.
 \begin{itemize}
 \item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
 directory (i.e. not from \texttt{opendir}).
-\item There is also a function \texttt{chroot} which allows to change the root
+\item There is also a function \texttt{chroot} which changes the root
 directory of a calling process to a new one.  It is often used in various server
 implementations to limit access to the specific subtree.  For example, for an
 FTP server.  You have to be careful though and make sure it is not possible to
@@ -1103,7 +1103,7 @@ attacker could possibly \texttt{unlink} the file and immediately symlink it to a
 different file to what it actually had no rights to manipulate with.  If the
 timing is right, the SUID process will operate on that other file.  The correct
 solution is not to use the \texttt{access} call but return to the real UID/GID
-and try the operation.  For example, if we succeed to open the file under the
+and try the operation.  For example, if we succeed in opening the file under the
 real UID/GID and continue working with the file descriptor, the file
 manipulation mentioned above would not gain the attacker anything.
 \end{itemize}
@@ -1130,7 +1130,7 @@ gid\_t \emph{group});}
 \begin{itemize}
 \item changes file owner and group for \emph{path}.  Value of
 \texttt{-1} means do not change that ID.
-\item only root change change owners so that users could not work around quotas
+\item only root can change owners so that users could not work around quotas
 to disown their files
 \item a regular user can change a group of files he/she owns, and must belong to
 the target group
@@ -1143,7 +1143,7 @@ the target group
 masks.
 \item Only the owner of a file can change its mode.  Mode like
 \texttt{rw-rw-rw-} has nothing to do with that.
-\item In some implementations it was possible to pass the file ownership to
+\item In some implementations, it was possible to pass the file ownership to
 someone else.  Today this is usually not allowed.  Just think about how you
 could work around a per-user filesystem quota with this.
 \end{itemize}
