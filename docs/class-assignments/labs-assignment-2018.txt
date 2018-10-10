@@ -1,0 +1,313 @@
+Labs Assignment for 2018 - Simple Shell
+=======================================
+Write a simple Unix/Linux shell.
+
+When you are done, we prefer to get a link to you github project but you
+can send it to us via email (a single tar file) as well.  Your project
+must provide a Makefile so that running the "make" command does build
+the shell in the binary called 'mysh' (this saves us the work when running
+automated tests).
+
+The first phase must be finished and handed to us before the end of the
+Winter semester, ie. Jan 13, 2019.  All examples shown below must work
+as expected.
+
+The second phase must be finished and handed over to us before the end
+of the Summer semester, ie. by June 30, 2019.
+
+The deadlines are hard requirements, please stick to the schedule.
+
+Obviously, you can send us the whole thing in one step before the first
+deadline, no need to separate the project in two parts.
+
+If in doubt, please ask a question.
+
+C Style
+-------
+Please choose a good C style, for example http://mff.devnull.cz/cstyle/,
+or pick another existing cstyle (e.g. https://man.openbsd.org/style).
+Please do not invent your own C style.
+
+Implementation notes
+--------------------
+We are interested in you dealing with the Unix/Linux stuff you learn in
+the class, so please do not spend time writing a linked list
+implementation or a command line parser (the latter is much harder that
+one might think).
+
+For getting the input line, we recommend the readline library, see "man
+readline".  You should find it on any Linux, *BSDm, MacOS, or Solaris
+machine.  By using readline, you get line editing, history, completion,
+etc. for free.  Another alternative is libtecla.
+
+For tokenizing and parsing the command line, we suggest you to use
+GNU flex(1) and bison(1).  They are easy to use and you should also find
+it virtually everywhere, already installed.  We recommend O'Reilly's
+book "flex & bison", the first 30 pages should be all you need for this
+project.  I believe you can find the book online.
+
+You will probably need a linked list implementation.  We suggest you use
+macros from <queue.h>, those are proven macros.  See "man queue" for
+more information.  STAIL_* macros should be all you need.
+
+FYI, our implementation of the complete 1st phase is 550 lines long,
+including flex and bison source files, and using the usual C style from
+http://mff.devnull.cz/cstyle/.
+
+It goes without saying it is an individual, not a team project.  Do not
+use code written by other fellow students.  The idea is you learn by
+coding your own project.
+
+Test scenario
+-------------
+Use any Unix/Linux/MacOS system you want but make sure your code builds
+and works on a Linux machine in the MFF UK lab, e.g.
+u-pl1.us.oracle.com.
+
+Use Valgrind to make sure you do not mismanage memory.  Valgrind is
+installed on machines in the MFF UK Unix lab.
+
+Phase 1
+-------
+Note - the "mysh$" prompt in examples below represents the behavior of
+the shell you implement.  The "Bash$" prompt represents the system shell
+you start your shell from.
+
+- Honor and use the existing PATH you get from your parent shell, i.e.
+  so that one can use "ls" and the command will execute.
+
+- ^C (= SIGINT) in the prompt kills the current unfinished line and
+  offers a new prompt (same way as bash does it).  E.g:
+
+	mysh$ ls xxx^C
+	mysh$
+
+- An empty command just prints a new prompt (as bash does it).  E.g.
+
+	mysh$ <SPACE><SPACE><SPACE><ENTER>
+	mysh$
+
+- Implement simple foreground command execution.  Commands may be
+  separated with a semicolon.  Any number of commands separated by a
+  semicolon must be supported (i.e. until you reach some other system
+  limits):
+
+	- i.e. "cmd [; cmd2 [; cmd3 ...]]]
+	- for example:
+
+	mysh$ date
+	Mon Oct  8 04:51:27 PDT 2018
+	mysh$
+
+	mysh$ /usr/bin/echo X
+	X
+	mysh$
+
+	mysh$ echo X; date; echo Z
+	X
+	Monday, October  8, 2018 at 11:36:04 AM CEST
+	Z
+	mysh$
+
+  Whitespace should not matter, i.e.:
+
+	mysh$ echo X;date;echo Z
+	X
+	Monday, October  8, 2018 at 11:36:04 AM CEST
+	Z
+	mysh$
+
+- A semicolon after the last command is legal (as is in bash).  E.g:
+
+	mysh$ echo x;
+	x
+
+  However, the following is not legal:
+
+	mysh$ date;;
+	error:1: syntax error near unexpected token ';'
+	mysh$
+
+- Implement an internal "exit" to exit the shell.  E.g.:
+
+	Bash$ ./mysh
+	mysh$ exit
+	Bash$ echo $?
+	0
+	Bash$
+
+- ^D (i.e. Ctrl-D) exits the interactive shell as well (same as the
+  "exit" internal command).  Again, see bash for an example.
+
+- Implement an internal "cd" command.  It works in three modes:
+
+	- "cd" goes to $HOME
+	- "cd -" goes to previous directory
+	- "cd <dir>" goes to "<dir>"
+
+
+  The internal cd must set the PWD and OLDPWD environment variables
+  (again see bash).
+
+  E.g.:
+
+	mysh$ pwd
+	/data/maish
+	mysh$ cd
+	mysh$ pwd
+	/home/jpechane
+	mysh$ cd -
+	mysh$ pwd
+	/data/maish
+	mysh$ cd /tmp
+	mysh$ pwd
+	/tmp
+	mysh$ cd -
+	mysh$ pwd
+	/data/maish
+
+- The "-c" option is supported as in any other usual shell.
+
+  E.g.:
+
+	Bash$ mysh -c "echo XXX; date"
+	XXX
+	Monday, October  8, 2018 at  1:36:56 PM CEST
+	Bash$
+
+- The '#" comment is supported. E.g.:
+
+	mysh$ echo X # comment
+	X
+	mysh$     # another comment
+	mysh$
+
+	Or:
+
+	./mysh -c 'date; echo X # comment'
+	Wednesday, October 10, 2018 at 10:10:09 AM CEST
+	X
+
+	Comments must also work in the non-interactive mode, see below.
+
+- The non-interactive mode is supported.
+
+	- i.e. 'mysh test.sh' must work and the commands from the file
+	  are executed sequentially.
+
+	- the shell errors out on first syntax error as a usual shell
+	  does.  E.g:
+
+	Bash$ cat test.sh 
+	echo X
+	date
+	;;
+	echo Y
+
+	Bash$ ./mysh test.sh
+	X
+	Monday, October  8, 2018 at 11:38:16 AM CEST
+	error:3: syntax error near unexpected token ';'
+	Bash$
+
+	- shell must treat syntax errors gracefully.  Print the line
+	  number where the problem occured.  See the error message
+	  above.
+
+- In all modes, the return value of your shell is the return value of
+  the last command (or pipeline) executed or some specific error on a
+  syntax error (e.g. bash returns 2, ksh returns 3).  E.g. if we use
+  return value of 254 for a syntax error, it will look like this:
+
+	Bash$ ./mysh -c "grep XXX123 /etc/passwd"
+	Bash$ echo $?
+	1
+
+	Bash$ ./mysh -c ';;'
+	error:1: syntax error near unexpected token ';'
+	Bash$ echo $?
+	254
+
+	mysh$ grep XXX123 /etc/passwd
+	mysh$ exit
+	Bash$ echo $?
+	1
+
+	mysh$ grep XXX123 /etc/passwd
+	mysh$ ^D
+	Bash$ echo $?
+	1
+
+	mysh$ ls; ;
+	error:1: syntax error near unexpected token ';'
+	mysh$ exit
+	Bash$ echo $?
+	254
+
+- return value of unknown command is 127 (as in bash).  E.g:
+
+	Bash$ ./mysh -c 'xxx123'
+	mysh: xxx123: No such file or directory
+	Bash$ echo $?
+	127
+
+- error and warning messages from the shell itself go to standard error
+  output.  E.g. the message "mysh: xxx123: No such file or directory"
+  from above goes to stderr.
+
+- the interactive shell must handle SIGINT well (= killing the
+  foreground process via ^C).  I.e.:
+
+	mysh$ sleep 100
+	^CKilled by signal 2.
+	mysh$ 
+
+  However, also see the paragraph about killing the unfinished command
+  line with ^C.  Both must work as explained.
+
+  The "Killed by..." message also goes to stderr.
+
+- it would be nice if you put the current working directory in the
+  prompt, like this:
+
+	mysh:/data/mysh$ cd /
+	mysh:/$ cd /tmp
+	mysh:/tmp$
+
+Phase 2
+-------
+- pipes
+- redirections (>, <, >>)
+- background execution via &
+
+Specific examples will be provided till the end of November but it must
+work in the usual fashion.  For example, this works in any normal
+Unix/LInux shell, i.e. the redirection does not have to be at the end:
+
+	mysh$ > output date
+	mysh$ cat output
+	Wednesday, October 10, 2018 at 10:12:53 AM CEST
+
+And pipelines may be separated by a semicolon, i.e. it's an extension of
+the 1st phase:
+
+	mysh$ cat /etc/passwd | wc -l; echo X | grep X
+	26
+	X 
+
+Anything not listed is not required
+-----------------------------------
+I.e. we do NOT require any of these below:
+
+- variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
+- "export" internal command 
+- job control
+- support for $? etc.
+- strings, i.e. the following is not required:
+
+	$ echo "xxx   yy"
+	xxx   yy
+- `` and $( ... )
+
+vim:tw=72
+vim:ft=conf
