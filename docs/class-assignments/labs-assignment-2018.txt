@@ -43,14 +43,14 @@ etc. for free.  Another alternative is libtecla.
 For tokenizing and parsing the command line, we suggest you to use
 GNU flex(1) and bison(1).  They are easy to use and you should also find
 it virtually everywhere, already installed.  We recommend O'Reilly's
-book "flex & bison", the first 30 pages should be all you need for this
-project.  I believe you can find the book online.
+book "flex & bison", having read through the first 30 pages should be
+all you need for this project.  I believe you can find the book online.
 
-You will probably need a linked list implementation.  We suggest you use
-macros from <queue.h>.  See "man queue" for more information.  STAIL_*
-macros should be all you need.
+You will probably need a linked list implementation.  We suggest you to
+use macros from <queue.h>.  See "man queue" for more information.
+STAIL_* macros should be all you need.
 
-FYI, our implementation of the complete 1st phase is 550 lines long,
+FYI, our implementation of the complete 1st phase is 560 lines long,
 including flex and bison source files, and using the usual C style from
 http://mff.devnull.cz/cstyle/.
 
