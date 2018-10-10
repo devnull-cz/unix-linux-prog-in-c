@@ -136,6 +136,9 @@ you start your shell from.
 	0
 	Bash$
 
+  The internal exit command does not change the shell's return value set
+  from a previous command execution.  See below for more information.
+
 - ^D (i.e. Ctrl-D) exits the interactive shell as well (same as the
   "exit" internal command).  Again, see bash for an example.
 
@@ -144,7 +147,6 @@ you start your shell from.
 	- "cd" goes to $HOME
 	- "cd -" goes to previous directory
 	- "cd <dir>" goes to "<dir>"
-
 
   The internal cd must set the PWD and OLDPWD environment variables
   (again see bash).
@@ -244,30 +246,42 @@ you start your shell from.
 	Bash$ echo $?
 	254
 
-- return value of unknown command is 127 (as in bash).  E.g:
+- The return value of an unknown command is 127 (as in bash).  E.g:
 
 	Bash$ ./mysh -c 'xxx123'
 	mysh: xxx123: No such file or directory
 	Bash$ echo $?
 	127
 
-- error and warning messages from the shell itself go to standard error
+- Error and warning messages from the shell itself go to standard error
   output.  E.g. the message "mysh: xxx123: No such file or directory"
   from above goes to stderr.
 
-- the interactive shell must handle SIGINT well (= killing the
+- The interactive shell must handle SIGINT well (= killing the
   foreground process via ^C).  I.e.:
 
 	mysh$ sleep 100
 	^CKilled by signal 2.
 	mysh$ 
 
-  However, also see the paragraph about killing the unfinished command
+  If a command exits on receiving a signal and it is the last command
+  run by the shell, the shell return value is 128 plus the signal number
+  (same as in bash).  E.g.:
+  
+	Bash$ ./mysh
+	mysh$ sleep 10
+	^CKilled by signal 2.
+	mysh$ exit
+	Bash$ echo $?
+	130
+
+  However, see also the paragraph about killing the unfinished command
   line with ^C.  Both must work as explained.
 
-  The "Killed by..." message also goes to stderr.
+  The "Killed by..." message goes to stderr.  Also see above on error
+  and warning messages.
 
-- it would be nice if you put the current working directory in the
+- It would be nice if you put the current working directory in the
   prompt, like this:
 
 	mysh:/data/mysh$ cd /
@@ -295,15 +309,15 @@ the 1st phase:
 	26
 	X 
 
-Anything not listed is not required
------------------------------------
+Anything not listed above is NOT required
+-----------------------------------------
 I.e. we do NOT require any of these below:
 
-- variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
-- "export" internal command 
-- job control
-- support for $? etc.
-- strings, i.e. the following is not required:
+- Variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
+- The "export" internal command.
+- Job control.
+- Support for $? etc.
+- Strings, i.e. the following is not required:
 
 	$ echo "xxx   yy"
 	xxx   yy
