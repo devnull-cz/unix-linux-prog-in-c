@@ -62,7 +62,7 @@ Test scenario
 -------------
 Use any Unix/Linux/MacOS system you want but make sure your code builds
 and works on a Linux machine in the MFF UK lab, e.g.
-u-pl1.us.oracle.com.
+u-pl1.ms.mff.cuni.cz.
 
 Use Valgrind to make sure you do not mismanage memory.  Valgrind is
 installed on machines in the MFF UK Unix lab.
