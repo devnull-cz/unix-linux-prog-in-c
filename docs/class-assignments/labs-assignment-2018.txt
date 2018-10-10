@@ -109,7 +109,7 @@ you start your shell from.
 	Z
 	mysh$
 
-  Whitespace should not matter, i.e.:
+  Whitespace does not matter with the semicolon, i.e.:
 
 	mysh$ echo X;date;echo Z
 	X
