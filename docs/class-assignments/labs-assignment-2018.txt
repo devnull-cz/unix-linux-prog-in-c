@@ -36,7 +36,7 @@ implementation or a command line parser (the latter is much harder that
 one might think).
 
 For getting the input line, we recommend the readline library, see "man
-readline".  You should find it on any Linux, *BSDm, MacOS, or Solaris
+readline".  You should find it on any Linux, *BSD, MacOS, or Solaris
 machine.  By using readline, you get line editing, history, completion,
 etc. for free.  Another alternative is libtecla.
 
