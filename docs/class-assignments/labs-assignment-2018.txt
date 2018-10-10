@@ -47,8 +47,8 @@ book "flex & bison", the first 30 pages should be all you need for this
 project.  I believe you can find the book online.
 
 You will probably need a linked list implementation.  We suggest you use
-macros from <queue.h>, those are proven macros.  See "man queue" for
-more information.  STAIL_* macros should be all you need.
+macros from <queue.h>.  See "man queue" for more information.  STAIL_*
+macros should be all you need.
 
 FYI, our implementation of the complete 1st phase is 550 lines long,
 including flex and bison source files, and using the usual C style from
@@ -291,10 +291,18 @@ you start your shell from.
 Phase 2
 -------
 - pipes
-- redirections (>, <, >>)
+
+- redirections
+	- "file >"
+	- "file <"
+	- ">> file"
+	- no need to implement ">&N" etc.
+	- whitespace is not significant (e.g. ">file", "> file" and
+	  ">    file" are all syntactically correct and equivalent)
+
 - background execution via &
 
-Specific examples will be provided till the end of November but it must
+Specific examples will be provided by the end of November but it must
 work in the usual fashion.  For example, this works in any normal
 Unix/LInux shell, i.e. the redirection does not have to be at the end:
 
