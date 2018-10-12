@@ -304,7 +304,7 @@ Phase 2
 
 Specific examples will be provided by the end of November but it must
 work in the usual fashion.  For example, this works in any normal
-Unix/LInux shell, i.e. the redirection does not have to be at the end:
+Unix/Linux shell, i.e. the redirection does not have to be at the end:
 
 	mysh$ > output date
 	mysh$ cat output
