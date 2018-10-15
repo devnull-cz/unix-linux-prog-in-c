@@ -119,14 +119,14 @@ root though otherwise you will end up with a system in a non-supported
 configuration -- installed software will not be possible to run by
 non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
-whatever is on the stack.  Both flags and mode are stored in the system file
-table, see page \pageref{OPENFILETABLES}.
+whatever is on the stack or CPU register. Both flags and mode are stored in the
+system file table, see page \pageref{OPENFILETABLES}.
 \item Macros for use with \emph{mode} can be usually found in the manual page
 for \texttt{chmod(2)}, and you can find them also in the \texttt{stat.h} header
 file (or in another file included from it) where the standard requires them to
 be.
 \item A no longer needed slot in the file descriptor or system file table is
-zeroed out before its reuse. 
+zeroed out before its reuse.
 \item There are other flags as well:
 \begin{itemize}
 \item \texttt{O\_SYNC} (\texttt{O\_DSYNC}, \texttt{O\_RSYNC}) \dots{} the call
