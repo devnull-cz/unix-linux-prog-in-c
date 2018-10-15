@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=ISO-8859-2">
+  <title>C style for your source code</title>
+  <meta http-equiv="Content-type" charset="iso-8859-2">
+  <script type="text/javascript">
+  function write_last_mod ()
+  {
+      var loc = new String (document.location);
+      if (loc.match (/\.html($|\?.*)|\/$/)) {
+          var last_modified = new Date (document.lastModified);
+          // var date_stamp = last_modified.toDateString ();
+          // document.writeln (date_stamp);
+  	document.writeln (last_modified);
+      }
+  }
+  </script>
+</head>
+
+<body bgcolor="#ffffff">
+
+<center>
+<table width="100%" cellspacing="2" cellpadding="3">
+<tbody><tr>
+</tr><tr valign="middle" bgcolor="lightgreen" align="center">
+<td><font size="+5" color="black">Use a good C style to format your source
+code files</font>
+</td></tr></tbody></table>
+</center>
+
+<p>A good C style of of the source code you write represents you.  You
+will be judged by other people by the way your source code looks.
+Always try to write beautiful code.
+
+</p><p>There are a few possible good C styles.  We recommend one that is
+well documented and comes with a Perl script for checking.  The script
+does not catch everything but is pretty good.
+
+</p><p>The <b>recommended C style is used for the Oracle Solaris operating
+system source code</b> and is explained in a short (~20 pages) nicely
+formatted document: <a href="http://mff.devnull.cz/cstyle/cstyle.ms.pdf">C Style and Coding
+Standards for SunOS</a>.
+
+</p><p>The <a href="http://mff.devnull.cz/cstyle/cstyle.pl">cstyle.pl</a> for verification is provided,
+and it works like this:
+
+</p><pre>$ chmod u+x cstyle.pl
+$ ./cstyle.pl src/exams/parallel-udp/*.c
+src/exams/parallel-udp/client.c: 12: missing space between keyword and paren
+src/exams/parallel-udp/client.c: 13: missing space between keyword and paren
+src/exams/parallel-udp/client.c: 25: line &gt; 80 characters
+src/exams/parallel-udp/server.c: 14: missing space between keyword and paren
+src/exams/parallel-udp/server.c: 15: missing space between keyword and paren
+src/exams/parallel-udp/server.c: 25: missing space between keyword and paren
+src/exams/parallel-udp/server.c: 45: line &gt; 80 characters
+src/exams/parallel-udp/server.c: 50: line &gt; 80 characters
+src/exams/parallel-udp/server.c: 56: line &gt; 80 characters
+</pre>
+
+<p>Another <b>very good C style is what the OpenBSD team uses</b>, it is
+very similar to the Solaris C style, there are some minor differencies.
+Apparently they do not provide an automated checker.  See the <a href="https://man.openbsd.org/style">style(9)</a> manual page for more
+information.
+
+</p><p></p><hr>
+Last changed:
+<script>
+write_last_mod ();
+</script>Wed Oct 10 2018 11:23:57 GMT+0200 (CEST)
+
+
+
+
+</body></html>
