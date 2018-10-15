@@ -56,12 +56,13 @@ we will only use functions for printing to the terminal output like
 \begin{itemize}
 \item This is a simplified view of the kernel tables that deal with files.  It
 is modeled after a similar picture in [Bach].  Today it is more complicated but
-the main idea stays.  See the next slide for how it may look in present time
-systems.
+the main idea stays.
 \item Each process on the system has its \emph{file descriptor table}.
-\item Slots in that table points to the \emph{system file table}.  There is
+\item Slots in that table point to the \emph{system file table}.  There is
 only one such a table in kernel.  This table carries the opened file mode and
-also the \emsl{current file position.}
+also the \emsl{current file position.} Each \texttt{open} call will create
+new entry in the table. However, file descriptor duplication or inheritance
+will lead to sharing of the slots.
 \item From the system file table, it is pointed to the \emph{system inode
 table}.  Nowadays the table contains so called \emph{vnodes} -- \emph{virtual
 nodes} but that is not relevant for us now. For more info, see page
