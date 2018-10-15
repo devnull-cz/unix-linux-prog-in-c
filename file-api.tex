@@ -75,6 +75,10 @@ the same process is achieved via file descriptor duplication where more
 descriptors share the same system file table slot.  If a file position sharing
 is needed among multiple processes, that is achieved via the \texttt{fork}
 call, and it is explained on page \pageref{FDSHARING}.
+\item To see how the file descriptor table looks like for given process,
+use \texttt{lsof} (Linux distributions, macOS) or \texttt{pfiles} (Solaris)
+programs. They will come handy for debugging file descriptor leaks or
+inheritance/redirection issues.
 \end{itemize}
 
 %%%%%
