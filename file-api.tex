@@ -407,6 +407,19 @@ bash$ kill -l 141
 PIPE
 \end{verbatim}
 
+Another possibility with named pipes:
+
+\begin{verbatim}
+$ while [ 1 ]; do cat /etc/passwd; done >> /tmp/bigpasswd
+^C
+$ read < fifo &
+[1] 65946
+$ cat /tmp/bigpasswd > fifo
+[1]+  Done                    read < fifo
+$ echo $?
+141
+\end{verbatim}
+
 \item When opening a pipe for writing only with \texttt{O\_NONBLOCK} and without
 an existing consumer, the call returns -1 and \texttt{errno} is set to
 \texttt{ENXIO}.  This asymmetry in opening a pipe for reading in non-blocking
