@@ -923,14 +923,14 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{slide}
 \sltitle{Symbolic links}
 \texttt{int \funnm{symlink}(const char *\emph{path1},
-const char *\emph{path2});} 
+const char *\emph{path2});}
 \begin{itemize}
 \item make a new symbolic name from \emph{path2} $\rightarrow$ \emph{path1}.
 \item \emph{path1} may span filesystems, and may not exist at all
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{readlink}(const char *\emph{path}, char *\emph{buf},
-size\_t \emph{bufsz});} 
+size\_t \emph{bufsz});}
 ]]])
 \begin{itemize}
 \item put maximum of \emph{\texttt{bufsz}} bytes from the symlink target path
@@ -950,6 +950,7 @@ end up with a \emph{broken link}.
 the symlink's target.
 \item \emph{\texttt{bufsize}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
+\item See \example{readlink/readlink.c}
 \end{itemize}
 
 %%%%%
@@ -963,7 +964,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{mkdir}(const char *\emph{path}, mode\_t \emph{mode});}
 \begin{itemize}
 \item attempts to create an empty directory \emph{path} with entries
-'\texttt{.}' and '\texttt{..}' 
+'\texttt{.}' and '\texttt{..}'
 \end{itemize}
 \texttt{int \funnm{rmdir}(const char *\emph{path});}
 \begin{itemize}
