@@ -1020,14 +1020,15 @@ behaves like \texttt{unlink} for files and as \texttt{rmdir} for directories.
 \begin{slide}
 \sltitle{Example: read a directory}
 \begin{alltt}
-int main(int argc, char *argv[])
+int
+main(int argc, char *argv[])
 \{
     DIR *d;
     struct dirent *de;
 
-    for(int i = 1; i < argc; i++) \{
+    for (int i = 1; i < argc; i++) \{
         d = \emprg{opendir}(argv[i]);
-        while(de = \emprg{readdir}(d))
+        while (de = \emprg{readdir}(d))
             printf("%s\bs{}n", de->d_name);
         \emprg{closedir}(d);
     \}
