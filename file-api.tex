@@ -64,7 +64,8 @@ only one such a table in kernel.  This table carries the opened file mode and
 also the \emsl{current file position.}
 \item From the system file table, it is pointed to the \emph{system inode
 table}.  Nowadays the table contains so called \emph{vnodes} -- \emph{virtual
-nodes} but that is not relevant for us now.
+nodes} but that is not relevant for us now. For more info, see page
+\pageref{VFS}.
 \item The system file table represents an additional level of indirection so
 that different processes can share the file position.
 \item When opening a file via an \texttt{open} call, a new slot in both the file
