@@ -138,7 +138,7 @@ returns after the data is physically stored (synchronized I/O).
 \texttt{O\_DSYNC} is for writing synchronization only, \texttt{O\_RSYNC} for
 reading.
 \item \texttt{O\_NOCTTY} \dots{} when opening a terminal by a process without a
-controlling terminal, the terminal being opened does not become it.
+controlling terminal, the terminal being opened does not become one.
 \item \label{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} if reading or writing
 cannot be satisfied right away, calls \texttt{read}/\texttt{write} will fail
 instead of getting blocked and waiting for the completion.  \texttt{errno} is
