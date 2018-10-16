@@ -190,7 +190,8 @@ pipe.  However, it (and \texttt{creat} as well) can only create a regular file,
 so you need the other two calls for non-regular files.
 \item The test of a file's existence using the flag \texttt{O\_EXCL} and its
 subsequent creation if it did not exist, is an atomic operation.  You can use
-that for lock files but only with the \texttt{open} call, not \texttt{creat}.
+that for lock files but only with the \texttt{open} call, not \texttt{creat},
+because \texttt{creat} lacks the flags specification.
 \item You need extra privileges to create device special files (e.g. to be a
 root).
 \end{itemize}
