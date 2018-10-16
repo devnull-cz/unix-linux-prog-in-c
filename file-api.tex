@@ -126,9 +126,9 @@ non-privileged users, what worked before may stop working, etc.
 whatever is on the stack or CPU register. Both flags and mode are stored in the
 system file table, see page \pageref{OPENFILETABLES}.
 \item Macros for use with \emph{mode} can be usually found in the manual page
-for \texttt{chmod(2)}, and you can find them also in the \texttt{stat.h} header
-file (or in another file included from it) where the standard requires them to
-be.
+for \texttt{chmod(2)}, and you can find them also in the \texttt{sys/stat.h}
+header file (or in another file included from it) where the standard requires
+them to be.
 \item A no longer needed slot in the file descriptor or system file table is
 zeroed out before its reuse.
 \item There are other flags as well:
@@ -1160,7 +1160,7 @@ the target group
 
 \begin{itemize}
 \item The \emph{mode} parameter does not contain the file type, of course.  See
-\texttt{stat.h} or the \texttt{chmod(2)} manual page for available bit
+\texttt{sys/stat.h} or the \texttt{chmod(2)} manual page for available bit
 masks.
 \item Only the owner of a file can change its mode.  Mode like
 \texttt{rw-rw-rw-} has nothing to do with that.
