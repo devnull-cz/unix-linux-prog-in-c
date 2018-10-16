@@ -2560,27 +2560,7 @@ easy to work with and save you some lines of code.  More complex
 app\-li\-ca\-tions often use their own logging functions.
 \item Not part of the UNIX specification but in general you can find them almost
 everywhere.
-\item Example (and also in \example{err/err.c}):
-
-\begin{verbatim}
-#include <errno.h>
-#include <err.h>
-
-int
-main(void)
-{
-        errno = 13;
-        err(3, "ggr %s", "GRR");
-        printf("after err()\n");
-        return (0);
-}
-
-$ ./a.out 
-a.out: ggr GRR: Permission denied
-$ echo $?
-3
-\end{verbatim}
-
+\item Example: \example{err/err.c}
 \end{itemize}
 
 \endinput
