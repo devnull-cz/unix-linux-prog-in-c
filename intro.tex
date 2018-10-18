@@ -2533,9 +2533,10 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void \funnm{err}(int \emph{status}, const char *\emph{fmt}, ...);}
 ]]])
 \begin{itemize}
-\item prints a program name, formatted string, and error based on
+\item prints a program name, your formatted string, and error message based on
 \texttt{errno}
 \item exits the program with \emph{status} return value
+\item use \funnm{errx}() if \texttt{errno} is not expected to be set
 \end{itemize}
 \item
 ifdef([[[NOSPELLCHECK]]], [[[
