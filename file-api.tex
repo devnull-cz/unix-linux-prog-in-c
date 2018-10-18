@@ -333,8 +333,9 @@ int main(int argc, char *argv[])
 \item The example above is complete.  You can cut-and-paste, compile, and run
 it.  Obviously, due to the slide size constraint, it is missing several error
 checks otherwise needed for a well behaved utility, like checking \texttt{argc}
-before using \texttt{argv}, or checking return values for \texttt{open} and
-\texttt{creat}.
+before using \texttt{argv}, or checking return values for \texttt{open},
+\texttt{creat}, \texttt{read}, and \texttt{write}, and reporting possible
+errors.
 \item It is not efficient to read and write by a few bytes as each system call
 costs a certain overhead, independent on the size of the processed block.  It is
 much better to read and write larger blocks, say 8-1024KB.  You can
@@ -347,7 +348,8 @@ arbitrarily large file), and use \texttt{time(1)} to measure the system call
 overhead.
 \item If you need to work with little pieces of data read from files, you can
 use stream oriented functions that internally buffer the data -- \texttt{fopen},
-\texttt{fread}, \dots
+\texttt{fread}, \dots  However, please do not use those functions in your
+semester assignment and at the exam.
 \item Note that we always only write as many bytes as we actually read.  See
 page \pageref{READCALL} for more information on when we can read/write less data
 than requested.
