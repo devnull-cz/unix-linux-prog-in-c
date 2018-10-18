@@ -2536,7 +2536,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \item prints a program name, your formatted string, and error message based on
 \texttt{errno}
 \item exits the program with \emph{status} return value
-\item use \funnm{errx}() if \texttt{errno} is not expected to be set
+\item use \funnm{errx}() if \texttt{errno} is not set
 \end{itemize}
 \item
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -2554,8 +2554,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 
 \begin{itemize}
 \label{ERR}
-\item The third widely used function is \funnm{errx}() which behaves as
-\funnm{err}() but does not use \texttt{errno}.  Similarly, \funnm{warnx}().
+\item The \funnm{errx}() function behaves as \funnm{err}() but does not use
+\texttt{errno} to print that extra error message.  Similarly, \funnm{warnx}().
 \item These functions are very handy especially for smaller programs as they are
 easy to work with and save you some lines of code.  More complex
 app\-li\-ca\-tions often use their own logging functions.
