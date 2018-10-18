@@ -148,11 +148,11 @@ set to \texttt{EAGAIN} in such a case.
 as historically, implementations used 0 for the read-only flag.  The standard
 defines that only one of those three flags may be used.
 \item Is is possible to open and create a file for writing so that writing is
-disallowed by its mode.  It will work for the initial file opening but any subsequent
-attempts to write will fail.
+disallowed by its mode.  It will work for the initial file opening but any
+subsequent attempts to write will fail.
 \item You need write permission to use \texttt{O\_TRUNC}.
 \item The behavior of \texttt{O\_EXCL} without using \texttt{O\_CREAT} at the
-same is undefined.
+same time is undefined.
 \item For file locking, the \texttt{fcntl} call is used, see page
 \pageref{FCNTL}.
 \end{itemize}
