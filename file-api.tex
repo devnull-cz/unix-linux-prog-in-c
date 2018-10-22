@@ -601,7 +601,7 @@ happen and \texttt{dup2} returns \texttt{fildes2} right away.
 \begin{slide}
 \sltitle{Example: implement shell redirection}
 \begin{itemize}
-\item \verb#$ program < in > out 2>> err#
+\item \verb#$ program <in >out 2>> err#
 \end{itemize}
 \begin{verbatim}
 close(0);
@@ -612,7 +612,7 @@ close(2);
 open("err", O_WRONLY | O_CREAT | O_APPEND, 0666);
 \end{verbatim}
 \begin{itemize}
-\item \verb#$ program > out 2>&1#
+\item \verb#$ program >out 2>&1#
 \end{itemize}
 \begin{verbatim}
 close(1);
