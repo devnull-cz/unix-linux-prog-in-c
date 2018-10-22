@@ -997,7 +997,7 @@ of a directory but in that case, \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
 directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
-\item Some implementations might still support to read a directory via a normal
+\item Some older systems might support reading a directory via a normal
 \texttt{read} call.  In that case, of course, you need to know the internal
 representation of the directory data so the use of this is questionable.  Linux
 does not allow it at all.
