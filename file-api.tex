@@ -410,8 +410,8 @@ return value, and \texttt{kill -l} understands that:
 \begin{verbatim}
 bash$ dd if=/dev/zero | date
 Sun Mar  2 01:03:38 CET 2008
-bash$ echo ${PIPESTATUS[0]}
-141
+bash$ echo ${PIPESTATUS[@]}
+141 0
 bash$ kill -l 141
 PIPE
 \end{verbatim}
