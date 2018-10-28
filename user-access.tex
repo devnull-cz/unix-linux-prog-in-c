@@ -453,8 +453,8 @@ by superuser process.
 \end{slide}
 
 \begin{itemize}
-\item W.r.t. setting the UID for a process with EUID == 0, see also the notes on page
-\pageref{ROOT_SETUID}.
+\item W.r.t. setting the UID for a process with EUID == 0, see also the notes on
+page \pageref{ROOT_SETUID}.
 \item To recap the above: a process with effective rights of a superuser can
 arbitrarily change its identity. The rest can only switch between its real and
 effective IDs.
@@ -467,73 +467,11 @@ it would not have the rights to perform \texttt{setgid} and \texttt{setgroups}.
 \item \texttt{setgroups} is not part of UNIX~98 or UNIX~03.
 \item RUID/EUID are saved in the kernel process structure and also in the so
 called \emph{u-area} (see e.g. [Bach]).
-\item If a root SUID program calls \texttt{setuid} for a UID other than 0, it can
-no longer return the EUID to 0 (this makes sense, imagine a user logging into the
-system). For a different behavior, \texttt{seteuid} (that sets just the EUID) would
-have to be used.
+\item If a root SUID program calls \texttt{setuid} for a UID other than 0, it
+can no longer return the EUID to 0 (this makes sense, imagine a user logging
+into the system). For a different behavior, \texttt{seteuid} (that sets just the
+EUID) would have to be used.
 \item Example: \example{setuid/screate-file.c}
-\end{itemize}
-
-\pdfbookmark[1]{file system}{filesys}
-
-\begin{slide}
-\sltitle{File system}
-\setlength{\baselineskip}{0.8\baselineskip}
-\begin{itemize}
-\item directories form a tree and together with files form an acyclic graph
-(one file can have multiple references).
-\item each directory also contains reference to itself '\texttt{.}'
-(dot) and to its parent directory '\texttt{..}' (two dots). 
-\item using file system interfaces, it is possible to access other system
-entities such as:
-    \begin{itemize2}
-\setlength{\itemsep}{-3pt}
-\setlength{\topsep}{0pt}
-    \item peripheral devices
-    \item named pipes
-    \item sockets
-    \item processes (\texttt{/proc}) 
-    \item memory (\texttt{/dev/mem}, \texttt{/dev/kmem}) 
-    \item pseudo files (\texttt{/dev/tty}, \texttt{/dev/fd/0},\dots) 
-    \end{itemize2}
-\item from the kernel's perspective, each regular file is an array of bytes.
-\item all (including network) drives are connected to single tree.
-\end{itemize}
-\end{slide}
-
-\label{DEVFS}
-
-\begin{itemize}
-\item Devices, files in \texttt{/proc}, terminals, memory etc. are of one type
-- special files. More types: regular file (hardlink), directory, named pipe,
-socket, symbolic link.
-\item A newly created directory has 2 references to itself -- one from its parent
-directory and one of itself, '\texttt{.}':
-
-\begin{verbatim}
-$ mkdir test
-$ ls -ld test
-drwx------   2 janp     staff        512 Mar 23 12:46 test
-\end{verbatim}
-
-\item The root user can in some systems, create a cycle in a directory structure.
-However that might confuse file system traversal tools, hence the cyclical
-structure is not used much. Symbolic links to directories work everywhere.
-\item Named pipes (see page \pageref{MKFIFO}) can be used between processes
-that do not have a ''family'' relationship.  They work as unnamed pipes otherwise.
-\item The sockets noted above are in the UNIX domain, i.e. they are used for
-communication within one system. The INET domain sockets, used for network
-communication (see page \pageref{NETWORKING}) are not visible in the file
-system.
-\item Debuggers use process images available through \texttt{/proc}.
-On many Unix-like systems, the \texttt{/proc} tree contains information about
-kernel and running processes in the form of text files.  However, some systems
-like Solaris, have those files in a binary form only and provide special
-commands to read those (like \texttt{pargs}, \texttt{pldd}, etc.).
-\item Modern Unix systems contain a special \emph{\texttt{devfs}} filesystem
-that reflects an actual system configuration w.r.t. connected devices. E.g.
-after connecting a USB stick, a related device will appear under \texttt{/dev}.
-After physically disconnecting it, the item will disappear.
 \end{itemize}
 
 \endinput
