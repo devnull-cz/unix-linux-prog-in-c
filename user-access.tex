@@ -331,14 +331,14 @@ process
 the SUID (\emsl{set user ID}) bit set changes the EUID and the saved UID of the process
 to the UID of the program owner, the RUID stays the same.
 \item similarly the SGID bit changes the EGID of the process. 
-\item \emsl{access rights checking always consults the EUID, EGID, and
-supplementary GIDs}
 \end{itemize}
 \end{slide}
 
 \label{ROOT_SETUID}
 
 \begin{itemize}
+\item \emsl{access rights checking always consults the EUID, EGID, and
+supplementary GIDs}
 \item \label{SUID_BIT} The SUID and SGID bits are used for programs that need
 bigger privileges than the user who executes them. One example is the
 \texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
