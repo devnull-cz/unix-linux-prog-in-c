@@ -873,6 +873,11 @@ right away but carry on with its life and wait for the child later.
 \item Note that you have to use macros from the previous slide to get the
 child's return value out of the status information.
 \item \label{WAITPID} Example: \example{wait/wait.c}
+\item Creating new process with \texttt{fork} and replacing the process
+address space etc. with a new one after \texttt{exec} has been done is
+expensive and has other problems. To make kernel create new process directly
+from executable \texttt{posix\_spawn} can be used.
+Example: \example{exec/spawn.c}
 \end{itemize}
 
 %%%%%
