@@ -522,7 +522,7 @@ group leader
 \item The process which is not yet process group leader can both become session
 leader and process group leader using \texttt{setsid}. If the process already is
 process group leader, \texttt{setsid} will fail. To overcome this it is necessary
-to call \texttt{fork} and call \texttt{setsid} in the son process.
+to call \texttt{fork} and call \texttt{setsid} in the child process.
 Such process does not have controlling terminal however it can acquire it by
 opening a terminal which is not yet controlling terminal of a session when
 \texttt{open} flags argument does not contain the \texttt{O\_NOCTTY} flag,
