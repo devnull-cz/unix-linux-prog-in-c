@@ -345,7 +345,7 @@ bigger privileges than the user who executes them. One example is the
 \texttt{/etc/shadow}, where the ordinary user cannot modify the first and
 cannot write into the the second. Another example is the \texttt{su} program,
 which has to have the right to arbitrarily change user and group identity,
-which is a privilege of programs running with UID 0.
+which is a privilege of programs running with UID~0.
 \item Programs using the SUID and SGID bits should be carefully programmed
 to allow only the operations for which they were designed and prevent misuse
 of their privileges for non-authorized actions (root shell execution).
