@@ -844,7 +844,9 @@ flags:
     \item \texttt{< -1} \dots{} wait for any child in the process group of
     \texttt{abs(pid)}
     \end{itemize}
-\item There are also \funnm{wait3} and \funnm{wait4} calls.
+\item There are also \funnm{wait3} and \funnm{wait4} calls. These are more
+generic versions, also allowing to gather resource utilization statistics from
+exited child.
 \item A parent should always call one of the wait functions otherwise the system
 will accumulate \emph{zombies} -- terminated processes that occupy process table
 slots only to be waited for by their parents.  Zombies could eventually exhaust
