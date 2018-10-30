@@ -15,7 +15,7 @@ include(`macros.m4')
 \end{center}
 \vspace{2ex}
 
-\emsl{The fields, in order from left to right:} user name, 
+\emsl{The fields, in order from left to right:} user name,
 hashed password (today in \texttt{/etc/shadow} or elsewhere), user ID (aka UID);
 primary group ID (aka GID), full name, home directory, login shell
 
@@ -42,7 +42,8 @@ unprivileged user.  The passwords are also salted and then hashed. On BSD based
 systems, e.g. FreeBSD or macOS, instead of \texttt{/etc/shadow},
 \texttt{/etc/master.passwd} database is used.
 \item If \texttt{/etc/shadow} does exist, it is structured in a similar way as
-\texttt{/etc/passwd}.
+\texttt{/etc/passwd}. The file is actually used as a database, storing e.g.
+number of unsuccessful login attempts for given user etc.
 \item There are also protocols used for authentication that do not use
 \texttt{/etc/passwd} at all, for example NIS (Network Information Service) or
 LDAP (Lightweight Directory Access Protocol).
