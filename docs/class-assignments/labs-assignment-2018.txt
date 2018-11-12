@@ -82,8 +82,10 @@ use fork(2).
 You must NOT exec any shell from your code.  I.e. if you have a pipeline
 "cat /etc/passwd | wc -l", the solution is not the following:
 
-	if (fork() == 0)
-		execl("/bin/sh", "sh", "-c", "cat /etc/passwd | wc -l");
+	if (fork() == 0) {
+		execl("/bin/sh", "sh", "-c", "cat /etc/passwd | wc -l",
+		    NULL);
+	}
 
 You really have to fork a new process for each command in a pipeline,
 and connect them together with pipes.
