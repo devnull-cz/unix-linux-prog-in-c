@@ -415,11 +415,11 @@ to make sure the signal is not delivered in the wrong time (for example, the
 signal is delivered within a function and the same function is called from the
 handler, and the function is not ready for that).  Minimal set of functions
 that must be ifdef([[[NOSPELLCHECK]]], [[[\emsl{\emph{async-signal-safe}}]]])
-is listed in SUSv4 in section
-\emph{System Interfaces: General Information $\Rightarrow$ Signal Concepts
-$\Rightarrow$ Signal Actions (2.4.3)}.  Systems can extend the list, of course.
-Whether a function is safe to use in a signal handler or not should be
-documented in its manual page.
+is listed in SUSv4 in section \emph{System Interfaces: General Information
+$\Rightarrow$ Signal Concepts $\Rightarrow$ Signal Actions (2.4.3)}.  Systems
+can extend the list, of course.  Whether a function is safe to use in a signal
+handler or not should be documented in its manual page.  On Linux, see also
+the \texttt{signal-safety(7)} manual page.
 \item Using static data and/or locking in a function would generally be a
 problem for its asynchronous signal safety.  It can lead to corrupt data,
 deadlocks, etc.  As the set of functions safe to use in a handler is limited,
