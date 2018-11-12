@@ -2,6 +2,11 @@ Labs Assignment for 2018 - Simple Shell
 =======================================
 Write a simple Unix/Linux shell.
 
+Updates:
+
+- [Nov 12, 2018] added redirection and pipe details, new paragraph
+  "PROHIBITED FUNCTIONS", and limiting the language to C (i.e. no C++).
+
 When you are done, we prefer to get a link to you github project but you
 can send it to us via email (a single tar file) as well.  Your project
 must provide a Makefile so that running the "make" command does build
@@ -20,13 +25,18 @@ The deadlines are hard requirements, please stick to the schedule.
 Obviously, you can send us the whole thing in one step before the first
 deadline, no need to separate the project in two parts.
 
-If in doubt, please ask a question.
+If in doubt, please ask a question, and we strongly prefer you send it
+to the class mailing list, nswi015-l@mff.cuni.cz, so that others may
+benefit from the answers as well.
 
 C Style
 -------
 Please choose a good C style, for example http://mff.devnull.cz/cstyle/,
 or pick another existing cstyle (e.g. https://man.openbsd.org/style).
 Please do not invent your own C style.
+
+This class is about Unix/Linux programming in C, so we only accept the C
+language, not C++.
 
 Implementation notes
 --------------------
@@ -35,28 +45,48 @@ the class, so please do not spend time writing a linked list
 implementation or a command line parser (the latter is much harder that
 one might think).
 
-For getting the input line, we recommend the readline library, see "man
-readline".  You should find it on any Linux, *BSD, MacOS, or Solaris
-machine.  By using readline, you get line editing, history, completion,
-etc. for free.  Another alternative is libtecla.
+For getting the input line, we recommend the "readline" library, see
+"man readline".  You should find it on any Linux, *BSD, MacOS, or
+Solaris machine.  By using readline, you get line editing, history,
+completion, etc. for free.  Another alternative is libtecla.
 
 For tokenizing and parsing the command line, we suggest you to use
 GNU flex(1) and bison(1).  They are easy to use and you should also find
 it virtually everywhere, already installed.  We recommend O'Reilly's
-book "flex & bison", having read through the first 30 pages should be
-all you need for this project.  I believe you can find the book online.
+book "flex & bison".  Having read through the first 30 pages of the book
+should be all you need for this project.  I believe you can find the
+book online.
 
-You will probably need a linked list implementation.  We suggest you to
-use macros from <queue.h>.  See "man queue" for more information.
-STAIL_* macros should be all you need.
+You will probably need a linked list implementation as using fixed sized
+arrays would not suffice.  We suggest you to use macros from <queue.h>.
+See "man queue" for more information.  STAIL_* and TAIL_* macros should
+be all you need.
 
 FYI, our implementation of the complete 1st phase is 560 lines long,
 including flex and bison source files, and using the usual C style from
 http://mff.devnull.cz/cstyle/.
 
-It goes without saying it is an individual, not a team project.  Do not
-use code written by other fellow students.  The idea is you learn by
-coding your own project.
+IT GOES WITHOUT SAYING IT IS AN INDIVIDUAL, NOT A TEAM PROJECT.  DO NOT
+USE CODE WRITTEN BY OTHER FELLOW STUDENTS.  THE IDEA IS YOU LEARN BY
+CODING YOUR OWN PROJECT.
+
+PROHIBITED FUNCTIONS
+--------------------
+Family of fopen() functions et al are prohibited.  Instead use functions
+from the printf(3) family, read(2), write(2), etc.
+
+popen(3), system(3), and similar functions that fork() INSIDE are
+strictly prohibited.  The only way to create a new process for you is to
+use fork(2).
+
+You must NOT exec any shell from your code.  I.e. if you have a pipeline
+"cat /etc/passwd | wc -l", the solution is not the following:
+
+	if (fork() == 0)
+		execl("/bin/sh", "sh", "-c", "cat /etc/passwd | wc -l");
+
+You really have to fork a new process for each command in a pipeline,
+and connect them together with pipes.
 
 Test scenario
 -------------
@@ -290,46 +320,119 @@ you start your shell from.
 
 Phase 2
 -------
-- pipes
+- implement pipes
+- implement the three basic redirections
 
-- redirections
-	- "file >"
-	- "file <"
-	- ">> file"
-	- no need to implement ">&N" etc.
-	- whitespace is not significant (e.g. ">file", "> file" and
-	  ">    file" are all syntactically correct and equivalent)
+Pipelines
+~~~~~~~~~
+The number of pipes in a pipeline is only limited by the machine
+resources.  That means no static array for pipelines.
 
-- background execution via &
+So, for example, the following prints output of date(1):
 
-Specific examples will be provided by the end of November but it must
-work in the usual fashion.  For example, this works in any normal
-Unix/Linux shell, i.e. the redirection does not have to be at the end:
+  	mysh$ date | cat | cat | cat | cat | cat | cat | sort -n | uniq
 
-	mysh$ > output date
-	mysh$ cat output
-	Wednesday, October 10, 2018 at 10:12:53 AM CEST
-
-And pipelines may be separated by a semicolon, i.e. it's an extension of
-the 1st phase:
+Pipelines may be separated by a semicolon, i.e. it's an extension of the
+1st phase:
 
 	mysh$ cat /etc/passwd | wc -l; echo X | grep X
 	26
 	X 
 
+Note that the shell needs to wait for all commands in the pipeline to
+finish before printing out the next prompt.  So you need to create the
+pipeline HORIZONTALLY, meaning the shell it a parent of ALL processes in
+the pipeline (remember, wait(2) only works on direct children).  For
+example, the following will hang for 10 seconds before your shell
+returns a new prompt:
+
+	mysh$ date | sleep 10 | cat
+
+If you only waited for the last command (cat(1) in this case), the shell
+would offer the next prompt right away which is NOT correct.
+
+Note that sleep(1) does not read from its input, and does not write
+anything to STDOUT, so the cat(1) command finds no writer on the pipe
+and exits right away.
+
+Redirections
+~~~~~~~~~~~~
+Implement the three basic redirections:
+
+	- "> file"
+	- "< file"
+	- ">> file"
+
+Note: there is no need to implement "2>xxx", ">&N" etc.
+
+Whitespace is not significant (e.g. ">file", "> file" and ">    file"
+are all syntactically correct and equivalent)
+
+You may assume redirection operators always come at the end, if it helps
+you simplify the parsing, i.e.:
+
+	mysh$ cat /etc/passwd > output
+	mysh$ cat < output >output2
+
+  You do NOT need to implement:
+
+	mysh$ >output cat /etc/passwd
+	mysh$ cat >output /etc/passwd
+
+The last redirection counts, ie. the following will append the output to
+"output3":
+
+	mysh$ date >output >output2 >>output3
+
+And the following will print /etc/passwd ONLY:
+
+	mysh$ cat </etc/group </etc/passwd
+
+And the following will write /etc/group to output3, truncating it if it
+existed beforehand:
+
+	mysh$ cat </etc/passwd </etc/group >output >>output2 >output3
+
+Normal shells always create all files with ">" and ">>" but you do not
+need to do that.  It's OK only to create the last one only.
+
+Note that redirection comes after connecting the individual commands in
+the pipeline with pipes, so the following copies /etc/passwd to file
+"output", puts date's output to file "output2", and the last cat(1)
+finds no writer on the pipeline (since date(1) is printing to "output2"
+instead) and just exits finding STDIN empty:
+
+	$ cat /etc/passwd > output | date > output2 | cat
+
 Anything not listed above is NOT required
 -----------------------------------------
 I.e. we do NOT require any of these below:
 
+- background execution via &
+
 - Variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
+
 - The "export" internal command.
-- Job control.
+
+- Job control.  That also means there is no need to create a new process
+  group for each pipeline (that's what a normal shell does).  However,
+  if you do, you will need to solve how background processes the control
+  terminal as that was out of scope of our class.
+
 - Support for $? etc.
+
 - Strings, i.e. the following is not required:
 
 	$ echo "xxx   yy"
 	xxx   yy
+
 - `` and $( ... )
+
+- no complex commands like "if", "while", "for", "switch", etc.
+
+- no line continuation with '\'
+
+If unsure, either ask on our class mailing list or check what bash does.
 
 vim:tw=72
 vim:ft=conf
