@@ -62,9 +62,10 @@ arrays would not suffice.  We suggest you to use macros from <queue.h>.
 See "man queue" for more information.  STAIL_* and TAIL_* macros should
 be all you need.
 
-FYI, our implementation of the complete 1st phase is 560 lines long,
-including flex and bison source files, and using the usual C style from
-http://mff.devnull.cz/cstyle/.
+FYI, our implementation of the 1st phase is 560 lines long, including
+flex and bison source files, and using the usual C style from
+http://mff.devnull.cz/cstyle/.  Our complete implementation including
+the 2nd phase requirements fits within 900 lines of code.
 
 IT GOES WITHOUT SAYING IT IS AN INDIVIDUAL, NOT A TEAM PROJECT.  DO NOT
 USE CODE WRITTEN BY OTHER FELLOW STUDENTS.  THE IDEA IS YOU LEARN BY
@@ -408,31 +409,31 @@ instead) and just exits finding STDIN empty:
 
 Anything not listed above is NOT required
 -----------------------------------------
-I.e. we do NOT require any of these below:
+I.e. in particular, we do NOT require any of these below:
 
 - background execution via &
 
-- Variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
+- environment variable support (i.e. "echo $HOME" nor "XXX=value ./a.out")
 
-- The "export" internal command.
+- the "export" internal command.
 
 - Job control.  That also means there is no need to create a new process
   group for each pipeline (that's what a normal shell does).  However,
   if you do, you will need to solve how background processes the control
   terminal as that was out of scope of our class.
 
-- Support for $? etc.
+- support for $? etc.
 
-- Strings, i.e. the following is not required:
+- string support, i.e. the following is not required:
 
 	$ echo "xxx   yy"
 	xxx   yy
 
 - `` and $( ... )
 
-- no complex commands like "if", "while", "for", "switch", etc.
+- complex commands like "if", "while", "for", "switch", etc.
 
-- no line continuation with '\'
+- line continuation with '\'
 
 If unsure, either ask on our class mailing list or check what bash does.
 
