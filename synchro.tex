@@ -673,7 +673,9 @@ page \pageref{POSIX4}.
 the UNIX specification since version 2.
 \item There are other more system specific facilities.  For example,
 \emph{doors} is an RPC like facility on Solaris, designed to be used within the
-same system only.
+same system only. It has some interesting features - not only it can be used for
+inter-process communication however it can be used in kernel to request a
+service from a userland program.
 \end{itemize}
 
 \label{SYNCHRONIZATIONEND}
