@@ -280,21 +280,34 @@ void \funnm{unlock}(char *lockfile) \{
 
 \begin{itemize}
 \item \label{LOCK_UNLOCK} The key is the \texttt{O\_EXCL} flag.
+\item Because the exclusive flag is not accessible in most shells, the shell
+scripts usually use \texttt{mkdir} or \texttt{ln} (hard link) commands for
+lock file synchronization.
 \item example: \example{file-locking/lock-unlock.c} -- it is to be used together
 with the \example{file-locking/run.sh} shell script.
 \item In case of process crash the locks are not removed and therefore other
-processes would wait forever. Thus it is prudent to write PID of the process 
+processes would wait forever. Thus it is prudent to write PID of the process
 that created the lock to the lock file. The process that is waiting for unlock
 can verify that the process with given PID number exists. If not, it can remove
 the lock file and retry. User level command that can do this is e.g.
 \emsl{\texttt{shlock}}(1) (on FreeBSD in \texttt{/usr/ports/sysutils/shlock}),
-however could cause situation in the following paragraph:
+however could cause this situation:
+\begin{itemize}
 \item \emsl{watch out:} if multiple processes find out simultaneously that
-the process does not exist, it can lead to error. First process deletes the
-lock file and creates new one with its PID. Next process does the same,
-because the operation of reading file contents and removing it is not atomic.
-Now both processes think they acquired the lock.
-\item \emsl{Problem:} the \texttt{lock()} function contains active waiting.
+the process does not exist, it can lead to error because the operation of
+reading file contents and removing it is not atomic:
+\begin{enumerate}
+\item process A reads the contents of lock file, checks PID existence
+\item process B reads the contents of lock file, checks PID existence
+\item A deletes the lock file
+\item A creates new lock file with its PID
+\item B deletes the lock file
+\item B creates new lock file with its PID
+\item Now both processes think they acquired the lock.
+\end{enumerate}
+\end{itemize}
+\item Another \emsl{problem} is that the \texttt{lock()} function above contains
+active waiting.
 This can be solved e.g. so that the process that acquired the lock can open
 named pipe for writing. Reader processes will enter sleep by reading from the
 pipe.
