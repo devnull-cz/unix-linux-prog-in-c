@@ -157,9 +157,9 @@ action, i.e. exit or stop, respectively.
 \item Creating a core dump means to store the contents of the process virtual
 address space to a file.  Usually such file has a word \texttt{core} in its
 file name. Some systems, e.g. macOS, may not generate core dumps by default even
-if its for signals with default core dump action.  In that case, \texttt{ulimit
--c unlimited} usually helps, and it affects the current shell only.  See the
-present shell limits with \texttt{ulimit -a}.
+if its for signals with default core dump action.  In that case,
+\texttt{ulimit -c unlimited} usually helps, and it affects the current shell
+only.  See the present shell limits with \texttt{ulimit -a}.
 \item Most of the signals implicitly terminate the process, some create a core
 dump on top of that to enable a post-mortem analysis.
 \item The reason why \funnm{exec}() replaces all user set handlers to its
