@@ -220,14 +220,14 @@ situations.
 \begin{slide}
 \sltitle{Synchronization mechanisms}
 \begin{itemize}
-\item theoretical solution -- mutual exclusive algorithms (Dekker
+\item theoretical solution -- mutual exclusion algorithms (Dekker
 1965, Peterson 1981)
 \item interrupt disable (1 CPU), special \emph{test-and-set} instructions
 \item \emsl{lock-files}
 \item tools offered by the operating system:
     \begin{itemize}
     \item \emsl{semaphores} (POSIX, System V IPC)
-    \item \emsl{file level locking} (\texttt{fcntl()}, \texttt{flock()}) 
+    \item \emsl{file level locking} (\texttt{fcntl()}, \texttt{flock()})
     \item thread synchronization: \emsl{mutexes} (surround critical sections,
     only one thread can hold the mutex), \emsl{condition variables}
     (the thread is blocked until another thread signals condition change)
