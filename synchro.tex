@@ -242,7 +242,7 @@ situations.
 memory, i.e. several variables shared by processes.
 \item Dekker's solution is presented as a first solution to the problem of
 mutual exclusion of 2 processes, without having to apply the mechanism of
-strict alternation, i.e. if second process does not express will to enter
+strict alternation, i.e. if second process does not express the will to enter
 critical section, the first can enter how many times it wants
 (and ifdef([[[NOSPELLCHECK]]], [[[vice versa]]])).
 Dekker's solution is not trivial, compare it with 16 year younger
@@ -265,15 +265,15 @@ Locking is done by creating the file, unlocking by removing the file.
 Each process must check if the file exists and if yes, has to wait.
 \end{itemize}
 \begin{alltt}
-void \funnm{lock}(char *lockfile) \{ 
-    while( (fd = open(lockfile, 
-                      O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) 
+void \funnm{lock}(char *lockfile) \{
+    while( (fd = open(lockfile,
+                      O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1)
         sleep(1); {\rm /* waiting in a loop for unlock */}
-    close(fd); 
-\} 
+    close(fd);
+\}
 
-void \funnm{unlock}(char *lockfile) \{ 
-    unlink(lockfile); 
+void \funnm{unlock}(char *lockfile) \{
+    unlink(lockfile);
 \}
 \end{alltt}
 \end{slide}
