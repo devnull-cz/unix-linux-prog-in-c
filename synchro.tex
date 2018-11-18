@@ -203,8 +203,8 @@ suitable for very short time.
 \begin{itemize}
 \item 2 ways of waiting:
 \begin{description}
-\item[active (busy waiting)] -- process test a condition in a cycle while it
-is not true.
+\item[active (busy waiting)] -- a process tests a condition in a cycle while
+it is not true.
 \item[passive] -- a process registers itself in the kernel as a waiting for
 the condition and goes asleep. The kernel wakes it up if the condition becomes
 true.
@@ -221,12 +221,12 @@ situations.
 \sltitle{Synchronization mechanisms}
 \begin{itemize}
 \item theoretical solution -- mutual exclusive algorithms (Dekker
-1965, Peterson 1981) 
+1965, Peterson 1981)
 \item interrupt disable (1 CPU), special \emph{test-and-set} instructions
 \item \emsl{lock-files}
 \item tools offered by the operating system:
     \begin{itemize}
-    \item \emsl{semaphores} (POSIX, System V IPC) 
+    \item \emsl{semaphores} (POSIX, System V IPC)
     \item \emsl{file level locking} (\texttt{fcntl()}, \texttt{flock()}) 
     \item thread synchronization: \emsl{mutexes} (surround critical sections,
     only one thread can hold the mutex), \emsl{condition variables}
