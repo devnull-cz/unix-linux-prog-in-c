@@ -550,6 +550,8 @@ delivery.
 \item Both arguments \emph{\texttt{oset}} and \emph{set} may be \texttt{NULL}.
 If both are \texttt{NULL} in the same invocation of the function, nothing
 happens.
+\item \texttt{sigpending} sets the set in the argument to the pending mask.
+See \example{signals/sigpending.c}.
 \end{itemize}
 
 %%%%%
@@ -640,7 +642,7 @@ it is possible to get more information upon signal delivery using a structure
 communicating via a shared memory): \example{signals/sigwait.c}
 \item Do not use for synchronous signals like \texttt{SIGSEGV}, \texttt{SIGILL},
 etc.  More on that on pages \pageref{SPECIALSIGNALS} and
-\pageref{THREADS_SIGWAIT}. 
+\pageref{THREADS_SIGWAIT}.
 \end{itemize}
 
 \endinput
