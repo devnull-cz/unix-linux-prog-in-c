@@ -397,6 +397,9 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
+\item for manipulating signal sets, use \funnm{sigaddset}(),
+\funnm{sigdelset}(), \funnm{sigemptyset}(), \funnm{sigfillset}(),
+\funnm{sigismember}()
 \item If \texttt{act == NULL} you only get the present setting and nothing is
 changed.  If not interested in previous setting, use \texttt{NULL} for
 \emph{\texttt{oact}}.
@@ -458,7 +461,7 @@ not wait for child processes and the system will still not accumulate zombies.
 void handler(int sig)
 \{ write(2," !!! TIMEOUT !!! \bs{}n", 17); \}
 
-int main(void) 
+int main(void)
 \{
     char buf[1024]; struct sigaction act; int sz;
     act.sa\_handler = handler;
@@ -521,9 +524,6 @@ int \funnm{sigprocmask}(\=int \emph{how}, const sigset\_t *\emph{set},\\
 \item \emph{how} -- \texttt{SIG\_BLOCK} adds signals to block,
 \texttt{SIG\_UNBLOCK} for removing signals, for a complete mask change
 use \texttt{SIG\_SETMASK}
-\item for manipulating signal sets, use \funnm{sigaddset}(),
-\funnm{sigdelset}(), \funnm{sigemptyset}(), \funnm{sigfillset}(),
-\funnm{sigismember}()
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{sigpending}(sigset\_t *\emph{set});}
