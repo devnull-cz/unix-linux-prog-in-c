@@ -1384,9 +1384,9 @@ other one.  On Solaris, for example, \texttt{poll} is a system call, and
 after each call or nullify \texttt{revents}.
 \item Time set to -1 has the same effect as \texttt{NULL} for \texttt{select}.
 \item If the number of descriptors is set to 0 (\texttt{fds} should be then
-\texttt{NULL}), \texttt{poll} can be simple used to sleep with less than second
-granularity. Example: \label{POLL_SLEEP_C} \example{sleep/poll-sleep.c} That
-said, this "trick" does not work on macOS.
+\texttt{NULL}), \texttt{poll} can be simply used to sleep with less than one
+second granularity. Example: \label{POLL_SLEEP_C} \example{sleep/poll-sleep.c}
+That said, this "trick" does not work on macOS.
 \begin{itemize}
 \item Another way is to use \texttt{nanosleep}, that is part of POSIX.4
 extension and therefore does not have to be always available.
