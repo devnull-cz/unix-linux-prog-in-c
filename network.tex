@@ -1379,9 +1379,11 @@ of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
 other one.  On Solaris, for example, \texttt{poll} is a system call, and
 \texttt{select} is then a library call implemented as a \texttt{poll} wrapper.
 \item \texttt{poll} is necessary to use to test descriptor equal or higher than
-\texttt{FD\_SETSIZE}. 
+\texttt{FD\_SETSIZE}.
 \item Unlike \texttt{select} it is not necessary to refresh descriptor sets
-after each call or nullify \texttt{revents}.
+after each call or nullify \texttt{revents}. To deselect a file descriptor,
+set the \item \texttt{fd} member of the \texttt{pollfd} structure to -1
+(or reshuffle the array which is significantly more complex).
 \item Time set to -1 has the same effect as \texttt{NULL} for \texttt{select}.
 \item If the number of descriptors is set to 0 (\texttt{fds} should be then
 \texttt{NULL}), \texttt{poll} can be simply used to sleep with less than one
