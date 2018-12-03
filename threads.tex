@@ -61,7 +61,7 @@ than if such code was run with maximum privileges.  This technique is called a
 \sltitle{Implementation of threads}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{description}
-\item[library-thread model]~\\\vspace{-2.5ex}
+\item[library-thread model (1:N)]~\\\vspace{-2.5ex}
     \begin{itemize}
     \item threads are implemented in a library.  Kernel has no knowledge of
     such threads.
@@ -70,13 +70,13 @@ than if such code was run with maximum privileges.  This technique is called a
     \item[$\oplus$] less overhead
     \item[$\ominus$] more threads of the same process cannot run in parallel
     \end{itemize}
-\item [kernel-thread model]~\\\vspace{-2.5ex}
+\item [kernel-thread model (1:1)]~\\\vspace{-2.5ex}
     \begin{itemize}
     \item threads are a first class kernel citizen
     \item[$\oplus$] more threads of the same process can run in parallel on
     multiple CPUs
     \end{itemize}
-\item[hybrid models]~\\\vspace{-2.5ex}
+\item[hybrid models (M:N)]~\\\vspace{-2.5ex}
     \begin{itemize}
     \item N library threads scheduled on M kernel threads, N $>=$ M
     \item[$\ominus$] too complex to implement, not really used today
@@ -85,20 +85,33 @@ than if such code was run with maximum privileges.  This technique is called a
 \end{slide}
 
 \begin{itemize}
-\item Original Unix systems used library models.  Today in general the kernel
-model is used.
+\item Original Unix systems used library models (sometimes called
+\emph{lightweight threads} or \emph{green threads}). Today in general
+most of the systems stick to the 1:1 model. There was some evolution in
+the past, e.g. Solaris 9 was using the M:N model and switched to 1:1 in
+Solaris 10.
 \item Threads implemented in a library may be either preemptive or
 non-pre\-emp\-tive. To achieve preemption, you can use timers and signals.
 However, if the objective is more in better modular programming than real
 parallelism, usually non-preemptive threads do fine.  Switching threads will be
 done when a process would normally block in system calls.
-\item \label{SETJMP} If a system call blocks in a library implemented thread,
-the whole process will block as the kernel has no knowledge there are more
-threads in the process.  So the threading library is written the way that
+\item \label{SETJMP} If a system call blocks in a library implemented thread
+model, the whole process will block as the kernel has no knowledge there are
+more threads in the process.  So the threading library is written the way that
 non-blocking calls are used, the thread context is saved after that and the
 library switches to another thread via \funnm{setjmp}() and \funnm{longjmp}()
 system calls.  Example: \example{pthreads/setjmp.c}.  Another way is to use a
 non-standard system call \funnm{swapcontext}() if the system provides it.
+\item To implement a 1:N library, there are several things for consideration:
+\begin{itemize}
+\item how to deal with threads trying to install \texttt{SIGALRM} handler
+if it is already used for firing signal to trigger the dispatcher/scheduler
+periodically
+\item how to implement separate stacks for each thread (especially when
+\texttt{setjmp} was chosen as a building block).
+\item what should be the thread states
+\item how to avoid all threads to be blocked when one threads blocks e.g. on I/O
+\end{itemize}
 \end{itemize}
 
 \begin{slide}
