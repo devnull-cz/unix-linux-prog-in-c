@@ -1394,6 +1394,14 @@ That said, this "trick" does not work on macOS.
 extension and therefore does not have to be always available.
 Example: \example{sleep/nanosleep.c}.
 \end{itemize}
+\item While \texttt{select} and \texttt{poll} are pretty efficient when handling
+many connections in parallel, internally they both have $O(n)$ algorithms
+inside. The famous "C10k" problem (\url{http://www.kegel.com/c10k.html}),
+is about finding a solution on how to efficiently handle tens of thousands of
+connections (could be both server and client side - e.g. imagine web crawler) in
+parallel. Pretty much all Unix systems offer some sort of event driven library
+and/or kernel primitives to achieve that. Also, there are many ways how to
+approach the problem, plus some tricks that can be applied on the top.
 \end{itemize}
 
 \endinput
