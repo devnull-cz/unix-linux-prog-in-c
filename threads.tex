@@ -90,6 +90,9 @@ than if such code was run with maximum privileges.  This technique is called a
 most of the systems stick to the 1:1 model. There was some evolution in
 the past, e.g. Solaris 9 was using the M:N model and switched to 1:1 in
 Solaris 10.
+\item The drawback of the 1:1 model is that there is always some non-trivial
+overhead associated with thread creation as the library has to call into the
+kernel as well in order to create the associated kernel thread.
 \item Threads implemented in a library may be either preemptive or
 non-pre\-emp\-tive. To achieve preemption, you can use timers and signals.
 However, if the objective is more in better modular programming than real
