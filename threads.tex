@@ -618,13 +618,14 @@ the system used.  For example, in Solaris before version 10 (i.e. before 2005),
 \item \label{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
 are executed before \funnm{fork}() is called in the parent, and then after
 \funnm{fork}() is called both in the parent and its child.  Such handlers are
-very useful who use \funnm{fork}() not only for a wrapper around \funnm{exec}().
+very useful when \funnm{fork}() is used not only as a wrapper around
+\funnm{exec}().
 After \funnm{fork}(), all variables in the child are in the state as in the
-parent, so if a thread not propagated to the child held a mutex (see page
-\pageref{MUTEXES}), the mutex stays
+parent, so if a thread not present to the child held a mutex in the parent
+(see page \pageref{MUTEXES}), the mutex stays
 locked in the child, and trying to lock in the child will lead to a deadlock.
-However, if the parent in the \emph{\texttt{pre-fork}} handler locks all the
-mutexes, and then unlocks them in the \emph{\texttt{post-fork}} handler (both
+However, if the parent locks all the mutexes in the \emph{\texttt{pre-fork}}
+handler and then unlocks them in the \emph{\texttt{post-fork}} handler (both
 for the parent and the child), you will avoid such deadlocks.  When locking
 mutexes in the \emph{\texttt{pre-fork}} handler, other threads are still running
 so the mutexes held by them can be released (usually each thread exits a
