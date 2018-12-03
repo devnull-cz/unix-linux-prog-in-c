@@ -303,18 +303,16 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \item value of \texttt{errno}
 \item thread specific data -- a pair of
 ifdef([[[NOSPELLCHECK]]], [[[
-\texttt{(pthread\_key\_t \emph{key}, void *\emph{ptr})} 
+\texttt{(pthread\_key\_t \emph{key}, void *\emph{ptr})}
 ]]])
-    \begin{itemize}
-    \item a key created by \funnm{pthread\_key\_create}() is visible from all
-    threads
-    \item in every thread the key may be associated with a different value via
-    \funnm{pthread\_setspecific}()
-    \end{itemize}
+\item signal mask
 \end{itemize}
 \end{slide}
 
 \begin{itemize}
+\item a key created by \funnm{pthread\_key\_create}() is visible from all
+threads. In every thread the key may be associated with a different value via
+\funnm{pthread\_setspecific}()
 \item Each thread has a fixed size stack which \emsl{does not automatically
 increase.}  It is usually anywhere from 64 kilobytes to a few megabytes.  If you
 cross that limit, the program will quite probably crash.  If you want a stack of
@@ -323,8 +321,7 @@ a greater size than what is the system default, you have to use
 Example: \example{pthreads/pthread-stack-overflow.c}
 \item You can read more about thread specific data on page
 \pageref{THREAD_SPECIFIC_DATA}.
-\item Each thread also has its own signal mask.  More on that on page
-\pageref{PTHREADSIGMASK}.
+\item More on per thread signal mask is on page \pageref{PTHREADSIGMASK}.
 \end{itemize}
 
 %%%%%
