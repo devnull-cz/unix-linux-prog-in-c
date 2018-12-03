@@ -360,8 +360,8 @@ the thread terminates. \funnm{pthread\_join}() can no longer be used.
 \begin{itemize}
 \item If \funnm{pthread\_exit}() is not used, it is implicitly called when the
 thread terminates with the value from the function \texttt{return}.
-\item The contents the finishing thread stack is undefined so you should not use
-pointers to the function local variables from memory pointed to by
+\item The contents of the exiting thread's stack are undefined so you should
+not use pointers to the function local variables from memory pointed to by
 \emph{\texttt{val\_ptr}}.
 \item If you do not intend to call \funnm{pthread\_join}(), you need to call
 \funnm{pthread\_det\-ach}() or use the attributes (see below).  If you do not, a
