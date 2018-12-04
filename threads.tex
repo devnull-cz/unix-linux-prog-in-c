@@ -243,6 +243,9 @@ exist.
 \end{slide}
 
 \begin{itemize}
+\item If the main thread does not wait for the thread to finish, the whole
+program will terminate even though there are still some threads running,
+see \example{pthreads/pthread\_create.c}
 \item Be careful not to use this:
 \begin{alltt}
 for (i = 0; i < N; i++)
