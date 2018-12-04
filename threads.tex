@@ -243,6 +243,9 @@ exist.
 \end{slide}
 
 \begin{itemize}
+\item Once a thread is created, it is up to the scheduler when the thread
+will really start running. The thread can voluntarily give up the CPU by using
+\texttt{sched\_yield} (this is POSIX function, unlike \texttt{pthread\_yield}).
 \item If the main thread does not wait for the thread to finish, the whole
 program will terminate even though there are still some threads running,
 see \example{pthreads/pthread\_create.c}
