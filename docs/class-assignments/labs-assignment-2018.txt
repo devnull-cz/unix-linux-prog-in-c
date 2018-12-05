@@ -350,7 +350,7 @@ Pipelines may be separated by a semicolon, i.e. it's an extension of the
 
 Note that the shell needs to wait for all commands in the pipeline to
 finish before printing out the next prompt.  So you need to create the
-pipeline HORIZONTALLY, meaning the shell it a parent of ALL processes in
+pipeline HORIZONTALLY, meaning the shell is a parent of ALL processes in
 the pipeline (remember, wait(2) only works on direct children).  For
 example, the following will hang for 10 seconds before your shell
 returns a new prompt:
