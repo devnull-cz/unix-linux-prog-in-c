@@ -1018,17 +1018,19 @@ ifdef([[[NOSPELLCHECK]]], [[[
 are consulted according to the specification in the \texttt{/etc/nsswitch.conf}
 file.
 \item The structure \texttt{addrinfo} is defined in \texttt{netdb.h}.
-\item \texttt{getaddrinfo} is able to convert both string containing hostname
-and IP address. Similarly for ports.
+\item \texttt{getaddrinfo} is able to convert a string containing either a
+hostname or an IP address. Similarly for ports.  So, whether you use a hostname
+or an IP address as an command line argument, you can use the same code to
+process that.
 \item The \texttt{getaddrinfo} function returns the results in the \emph{res}
-parameter. The result is a list of structures \texttt{sockaddr}, that correspond
-to given inputs.
-\item There is a difference whether the address structures are to be used for
-server or client; e.g. for server it is sufficient to specify \emph{nodename} as
-\texttt{NULL} (wildcard socket). Similarly for the member \texttt{ai\_flags} of
-the \texttt{addrinfo} structure used for the \emph{hint} parameter -- for server
-it is usually set to \texttt{AI\_PASSIVE}. (Otherwise it would contain loopback
-address if \texttt{NULL} address is specified.)
+parameter. The result is a list of \texttt{sockaddr} structures corresponding to
+given input.
+\item There is a difference whether the address structures are to be used for a
+server or client; e.g. for a server it is sufficient to specify \emph{nodename}
+as \texttt{NULL} (meaning any address).  Similarly for the member
+\texttt{ai\_flags} of the \texttt{addrinfo} structure used for the \emph{hint}
+parameter -- for a server, use \texttt{AI\_PASSIVE} to indicate the returned
+address structures will be used in \funnm{bind}.
 \item After the results are no longer needed, it is prudent to call
 \texttt{freeaddrinfo}, that will free the memory allocated by
 \texttt{getaddrinfo}.
@@ -1036,17 +1038,32 @@ address if \texttt{NULL} address is specified.)
 \item In the past the functions \funnm{gethostbyname} and
 \funnm{gethostbyaddr} were used. These only work with IPv4 addresses and are
 therefore considered legacy and not recommended to use. The functions
-\texttt{getipnodebyname} and \texttt{getipnodebyaddr} can be used instead
-(\texttt{getipnode*} is found in many systems, nevertheless they were removed
-from GNU \texttt{libc}, so cannot be relied on universally). Moreover they are
-not part of UNIX standards.
-\texttt{get\-addr\-info} and \texttt{getnameinfo} are part of the POSIX.1-2001
-standard.
+\funnm{getipnodebyname} and \funnm{get\-ip\-no\-de\-by\-addr} can be used
+instead (\funnm{getipnode*} are found in many systems, nevertheless they were
+removed from GNU \texttt{libc}, so cannot be relied on universally). What is
+more, they are not part of UNIX standards.  \funnm{get\-addr\-info} and
+\funnm{getnameinfo} are part of the POSIX.1-2001 standard.
 \item It is not strictly necessary to convert old IPv4 specific code to the
-generic APIs. However when writing new code, always use them even when you
-think the program will only use IPv4.
-\end{itemize}
+generic APIs. However when writing new code, always use them even when you think
+the program will only use IPv4.
+\item IPv6 sockets may be used for both IPv4 and IPv6 communications.  That
+means if you try to bind addresses returned by \funnm{getaddrinfo}, \funnm{bind}
+should return \texttt{EADDRINUSE} after its first call if you use both IPv4 and
+IPv6 addresses.  Binding on an IPv6 address should be sufficient to accept
+connections over IPv4 as well.  Details are in RFC~3493.  If you want to
+restrict a socket to IPv6 only, use the following code on a socket from the
+\texttt{AF\_INET6} family:
 
+\begin{verbatim}
+      int on = 1;
+
+      if (setsockopt(s, IPPROTO_IPV6, IPV6_V6ONLY, (char *)&on,
+          sizeof(on)) == -1) {
+              /* deal with the error here */
+      }
+\end{verbatim}
+
+\end{itemize}
 
 %%%%%%
 
