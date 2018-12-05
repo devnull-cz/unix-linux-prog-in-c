@@ -6,6 +6,9 @@ Updates:
 
 - [Nov 12, 2018] added redirection and pipe details, new paragraph
   "PROHIBITED FUNCTIONS", and limiting the language to C (i.e. no C++).
+- [Dec  5, 2018] added more specific information on what we counted in
+  the line count for our implementation of the project.  Also added a
+  note on BSD libedit.
 
 When you are done, we prefer to get a link to you github project but you
 can send it to us via email (a single tar file) as well.  Your project
@@ -48,7 +51,9 @@ one might think).
 For getting the input line, we recommend the "readline" library, see
 "man readline".  You should find it on any Linux, *BSD, MacOS, or
 Solaris machine.  By using readline, you get line editing, history,
-completion, etc. for free.  Another alternative is libtecla.
+completion, etc. for free.  Another alternative is libtecla.  There is
+also BSD libedit (https://man.openbsd.org/OpenBSD-6.0/el_init.3) but I
+have never used it so I cannot really recommend it.
 
 For tokenizing and parsing the command line, we suggest you to use
 GNU flex(1) and bison(1).  They are easy to use and you should also find
@@ -63,9 +68,10 @@ See "man queue" for more information.  STAIL_* and TAIL_* macros should
 be all you need.
 
 FYI, our implementation of the 1st phase is 560 lines long, including
-flex and bison source files, and using the usual C style from
-http://mff.devnull.cz/cstyle/.  Our complete implementation including
-the 2nd phase requirements fits within 900 lines of code.
+flex (.l) and bison source files (.y) but NOT including the C parser
+code generated from our .l and .y files, and using the usual C style
+from http://mff.devnull.cz/cstyle/.  Our complete implementation
+including the 2nd phase requirements fits within 900 lines of code.
 
 IT GOES WITHOUT SAYING IT IS AN INDIVIDUAL, NOT A TEAM PROJECT.  DO NOT
 USE CODE WRITTEN BY OTHER FELLOW STUDENTS.  THE IDEA IS YOU LEARN BY
