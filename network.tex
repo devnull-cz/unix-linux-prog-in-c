@@ -419,6 +419,8 @@ further data.  The buffer size is usually a few tens of kilobytes.
 specification to be in \texttt{sys/socket.h}.  It specifies the maximum queue
 length for \funnm{listen}().  As far as we know, Linux, FreeBSD, macOS and
 Solaris use value of 128.
+\item This function is specific to connection-oriented protocols, so it does not
+work with UDP.
 \end{itemize}
 
 %%%%%
@@ -572,6 +574,7 @@ The way a client works does not depend on which approach the server chooses.
 \end{slide}
 
 \begin{itemize}
+\item Note that there is no \funnm{listen} call.
 \item Both the client and server use the same functions, the client is one that
 sends the first datagram.
 \item As in TCP, a client does not need \funnm{bind}() unless it requires a
