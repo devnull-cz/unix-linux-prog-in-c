@@ -531,15 +531,15 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item \label{THREAD_SPECIFIC_DATA} Common global variables and dynamically
+\item \label{THREAD_SPECIFIC_DATA} Global variables and dynamically
 allocated data is common to all threads.  Thread specific data provides a way to
 create a global variable per thread.  Note the difference between that and a
-local variable in the thread function.  The local variable is not visible in
-other functions called from the thread function.  Thread specific data is a very
-useful feature.  Imagine you have existing multithreading code using a global
-storage place which suffers from lots of contention.  You can easily create a
-thread specific data to create a storage place per thread with minimal changes
-to the original code.
+local variable in the thread function -- as you know, in C, the local variable
+is not visible in other functions called from the thread function.  Thread
+specific data is a very useful feature.  Imagine you have existing
+multithreading code using a global storage place which suffers from heavy
+contention.  You can easily create a thread specific data to create a storage
+place per thread with minimal changes to the original code.
 \item When you create a key, \texttt{NULL} is associated with it.  If you do not
 need the destructor function, use \texttt{NULL}.
 \item Destructors are called in unspecified order on all keys with a value
@@ -622,21 +622,21 @@ the system used.  For example, in Solaris before version 10 (i.e. before 2005),
 \item Examples: \example{pthreads/fork.c},
 \example{pthreads/fork-not-in-main.c}, and also \example{pthreads/forkall.c}
 \item \label{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
-are executed before \funnm{fork}() is called in the parent, and then after
-\funnm{fork}() is called both in the parent and its child.  Such handlers are
-very useful when \funnm{fork}() is used not only as a wrapper around
-\funnm{exec}().
-After \funnm{fork}(), all variables in the child are in the state as in the
-parent, so if a thread not present to the child held a mutex in the parent
-(see page \pageref{MUTEXES}), the mutex stays
-locked in the child, and trying to lock in the child will lead to a deadlock.
-However, if the parent locks all the mutexes in the \emph{\texttt{pre-fork}}
-handler and then unlocks them in the \emph{\texttt{post-fork}} handler (both
-for the parent and the child), you will avoid such deadlocks.  When locking
-mutexes in the \emph{\texttt{pre-fork}} handler, other threads are still running
-so the mutexes held by them can be released (usually each thread exits a
-critical section in a short time in well written code).
-Example: \example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
+are executed before \funnm{fork}() is called in the parent process, and then after
+\funnm{fork}() is called both in the parent and its child.  The handlers are
+executed in the context of the thread that calls the \funnm{fork}().  Such
+handlers are very useful when \funnm{fork}() is used not only as a wrapper
+around \funnm{exec}().  After \funnm{fork}(), all variables in the child are in
+the state as in the parent, so if a thread not present to the child held a mutex
+in the parent (see page \pageref{MUTEXES}), the mutex stays locked in the child,
+and trying to lock in the child will lead to a deadlock.  However, if the parent
+locks all the mutexes in the \emph{\texttt{pre-fork}} handler and then unlocks
+them in the \emph{\texttt{post-fork}} handler (both for the parent and the
+child), you will avoid such deadlocks.  That is because when locking mutexes in
+the \emph{\texttt{pre-fork}} handler, other threads are still running so the
+mutexes held by them should be released eventually (usually each thread exits a
+critical section in a short time in well written code).  Example:
+\example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
 \item See page \pageref{MUTEXES} on why mutexes locked in other threads on
 \funnm{fork}() stay locked forever.
 \end{itemize}
@@ -675,13 +675,13 @@ that do not have such signal blocked.
 will exit, not just one thread.
 \item New thread will inherit signal mask from the creator thread.
 \item Similarly to the use of \texttt{sigwait} with processes (page
-\pageref{SIGWAIT}) -- block given signals in all threads, including the
-thread, that will be processing the signals using \texttt{sigwait}.
+\pageref{SIGWAIT}) -- just block given signals in all threads, including the
+thread processing the signals using \texttt{sigwait}.
 \emsl{This way of signal handling in threaded environment is usually the only
-recommended.} Also, it is easy to implement. From previous note, it is sufficient
-to mask the signals only once, in the main thread (before creating any new
-threads), because the mask will be inherited with each \texttt{pthread\_create}
-call.
+recommended.}  And it is easy to implement as well.  From a previous note, it is
+sufficient to mask the signals only once, in the main thread (before creating
+any new threads), because the mask will be inherited with each
+\texttt{pthread\_create} call.
 \item Do not use \texttt{sigprocmask} (page \pageref{SIGPROCMASK}) in threaded
 environment, because the behavior of this call is not specified by the standard
 in such environment. It may work, or not.
@@ -706,9 +706,10 @@ Solaris 10 and 11, FreeBSD 7.2 and a Linux distribution, that reports
 itself as ``Gentoo Base System release 1.12.13'', is the \texttt{SIGSEGV} signal
 delivered and the process killed even though it is masked.
 There used to be a system that did not deliver the signal when masked
--- FreeBSD 6.0. It should be possible to always handle synchronous signals
-(before \texttt{exit}), see page \pageref{SPECIALSIGNALS}, which also
-contains example.
+-- FreeBSD 6.0.  It should be possible to handle synchronous signals
+if you terminate the process in the handler itself (e.g. after printing a user
+friendly error message), see page \pageref{SPECIALSIGNALS}, which also contains
+an example.
 
 \end{itemize}
 
