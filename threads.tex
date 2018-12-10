@@ -739,13 +739,13 @@ for threads on the other hand it is necessary to maintain natural data sharing.
 \begin{itemize}
 \item Process synchronization is described on pages
 \pageref{SYNCHRONIZATION} to \pageref{SYNCHRONIZATIONEND}.
-\item Using mutexes and conditional variables it is possible to construct any
+\item By using mutexes and conditional variables it is possible to construct any
 other synchronization model.
 \item The exact behavior of synchronization primitives is largely determined by
-the scheduler, that decides which of the threads waiting for unlock will be
-waked up after the unlock happens. This leads to classical problems such as
-\emph{thundering horde} (lots of threads waiting for unlock)
-or \emph{priority inversion} (thread holding a lock has lower priority than
+the scheduler.  It decides which of the threads waiting for releasing a lock
+will be woken up after the lock is actually released. This leads to classical
+problems such as a \emph{thundering horde} (lots of threads waiting for unlock)
+or a \emph{priority inversion} (thread holding a lock has lower priority than
 the thread waiting for the lock).
 \end{itemize}
 
@@ -794,41 +794,38 @@ semaphores. In order to check whether given mutex was locked by different thread
 when acquiring it, it is necessary to test return value of
 \texttt{p\-thread\_mutex\_lock}, and also have the lock checking set, see below.
 \item Mutexes are meant to be held for short time only. They are used for
-critical section (see the definition on page \pageref{CRITICALSECTION}),
-implementation, similarly to lock-files or semaphores (used like locks).
-\item Lock checking is governed by mutex type. By default the mutex type is set to
-\texttt{PTHREAD\_MUTEX\_DEF\-AULT}. This type does not define the result of
-locking a locked mutex, unlocking a mutex locked by different thread or
-unlocking an unlocked mutex. Concrete Unix implementations will map this define
-to \texttt{PTHREAD\_MUTEX\_NORMAL} or \texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK}.
-Thus, depending on correct implementation, that locking already locked mutex
-will result in deadlock (\texttt{NORMAL}) or not (\texttt{ERRORCHECK}).
-In the second case, return value will contain information about the error.
-If not tested, the program will wrongly assume that the mutex is locked.
-For the \texttt{NORMAL} type the result of the remaining two situations is not
-defined, for \texttt{ERRORCHECK} an error will be returned. ``Not defined``
-means that the thread unlocking a mutex locked by different thread can succeed.
-Or not -- everything depends on the implementation at hand. It also means that
-the result of such operations is of no interest because these should be avoided.
-More info can be found in the POSIX standard or the
-\texttt{pth\-read\_mutex\-attr\_set\-ty\-pe} man page.
-Checking return values of mutex functions can make the code slightly less
-readable however it can be wrapped in a macro. Alternatively, the checks can be
-used during development only.
-Solaris and Linux use \texttt{NORMAL} type by default, FreeBSD uses
-\texttt{ERRORCHECK}.
-\label{NOTMYLOCK}
+critical section (see the definition on page \pageref{CRITICALSECTION})
+implementation, similarly to lock-files or semaphores (if used like locks).
+\item Lock checking is governed by a mutex type.  By default the mutex type is
+set to \texttt{PTHREAD\_MUTEX\_DEF\-AULT}.  This type by itself does not define
+the result of (a) locking a locked mutex, (b) unlocking a mutex locked by a
+different thread, or (c) unlocking an unlocked mutex.  Unix/Linux systems will
+map that macro to \texttt{PTHREAD\_MUTEX\_NORMAL} or
+\texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK} (ignoring the recursive type, see
+below).  Thus, depending on a specific system, locking an already locked mutex
+will result in a deadlock (\texttt{NORMAL}) or not (\texttt{ERRORCHECK}).  In
+the latter case, a return value will contain information about the error and if
+not tested, the program will wrongly assume the mutex is locked.  For the
+\texttt{NORMAL} mutex type the result of (b) and (c) is not
+defined, for \texttt{ERRORCHECK} an error will be returned.
+In general you should avoid any undefined behavior unless specifically
+documented by the system at hand.  More information can be found in the POSIX
+standard or the \texttt{pth\-read\_mutex\-attr\_set\-ty\-pe} man page.  Checking
+return values of mutex functions can make the code slightly less readable
+however it can be wrapped in a macro. Alternatively, the checks can be used
+during development only.  Solaris and Linux use \texttt{NORMAL} type by default,
+FreeBSD uses \texttt{ERRORCHECK}.  \label{NOTMYLOCK}
 Example: \example{mutexes/not-my-lock.c}.
-\item Another type is \texttt{PTHREAD\_MUTEX\_RECURSIVE} that holds count of
+\item Another type is \texttt{PTHREAD\_MUTEX\_RECURSIVE} that holds a count of
 lock actions done by given thread. The remaining threads will be granted access
 only if the count reaches 0. This mutex cannot be shared between processes.
-\item What are recursive mutexes good for ? Let's assume there are two
+\item What are recursive mutexes good for? Let's assume there are two
 libraries, \texttt{A} and \texttt{B}. There is a library
-function \texttt{A:foo()}, that will acquire a mutex and calls \texttt{B:bar()}
-that can in turn call \texttt{A:bar()}, which will try to acquire the same
-mutex. Without recursive locks a deadlock will ensue. With recursive mutexes
+function \texttt{A:foo()} acquires a mutex and calls \texttt{B:bar()},
+and in turn calls \texttt{A:bar()} which tries to acquire the same
+mutex.  Without recursive locks a deadlock will ensue.  With recursive mutexes
 that's fine if these two calls are done by the same thread (another thread will
-get blocked). That is, assuming \texttt{A:foo()} and \texttt{A:bar()} are aware
+get blocked).  That is, assuming \texttt{A:foo()} and \texttt{A:bar()} are aware
 that the same thread can be already in the critical section.
 \item \label{MUTEXTAB} The behavior according to mutex types:\\
 \\
@@ -849,15 +846,15 @@ attributes. It is possible to use initializer function also for statically
 allocated mutex. If a mutex is dynamically allocated, it is always necessary to
 use \texttt{pthread\_mutex\_init}, even if the default attributes are desired or
 not.
-\item Dynamic mutexes are needed e.g. when a data structure which contains a
-mutex protecting it, is dynamically allocated.
-In such case before calling \texttt{free} with the data structure, it is first
-necessary to properly destroy the mutex (that can also have some memory
-allocated). Destroying locked mutex is not defined by the standard.
+\item Dynamic mutexes are needed e.g. when a data structure containing a mutex
+protecting it is dynamically allocated.  In such a case, before calling
+\texttt{free} with the data structure, it is first necessary to properly destroy
+the mutex (that can also have some memory allocated).  Destroying a locked mutex
+is not defined by the standard.
 \item Copying mutexes is also not defined by the standard -- the result of such
-operation depends on implementation. It is possible to copy pointer to mutex
-and work with that.
-\item Mutex destroy means its deinitialization.
+an operation depends on the implementation.  It is possible to copy a pointer to
+a mutex and work with that.
+\item A mutex destroy means its deinitialization.
 \end{itemize}
 
 %%%%%
@@ -899,18 +896,19 @@ return error
 \begin{itemize}
 \item Locking a mutex that is being held by another thread is not correct.
 Sometimes a (self)deadlock can ensue, see the previous page. If you need to
-unlock a mutex locked by different thread, use binary semaphores instead.
+unlock a mutex locked by a different thread, use binary semaphores instead.
 \item When creating a program where efficiency is paramount, it is necessary to
-think about how many mutexes will be needed and how exactly will be used.
+think about how many mutexes will be needed and how exactly they will be used.
 Even a library that was not written with threads in mind can be converted to be
-thread-safe (see page \pageref{THREADSAFE}) by inserting arbitrary function from
-the library a lock will be acquired and released before the function exits.
-Such locked can be called ``giant'' mutex, i.e. there will be lock contention
-for every consumer of such library in given program. On the other hand, if using
-many mutexes to synchronize access to concrete small sections, lots of time can
-be spent in the functions implementing the locking. It is therefore desired to
-search for a compromise. (Or use an algorithm that does not require locks at
-all)
+thread-safe (see page \pageref{THREADSAFE}) by acquiring a per-library lock on
+any library function entry and releasing the lock before the function exits.
+Such a lock may be called a ``giant'' mutex, and it may lead to lock contention
+for every consumer of such a library as at any given moment only one thread may
+execute the library code.  On the other hand, if using a large number of mutexes
+to synchronize access to many small sections, significant amount of time might
+be spent in the overhead of calling functions implementing the locking.  It is
+therefore desired to search for a compromise.  (Or use an algorithm that does
+not require locks at all).
 \item \label{MUTEX_RACE} Examples: \example{mutexes/race.c},
 \example{mutexes/race-fixed.c}
 \item Mutexes can be shared between processes so that their threads will
