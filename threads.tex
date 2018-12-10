@@ -316,9 +316,9 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item a key created by \funnm{pthread\_key\_create}() is visible from all
-threads. In every thread the key may be associated with a different value via
-\funnm{pthread\_setspecific}()
+\item A key created by \funnm{pthread\_key\_create}() is visible from all
+threads. However, in every thread the key may be associated with a different
+value via \funnm{pthread\_setspecific}().
 \item Each thread has a fixed size stack which \emsl{does not automatically
 increase.}  It is usually anywhere from 64 kilobytes to a few megabytes.  If you
 cross that limit, the program will quite probably crash.  If you want a stack of
