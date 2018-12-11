@@ -938,34 +938,35 @@ other synchronization primitives -- semaphores, barriers, \dots
 \label{CONDITION_VARIABLES}
 
 \begin{itemize}
-\item in other words -- conditional variables are handy in situation when a 
-thread needs to test the state of \emsl{shared} data (e.g. number of queues
-in queue), and voluntarily put itself to sleep, when desired state has not
-been reached. The sleeping thread is then woken up by another thread that
-changed the state of the data, so the situation which the first thread was
-waiting on actually happened (e.g. by inserting a item into queue).
-The second thread wakes the first one by calling a designated function.
-If no thread is sleeping at the moment, the function will have no effect --
-nothing will be saved anywhere, like it never happened.
-\item A condition variable, which is opaque type for the programmer, is not
+\item In other words -- conditional variables are handy in a situation when a
+thread needs to test the state of \emsl{shared} data (e.g. number of elements in
+a queue) and voluntarily put itself to sleep if the state is not as desired.
+The sleeping thread may be woken up by another thread after the latter
+changed the state of the data in a way that the situation which the first thread
+was waiting on actually happened (e.g. by inserting an item into a queue).  The
+second thread wakes the first one by calling a designated function.  If no
+thread is sleeping at the moment, that function would have no effect -- nothing
+will be saved anywhere, it is as if it never happened.
+\item A condition variable, which is an opaque type for the programmer, is not
 associated with a concrete condition like ``\emph{\texttt{n} is greater than
-7}''. Conditional variable can be in fact compared to a flag of certain color;
-if it is lifted up, it means that the threads waiting for the flag to be waved
-are informed (= woken up) and can use this information according its own
-judgment. Some threads can wait for \texttt{n} to be bigger than 7, the other
-can be waiting solely for \texttt{n} to change anyhow. It is only up to the
-programmer, if for concrete situation uses just one condition variable or
-for all situations. For the second situation, the threads waiting on 
-\texttt{n == 7} have to always test \texttt{n}, because they know that they
-are woken up whenever the variable changed. If the variable is not equal to 7,
-it will voluntarily put itself to sleep. How it is explained further,
-the \emsl{test is necessary to do after wake up}, even if dedicated conditional
-variable is used -- it can happen that the system can wake up the sleeping
-thread (because of various implementation reasons) without being caused by
-another thread.
+7}''.  A conditional variable may in fact be compared to a flag of a certain
+color; if it is lifted up, it means that the threads waiting for the flag to be
+raised are informed (= woken up) and may use this information to its own
+judgment.  Some threads may wait for \texttt{n} to be bigger than 7, some other
+may be waiting solely for \texttt{n} to change, and another then for \texttt{n}
+to become 99.  It is only up to the programmer whether a separate condition
+variable will be used for all states of \texttt{n} (i.e. we would use multiple
+flags of different colors) or whether a single condition variable will be used
+(the same flag color for all situations).  For the latter, the threads waiting
+on \texttt{n > 7} and \texttt{n == 99} must always test \texttt{n} as they know
+that they are woken up whenever the variable changed.  If the variable is not
+equal to 7 the thread must voluntarily put itself to sleep again.  As it is
+explained further, the \emsl{test is necessary to perform after an every
+wake-up} even if a dedicated conditional variable is used for every possible
+state -- it may happen that the system can wake up a sleeping thread (because
+of various implementation reasons) without any other thread causing this; it is
+called a \emsl{spurious wakeup}.
 \end{itemize}
-
-%%%%%
 
 %%%%%
 
@@ -1005,6 +1006,9 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
+\item While the condition variables are used for putting threads to sleep and
+waking them up, given that we work with shared data, there is always a mutex
+involved when working with a condition variable.
 \item It is necessary to test the condition after the thread locks the mutex
 and before the \texttt{pthread\_cond\_wait} is called. If the thread does not
 perform this operation, it could be put to sleep indefinitely because the 
@@ -1017,12 +1021,11 @@ the mutex, to be sure what is the state of the data when calling
 \item The conditional variables API works thanks to the fact that when entering
 critical section the mutex is locked by the thread and the
 \emsl{\texttt{pthread\_cond\_wait} function will unlock the mutex before putting
-the thread to sleep}. Before exiting from the function the mutex is again
-locked.
-It can therefore happen that the thread is woken up while waiting on a
-conditional variable and then sleeps again when waiting for the mutex.
-There is nothing complicated about this, it is merely mutual exclusion of 
-threads in critical section.
+the thread to sleep}. Before exiting from the function the mutex is locked
+again.  It may therefore happen that the thread is woken up while waiting on a
+conditional variable and then put to sleep again when hitting a mutex already
+locked by another thread.  There is nothing complicated about this, it is merely
+a mutual exclusion of threads in a critical section.
 \end{itemize}
 
 %%%%%
@@ -1061,31 +1064,31 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item one conditional variable can be used to announce multiple situations
-at once -- e.g. when inserting or removing an item to/from a queue.
-Because of this, it is necessary to test the condition the thread is waiting
-for. Another consequence of this is that it is necessary to use broadcast
-in such situation. Let's assume that both readers and writers are waiting for
-condition ``state of queue has changed''. If only single wake-up event is made
-after item insertion to the queue, then another writer can be woken up,
-which is however waiting for different event -- item removal. Thus, the message
-will remain in the queue until a reader is woken up.
-\item A thread can be woken up by another thread also in case when a condition
-variable is associated with concrete event, which is no longer true after
-the waiting thread is woken up.
-Let's consider this situation: a thread signals a condition change and right
-after that another thread locks the mutex and performs an action which
-invalidates the condition, e.g. removing a item from a queue when the event was
-``there is a messages in the queue''. Thus the thread which is woken up
-finds the queue empty. This is another reason why the condition variable
-\emsl{always} has to be tested in a cycle.
+\item One conditional variable can be used to announce multiple situations at
+once -- e.g. when inserting or removing an item to/from a queue.  Because of
+this, it is necessary to test the condition the thread is waiting for.  Another
+consequence of this is that it is necessary to use a broadcast in such a
+situation.  Let us assume that both readers and writers are waiting for a
+condition ``state of the queue has changed''.  If only a single wake-up event is
+made after an item insertion to the queue, a writer may be woken up but it is
+however waiting for a different event -- an item removal, so it puts itself to
+sleep again.  Thus, the message will remain in the queue until a reader is woken
+up.
+\item A thread may be woken up by another thread even in a case when a condition
+variable is associated with a specific event that is no longer true after the
+waiting thread is woken up.  Let's consider this situation: a thread signals a
+condition change and right after that another thread locks the mutex and
+performs an action which invalidates the condition, e.g. removing an item from a
+queue while the event was ``there is an item in the queue''.  So, the thread
+woken up finds the queue empty.  That is another reason why the condition the
+thread is waiting for must be \emsl{always} tested in a cycle.
 \item It is also possible that a thread is woken up and the condition is not
-true due to concrete implementation. That's another reason to use the cycle.
+true due to a spurious wake-up already mentioned in a previous page.  So again,
+the loop must be used.
 \item The \texttt{abstime} parameter of the \texttt{pthread\_cond\_timedwait}
-function is absolute time, i.e. the timeout expires when system time reaches
-the value greater or equal to \texttt{abstime}. The absolute time is used
-so that it is not necessary to recompute the time difference after wake-up
-events.
+function is absolute time, i.e. the timeout expires when the system time reaches
+the value greater or equal to \texttt{abstime}.  The absolute time is used so
+that it is not necessary to recompute the time difference after wake-up events.
 \end{itemize}
 
 %%%%%
@@ -1111,14 +1114,14 @@ produce\_data(data, ...);
 
 \begin{itemize}
 \prgchars
-\item The first piece of code is waiting for the condition to change.
-If this happens, the data changed and can therefore be processed.
-The second piece of code (executed in different thread) prepares the
-data so it can be processed. Once ready, it will signal the consumer.
-\item The \texttt{pthread\_cond\_wait} function will automatically unlock mutex
-and put the thread to sleep. Once the thread is woken up, it will lock the
-mutex first (this will be done by the condition variables implementation)
-and only after that \texttt{pthread\_cond\_wait} will return.
+\item The first piece of code is waiting for the condition to change.  If this
+happens, the data changed and can therefore be processed.  The second piece of
+code (executed in a different thread) prepares the data so it can be processed.
+Once ready, it will signal the consumer.  \item The \texttt{pthread\_cond\_wait}
+function will automatically unlock the mutex and put the thread to sleep. Once
+the thread is woken up, the system will lock the mutex first (this will be done
+by the condition variable implementation) and only after that
+\texttt{pthread\_cond\_wait} will return.
 \item When signalling that something has changed, it does not mean that after
 the change the condition will be true. Moreover,
 \texttt{pthread\_cond\_wait} can return even if no thread called
@@ -1127,9 +1130,10 @@ This is another reason for testing the condition after wake-up and possibly
 going to sleep again.
 \item The mutex in the example above is unlocked only after the condition
 was signalled however it is not necessary. The signalling can be done
-after unlocking and in such case it can be more efficient (depending on
-given implementation) because the thread that has been woken up will not
-get blocked by the mutex which is held when signalling in critical section.
+after unlocking and in such a case it can be more efficient (depending on
+a given implementation) because the thread that has been woken up will not get
+immediatelly blocked by the mutex which is still held by the thread signalling
+from within the critical section.
 \item \label{QUEUESIMULATION} Example:
 \example{cond-variables/queue-simulation.c}
 \end{itemize}
