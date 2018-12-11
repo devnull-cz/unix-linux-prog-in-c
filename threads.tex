@@ -965,7 +965,7 @@ explained further, the \emsl{test is necessary to perform after an every
 wake-up} even if a dedicated condition variable is used for every possible
 state -- it may happen that the system can wake up a sleeping thread (because
 of various implementation reasons) without any other thread causing this; it is
-called a \emsl{spurious wakeup}.
+called a \emsl{spurious wake up}.
 \end{itemize}
 
 %%%%%
@@ -1132,7 +1132,7 @@ going to sleep again.
 was signalled however it is not necessary. The signalling can be done
 after unlocking and in such a case it can be more efficient (depending on
 a given implementation) because the thread that has been woken up will not get
-immediatelly blocked by the mutex which is still held by the thread signalling
+immediately blocked by the mutex which is still held by the thread signalling
 from within the critical section.
 \item \label{QUEUESIMULATION} Example:
 \example{cond-variables/queue-simulation.c}
