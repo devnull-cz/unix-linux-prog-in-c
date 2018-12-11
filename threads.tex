@@ -1259,30 +1259,28 @@ via \emph{\texttt{stdatomic.h}}, e.g. addition:
 \item \label{ATOMIC_ADD} Example \example{race/atomic-add.c} demonstrates
 the race condition problem when performing addition and its possible solutions.
 The program spawns two threads, each thread works with the same global variable
-\emsl{x}, into which it adds the numbers from 1 to specified value
-\emsl{\texttt{arg}}.
-The threads run in parallel, each performs this cycle:
+\emsl{x}, and in a loop, each increments the variable by numbers from a sequence
+of 1 to \emsl{\texttt{arg[1]}}.  The threads run in parallel, they compete for
+access to \texttt{x}, and each performs the following cycle:
 
 \begin{verbatim}
 for (i = 1; i < arg; ++i)
         x = x + i;
 \end{verbatim}
 
-After the cycle the main thread performs check and the double (there were
-2 threads) compares with the value of the \emsl{x} global variable.
-If the results are not identical, race condition was hit (we can ignore
-integer overflow in this case).
-\par
-The results and times to completion are radically different for situations
-when the program used plain addition, atomic arithmetic functions and locking
-using mutexes. There is difference in completion times between 
-arithmetic operation functions and mutexes is especially notable on
-CPUs with hardware parallelism support.
-\item Similarly there is API for subtraction, bit operations
-AND and OR, value assignment etc.
-\item The atomic primitives and types in C11 is optional feature, so should
+After the cycle the main thread performs a check of the resulting value of
+\texttt{x}.   If the result is not a double of a sum of the sequence, a race
+condition must have been hit (we can ignore an integer overflow in this case).
+\par The results and time consumed to complete the program are radically
+different for situations when the program used a plain unprotected addition,
+atomic arithmetic functions, and locking using mutexes.  The difference in
+completion times between arithmetic operation functions and mutexes is
+especially notable on CPUs with hardware parallelism support.
+\item Similarly there is an API for subtraction, bit operations AND and OR,
+value assignment, etc.
+\item The atomic primitives and types in C11 is an optional feature, so should
 be wrapped under \texttt{\_\_STDC\_NO\_ATOMICS\_\_} negative define.
-\item Good description of the C11 atomic API can be found on
+\item A good description of the C11 atomic API can be found on
 \url{http://en.cppreference.com/w/c/atomic}
 \end{itemize}
 
