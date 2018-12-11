@@ -728,7 +728,7 @@ for threads on the other hand it is necessary to maintain natural data sharing.
 \item will describe:
 \begin{itemize}
 \item mutexes
-\item conditional variables
+\item condition variables
 \item read-write locks
 \end{itemize}
 \end{itemize}
@@ -739,7 +739,7 @@ for threads on the other hand it is necessary to maintain natural data sharing.
 \begin{itemize}
 \item Process synchronization is described on pages
 \pageref{SYNCHRONIZATION} to \pageref{SYNCHRONIZATIONEND}.
-\item By using mutexes and conditional variables it is possible to construct any
+\item By using mutexes and condition variables it is possible to construct any
 other synchronization model.
 \item The exact behavior of synchronization primitives is largely determined by
 the scheduler.  It decides which of the threads waiting for releasing a lock
@@ -921,16 +921,16 @@ attribute of such mutexes. See the
 %%%%%
 
 \begin{slide}
-\sltitle{Conditional variables (1)}
+\sltitle{Condition variables (1)}
 \begin{itemize}
 \item mutexes provide synchronization for shared data
-\item conditional variables pass information about the shared data --
+\item condition variables pass information about the shared data --
 for example that the value has changed
 \item \dots{}and allows to put threads to sleep and wake them up
 \item therefore \emsl{each condition variable is always associated
 with exactly one mutex}
-\item one mutex can be associated with multiple conditional variables
-\item using mutexes and conditional variables it is possible to construct
+\item one mutex can be associated with multiple condition variables
+\item using mutexes and condition variables it is possible to construct
 other synchronization primitives -- semaphores, barriers, \dots
 \end{itemize}
 \end{slide}
@@ -938,7 +938,7 @@ other synchronization primitives -- semaphores, barriers, \dots
 \label{CONDITION_VARIABLES}
 
 \begin{itemize}
-\item In other words -- conditional variables are handy in a situation when a
+\item In other words -- condition variables are handy in a situation when a
 thread needs to test the state of \emsl{shared} data (e.g. number of elements in
 a queue) and voluntarily put itself to sleep if the state is not as desired.
 The sleeping thread may be woken up by another thread after the latter
@@ -949,7 +949,7 @@ thread is sleeping at the moment, that function would have no effect -- nothing
 will be saved anywhere, it is as if it never happened.
 \item A condition variable, which is an opaque type for the programmer, is not
 associated with a concrete condition like ``\emph{\texttt{n} is greater than
-7}''.  A conditional variable may in fact be compared to a flag of a certain
+7}''.  A condition variable may in fact be compared to a flag of a certain
 color; if it is lifted up, it means that the threads waiting for the flag to be
 raised are informed (= woken up) and may use this information to its own
 judgment.  Some threads may wait for \texttt{n} to be bigger than 7, some other
@@ -962,7 +962,7 @@ on \texttt{n > 7} and \texttt{n == 99} must always test \texttt{n} as they know
 that they are woken up whenever the variable changed.  If the variable is not
 equal to 7 the thread must voluntarily put itself to sleep again.  As it is
 explained further, the \emsl{test is necessary to perform after an every
-wake-up} even if a dedicated conditional variable is used for every possible
+wake-up} even if a dedicated condition variable is used for every possible
 state -- it may happen that the system can wake up a sleeping thread (because
 of various implementation reasons) without any other thread causing this; it is
 called a \emsl{spurious wakeup}.
@@ -976,14 +976,14 @@ pthread\_cond\_wait}{pthreadcondvarfncs}
 ]]])
 
 \begin{slide}
-\sltitle{Conditional variables (2)}
+\sltitle{Condition variables (2)}
 \prgchars
 ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_cond\_init}(\=pthread\_cond\_t *\emph{cond},
 \\\>const pthread\_condattr\_t *\emph{attr});}
 ]]])
 \begin{itemize}
-\item initializes conditional variable \texttt{cond} with attributes \texttt{attr}
+\item initializes condition variable \texttt{cond} with attributes \texttt{attr}
 (they are set with the \texttt{pthread\_condattr\_...()} functions),
 \texttt{NULL} = default.
 \end{itemize}
@@ -991,14 +991,14 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_destroy}(pthread\_cond\_t *\emph{cond});}
 ]]])
 \begin{itemize}
-\item destroys conditional variable.
+\item destroys condition variable.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_cond\_wait}(\=pthread\_cond\_t *\emph{cond},
 \\\>pthread\_mutex\_t *\emph{mutex});}
 ]]])
 \begin{itemize}
-\item waits on conditional variable until another thread calls
+\item waits on condition variable until another thread calls
 ifdef([[[NOSPELLCHECK]]], [[[
 \funnm{pthread\_cond\_signal()} or \funnm{pthread\_cond\_broadcast()}.
 ]]])
@@ -1018,12 +1018,12 @@ in the meantime. It does not work like signals which are ``held'' by the system
 if they are blocked. It is important to perform this under the protection of
 the mutex, to be sure what is the state of the data when calling
 \texttt{pthread\_cond\_wait}.
-\item The conditional variables API works thanks to the fact that when entering
+\item The condition variables API works thanks to the fact that when entering
 critical section the mutex is locked by the thread and the
 \emsl{\texttt{pthread\_cond\_wait} function will unlock the mutex before putting
 the thread to sleep}. Before exiting from the function the mutex is locked
 again.  It may therefore happen that the thread is woken up while waiting on a
-conditional variable and then put to sleep again when hitting a mutex already
+condition variable and then put to sleep again when hitting a mutex already
 locked by another thread.  There is nothing complicated about this, it is merely
 a mutual exclusion of threads in a critical section.
 \end{itemize}
@@ -1036,20 +1036,20 @@ pthread\_cond\_timedwait}{pthreadcondunblfncs}
 ]]])
 
 \begin{slide}
-\sltitle{Conditional variables (3)}
+\sltitle{Condition variables (3)}
 \prgchars
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_signal}(pthread\_cond\_t *\emph{cond});}
 ]]])
 \begin{itemize}
-\item wakes up one thread waiting on conditional variable
+\item wakes up one thread waiting on condition variable
 \texttt{cond}.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_cond\_broadcast}(pthread\_cond\_t *\emph{cond});}
 ]]])
 \begin{itemize}
-\item wakes all threads waiting on conditional variable
+\item wakes all threads waiting on condition variable
 \texttt{cond}.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -1064,7 +1064,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item One conditional variable can be used to announce multiple situations at
+\item One condition variable can be used to announce multiple situations at
 once -- e.g. when inserting or removing an item to/from a queue.  Because of
 this, it is necessary to test the condition the thread is waiting for.  Another
 consequence of this is that it is necessary to use a broadcast in such a
@@ -1095,7 +1095,7 @@ that it is not necessary to recompute the time difference after wake-up events.
 
 \begin{slide}
 \label{CONDVAR_USE}
-\sltitle{Using conditional variables}
+\sltitle{Using condition variables}
 \begin{alltt}
 pthread\_cond\_t cond; pthread\_mutex\_t mutex;
 ...
