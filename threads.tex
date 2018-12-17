@@ -1328,16 +1328,15 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \label{BARRIER}
 
 \begin{itemize}
-\item The barrier API has been defined since SUSv3, see for example
-\texttt{pthread\_\-barrier\_init}, however they can be created using
-mutexes and condition variables.
-\item The barrier API is non-mandatory part of POSIX (it belongs to
-Advanced real-time threads extension) and hence SUS certified system does not
-have to implement it, which is e.g. the case of macOS.
-\item The barrier can be used e.g. in situation when it is necessary to perform
-some initialization between individual phases of processing. The threads
-need to wait for each other because the initialization can only begin
-once the previous phase is over.
+\item The barrier API has been defined since SUSv3,
+The barrier API is non-mandatory part of POSIX (it belongs to
+\emph{Advanced real-time threads extension}) and hence SUS certified system does
+not have to implement it, which is e.g. the case of macOS.
+However, a barrier can be implemented using mutexes and condition variables.
+\item The barrier can be used e.g. in a situation when it is necessary to
+perform some initialization between individual phases of processing.
+The threads need to wait for each other because the initialization can only
+begin once the previous phase is over.
 Example \example{pthreads/pthread-barrier.c} shows the use in such case.
 \item \texttt{pthread\_barrier\_wait} returns
 the \texttt{PTHREAD\_BARRIER\_SERIAL\_THREAD} value
