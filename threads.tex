@@ -1190,7 +1190,8 @@ waiting in \funnm{pthread\_rwlock\_wrlock}, the writer will be given precedence.
 See \example{pthreads/pthread-rwlock.c}.
 \item There is maximal count of locking operations in given implementation
 (inferred from the type that holds the lock count). If the maximum is reached
-\funnm{pthread\_rwlock\_rdlock} returns the \texttt{EAGAIN} error.
+\funnm{pthread\_rwlock\_rdlock} returns the \texttt{EAGAIN} error,
+see \example{pthreads/pthread-rwlock-limit.c}.
 \end{itemize}
 
 %%%%%
