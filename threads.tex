@@ -1519,7 +1519,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \item non-portable APIs have the \texttt{\_np} suffix (\emph{non-portable}) and
 individual systems define their own calls.
 
-\item FreeBSD + Solaris
+\item FreeBSD, Solaris
 \begin{itemize}
 \item \funnm{pthread\_set\_name\_np}\texttt{(pthread\_t tid, const char *name)}
 \item[$\rightarrow$] can give a name to a thread
@@ -1531,7 +1531,7 @@ individual systems define their own calls.
 \item[$\rightarrow$] like \texttt{timedwait}, however the timeout is relative
 \end{itemize}
 
-\item OpenBSD
+\item OpenBSD, macOS
 \begin{itemize}
 \item \texttt{int} \funnm{pthread\_main\_np}\texttt{(void)}
 \item[$\rightarrow$] find out if calling thread is the main one
