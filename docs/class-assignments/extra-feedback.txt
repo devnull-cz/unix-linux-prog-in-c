@@ -40,7 +40,7 @@ So, do something like the following:
 $ echo hello | wc -l
 (default rule matched) error:1: syntax error near unexpected token '|'
 
-Also, refure redirections unless you already implemented those.  The following
+Also, refuse redirections unless you already implemented those.  The following
 is not correct in the 1st phase:
 
 $ echo hello > out
