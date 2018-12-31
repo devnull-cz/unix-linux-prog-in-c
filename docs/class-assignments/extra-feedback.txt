@@ -1,0 +1,42 @@
+Additional notes on the lab assignment based on existing implementations.
+
+Last updated: Dec 31, 2018.
+
+--------------------------------------------------------------------------------
+Refuse special characters that you do not implement yet.  For example, if you do
+not implement pipes (as in the 1st phase), refuse it.  It cannot work like this:
+
+$ date | cat | sort | wc -l
+Mon Dec 31 13:06:56 CET 2018
+
+$ echo hello | wc -l
+hello
+
+If you did accept '|' as a normal character, it should have worked like this:
+
+$ echo hello | wc -l
+hello | wc -l
+
+However, please do something like this:
+
+$ echo hello | wc -l
+(default rule matched) error:1: syntax error near unexpected token '|'
+
+--------------------------------------------------------------------------------
+Please do implement command line history.  In case of readline, it's really just
+calling one function, like this, for example:
+
+if ((input = readline(prompt) ...
+	...
+
+if (strcmp(input, "") != 0)
+	add_history(input);
+
+--------------------------------------------------------------------------------
+You need to accept full path as well as using the $PATH.
+
+$ ls
+<output here>
+
+$ /bin/ls
+<output here>
