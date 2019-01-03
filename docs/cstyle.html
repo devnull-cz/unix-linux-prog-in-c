@@ -32,17 +32,22 @@ code files</font>
 will be judged by other people by the way your source code looks.
 Always try to write beautiful code.
 
-</p><p>There are a few possible good C styles.  We recommend one that is
-well documented and comes with a Perl script for checking.  The script
-does not catch everything but is pretty good.
+</p><p>There are a few possible good C styles.  We recommend one that is well
+documented and comes with a Perl script for checking.  The script does not catch
+everything but is good enough.  However, in order to use it propertly, <b>you
+need to start with following the C style after reading the document below, then
+check the resulting code with the script.</b>  It will not work well if you
+start with non-conforming code and keep fixing the warnings until the script no
+longer reports anything.  In that case, the resulting code may still be pretty
+bad style-wise.
 
 </p><p>The <b>recommended C style is used for the Oracle Solaris operating
-system source code</b> and is explained in a short (~20 pages) nicely
-formatted document: <a href="http://mff.devnull.cz/cstyle/cstyle.ms.pdf">C Style and Coding
-Standards for SunOS</a>.
+system source code</b> and is explained in a short (~20 pages) nicely formatted
+document: <a href="http://mff.devnull.cz/cstyle/cstyle.ms.pdf">C Style and
+Coding Standards for SunOS</a>.
 
-</p><p>The <a href="http://mff.devnull.cz/cstyle/cstyle.pl">cstyle.pl</a> for verification is provided,
-and it works like this:
+</p><p>The <a href="http://mff.devnull.cz/cstyle/cstyle.pl">cstyle.pl</a> for
+verification is provided, and it works like this:
 
 </p><pre>$ chmod u+x cstyle.pl
 $ ./cstyle.pl src/exams/parallel-udp/*.c
