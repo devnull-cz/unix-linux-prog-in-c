@@ -1,6 +1,26 @@
 Additional notes on the lab assignment based on existing implementations.
 
-Last updated: Dec 31, 2018.
+--------------------------------------------------------------------------------
+Split the program into (potentially many) .c files. For example one for command
+line parsing, another for utility functions, one for execution/pipe handling,
+etc. etc.
+
+The program becomes better structured with a room for expansion/growth.
+
+--------------------------------------------------------------------------------
+Do not blindly accept potentially unlimited user input. It probably does not
+make sense for command line to be millions of characters long.
+
+--------------------------------------------------------------------------------
+Check return values of any call that can fail.
+
+Yes, malloc() can fail too.
+
+--------------------------------------------------------------------------------
+The shell should not assume it is being run from another shell.
+
+E.g. relying on getenv("PWD") to return non-NULL is futile - your little
+shell could be login shell !
 
 --------------------------------------------------------------------------------
 We really require you to use a consistent C style.
