@@ -12,7 +12,7 @@ Do not blindly accept potentially unlimited user input. It probably does not
 make sense for command line to be millions of characters long.
 
 --------------------------------------------------------------------------------
-Check return values of any call that can fail.
+Check return values (and react on them !) of any call that can fail.
 
 Yes, malloc() can fail too.
 
