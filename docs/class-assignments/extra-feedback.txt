@@ -12,9 +12,13 @@ Do not blindly accept potentially unlimited user input. It probably does not
 make sense for command line to be millions of characters long.
 
 --------------------------------------------------------------------------------
-Check return values (and react on them !) of any call that can fail.
+Check return values of any call that can fail.
 
 Yes, malloc() can fail too.
+
+Reacting on failures needs to be sensitive, though. Exiting the shell
+when malloc() fails is safe thing to do. On the other hand, failing to read a
+file in interactive mode should not tear down the shell.
 
 --------------------------------------------------------------------------------
 The shell should not assume it is being run from another shell.
