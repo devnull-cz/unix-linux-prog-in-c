@@ -191,10 +191,10 @@ the situation of readers -- it is still possible to read while writing.
 to be unlocked.
 \item reader process locks the file for reading. Writers have to wait
 for the lock, other readers can also lock the file for reading and read data.
-\item in each moment there can be at most active lock for writing or multiple
-locks for reading. Both locks cannot be locked simultaneously.
+\item in each moment there can be at most one active lock for writing or
+multiple locks for reading. Both locks cannot be locked simultaneously.
 \item for efficiency each process should hold the lock for shortest time
-possible and if possible do not lock the whole file -- only the section that 
+possible and if possible do not lock the whole file -- only the section that
 is being worked with. Passive waiting is preferred, active waiting is
 suitable for very short time.
 \end{itemize}

@@ -333,7 +333,7 @@ Hard links can be created within one (logical) file system.
 
 \begin{itemize}
 \item what is ``normally'' visible in directory listings are hard links.
-W.r.t. files there are \emsl{only} hardlink a symlinks.
+W.r.t. files there are \emsl{only} hardlink and symlinks.
 
 \begin{description}
 \item[hardlink]~
@@ -445,7 +445,7 @@ file system is necessary.
 
 \begin{itemize}
 \item The \emph{FFS} file system introduced in 4.2BSD was historically the
-second unix file system. Some manufacturers of unix system started to prefer its
+second unix file system. Some manufacturers of unix system started to prefer it
 considering its better performance and new features, others remained with
 ifdef([[[NOSPELLCHECK]]], [[[\emph{s5fs}]]]) from compatibility reasons. This
 deepened the problem with already insufficient interoperability between
@@ -476,8 +476,8 @@ file system. \emsl{This set of functions define vnode interface.} When e.g.
 depending on file system type (e.g. from the ifdef([[[NOSPELLCHECK]]],
 [[[\emph{ext2fs}]]]) module).
 Implementation dependent part of vnode structure is accessible only from
-functions of given file system; for kernel it is opaque. Next slide will shown
-another set of functions that works with file systems themselves.
+functions of given file system; for kernel it is opaque. See next slide
+for functions that operate on file system level.
 \emsl{This set defines VFS interface.}
 These \emsl{two sets together} constitute the vnode/VFS interface, generally
 referred to as VFS.
@@ -570,7 +570,7 @@ hence a vnode is allocated for that.
 \item If a filesystem is not correctly unmounted before the system is halted,
 the data can be inconsistent.
 \item The \texttt{fsck} command is used to check and correct file system.
-It tests progressively tests possible inconsistencies:
+It progressively tests possible inconsistencies:
     \begin{itemize}
     \setlength{\itemsep}{0ex}
     \item multiple references to the same block

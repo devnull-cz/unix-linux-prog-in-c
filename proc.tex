@@ -448,10 +448,10 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \item returns the PGID of the calling process
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
-\texttt{pid\_t \funnm{getppid}(void);} 
+\texttt{pid\_t \funnm{getppid}(void);}
 ]]])
 \begin{itemize}
-\item returns the process ID of the calling process.
+\item returns the process ID of the parent process.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{pid\_t \funnm{getsid}(pid\_t \emph{pid});}
@@ -466,7 +466,8 @@ process)
 \item[process groups] make it possible to send signals to group of processes
 at once
 \item[session] is a collection of processes created for (\emph{job control}).
-The processes of the session shared one \emph{controlling terminal}.
+
+The processes of the session share one \emph{controlling terminal}.
 Session includes one or more process groups. Maximum one group in the session
 runs in foreground (\emph{foreground process group}) and has access to the
 controlling terminal for input and output, the rest is running in the background
@@ -998,7 +999,7 @@ for all processes it directly created to finish.
 calls
 \begin{itemize}
 \item pros: processes cannot corrupt address space of one another
-\item const: significant syscall overhead (typically \funnm{read},
+\item cons: significant syscall overhead (typically \funnm{read},
 \funnm{write})
 \end{itemize}
 \item \emph{shared memory} means to map a part of memory into an address space
@@ -1152,7 +1153,7 @@ int \emph{flags});}
     \item \texttt{MS\_ASYNC} \dots{} asynchronous write
     \item \texttt{MS\_SYNC} \dots{} synchronous write
     \item \texttt{MS\_INVALIDATE} \dots{} destroy mapped data,
-    that are differ from file contents
+    different to file contents
     \end{itemize}
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -1284,10 +1285,11 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     \item \texttt{RTLD\_GLOBAL} \dots{} symbols defined by the shared object
     will be  made available for symbol resolution of subsequently loaded
     objects.  That is the default for objects mapped when executing a program.
-    For \funnm{dlopen}, the default is \texttt{RTLD\_LOCAL}.  It means you can
-    map the same library multiple time via \funnm{dlopen} and the symbols in the
-    mapped instances of the same library will not overlap.  However, all
-    globally mapped symbols from there are shared, e.g. \texttt{errno}.
+    For \funnm{dlopen}, the default is \texttt{RTLD\_LOCAL}.  It means
+    the same library can be mapped multiple times via \funnm{dlopen} and the
+    symbols in the mapped instances of the same library will not overlap.
+    However, all globally mapped symbols from there are shared, e.g.
+    \texttt{errno}.
     \end{itemize}
 \item \label{RTLD_NEXT} Special handle \texttt{RTLD\_NEXT} searches the symbol
 only in libraries loaded after the library that called \funnm{dlsym}.  Handy for

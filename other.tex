@@ -22,9 +22,8 @@ when critically low on memory.
 read-only memory will result in the \texttt{SIGSEGV} signal to be delivered.
 \item[swap:] swap area is created on separate disk partition, since
 SVR4 it can be also in a file.
-\item[swapper:] the \texttt{swapper} process tries to saved a process that is
-not into memory to disk and use the free space for process that was swapped out
-earlier.
+\item[swapper:] the \texttt{swapper} process tries to save a process
+to disk and use the free space for a process that was swapped out earlier.
 \item[demand paging:] when a process requests a memory only the page is
 modified. The first instruction addressing the page contents will result in an
 exception. The kernel will handle it by allocating a page.
