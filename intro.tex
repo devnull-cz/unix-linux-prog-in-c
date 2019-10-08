@@ -16,8 +16,8 @@ include(`macros.m4')
 % \accent23o{u} - krouzek nad u samozrejme
 
 \vspace{2ex}
-{\small (c) 2011 -- 2018 Vladim\'{i}r Kotal}\\
-{\small (c) 2005 -- 2011, 2016 -- 2018 Jan Pechanec}\\
+{\small (c) 2011 -- 2019 Vladim\'{i}r Kotal}\\
+{\small (c) 2005 -- 2011, 2016 -- 2019 Jan Pechanec}\\
 {\small (c) 1999 -- 2004 Martin Beran}
 
 \vspace{2ex}
@@ -1128,6 +1128,7 @@ Makefile01}''.
 \item \makebox[4cm][l]{line continuation:}
 \texttt{\emph{line-begin}}\verb#\#\\
 \makebox[4cm][l]{~} \texttt{\emph{line-continuation}}
+
 \end{itemize}
 \end{slide}
 
@@ -1177,6 +1178,8 @@ test2:
         -false
         echo "OK"
 \end{verbatim}
+\item You can start building from a specific target: \texttt{make <target>}.  If
+there is no target argument, the first target in the makefile is assumed.
 \end{itemize}
 
 %%%%%
@@ -1201,7 +1204,9 @@ test2:
 
 \begin{itemize}
 \item If a macro is defined multiple times, the last definition rules, you can
-see an example in \example{basic-utils/Makefile03}.
+see an example in \example{basic-utils/Makefile03}.  The definition on the
+command line goes after any definition in the Makefile.  Try \texttt{make -f
+Makefile03 D=4}.
 \item You cannot define a macro recursively, see
 \example{basic-utils/Makefile05}:
 
