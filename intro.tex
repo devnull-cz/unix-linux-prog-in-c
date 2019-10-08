@@ -666,7 +666,7 @@ SUSv4
 \begin{itemize}
 \item The standard C language compiler is \texttt{c99}, required by the
 specification.  Be careful as the default mode for \texttt{gcc} does not
-conform to any of the ANSI/ISO C standards.  You need to check the manual page
+conform to any of the ISO C standards.  You need to check the manual page
 for your version, look for the option \texttt{-std=} to see what is the default.
 For example, for version 4.2.1, the default is \texttt{-std=gnu89}, for version
 7.2, it is \texttt{-std=gnu11}.
@@ -1725,7 +1725,7 @@ Program terminated with signal 10, Bus error.
 \pdfbookmark[1]{standard header files}{stdhdrs}
 
 \begin{slide}
-\sltitle{Standard header files (ANSI~C)}
+\sltitle{Standard header files (ISO~C)}
 \renewcommand{\arraystretch}{1}
 \begin{tabular}{l@{\hspace{3ex}\dots\hspace{3ex}}l}
 \texttt{stdlib.h} & basic macros and functions\\
@@ -1748,9 +1748,9 @@ Program terminated with signal 10, Bus error.
 (\emph{forward declaration}) of functions, variables and macro definitions.
 From the preprocessor's point of view, this is a simple file in the C language.
 \item \emsl{These header files are not specific to UNIX. They are part of
-the ANSI~C standard, that is included in POSIX.1 (page \pageref{C_LANGUAGE})
-It is important to realize that every system that supports
-ANSI~C has to have these files, regardless of whether it supports POSIX.1.}
+the ISO~C standard, that is included in POSIX.1 (page \pageref{C_LANGUAGE})
+It is important to realize that every system that supports ISO~C has to have
+these files, regardless of whether it supports POSIX.1.}
 \item The appropriate header file for given function can be looked up using the
 function's man page, e.g. this is the beginning of \texttt{memcpy} man page
 on Solaris:
