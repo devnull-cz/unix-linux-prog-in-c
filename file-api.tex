@@ -518,8 +518,9 @@ Note that just changing the file position will not increase the file size.
 position from the beginning of a file, setting the position to the end of a
 file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
 \item There is no I/O involved when calling \texttt{lseek}.
-\item You can obviously use \texttt{lseek} not only for subsequent calls to
-\texttt{read} and \texttt{write} but also for another call to \texttt{lseek}.
+\item You can obviously use the return value of \texttt{lseek} not only for
+subsequent calls to \texttt{read} and \texttt{write} but also for another call
+to \texttt{lseek}.
 \item \label{BIG_FILE} Beware of files with holes as it may lead to problems
 with backing up the data.  Example: \example{read/big-file.c} demonstrates that
 moving a sparse file may end up in an actual storage data occupation increase.
