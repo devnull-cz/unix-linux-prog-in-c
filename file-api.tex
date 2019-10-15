@@ -1001,8 +1001,8 @@ directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
 \texttt{read} call.  In that case, of course, you need to know the internal
 representation of the directory data so the use of this is questionable.  Linux
 does not allow it at all.
-\item \texttt{d\_ino} might not be very useful as if the directory is a
-mountpoint, this member contains the i-node number of the directory where the
+\item \texttt{d\_ino} might not be very useful if the directory is a
+mountpoint; this member contains the i-node number of the directory where the
 filesystem is mounted and not the root of the mounted filesystem as one might
 expect.
 \item \label{D_TYPE} Some system have a \texttt{struct dirent} member
