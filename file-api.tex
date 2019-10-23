@@ -1032,12 +1032,13 @@ main(int argc, char *argv[])
     struct dirent *de;
 
     for (int i = 1; i < argc; i++) \{
-        d = \emprg{opendir}(argv[i]);
-        while (de = \emprg{readdir}(d))
+        if ((d = \emprg{opendir}(argv[i])) == NULL) \{
+                warn("%s", argv[i]); continue;
+        \}
+        while ((de = \emprg{readdir}(d)) != NULL)
             printf("%s\bs{}n", de->d_name);
         \emprg{closedir}(d);
     \}
-    return (0);
 \}
 \end{alltt}
 \end{slide}
