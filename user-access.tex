@@ -253,7 +253,7 @@ as read-only the shell will deduce that you probably do not want to delete such
 a file.  See the example below.  \emsl{Unix systems do not have delete-like
 operation for a file}, the file is deleted automatically once it is no longer
 referenced from a directory structure and the file is not presently open by any
-process.
+process (see \example{unlink/unlink.c}).
 
 \begin{verbatim}
 $ whoami
@@ -263,9 +263,9 @@ drwx------   2 janp  staff  512 Mar 23 12:12 janp-dir/
 $ ls -l janp-dir
 total 0
 -rw-r--r--   1 root  root     0 Mar 23 12:11 root_wuz_here.txt
-$ rm janp-dir/root_wuz_here.txt 
+$ rm janp-dir/root_wuz_here.txt
 rm: janp-dir/root_wuz_here.txt: override protection 644 (yes/no)? yes
-$ ls janp-dir/root_wuz_here.txt 
+$ ls janp-dir/root_wuz_here.txt
 janp-dir/root_wuz_here.txt: No such file or directory
 \end{verbatim}
 
