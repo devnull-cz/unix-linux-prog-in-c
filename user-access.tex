@@ -343,10 +343,10 @@ supplementary GIDs}
 \item \label{SUID_BIT} The SUID and SGID bits are used for programs that need
 bigger privileges than the user who executes them. One example is the
 \texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
-\texttt{/etc/shadow}, where the ordinary user cannot modify the first and
-cannot write into the the second. Another example is the \texttt{su} program,
-which has to have the right to arbitrarily change user and group identity,
-which is a privilege of programs running with UID~0.
+\texttt{/etc/shadow}, where the ordinary (i.e. non root) user process cannot
+modify the first and cannot write into the the second. Another example is the
+\texttt{su} program, which has to have the right to arbitrarily change user and
+group identity, which is a privilege of programs running with UID~0.
 \item Programs using the SUID and SGID bits should be carefully programmed
 to allow only the operations for which they were designed and prevent misuse
 of their privileges for non-authorized actions (root shell execution).
@@ -357,8 +357,8 @@ them} if it is not absolutely necessary.  It is not easy to produce a correct
 (i.e. secure) SUID/SGID program, especially of higher complexity.
 \item \emsl{These are the rules for ID change:}
 \begin{itemize}
-\item an ordinary user cannot change its RUID or saved UID (the \texttt{exec} is
-an exception to that, see page \pageref{EXEC})
+\item an ordinary user process cannot change its RUID or saved UID (the
+\texttt{exec} is an exception to that, see page \pageref{EXEC})
 \item the process can always change its EUID to that of the RUID or saved UID.
 This guarantees that in a SUID program, it is possible to arbitrarily change the EUID
 between the one that enabled the process to gain ownership rights and the
@@ -370,7 +370,7 @@ either can be used to set the EUID.
 \end{itemize}
 
 %%%%%
- 
+
 ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getuid, getgid, geteuid, getegid, getgroups}{getuid}
 ]]])
