@@ -78,7 +78,7 @@ systems, see below)
 for a given user (possibly because all users can write), the user can create any
 file that does not exist in that directory yet.  However, if the file exists but
 is not owned by the user, he/she can not remove nor rename it even if
-he/she can write the directory.  The sticky bit is denoted by ``t'' and is
+he/she can write to the directory.  The sticky bit is denoted by ``t'' and is
 typically used for temporary directories:
 
 \begin{verbatim}
@@ -90,7 +90,8 @@ drwxrwxrwt 9 root root 356352 Jan 27 22:37 /tmp/
 directories created in this directory will have the same owner as the directory
 itself.  The filesystem must be mounted with an \texttt{suiddir} flag and
 the kernel may need an additional non-default option \texttt{SUIDDIR}.  It also
-does not work for the root user.  This functionality is there to support Samba.
+does not work for the root user.  This functionality is there to support the
+Samba protocol.
 \item Originally, the sticky bit had a meaning for regular files as well but
 that is not used anymore.
 \item Some filesystems (XFS, AFS, UFS2, ZFS, and others) also support
