@@ -57,7 +57,7 @@ addresses.  Each process has 2 stacks -- one for a user mode and another for
 kernel mode.  The user stack automatically grows according to its use (except
 for threads where each thread has its own limited stack).
 \item \emph{User area (u-area)} \dots{} contains process information used by
-the kernel which are not needed when the process is swapped out to disk
+the kernel which is not needed when the process is swapped out to disk
 (number of open files, signal handling settings, number of shared memory segments,
 program arguments, environment variables, current working directory, etc.).
 This area is accessible only to the kernel which will see just the area 
