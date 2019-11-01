@@ -389,7 +389,7 @@ following invocations are equivalent:
 	mysh$ cat >output /etc/passwd
 
 The same stands for all other redirections.  For example, the following
-comand lines are also equivalent:
+command lines are also equivalent:
 
 	mysh$ >output cat <input
 	mysh$ cat >output <input
