@@ -391,6 +391,7 @@ following invocations are equivalent:
 The same stands for all other redirections.  For example, the following
 command lines are also equivalent:
 
+	mysh$ cat <input >output
 	mysh$ >output cat <input
 	mysh$ cat >output <input
 	mysh$ <input >output cat
