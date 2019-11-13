@@ -5,8 +5,8 @@ before_install:
   texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended texlive-pstricks
   aspell aspell-en
 script:
-- make
-- make
+- make slides notes
+- make slides notes
 - make spellcheck
 deploy:
   provider: releases
