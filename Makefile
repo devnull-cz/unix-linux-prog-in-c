@@ -41,7 +41,7 @@ TEX=		common.tex \
 SLIDES=		$(TEX) ${SLIDE}
 NOTES=		$(TEX) ${NOTE}
 
-all:		slides notes
+all:		slides notes spellcheck
 
 slides:		$(SLIDES)
 		@for i in ${SLIDES}; do \
