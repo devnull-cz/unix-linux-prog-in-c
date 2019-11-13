@@ -968,7 +968,8 @@ place of expected \texttt{1}.  You might also need to check if \verb#pd[1] == 1#
 (i.e. standard output was closed before calling \funnm{pipe}) as in that case we
 could actually close one end of the pipe.  Similarly, in the consumer you might
 need to check if \verb#pd[0] == 0#.
-\item It is better to create a pipe from a child to its parent as typically the
+\item With regards to data flow, it is better to create a pipe from a child
+to its parent as typically the
 process writing the pipe finishes first, then the consumer reads the rest of the
 data, processes it, and then finally exits.  In general, the shell waits for the
 program it started, i.e. the parent, and it does not care at all about children
