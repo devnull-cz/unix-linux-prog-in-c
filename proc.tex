@@ -1079,7 +1079,10 @@ to the storage, i.e. the file. That is, if the \texttt{MAP\_SHARED} is used
 via \texttt{open}. The access mode in \texttt{prot} cannot be ``higher'' than
 specified in the mode for \texttt{open}.
 \item The use of \texttt{MAP\_FIXED} is not recommended, since it hampers
-portability of the code.
+portability of the code. Also, it removes any existing mappings at that
+address. Further, it does not work well with ASLR (Address Space Layout
+Randomization) which is frequently used in current Unix systems for dynamically
+linked programs.
 \item \textbf{warning:} w.r.t. \texttt{MAP\_SHARED} -- if the file is truncated
 by another process so that the truncation affects the mapped part, the access
 to such area results in the \texttt{SIGBUS} resp. \texttt{SIGSEGV} or signal
