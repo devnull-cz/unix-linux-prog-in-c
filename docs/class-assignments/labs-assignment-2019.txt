@@ -188,7 +188,7 @@ you start your shell from.
 - Implement an internal "cd" command.  It works in three modes:
 
 	- "cd" goes to $HOME
-	- "cd -" goes to previous directory
+	- "cd -" goes to previous directory after it prints the target
 	- "cd <dir>" goes to "<dir>"
 
   The internal cd must set the PWD and OLDPWD environment variables
@@ -202,12 +202,14 @@ you start your shell from.
 	mysh$ pwd
 	/home/jpechane
 	mysh$ cd -
+	/data/maish
 	mysh$ pwd
 	/data/maish
 	mysh$ cd /tmp
 	mysh$ pwd
 	/tmp
 	mysh$ cd -
+	/data/maish
 	mysh$ pwd
 	/data/maish
 
