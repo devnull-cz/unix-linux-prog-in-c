@@ -637,6 +637,8 @@ identified by the returned handle -- and thus use less resources.  See
 \item Example on POSIX semaphores (it is a fixed version of the previous example
 \example{race/race.c} from page \pageref{RACE_C}):
 \example{race/posix-sem-fixed-race.c}.
+\item To list POSIX semaphores system wide on Linux, list the contents of
+\texttt{/dev/shm} pseudo file system (if mounted).
 \end{itemize}
 
 %%%%%
