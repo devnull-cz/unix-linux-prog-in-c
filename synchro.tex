@@ -312,7 +312,7 @@ This can be solved e.g. so that the process that acquired the lock can open
 named pipe for writing. Reader processes will enter sleep by reading from the
 pipe.
 The \texttt{unlock()} will close the pipe and so the waiting processes will
-be unblocked.
+be unblocked. See \example{pipe/countdown.c} for example with one reader.
 \item Lock files are usually used for situations where multiple instances of
 the same program are unwanted.
 \end{itemize}
