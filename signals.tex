@@ -330,6 +330,9 @@ terminal but multiple processes can write to it at the same time.
 \item Stopping a process group from a terminal, usually via \texttt{Ctrl-Z}, is
 done with signal \texttt{SIGTSTP}, not \texttt{SIGSTOP}; a program thus can
 catch the signal. \label{SIGTSTP}
+\item the \texttt{SIGCHLD} signal is always received by the parent
+(no matter if \texttt{wait()} or \texttt{waitpid()} is used) unless
+explicitly ignored. See \example{signals/sigchld.c}
 \end{itemize}
 
 %%%%%
