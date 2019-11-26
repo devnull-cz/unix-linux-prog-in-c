@@ -62,9 +62,14 @@ one might think).
 For getting the input line, we recommend the "readline" library, see
 "man readline".  You should find it on any Linux, *BSD, MacOS, or
 Solaris machine.  By using readline, you get line editing, history,
-completion, etc. for free.  Another alternative is libtecla.  There is
-also BSD libedit (https://man.openbsd.org/OpenBSD-6.0/el_init.3) but I
-have never used it so I cannot really recommend it.
+completion, etc. for free.  However, note that as readline is GPL (not
+LGPL), just by linking your shell to it requires the entire combined
+resulting application to be licensed under the GPL when distributed, to
+comply with section 5 of the GPL.  If you ever plan to use your shell
+code somewhere else, you need to keep that in mind.
+
+If you do not want to do that, another alternative is libtecla.  There
+is also BSD libedit (https://man.openbsd.org/OpenBSD-6.0/el_init.3).
 
 For tokenizing and parsing the command line, we suggest you to use
 GNU flex(1) and bison(1).  They are easy to use and you should also find
