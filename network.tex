@@ -1034,8 +1034,9 @@ given input.
 server or client; e.g. for a server it is sufficient to specify \emph{nodename}
 as \texttt{NULL} (meaning any address).  Similarly for the member
 \texttt{ai\_flags} of the \texttt{addrinfo} structure used for the \emph{hint}
-parameter -- for a server, use \texttt{AI\_PASSIVE} to indicate the returned
-address structures will be used in \funnm{bind}.
+parameter -- for a server, use \texttt{AI\_PASSIVE} to specify how the address
+should be formed in case hostname is \texttt{NULL}.
+See \example{resolving/passive.c}.
 \item After the results are no longer needed, it is prudent to call
 \texttt{freeaddrinfo}, that will free the memory allocated by
 \texttt{getaddrinfo}.
