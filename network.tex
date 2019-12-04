@@ -951,7 +951,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ]]])
 \begin{itemize}
 \item returns protocol number in \texttt{p\_proto} with \emph{name}
-(e.g. for \texttt{"tcp"} returns 6). 
+(e.g. for \texttt{"tcp"} returns 6).
 \item protocol numbers are stored in the \texttt{/etc/protocols} file.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
@@ -975,7 +975,9 @@ the result of \funnm{getservbyname} is for \texttt{bind}.
 that finds service entry according to port number (in network byte order !)
 and function \texttt{getservent} and others. for entry traversal.
 \item All these functions search only "official" lists of services and
-protocols, which are located in the files mentioned on the slide.
+protocols, which are located in the relevant naming databases (see slide on
+page \pageref{name_service_switch}). Note that the slide mentions the files for
+simplification.
 \item These files define the mapping for names and numbers for standard
 protocols and services.
 \item Keep in mind that protocol is the upper layer protocol as specified in
