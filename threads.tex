@@ -196,8 +196,8 @@ if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
 \item \label{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
 same with POSIX threads as each thread has its own \texttt{errno}.  In that
 case, it is redefined using a function (which can either return the value or an
-address which is dereferenced).  Check \texttt{/usr/include/bits/errno.h} on
-Linux if interested.
+address which is dereferenced).  Check \texttt{/usr/include/errno.h} on Linux if
+interested.
 \end{itemize}
 
 %%%%%
