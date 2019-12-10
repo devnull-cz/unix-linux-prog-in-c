@@ -104,7 +104,8 @@ more threads in the process.  So the threading library is written the way that
 non-blocking calls are used, the thread context is saved after that and the
 library switches to another thread via \funnm{setjmp}() and \funnm{longjmp}()
 system calls.  Example: \example{pthreads/setjmp.c}.  Another way is to use a
-non-standard system call \funnm{swapcontext}() if the system provides it.
+non-standard API for user context manipulation, see \texttt{ucontext.h}, if the
+system provides it.  Both Linux and macOS support it.
 \item To implement a 1:N library, there are several things for consideration:
 \begin{itemize}
 \item how to deal with threads trying to install \texttt{SIGALRM} handler
