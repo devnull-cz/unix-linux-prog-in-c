@@ -895,9 +895,8 @@ return error
 \label{MUTEXES2}
 
 \begin{itemize}
-\item Locking a mutex that is being held by another thread is not correct.
-Sometimes a (self)deadlock can ensue, see the previous page. If you need to
-unlock a mutex locked by a different thread, use binary semaphores instead.
+\item If you need to unlock a mutex locked by a different thread, use binary
+semaphores instead.
 \item When creating a program where efficiency is paramount, it is necessary to
 think about how many mutexes will be needed and how exactly they will be used.
 Even a library that was not written with threads in mind can be converted to be
