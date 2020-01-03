@@ -1359,7 +1359,8 @@ because like was shown on page \pageref{CONDITION_VARIABLES} after waking
 up from \texttt{pthread\_cond\_wait} the threads need to test that the counter
 is indeed 0 and if not they need to be put to sleep again. So it can happen
 that only some (or none) of the threads would wake up.
-How would you solve this problem ?
+How would you solve this problem ? See \example{pthreads/implement-barrier.c}
+and \example{pthreads/implement-barrier-fixed.c} for solution.
 \end{itemize}
 
 
