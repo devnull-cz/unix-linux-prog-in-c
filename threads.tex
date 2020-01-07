@@ -1551,8 +1551,7 @@ fix it anymore.
 try running \texttt{apropos \_np}, or using brute-force (use the location
 of man pages on given system):
 \begin{verbatim}
-$ cd /usr/share/man
-$ find . -name '*_np\.*'
+$ find /usr/share/man/ -type f -name '*_np\.*'
 ./man3c/mq_reltimedreceive_np.3c
 ./man3c/mq_reltimedsend_np.3c
 ./man3c/posix_spawnattr_getsigignore_np.3c
