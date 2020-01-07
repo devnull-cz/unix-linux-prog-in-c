@@ -1227,9 +1227,9 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item \emph{Interesting property}: if a thread waiting on a lock receives
-a signal, the signal handler will be invoked and then it will transparently
-continue waiting, i.e. there will be no error \texttt{EINTR}.
+\item \emph{Interesting property}: if a thread waiting on a read-write lock
+receives a signal, the signal handler will be invoked and then it will
+transparently continue waiting, i.e. there will be no error \texttt{EINTR}.
 The same is true for mutexes and condition variables.
 \end{itemize}
 
