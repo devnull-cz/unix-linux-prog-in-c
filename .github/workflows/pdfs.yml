@@ -3,13 +3,6 @@ on:
   push:
     branches:
     - master
-    paths:
-    - '**.tex'
-    - '**.m4'
-    - '**.sty'
-    - Makefile
-    - .github/workflows/pdfs.yml
-    - 'img/**'
     tags:
     - 'v*'
 jobs:
