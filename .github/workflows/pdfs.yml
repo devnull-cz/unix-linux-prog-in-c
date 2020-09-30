@@ -16,6 +16,7 @@ jobs:
       with:
         path: master
     - name: Install pre-requisites for LaTeX
+      working-directory: master
       run: ./dev/install-latex.sh
     - name: Compile first phase
       working-directory: master
