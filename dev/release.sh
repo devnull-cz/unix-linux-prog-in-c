@@ -19,8 +19,8 @@ fi
 
 VERSION=$1
 
-if ! echo "$VERSION" | grep '^[0-9]\+\.[0-9]\+\.[0-9]\+$' >/dev/null; then
-	echo "version needs to be in the form of <num>.<num>.<num>"
+if ! echo "$VERSION" | grep '^v[0-9]\+$' >/dev/null; then
+	echo "version needs to be 'v<number>'"
 	exit 1
 fi
 
