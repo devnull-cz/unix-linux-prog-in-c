@@ -18,9 +18,16 @@ jobs:
       run: sudo apt-get -qq update
     - name: Install pre-requisites for LaTeX
       run: sudo apt-get install -y --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended texlive-pstricks aspell aspell-en
+    - name: Checkout master branch
+      uses: actions/checkout@v2
+      with:
+        path: master
     - name: Run spellcheck
+      working-directory: master
       run: make spellcheck
     - name: Compile first phase
+      working-directory: master
       run: make slides notes
     - name: Compile second phase to get table of contents
+      working-directory: master
       run: make slides notes
