@@ -4,12 +4,12 @@ on:
     branches:
     - master
     paths:
-    - *.tex
-    - *.m4
-    - *.sty
+    - '**.tex'
+    - '**.m4'
+    - '**.sty'
     - Makefile
     - .github/workflows/pdfs.yml
-    - img/**
+    - 'img/**'
 jobs:
   build:
     runs-on: ubuntu-latest
