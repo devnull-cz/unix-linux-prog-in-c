@@ -1,4 +1,4 @@
-name: Compile sanity check
+name: Create release with PDFs
 on:
   push:
     branches:
@@ -8,8 +8,10 @@ on:
     - '**.m4'
     - '**.sty'
     - Makefile
-    - .github/workflows/compile.yml
+    - .github/workflows/pdfs.yml
     - 'img/**'
+    tags:
+    - 'v*'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,15 +20,13 @@ jobs:
       run: sudo apt-get -qq update
     - name: Install pre-requisites for LaTeX
       run: ./dev/install-latex.sh
-    - name: Install pre-requisites for spell check
-      run: ./dev/install-spellcheck.sh
     - name: Checkout master branch
       uses: actions/checkout@v2
       with:
         path: master
-    - name: Run spellcheck
+    - name: Compile first phase
       working-directory: master
-      run: make spellcheck
-    - name: Compile
+      run: make slides notes
+    - name: Compile second phase to get table of contents
       working-directory: master
       run: make slides notes
