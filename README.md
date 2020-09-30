@@ -13,10 +13,5 @@ The class home page is https://devnull-cz.github.io/unix-linux-prog-in-c/
 ## Trigger new release
 
 ```
-# get the latest tag
-$ git tag | sed 's/^v//' | sort -n | tail -1
-# create new tag
-$ git tag v<XYZ>
-# push it to the repo
-$ git push origin v<XYZ>
+./dev/release.sh v<XYZ>
 ```
