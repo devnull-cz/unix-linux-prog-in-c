@@ -16,14 +16,14 @@ jobs:
     steps:
     - name: Update the system
       run: sudo apt-get -qq update
-    - name: Install pre-requisites for LaTeX
-      run: ./dev/install-latex.sh
-    - name: Install pre-requisites for spell check
-      run: ./dev/install-spellcheck.sh
     - name: Checkout master branch
       uses: actions/checkout@v2
       with:
         path: master
+    - name: Install pre-requisites for LaTeX
+      run: ./dev/install-latex.sh
+    - name: Install pre-requisites for spell check
+      run: ./dev/install-spellcheck.sh
     - name: Run spellcheck
       working-directory: master
       run: make spellcheck
