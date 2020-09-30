@@ -1,4 +1,4 @@
-name: Compile
+name: Compile sanity check
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
     - '**.m4'
     - '**.sty'
     - Makefile
-    - .github/workflows/pdfs.yml
+    - .github/workflows/compile.yml
     - 'img/**'
 jobs:
   build:
@@ -17,7 +17,9 @@ jobs:
     - name: Update the system
       run: sudo apt-get -qq update
     - name: Install pre-requisites for LaTeX
-      run: sudo apt-get install -y --no-install-recommends texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra dvipng texlive-latex-recommended texlive-pstricks aspell aspell-en
+      run: ./dev/install-latex.sh
+    - name: Install pre-requisites for spell check
+      run: ./dev/install-spellcheck.sh
     - name: Checkout master branch
       uses: actions/checkout@v2
       with:
