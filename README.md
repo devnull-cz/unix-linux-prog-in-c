@@ -1,4 +1,4 @@
-[![Github Actions status](https://github.com/devnull-cz/c-prog-lang/workflows/Compile%20sanity%20check/badge.svg)](https://github.com/devnull-cz/c-prog-lang/actions?query=workflow%3A%22Compile+sanity+check%22)
+[![Github Actions status](https://github.com/devnull-cz/unix-linux-prog-in-c/workflows/Compile%20sanity%20check/badge.svg)](https://github.com/devnull-cz/unix-linux-prog-in-c/actions?query=workflow%3A%22Compile+sanity+check%22)
 
 This project contains source code for the material that is used to lecture
 "Unix/Linux Programming in C" (NSWI015) class at the Faculty of Mathematics and
