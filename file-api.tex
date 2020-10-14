@@ -147,7 +147,7 @@ set to \texttt{EAGAIN} in such a case.
 \item One cannot use \texttt{O\_RDONLY | O\_WRONLY} for both reading and writing
 as historically, implementations used 0 for the read-only flag.  The standard
 defines that only one of those three flags may be used.
-\item Is is possible to open and create a file for writing so that writing is
+\item It is possible to open and create a file for writing so that writing is
 disallowed by its mode.  It will work for the initial file opening but any
 subsequent attempts to write will fail.
 \item You need write permission to use \texttt{O\_TRUNC}.
