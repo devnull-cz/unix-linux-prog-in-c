@@ -858,8 +858,9 @@ ifdef([[[NOSPELLCHECK]]], [[[
 const struct utimbuf *\emph{times});}
 ]]])
 \begin{itemize}
-\item changes file last access and modification times
-\item cannot change i-node access time (\texttt{ctime})
+\item changes file last access (\texttt{atime}) and modification
+(\texttt{mtime}) times
+\item cannot change i-node status change time (\texttt{ctime})
 \item calling process must have write permission for the file
 \end{itemize}
 \end{slide}
@@ -867,9 +868,8 @@ const struct utimbuf *\emph{times});}
 \begin{itemize}
 \item This call is mostly used by copy/move and also archive utilities to make
 sure the times are the same for the originals and copies.  (e.g. \texttt{tar} or
-\texttt{rsync}). 
-\item The shell interface for \texttt{utime} is the command \texttt{touch}.  As
-mentioned in the slide, you cannot change the time of the i-node modification.
+\texttt{rsync}).
+\item The shell interface for \texttt{utime} is the command \texttt{touch}.
 \end{itemize}
 
 %%%%%
