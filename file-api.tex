@@ -866,9 +866,9 @@ const struct utimbuf *\emph{times});}
 \end{slide}
 
 \begin{itemize}
-\item This call is mostly used by copy/move and also archive utilities to make
-sure the times are the same for the originals and copies.  (e.g. \texttt{tar} or
-\texttt{rsync}).
+\item This call is mostly used the by \texttt{cp} and \texttt{mv} commands and
+also archive utilities to make sure the times are the same for the originals and
+copies.  (e.g. \texttt{tar} or \texttt{rsync}).
 \item The shell interface for \texttt{utime} is the command \texttt{touch}.
 \end{itemize}
 
