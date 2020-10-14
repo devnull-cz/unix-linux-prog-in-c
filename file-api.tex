@@ -385,7 +385,7 @@ the notes below this slide.
 \pageref{MKFIFO}.  Using an unnamed pipe is described later on page
 \pageref{PIPE}.
 \item A consumer is a process that opens a file/pipe for reading, a producer
-opens a file/pipe for writing. 
+opens a file/pipe for writing.
 \item It is possible to open a named pipe for reading and writing at the same
 time.  The same process thus can write to the pipe and then read the same data
 from it.
@@ -419,6 +419,7 @@ PIPE
 Another possibility with named pipes:
 
 \begin{verbatim}
+$ mkfifo fifo
 $ while [ 1 ]; do cat /etc/passwd; done >> /tmp/bigpasswd
 ^C
 $ read < fifo &
