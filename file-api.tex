@@ -559,7 +559,7 @@ reads as null bytes
 \end{slide}
 
 \begin{itemize}
-\item Truncating the file when opening it can be achieved via the 
+\item Truncating the file when opening  can be achieved via the
 \texttt{O\_TRUNC} flag in \texttt{open}, see page \pageref{OPEN}.
 \end{itemize}
 
@@ -579,7 +579,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \end{itemize}
 \texttt{int \funnm{dup2}(int \emph{fildes}, int \emph{fildes2});}
 \begin{itemize}
-\item duplicates \texttt{fildes} to \texttt{fildes2}. 
+\item duplicates \texttt{fildes} to \texttt{fildes2}.
 \item almost the same as\\
 \texttt{close(fildes2);\\ fcntl(fildes, F\_DUPFD, fildes2);}
 \end{itemize}
