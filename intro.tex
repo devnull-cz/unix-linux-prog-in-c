@@ -2340,11 +2340,11 @@ instructions, data and service information needed for execution;
 the kernel data structures relevant to that process.
 \item In other words -- the context of a process is its state. When the system
 is executing the process, one says that it runs in the process context.
-The classic kernel handles interrupts in the context of interrupted process.
+The classic kernel handles interrupts in the context of an interrupted process.
 \item The threads were introduced to UNIX later - originally there were just
-processes that from today's perspective had only single thread. The possibility
-of using multiple threads was introduced because it was shown that it is
-beneficial to have multiple lines of execution within the same process on
+processes that from today's perspective had only a single thread. The
+possibility of using multiple threads was introduced because it was shown that
+it is beneficial to have multiple lines of execution within the same process on
 commonly shared data.
 \item The memory areas of processes are isolated between each other, however
 processes can communicate or explicitly share memory.
@@ -2354,7 +2354,7 @@ does not have to support threading at all. Threads have smaller overhead than
 processes.
 \item A system process that is running for the whole time and provides some
 system services (\texttt{inetd}, \texttt{cron}, \texttt{sendmail}\dots) is
-called a \emph{daemon}. BSD system mascot is not a devil but a daemon.
+called a \emph{daemon}. The BSD system mascot is not a devil but a daemon.
 \item As Rob Pike mentioned in one of his lectures, this is a concurrency model
 that can lead to parallelism.
 \end{itemize}
@@ -2365,11 +2365,11 @@ that can lead to parallelism.
 \sltitle{kernel, modes, interrupts/traps (classic UNIX)}
 \begin{itemize}
 \item processes typically run in user mode
-\item a system call will cause a switch to kernel mode
+\item a \emph{system call} will cause a switch to kernel mode
 \item a process has one stack for each mode
 \item the kernel is part of each user process, it is not a standalone process(es)
 \item switching to different process is called \emph{context switching}
-\item interrupt handling is performed in the context of interrupted process
+\item interrupt handling is performed in the context of an interrupted process
 \item the classic kernel is non-preemptive
 \end{itemize}
 \end{slide}
@@ -2387,11 +2387,12 @@ otherwise cause errors in user mode (like state register manipulations).
 a process can only block on its own. Modern Unixes use interrupt threads,
 in their context the drivers \emsl{can} block.
 \item The fact that the classic UNIX kernel is non-preemptive means that
-\emsl{one process cannot block another process}.
+\emsl{one process cannot block another process}.  For more information that is
+outside of this lecture, search for \emph{kernel preemption}.
 \item An interrupt can come while handling another interrupt. If its priority
 is higher, it is accepted by the CPU. The sequence of accepted interrupts is
 saved in an \emph{interrupt context stack}.
-\item \emsl{Modern kernels are very different in terms of interrupt handling,
+\item \emsl{Modern kernels are quite different in terms of interrupt handling,
 kernel preemption, etc.}
 \end{itemize}
 
@@ -2411,11 +2412,11 @@ kernel preemption, etc.}
 
 \begin{itemize}
 \item If a Unix process is required to perform a system task, it will pass the
-control to the kernel using a system call. The kernel is code shared between
-all processes but accessible only to those processes that are running in
-kernel mode. The kernel is therefore not a standalone privileged process,
-it is still running in the context of a process (one that requested a system
-service via a system call or that was running when an interrupt came).
+control to the kernel using a \emph{system call}. The kernel is code shared
+between all processes but accessible only to those processes that are running in
+kernel mode. The kernel is therefore not a standalone privileged process, it is
+still running in the context of a process (one that requested a system service
+via a system call or that was running when an interrupt came).
 \item Inter-process communication in UNIX is achieved using system calls,
 it is therefore handled by the kernel.
 \item There can be system processes called \emph{kernel threads}, that are
@@ -2440,7 +2441,7 @@ that runs above the Mach micro-kernel.
 \begin{slide}
 \sltitle{System calls, functions}
 \begin{itemize}
-\item In UNIX a distinction is made between \emsl{system calls} and \emsl{library
+\item In UNIX a distinction is made between \emph{system calls} and \emph{library
 functions}. This division is maintained in man pages: section \emsl{2} contains
 system call man pages and section \emsl{3} library functions.
     \begin{itemize}
@@ -2461,7 +2462,7 @@ by a library or kernel.
 \item The transition from userland to kernel can be costly; if the program
 executes lot of syscalls, it can have a negative effect on its performance.
 \emsl{A library function can but does not have to perform some system calls,
-however it always does some non-trivial work in user mode.}
+however it commonly does some non-trivial work in user mode.}
 \item It is possible to perform system calls directly in the assembler.
 \item The kernel API is defined w.r.t. function calls of the standard library,
 not w.r.t. interrupt level and data structures used by these functions when
@@ -2493,9 +2494,9 @@ different versions of the same system on the same hardware.
 \texttt{extern int \funnm{errno};}
 \item a successful syscall never changes \texttt{errno}! It is therefore
 necessary to test the return value first and then check \texttt{errno}.
-\item error messages depending on the \texttt{errno} value can be printed with\\
+\item error messages based on \texttt{errno} value can be printed with:\\
 \texttt{void \funnm{perror}(const char *\emph{s});}
-\item textual representation for a given value is returned by\\
+\item textual representation for a given value is returned by:\\
 \texttt{char *\funnm{strerror}(int \emph{errnum});}
 \end{itemize}
 \end{slide}
@@ -2503,20 +2504,25 @@ necessary to test the return value first and then check \texttt{errno}.
 %%%%%
 
 \begin{itemize}
-\item \label{ERRNO} In Solaris, \texttt{errno} is in reality defined in
-\texttt{libc} as a dereferenced pointer to an integer (specific to a userland thread)
-and the value is set right after the instruction for the system call.
-For example, on the i386 architecture the \texttt{errno} value is stored in the
-\texttt{eax} register after the return from the syscall (after the
-\texttt{sysenter} instruction is executed). Before the instruction, the register
-held the system call number. It is therefore the \texttt{libc} library that is
-responsible for the program to see the correct \texttt{errno} value.
+\item Many \texttt{libc} functions and functions from other libraries set
+\texttt{errno} on failure as well.  You always need to consult the relevant
+documentation.
+\item \label{ERRNO} It is common nowadays that \texttt{errno} is in reality
+defined in \texttt{libc} as a dereferenced pointer to an integer returned by a
+function (returned pointer is specific to a userland thread) and the value is
+set right after the instruction for the system call.  For example, on the i386
+architecture the \texttt{errno} value is stored in the \texttt{eax} register
+after the return from the syscall (after the \texttt{sysenter} instruction is
+executed). Before the instruction, the register held the system call number. It
+is therefore the \texttt{libc} library that is responsible for the program to
+see the correct \texttt{errno} value.
 \item The POSIX thread functions (\texttt{pthread\_*}) do not set
-\texttt{errno}, rather they return either zero or an error code.
+\texttt{errno}, rather they return either zero or an error code.  More on that
+later.
 \item For some calls, the value \texttt{-1} is semantically valid. To use such
 functions, it is necessary to set \texttt{errno~=~0} before the call and check
 whether the value changed after the call. E.g. the \texttt{strtol} function
-returns 0 on failure, which can also be a valid value in some cases
+returns \texttt{0} on failure, which can also be a valid value in some cases
 (and $-1$ is also a valid result value).
 \item It is therefore necessary to always read the appropriate man page for the 
 system call or library function.
