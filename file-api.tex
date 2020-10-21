@@ -119,8 +119,8 @@ current mask that can be changed via a shell command \texttt{umask} -- those
 bits in \emph{mode}, also set in the process umask, are nullified.  The
 default umask value is typically (and historically) \texttt{022}.  We recommend
 that you always set it to \texttt{077} in your profile script.  Never do that for
-root though otherwise you will end up with a system in a non-supported
-configuration -- installed software will not be possible to run by
+root though otherwise you may end up with a system in a non-supported
+configuration -- installed software may not be possible to run by
 non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
 whatever is on the stack or CPU register. Both flags and mode are stored in the
