@@ -234,14 +234,16 @@ structure.
 the file} (regular, device, pipe, or socket) and whether the file is in a
 blocking or non-blocking mode (flag \texttt{O\_NONBLOCK} on file opening, see
 page \pageref{O_NONBLOCK}).
-\item For both calls there are quite a few situations that can happen, and
-which are listed in the next few paragraphs.  If unsure, consult the standard.
+\item For both calls there are quite a few situations that may happen, and 
+those most important are listed in the next few paragraphs.  For the full
+disclosure, consult the standard or a manual page on your system.
 \item \texttt{read} returns a non-zero number of bytes less than \emph{nbyte} if
 less than \emph{nbyte} bytes remain in a file, if the call was interrupted
 by a signal, or if the file is a pipe, device, or socket and there is less than
-\emph{nbyte} bytes available at the moment.  If there is no data, a blocking
-\texttt{read} will block unless some data gets available, a non-blocking
-\texttt{read} returns -1 and sets \texttt{errno} to \texttt{EAGAIN}.
+\emph{nbyte} bytes available at the moment.  For the last case, if there is no
+data, a blocking \texttt{read} will block unless some data gets available, a
+non-blocking \texttt{read} returns -1 and sets \texttt{errno} to
+\texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
 if less then \emph{nbyte} bytes can fit into the file (e.g. disk full), if the call
 was interrupted by a signal, or if \verb#O_NONBLOCK# was set and only part of
@@ -293,11 +295,11 @@ right away, and work with it using the existing file descriptor.  When the file
 descriptor is closed (and all of its possible duplicates), the file data is
 released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
-data on file closure, and if that write fails, \texttt{close} fails.
+data on file closure (NFS), and if that write fails, \texttt{close} fails.
 \item If you forget to close file descriptors when you no longer need them,
 and it is a long living process, a daemon perhaps, depending on the system
 configuration you may hit memory starvation as the system memory will be filled
-with the ever growing file descriptor table.
+with an ever growing file descriptor table.
 \item \label{SIMPLE_CAT} A very simple \texttt{cat(1)} program:
 \example{read/cat.c}
 \end{itemize}
@@ -348,8 +350,8 @@ arbitrarily large file), and use \texttt{time(1)} to measure the system call
 overhead.
 \item If you need to work with little pieces of data read from files, you can
 use stream oriented functions that internally buffer the data -- \texttt{fopen},
-\texttt{fread}, \dots  However, please do not use those functions in your
-semester assignment and at the exam.
+\texttt{fread}, \dots  However, those functions are prohibited in your semester
+assignment and at the exam.
 \item Note that we always only write as many bytes as we actually read.  See
 page \pageref{READCALL} for more information on when we can read/write less data
 than requested.
@@ -392,7 +394,8 @@ from it.
 \item If the pipe is not yet open for writing by any process, to open the pipe
 for reading without blocking on the call, one needs to use \texttt{O\_NONBLOCK},
 see page \pageref{O_NONBLOCK}.  Without that flag the consumer will block
-waiting for a producer.
+waiting for a producer (in the \texttt{open} system call, not in
+\texttt{read}!).
 \item However, trying to read a previously opened pipe that has no producer
 results in a return value of 0, indicating the end of file -- the process will
 not block waiting for a producer.  It is irrelevant whether the pipe was opened
@@ -433,12 +436,12 @@ $ echo $?
 \item When opening a pipe for writing only with \texttt{O\_NONBLOCK} and without
 an existing consumer, the call returns -1 and \texttt{errno} is set to
 \texttt{ENXIO}.  This asymmetry in opening a pipe for reading in non-blocking
-mode is due to the fact that it is not desirable to have data in a pipe that may
-not be read in a short period of time.  The Unix system does not allow for
-storing pipe data for an arbitrary length of time.  Without the
-\texttt{O\_NONBLOCK} flag, the process will block while waiting for a consumer.
-By asymmetry, we mean that the system allows consumers without
-producers but it tries to avoid writers without existing readers.
+mode (see above) is due to the fact that it is not desirable to have data in a
+pipe that may not be read in a short period of time.  The Unix system does not
+allow for storing pipe data for an arbitrary length of time.  By asymmetry we
+mean that the system allows consumers without producers but it tries to avoid
+writers without existing readers.  Without the \texttt{O\_NONBLOCK} flag, the
+process will block while waiting for a consumer.
 \item  If you want to create a process that sits on a named pipe and processes
 data from producers, you need to open it with the flag \texttt{O\_RDWR} even
 if you do not intend to write to it.  If you do not use the flag, you might end
@@ -580,7 +583,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \texttt{int \funnm{dup2}(int \emph{fildes}, int \emph{fildes2});}
 \begin{itemize}
 \item duplicates \texttt{fildes} to \texttt{fildes2}.
-\item almost the same as\\
+\item almost the same as:\\
 \texttt{close(fildes2);\\ fcntl(fildes, F\_DUPFD, fildes2);}
 \end{itemize}
 \end{slide}
@@ -870,6 +873,10 @@ const struct utimbuf *\emph{times});}
 also archive utilities to make sure the times are the same for the originals and
 copies.  (e.g. \texttt{tar} or \texttt{rsync}).
 \item The shell interface for \texttt{utime} is the command \texttt{touch}.
+\item There is an excellent section \emph{1.7 Dates and Times} in [Butenhof]
+that goes through various representations of time in Unix systems, and functions
+that use those.  It is 12 pages of good stuff, highly recommended if you ever
+need to work with time in C and/or Unix.
 \end{itemize}
 
 %%%%%
@@ -999,10 +1006,10 @@ of a directory but in that case, \texttt{errno} is not changed.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
 directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
-\item Some older systems might support reading a directory via a normal
+\item Some (very) old systems might support reading a directory via a normal
 \texttt{read} call.  In that case, of course, you need to know the internal
 representation of the directory data so the use of this is questionable.  Linux
-does not allow it at all.
+does not allow this at all.
 \item \texttt{d\_ino} might not be very useful if the directory is a
 mountpoint; this member contains the i-node number of the directory where the
 filesystem is mounted and not the root of the mounted filesystem as one might
@@ -1078,6 +1085,9 @@ its \emph{size} must be at least one byte longer than the path length.
 \end{slide}
 
 \begin{itemize}
+\item The current working directory for a process is stored in a process
+structure in kernel, usually it is a link to the directory's \emph{vnode}.  More
+on vnodes later.
 \item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
 directory (i.e. not from \texttt{opendir}).
 \item There is also a function \texttt{chroot} which changes the root
