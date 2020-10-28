@@ -65,8 +65,8 @@ new entry in the table. However, file descriptor duplication or inheritance
 will lead to sharing of the slots.
 \item From the system file table, it is pointed to the \emph{system inode
 table}.  Nowadays the table contains so called \emph{vnodes} -- \emph{virtual
-nodes} but that is not relevant for us now. For more info, see page
-\pageref{VFS}.
+nodes} but that is not relevant for us now. For more info,
+see page \pageref{VFS}.
 \item The system file table represents an additional level of indirection so
 that different processes can share the file position.
 \item When opening a file via an \texttt{open} call, a new slot in both the file
@@ -1086,8 +1086,8 @@ its \emph{size} must be at least one byte longer than the path length.
 
 \begin{itemize}
 \item The current working directory for a process is stored in a process
-structure in kernel, usually it is a link to the directory's \emph{vnode}.  More
-on vnodes later.
+structure in kernel, usually it is a link to the directory's \emph{vnode}.
+For more info about vnodes see page \pageref{VFS}.
 \item The descriptor for \texttt{fchdir} is from \texttt{open} called on the
 directory (i.e. not from \texttt{opendir}).
 \item There is also a function \texttt{chroot} which changes the root
@@ -1100,7 +1100,7 @@ function is also not a part of SUSv4.
 \item Other, more generic ways of isolation are provided in available systems,
 and differ from each other greatly.  For example, there are jails in Free\-BSD,
 zones in Solaris, sandboxing in macOS, LXC in Linux (that is what Docker is
-based on there), etc.  
+based on there), etc.
 \end{itemize}
 \end{itemize}
 
