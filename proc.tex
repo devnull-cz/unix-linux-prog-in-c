@@ -251,6 +251,7 @@ keeps running, until it gives up the CPU, i.e. until it calls such system call,
 that switches the context to different process. The downside of cooperative
 planning is that one process can block the CPU and other processes forever.
 \item Unix uses only preemptive planning for user processes.
+\item There is also a \emph{tickless kernel} that uses a variable timer tick.
 \item Traditional (historical) UNIX \emsl{kernel} uses cooperative planning,
 i.e. process running in kernel mode is not switched until it gives up the CPU
 by itself.
@@ -472,7 +473,16 @@ Session includes one or more process groups. Maximum one group in the session
 runs in foreground (\emph{foreground process group}) and has access to the
 controlling terminal for input and output, the rest is running in the background
 (\emph{background process groups}) and have only optional access to the output
-or no at all. (disallowed operation with terminal will stop the process).
+or no at all.
+
+A disallowed operation with a terminal will stop the process.  To verify, start
+a process in the background, for example a simple shell script that does
+\texttt{read a}.  On the next shell prompt, you will be notified by the shell
+that the process was stopped (you can set your shell to notify you about such
+events asynchronously -- if you know what you are doing).  The process was
+actually stopped by signal \texttt{SIGTTIN}.  How to verify that?  Run
+\texttt{strace -o output ./the-script \&} and check the output file.
+
 \item[parent process:] Each process (besides \texttt{swapper},
 \texttt{pid~==~0})
 has a parent, i.e. process that created it with the \texttt{fork} syscall.
@@ -700,6 +710,7 @@ $ ./a.out
 ...
 \end{verbatim}
 
+Example: \example{exec/execl-buggy.c}
 \end{itemize}
 
 %%%%%
@@ -897,8 +908,8 @@ Example: \example{exec/spawn.c}
 \begin{itemize}
 \item creates an unnamed pipe and allocates a pair of file descriptors
     \begin{itemize}
-    \item \texttt{fildes[0]} \dots{} reading from a pipe
-    \item \texttt{fildes[1]} \dots{} writing to a pipe
+    \item \texttt{fildes[0]} \dots{} for reading from a pipe
+    \item \texttt{fildes[1]} \dots{} for writing to a pipe
     \end{itemize}
 \item the system makes sure that:
     \begin{itemize}
