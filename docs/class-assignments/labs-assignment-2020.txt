@@ -4,32 +4,16 @@ Write a simple Unix/Linux shell.
 
 Version: Nov 4, 2020
 
-When you are done, we require getting a link to your github project, or
-any similar hosting site that uses either Git or Mercurial.  Your
-project must provide a Makefile so that running the "make" command does
-build the shell in the binary called "mysh" (this saves us the work when
-running automated tests).
+If in doubt about anything in this file, please ask a question, and we
+strongly prefer you send it to the class mailing list,
+nswi015-l@mff.cuni.cz, so that others may benefit from the answers as
+well.
 
-The first phase must be finished and handed to us before the end of the
-Winter semester, i.e. Sunday 23:59, January 10, 2021.  All examples
-shown below must work as expected.  If for any reason the Winter
-semester is prolonged then January 10 still stands unless announced
-otherwise.
-
-The second phase must be finished and handed over to us before the end
-of the Summer semester, i.e. by Sunday 23:59, May 23, 2020.  The date
-stands even if the semester was pushed back.
-
-The deadlines are hard requirements so stick to the schedule.  We do not
-accept late arrivals and that automatically means you are not eligible
-for the credits for the year.
-
-Obviously, you can send us the whole thing in one step before the first
-deadline, no need to separate the project in two parts.
-
-If in doubt, please ask a question, and we strongly prefer you send it
-to the class mailing list, nswi015-l@mff.cuni.cz, so that others may
-benefit from the answers as well.
+Makefile
+--------
+Your project must provide a Makefile so that running the "make" command
+does build the shell in the binary called "mysh" (this saves us the work
+when running automated tests).
 
 C Style
 -------
