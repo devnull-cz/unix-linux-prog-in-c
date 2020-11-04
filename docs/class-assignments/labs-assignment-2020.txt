@@ -33,9 +33,9 @@ benefit from the answers as well.
 
 C Style
 -------
-Please choose a good C style, for example http://mff.devnull.cz/cstyle/,
-or pick another existing cstyle (e.g. https://man.openbsd.org/style).
-Please do not invent your own C style.
+Choose a good C style, for example http://mff.devnull.cz/cstyle/, or
+pick another existing cstyle (e.g. https://man.openbsd.org/style), and
+stick to it.  Please do not invent your own C style.
 
 This class is about Unix/Linux programming in C, so we only accept the C
 language, not C++.

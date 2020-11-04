@@ -1,24 +1,24 @@
 Additional notes on the lab assignment based on existing implementations.
 
 --------------------------------------------------------------------------------
-Split the program into (potentially many) .c files. For example one for command
-line parsing, another for utility functions, one for execution/pipe handling,
-etc. etc.
+You may want to split the program into (potentially several) .c files. For
+example one for command line parsing, another for utility functions, one for
+execution/pipe handling, etc.
 
 The program becomes better structured with a room for expansion/growth.
 
 --------------------------------------------------------------------------------
 Do not blindly accept potentially unlimited user input. It probably does not
-make sense for command line to be millions of characters long.
+make sense for a command line to be millions of characters long.
 
 --------------------------------------------------------------------------------
 Check return values of any call that can fail.
 
 Yes, malloc() can fail too.
 
-Reacting on failures needs to be sensitive, though. Exiting the shell
-when malloc() fails is safe thing to do. On the other hand, failing to read a
-file in interactive mode should not tear down the shell.
+Reacting on failures needs to be sensitive, though.  Exiting the shell
+when malloc() fails is a safe thing to do.  On the other hand, failing to read a
+file in an interactive mode should not tear down the shell.
 
 --------------------------------------------------------------------------------
 The shell should not assume it is being run from another shell.
@@ -41,14 +41,15 @@ if (pipe(pd) == -1) {
 Speaking of style, try to refactor as much as possible (while using function
 names easily readable by humans - and stick to consistent casing style).
 
-When is function too long ? (so that it can be called "spaghetti code")
-If it spans multiple screens of wide screen terminal (let's say 80 lines
-printed in the font usually used in your environment for source code) it is
-probably time to do some refactoring.
+When is function too long? (so that it can be called "spaghetti code") If it
+spans multiple screens of a wide screen terminal (let's say 80 lines printed in
+the font usually used in your environment for source code) it is probably time
+to do some refactoring.
 
 --------------------------------------------------------------------------------
-Refuse special characters that you do not implement yet.  For example, if you do
-not implement pipes (as in the 1st phase), refuse it.  It cannot work like this:
+Refuse special characters that you do not implement yet, or treat them as normal
+characters.  For example, if you do not implement pipes (as in the 1st phase),
+refuse it.  It cannot work like this:
 
 $ date | cat | sort | wc -l
 Mon Dec 31 13:06:56 CET 2018
@@ -61,27 +62,29 @@ If you did accept '|' as a normal character, it should have worked like this:
 $ echo hello | wc -l
 hello | wc -l
 
-And in case of date(1), it should have printed out an error, similar to this:
+And in case of date(1) above, it should have printed out an error, similar to
+this:
 
-$ date xxx
+$ date |
 date: illegal time format
 usage: date [-jnRu] [-d dst] [-r seconds] [-t west] [-v[+|-]val[ymwdHMS]] ...
             [-f fmt date | [[[mm]dd]HH]MM[[cc]yy][.ss]] [+format]
 
-So, do something like the following:
+So, you can do something like the following:
 
 $ echo hello | wc -l
 (default rule matched) error:1: syntax error near unexpected token '|'
 
 Also, refuse redirections unless you already implemented those.  The following
-is not correct in the 1st phase:
+is not correct in the 1st phase (again, you can treat it as a normal character,
+too, until implemented):
 
 $ echo hello > out
 hello
 
 --------------------------------------------------------------------------------
-Please do implement command line history.  In case of readline, it's really just
-calling one function, like this, for example:
+Please do implement a command line history.  In case of readline, it is really
+just calling one function, like this, for example:
 
 if ((input = readline(prompt) ...
 	...
