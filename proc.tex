@@ -1128,7 +1128,7 @@ never written back to the file.
 \texttt{shmat}.
 \item Access to the mapped region beyond the existing page of mapped object
 causes \texttt{SIGBUS} or \texttt{SIGSEGV} signal.
-This is not universally true, see example \example{mmap/sigbus.c}.
+This is not universally true, see example \example{mmap/sigsegv.c}.
 \item When using \texttt{MAP\_FIXED} the new mapping will replace any existing
 mapping from \texttt{addr} to
 ifdef([[[NOSPELLCHECK]]], [[[\texttt{addr+l{}en-1}]]]), see example
