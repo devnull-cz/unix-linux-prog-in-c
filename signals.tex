@@ -500,8 +500,9 @@ used.
 time and when the system is running on behalf of the process, and
 \texttt{SIGPROF} is used.
 \end{itemize}
-\item Note that we use \funnm{write}() system call to write the text.  Functions
-like \funnm{printf}() are generally not safe to use in signal handlers, see page
+\item Note that in the example above and also in the source code examples we use
+\funnm{write}() system call to write the text.  Functions like \funnm{printf}()
+are generally not safe to use in signal handlers, see page
 \pageref{ASYNCSIGNALSAFE}.  Also check \texttt{signal-safety(7)} manual page on
 any Linux distribution, \funnm{printf}() is even discussed in there.
 \item Example: \example{signals/alarm.c}
