@@ -475,7 +475,7 @@ int main(void)
     \emprg{sigaction}(SIGALRM, &act, NULL);
     \emprg{alarm}(5);
     sz = read(0, buf, 1024);
-    alarm(0);
+    \emprg{alarm}(0);
     if (sz > 0)
         write(1, buf, sz);
     return (0);
