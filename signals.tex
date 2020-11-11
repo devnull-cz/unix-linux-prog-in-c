@@ -238,7 +238,7 @@ signal-catching function.
 program behavior is undefined.
 \end{itemize}
 \item Bottom line is that if a hardware generated error is real (i.e. the signal
-is not send via \funnm{kill} or similar functions), the process may never get
+is not sent via \funnm{kill} or similar), the process may never get
 over that error at all.  It is not safe to ignore such errors, continue after
 returning from a handler, or mask such signals.  You can catch such signals
 though, the standard does not prohibit that.  However, if you do, you should do
