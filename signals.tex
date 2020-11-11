@@ -285,10 +285,11 @@ and perform actions before exit. For example, flushing the database, removing
 temporary files and file locks, etc. So, do not use \texttt{SIGKILL} right away
 only because "it's the simplest way to kill a process" as you might run in
 trouble.
-\item Example on using \texttt{SIGQUIT} on Solaris:
+\item Example on using \texttt{SIGQUIT} on Solaris (a standalone \texttt{sleep}
+program is used to avoid invoking shell built-in):
 
 \begin{verbatim}
-$ sleep 10
+$ /usr/bin/sleep 10
 ^\Quit (core dumped)
 $ mdb core
 Loading modules: [ libc.so.1 ld.so.1 ]
