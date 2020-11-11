@@ -431,9 +431,10 @@ the \texttt{signal-safety(7)} manual page.
 problem for its asynchronous signal safety.  It can lead to corrupt data,
 deadlocks, etc.  As the set of functions safe to use in a handler is limited,
 one way to use the signals is only to set a global variable in the handler and
-test it later, for example in a loop that processes some events.  As a function
-waiting for an event is typically interruptible by a signal (see above), setting
-the global variable and testing it later does not experience any real delay.
+test it later, for example in a loop that processes some events.  As the
+function waiting for an event is typically interruptible by a signal (see
+above), setting the global variable and testing it later does not experience any
+real delay.
 Example: \example{signals/event-loop.c}.
 \item There is also a simplified signal facility \funnm{signal}().  We recommend
 to use \funnm{sigaction}() only.  Behavior of \funnm{signal}() is not specified
