@@ -120,7 +120,7 @@ situation there is different even for root.  That is out of scope for this class
 though.  \item Sending a signal to another process:
     \begin{itemize}
     \item Linux, Solaris: RUID or EUID of the process that sent the signal must
-    match the real UID or saved SUID of the target process.
+    match the real UID or saved UID of the target process.
     \item FreeBSD: EUID of the processes must match
     \end{itemize}
 \item Example: \example{signals/killing-myself.c}
