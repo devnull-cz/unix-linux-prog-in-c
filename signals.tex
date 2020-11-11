@@ -274,9 +274,9 @@ that does not violate the standard either.
 configuration file changed and that it should re-read it.
 \item \texttt{SIGINT} and \texttt{SIGQUIT} are usually generated from a terminal
 via \texttt{Ctrl-C} and \texttt{Ctrl-\bs}, respectively, and could be redefined
-using the command \texttt{stty} or via a function \funnm{tcsetattr}().  In order
-to generate core files, your system must allow it.  Check command
-\texttt{ulimit}.
+using the command \texttt{stty} or via a function \funnm{tcsetattr}().
+\item In order to generate core files, your system and settings must allow it.
+Check the \texttt{ulimit} command and associated system call.
 \item \label{SIGKILL} As \texttt{SIGKILL} cannot be handled, use it only if you
 know what you are doing.  For example, if a running process does not respond to
 user input nor any other signal.  Many applications, mainly daemons, rely on the
