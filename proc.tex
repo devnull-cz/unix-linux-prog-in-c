@@ -1207,11 +1207,11 @@ int main(int argc, char *argv[])
 
     fd = \emprg{open}(argv[1], O\_RDWR);
     fsz = \emprg{lseek}(fd, 0, SEEK\_END);
-    p1 = addr = \emprg{mmap}(0, fsz, PROT\_READ|PROT\_WRITE,
-                     MAP\_SHARED, fd, 0);
+    p1 = addr = \emprg{mmap}(0, fsz, PROT\_READ | PROT\_WRITE,
+        MAP\_SHARED, fd, 0);
     p2 = p1 + fsz - 1;
     while(p1<p2) \{
-        c = *p1; *p1++ = *p2; *p2-- = c;
+            c = *p1; *p1++ = *p2; *p2-- = c;
     \}
     \emprg{munmap}(addr, fsz); 
     \emprg{close}(fd);
@@ -1241,7 +1241,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{itemize}
 \item loads \emph{path} unless already loaded, returns
 a \emsl{handle} or \texttt{NULL}
-\item in \emph{mode} there is an OR combination of \texttt{RTLD\_NOW} (immediate
+\item \emph{mode} is an OR combination of \texttt{RTLD\_NOW} (immediate
 bind), \texttt{RTLD\_LAZY} (bound when needed), \texttt{RTLD\_GLOBAL}
 (symbols accessible from all modules), \texttt{RTLD\_LOCAL} (symbols accessible
 through the handle only)
@@ -1300,8 +1300,6 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     For \funnm{dlopen}, the default is \texttt{RTLD\_LOCAL}.  It means
     the same library can be mapped multiple times via \funnm{dlopen} and the
     symbols in the mapped instances of the same library will not overlap.
-    However, all globally mapped symbols from there are shared, e.g.
-    \texttt{errno}.
     \end{itemize}
 \item \label{RTLD_NEXT} Special handle \texttt{RTLD\_NEXT} searches the symbol
 only in libraries loaded after the library that called \funnm{dlsym}.  Handy for
