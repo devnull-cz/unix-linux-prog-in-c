@@ -1097,20 +1097,17 @@ portability of the code. It also removes any existing mappings at that address
 and does not work well with ASLR (Address Space Layout Randomization) which is
 frequently used in current Unix systems for dynamically linked programs.
 \item \textbf{warning:} w.r.t. \texttt{MAP\_SHARED} -- if the file is truncated
-by another process so that the truncation affects the mapped part, the access
-to such area results in the \texttt{SIGBUS} resp. \texttt{SIGSEGV} or signal
-to be sent to the process. One way how to get around it is to use
-mandatory locking, however it is not implemented in all the systems.
-In case the mapped memory is used as a parameter for \texttt{write},
-the signal will not be sent and \texttt{write} will return -1
-with \texttt{errno} set to \texttt{EFAULT}.
+by another process in such a way that the truncation affects the mapped part,
+the access to such area results in getting \texttt{SIGBUS} or \texttt{SIGSEGV}.
+One way how to get around it is to use mandatory locking, however it is not
+implemented in all the systems.  In case the mapped memory is used as a
+parameter for \texttt{write}, the signal will not be sent and \texttt{write}
+will return -1 with \texttt{errno} set to \texttt{EFAULT}.
 \item when using \texttt{MAP\_PRIVATE} on Solaris all the changes done by other
 processes that have mapped the file using \texttt{MAP\_SHARED} are visible
-until the process writes to the page.
--- at this moment a copy of the page is created and subsequent changes by
-other processes are not visible anymore.
-On FreeBSD the changes are not visible even before the first write.
-The spec says:
+until the process writes to the page. At this moment a copy of the page is
+created and subsequent changes by other processes are not visible anymore.
+On FreeBSD such changes are never visible.  The spec says:
 \emph{,,It is unspecified whether modifications to the underlying object done
 after the \texttt{MAP\_PRIVATE} mapping is established are visible through the
 \texttt{MAP\_PRIVATE} mapping.''}
