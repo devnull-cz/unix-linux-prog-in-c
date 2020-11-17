@@ -1090,8 +1090,8 @@ which is equivalent to writing the data back via \texttt{write(2)}.  If
 \texttt{MAP\_PRIVATE} was used, the data would be written to the swap on
 page-out.
 \item For the file to be mapped into memory it is first necessary to open it
-via \texttt{open}. The access mode in \texttt{prot} cannot be ``higher'' than
-specified in the mode for \texttt{open}.
+via \texttt{open}. The access mode in \texttt{prot} cannot be less restrictive
+than specified in the mode for \texttt{open}.
 \item The use of \texttt{MAP\_FIXED} is not recommended, since it hampers
 portability of the code. Also, it removes any existing mappings at that
 address. Further, it does not work well with ASLR (Address Space Layout
