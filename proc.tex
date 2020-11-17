@@ -1125,7 +1125,7 @@ never written back to the file.
 \item It is possible to share anonymous mapping between processes using
 \texttt{fork()}. The only alternative is shared memory established using
 \texttt{shmat}.
-\item Access to the mapped region beyond the existing page of mapped object
+\item Access to the mapped region beyond the existing page of a mapped object
 causes \texttt{SIGBUS} or \texttt{SIGSEGV} signal.
 This is not universally true, see example \example{mmap/sigsegv.c}.
 \item When using \texttt{MAP\_FIXED} the new mapping will replace any existing
@@ -1143,9 +1143,9 @@ ifdef([[[NOSPELLCHECK]]], [[[\texttt{addr+l{}en-1}]]]), see example
     \item in IRIX it is possible to use \texttt{MAP\_AUTOGROW} that will
     automatically grow mapped object when accessing beyond its current end.
     \end{itemize}
-\item Example of system command using file mapping is \texttt{cat(1)}. 
-Using mapped memory is more efficient than calling \texttt{read} repeatedly,
-saving the overhead necessary for switching to kernel and back to userspace.
+\item Example of a system command using file mapping is \texttt{cat(1)}.  Using
+mapped memory is more efficient than calling \texttt{read} repeatedly, saving
+the overhead necessary for switching to kernel and back to userspace.
 \end{itemize}
 
 %%%%%
@@ -1188,14 +1188,12 @@ int \emph{prot});}
 \end{slide}
 
 \begin{itemize}
-\item writing the changes to the storage is guaranteed only after
-\texttt{msync} or \texttt{munmap}, however other processes that have the file
-mapped as well will see the changes immediately.
-\item mapping to memory and setting access rights is used by the
-Electric Fence library, which is used for detection of errors when using
-dynamic memory.
+\item writing changes to the backing storage is guaranteed only after
+\texttt{msync} or \texttt{munmap}.  However other processes that have the file
+mapped as well will see the memory writes immediately.
+\item memory mapping and setting access rights is used by the Electric Fence
+library which is used for error detection on dynamic memory use.
 \end{itemize}
-
 
 %%%%%
 
