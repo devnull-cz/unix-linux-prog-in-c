@@ -1084,11 +1084,11 @@ will try to find another address to use (and returns it).
 \texttt{read}, \texttt{write}, \texttt{lseek}.  After the file is mapped it is
 possible to work with it as a data structure in memory. The file is not being
 copied to the memory as a whole, rather only the pages which are accessed are
-allocated. If it is necessary to free some page, the contents are written back
-to the storage, i.e. the file. That is, if the \texttt{MAP\_SHARED} is used
--- this way of mapping is therefore equivalent to writing back via
-\texttt{write(2)}) or to the swap -- same copy-on-write mechanism is used
-(when using \texttt{MAP\_PRIVATE}).
+allocated. If it is necessary to free a page, its contents is written back
+to the storage, i.e. the file -- if the \texttt{MAP\_SHARED} is used
+which is equivalent to writing the data back via \texttt{write(2)}.  If
+\texttt{MAP\_PRIVATE} was used, the data would be written to the swap on
+page-out.
 \item For the file to be mapped into memory it is first necessary to open it
 via \texttt{open}. The access mode in \texttt{prot} cannot be ``higher'' than
 specified in the mode for \texttt{open}.
