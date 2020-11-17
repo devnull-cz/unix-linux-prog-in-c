@@ -285,7 +285,7 @@ temporary files and file locks, etc. So, do not use \texttt{SIGKILL} right away
 only because "it's the simplest way to kill a process" as you might run in
 trouble.
 \item Example on using \texttt{SIGQUIT} on Solaris (a standalone \texttt{sleep}
-program is used to avoid invoking shell built-in):
+program is used to avoid invoking a shell built-in):
 
 \begin{verbatim}
 $ /usr/bin/sleep 10
@@ -319,7 +319,6 @@ are available for use to the user.
 \texttt{SIGTTIN} & background read attempted from control terminal (stop) \\
 \texttt{SIGTTOU} & background write attempted to control terminal (stop) \\
 \end{tabular}
-
 \end{slide}
 
 \begin{itemize}
@@ -333,6 +332,13 @@ catch the signal. \label{SIGTSTP}
 \item the \texttt{SIGCHLD} signal is always received by the parent
 (no matter if \texttt{wait()} or \texttt{waitpid()} is used) unless
 explicitly ignored. See \example{signals/sigchld.c}
+\item If you write a program that prints anything onto its standard output and
+execute it in the background, you notice that usually the text shows up on your
+terminal (meaning no \texttt{SIGTTOU} was sent as that would have stopped the
+process on the controlling terminal write attempt).  It is because the signal is
+sent (or not) by the terminal driver, and \texttt{stty} will tell you what is
+the current setting.  If you see no \texttt{tostop}, you can set it up with
+``\texttt{stty tostop}'' and see the difference.
 \end{itemize}
 
 %%%%%
