@@ -37,10 +37,10 @@ exactly from the place where the interruption happened.
 \item Historically, signals were provided as a mechanism to forcefully terminate
 processes.  That is why the function for sending signals is called
 \funnm{kill}.
-\item A nice example of an asynchronous event is while on Linux you send
-a \texttt{SIGUSR1} to the \texttt{dd} command to print I/O statistics to
-standard error output.  Start \texttt{dd} first, then send a couple of
-\texttt{USR1} signals its way, like this:
+\item A nice example of an asynchronous event is to send a \texttt{SIGUSR1} to
+the \texttt{dd} command on Linux to print its progress to standard error output.
+Start \texttt{dd} first, then send a couple of \texttt{USR1} signals its way,
+like this:
 
 \begin{verbatim}
 $ kill -USR1 $(pgrep -f "dd if=/dev/zero of=/dev/null")

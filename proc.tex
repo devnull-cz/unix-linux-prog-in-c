@@ -1306,9 +1306,9 @@ only in libraries loaded after the library that called \funnm{dlsym}.  Handy for
 redefining existing functions if we need to call the original function in our
 redefined one.  The library with a modified function is loaded first, possibly
 using \texttt{LD\_PRELOAD}, and the address of the original function can be
-found using
+found using:
 ifdef([[[NOSPELLCHECK]]], [[[
-\texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}.
+~~\texttt{dlsym(RTLD\_NEXT, \emph{fn\_name})}.
 ]]])
 Example: \example{dyn-lib/rtld\_next.c}.
 \item  All these functions are part of the dynamic linker that each dynamically
