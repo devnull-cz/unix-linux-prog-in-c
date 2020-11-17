@@ -455,7 +455,7 @@ extension if you use flag \texttt{SA\_SIGINFO}.  In that case a
 \texttt{sa\_sigaction} member of the structure \texttt{sigaction} must be used
 for the handler, not \texttt{sa\_handler}.  The new handler has three parameters
 and it is possible to learn the PID of a signalling process, its UID, and more.
-See manual page \texttt{signal.h(3HEAD)} on Solaris, the online SUS
+See manual page \texttt{signal.h(3HEAD)} on Linux or Solaris, the online SUS
 specification of the header file, or the book [POSIX.4], page
 \pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
 \pageref{SIGWAITINFO}.  Examples: \example{sig\-nals/siginfo.c},
@@ -574,15 +574,14 @@ See \example{signals/sigpending.c}.
 \sltitle{Example: blocking signals}
 \setlength{\baselineskip}{0.8\baselineskip}
 \begin{alltt}
-sigset\_t sigs, osigs; struct sigaction sa;
+sigset\_t sigs, osigs; struct sigaction sa = \{ 0 \};
 sigfillset(&sigs); \emprg{sigprocmask}(SIG\_BLOCK, &sigs, &osigs);
 switch(cpid = fork()) \{
     case -1:
         \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
         ...
     case 0: /* Child */
-        sa.sa\_handler = h\_cld; sigemptyset(&sa.sa\_mask);
-        sa.sa\_flags = 0;
+        sa.sa\_handler = h\_cld;
         \emprg{sigaction}(SIGINT, &sa, NULL);
         \emprg{sigprocmask}(SIG\_SETMASK, &osigs, NULL);
         ...
@@ -602,7 +601,7 @@ time with an unwanted handler.  Note that \funnm{fork}() does not change the
 signal mask, see page \pageref{FORK}.
 \item Out of simplicity we block all the signals in the example even that on
 pages \pageref{SPECIALSIGNALS} and \pageref{THREADS_SIGWAIT} it is explained why
-it is not a good thing.
+it is not a good idea.
 \end{itemize}
 
 %%%%%
