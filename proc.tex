@@ -1115,9 +1115,9 @@ after the \texttt{MAP\_PRIVATE} mapping is established are visible through the
 however it is not possible to write beyond the end of the file and thus
 extend the file - the process would otherwise receive the \texttt{SIGBUS} or
 \texttt{SIGSEGV} signal, see example \example{mmap/lseek.c}.
-The signal is also received when attempting to write to file mapped read-only.
-(this makes sense, the assignment does not have a return value which can be
-tested)
+The signal is also received when attempting to write to a file mapped read-only
+-- and that makes sense as there is no way to indicate (and test) a failed
+assignment operation.
 \item the mapping is done in whole pages, the \texttt{off} values have to
 be aligned correctly (also when using \texttt{MAP\_FIXED} the \texttt{addr}).
 Last page after the end of file is padded with zeroes and this section is
