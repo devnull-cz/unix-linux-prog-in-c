@@ -146,7 +146,7 @@ default action, one of:
     \end{itemize}
 \item process can either choose to ignore a specific signal\dots
 \item \dots{}or can handle the signal via a user-defined function,
-called a \emsl{handler}
+called a \emph{handler}
 \end{itemize}
 
 Signals \texttt{SIGKILL} and \texttt{SIGSTOP} \emsl{always} trigger an implicit
@@ -242,7 +242,7 @@ is not sent via \funnm{kill} or similar), the process may never get
 over that error at all.  It is not safe to ignore such errors, continue after
 returning from a handler, or mask such signals.  You can catch such signals
 though, the standard does not prohibit that.  However, if you do, you should do
-so only to deal with the situation and exit.
+so only to deal with the situation and exit from the handler (see above).
 You can check \example{signals/catch-SIGSEGV.c}. More information and another
 example can be found on page \pageref{THREADS_SIGWAIT}.
 \item Note: if the standard specifies any behavior as \emph{undefined}, it means
