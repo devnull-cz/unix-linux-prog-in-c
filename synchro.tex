@@ -91,9 +91,10 @@ and one of the processes will find out.}}
 \item process \texttt{A} reads the value of the structure \texttt{(2, 1)}
 earlier than process \texttt{B} writes member \texttt{b}
 \end{enumerate}
-\item Note that synchronization problems surface only after when the program
-is running on multiprocessor(core) machine or on more processors than
-what is used when development. Something to think about when testing.
+\item Note that synchronization problems may surface only after the program is
+run on multiprocessor(core) machine or on more processors than what is used when
+development.  However, given that nowadays you have a few CPUs even on a
+low-level laptop, it is easier to test such scenarios than in the past.
 \end{itemize}
 
 %%%%%
