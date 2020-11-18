@@ -231,7 +231,7 @@ situations.
     \item \emsl{file level locking} (\texttt{fcntl()}, \texttt{flock()})
     \item thread synchronization: \emsl{mutexes} (surround critical sections,
     only one thread can hold the mutex), \emsl{condition variables}
-    (the thread is blocked until another thread signals condition change)
+    (the thread is blocked until another thread signals a condition change)
     \emsl{read-write locks} (shared and exclusive locks, similar semantics
     to file level locking)
     \end{itemize}
@@ -252,6 +252,8 @@ Peterson solution, e.g. on \texttt{en.wikipedia.org}.
 mechanisms used by the kernel. Instead we are going to focus on the use of
 file level locking (which use the atomicity of some file operations)
 and special synchronization primitives offered by the kernel.
+\item note that ``signalling'' here has nothing to do with Unix signals.  It's
+confusing though.
 \end{itemize}
 
 %%%%%
