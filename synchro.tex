@@ -240,7 +240,9 @@ situations.
 
 \begin{itemize}
 \item Both Dekker and Peterson need to achieve the result via only shared
-memory, i.e. several variables shared by processes.
+memory, i.e. several variables shared by processes.  Busy waiting is used by
+both algorithms when waiting to enter the critical section already occupied by
+another process.
 \item Dekker's solution is presented as a first solution to the problem of
 mutual exclusion of 2 processes, without having to apply the mechanism of
 strict alternation, i.e. if second process does not express the will to enter
@@ -264,19 +266,20 @@ confusing though.
 \sltitle{Lock files}
 \begin{itemize}
 \item for each shared resource there exists previously agreed file path.
-Locking is done by creating the file, unlocking by removing the file.
-Each process must check if the file exists and if yes, has to wait.
+Locking is done by creating the file, unlocking by removing it.  Each process
+must check if the file exists and wait if it does.
 \end{itemize}
 \begin{alltt}
 void \funnm{lock}(char *lockfile) \{
-    while( (fd = open(lockfile,
-                      O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1)
-        sleep(1); {\rm /* waiting in a loop for unlock */}
-    close(fd);
+        while( (fd = open(lockfile,
+            O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) \{
+                sleep(1); {\rm/* waiting in a loop for unlock */}
+        \}
+        close(fd);
 \}
 
 void \funnm{unlock}(char *lockfile) \{
-    unlink(lockfile);
+        unlink(lockfile);
 \}
 \end{alltt}
 \end{slide}
@@ -325,7 +328,7 @@ the same program are unwanted.
 \pdfbookmark[1]{fcntl}{fcntl}
 
 \begin{slide}
-\sltitle{file locking: \texttt{fcntl()}}
+\sltitle{File locking: \texttt{fcntl()}}
 \texttt{int \funnm{fcntl}(int \emph{fildes}, int \emph{cmd}, ...);}
 \begin{itemize}
 \item to set locks for file \texttt{fildes}:
@@ -510,6 +513,7 @@ From the shell the list of IPS resources can be acquired using
 the \texttt{ipcs} command. They can be deleted using the \texttt{ipcrm} command.
 The state and contents of existing IPS resources is unchanged even if no process
 works with them at the moment.
+\item For more information, see \texttt{svipc(7)} man page on any Linux distro.
 \end{itemize}
 
 %%%%%
