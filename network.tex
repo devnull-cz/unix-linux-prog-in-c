@@ -817,13 +817,13 @@ will fail and \texttt{ENOSPC} will be set.
 \item \texttt{n} stands for \texttt{network}, \texttt{p} stands for
 \texttt{presentable}
 \item In the past \texttt{inet\_aton} and \texttt{inet\_ntoa} (\texttt{a} as
-\texttt{ascii}) were used for IPv4 addresses. Thanks for the functions above
+\texttt{ascii}) were used for IPv4 addresses. Thanks to the functions above
 these are now legacy. All these calls are usually documented in the
 \texttt{inet} man page.
-\item \label{ADDRESSES} Do realize that using these functions it is only
-possible to convert one address family once, either IPv4 or IPv6.
-When the output can be either, try one and if that fails, fallback to another.
-Example: \example{resolving/addresses.c}.
+\item \label{ADDRESSES} Do realize that by using these functions it is only
+possible to convert one address family per call, either IPv4 or IPv6.  When the
+input can be either of those, try one and if that fails, fallback to the other
+one.  Example: \example{resolving/addresses.c}.
 \end{itemize}
 
 %%%%%
