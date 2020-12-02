@@ -1281,9 +1281,9 @@ before next call to \texttt{select}.} Typically the sets are implemented as bit
 masks however it does not have to be so. The programmer does not have to deal
 with that. Traversing the sets is only possible one bit at a time and using
 \texttt{FD\_ISSET}.
-\item \texttt{select} is handy also for the possibility to write into a pipe or
-socket -- waiting for the other side to consume part of the buffer and thus free
-space for more incoming data.
+\item \texttt{select} is handy to get notified one can again write into a pipe
+or a socket -- via waiting in \texttt{select} for the consumer to read part of
+the buffer and thus free space for more incoming data.
 \item It is possible to use \texttt{NULL} instead of the descriptor set. Special
 case is to use \texttt{NULL} for all the sets in which case the syscall will
 block until the timeout expires or a signal is delivered.
