@@ -324,7 +324,8 @@ value via \funnm{pthread\_setspecific}().
 increase.}  It is usually anywhere from 64 kilobytes to a few megabytes.  If you
 cross that limit, the program will quite probably crash.  If you want a stack of
 a greater size than what is the system default, you have to use
-\emph{\texttt{attr}} when creating a thread.
+set the stack size via an attribute when creating a thread.
+The attribute is set using the \funnm{pthread\_attr\_setstacksize}() function.
 Example: \example{pthreads/pthread-stack-overflow.c}
 \item You can read more about thread specific data on page
 \pageref{THREAD_SPECIFIC_DATA}.
