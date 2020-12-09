@@ -601,6 +601,10 @@ this is done.
 
 %%%%%
 
+ifdef([[[NOSPELLCHECK]]], [[[
+\pdfbookmark[1]{pthread\_atfork}{pthreadatfork}
+]]])
+
 \begin{slide}
 \sltitle{\funnm{fork}() and POSIX threads}
 \prgchars
@@ -645,8 +649,15 @@ them in the \emph{\texttt{post-fork}} handler (both for the parent and the
 child), you will avoid such deadlocks.  That is because when locking mutexes in
 the \emph{\texttt{pre-fork}} handler, other threads are still running so the
 mutexes held by them should be released eventually (usually each thread exits a
-critical section in a short time in well written code).  Example:
-\example{pthreads/atfork.c}.  For more on this topic, see [Butenhof].
+critical section in a short time in well written code).
+\item This scheme will only work if the \emph{\texttt{pre-fork}} handler
+maintains the same locking protocol/ordering as is used in the
+application/library. Sometimes that is just not possible due to multiple complex
+orderings in place. Very often \funnm{fork}() is called just as a means for
+later \funnm{exec}(). In such case the programmer would be better off using
+\funnm{posix\_spawn}().
+\item Example: \example{pthreads/atfork.c}
+\item For more on this topic, see [Butenhof].
 \item See page \pageref{MUTEXES} on why mutexes locked in other threads on
 \funnm{fork}() stay locked forever.
 \end{itemize}
