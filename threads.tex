@@ -589,7 +589,14 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \label{PTHREAD_CLEANUP}
 
 \begin{itemize}
-\item Cleanup functions are called as \texttt{routine(arg)}.
+\item The cleanup function is called as \texttt{routine(arg)}.
+\item The \funnm{pthread\_cleanup\_push} and \funnm{pthread\_cleanup\_pop}
+functions provide sort of a bracketing around code block that might need a
+cleanup. In fact, more often than not these functions are implemented as macros
+that open and close code blocks. This enforces this usage pattern
+(and causes trouble with \texttt{goto} statements).
+\item Run a C preprocessor on \example{pthreads/pthread-create.c} and see how
+this is done.
 \end{itemize}
 
 %%%%%
