@@ -543,8 +543,8 @@ specific data is a very useful feature.  Imagine you have existing
 multithreading code using a global storage place which suffers from heavy
 contention.  You can easily create a thread specific data to create a storage
 place per thread with minimal changes to the original code.
-\item When you create a key, \texttt{NULL} is associated with it.  If you do not
-need the destructor function, use \texttt{NULL}.
+\item When you create a key, the \texttt{NULL} value is associated with it.
+\item If you do not need the destructor function, use \texttt{NULL}.
 \item Destructors are called in unspecified order on all keys with a value
 different from \texttt{NULL}.  Its value is set to \texttt{NULL} and the
 original value is used as a parameter to the destructor.  If, after all the
