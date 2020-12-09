@@ -433,8 +433,8 @@ where multiple threads may be using the library API at the same time
 \begin{itemize}
 \item In program itself you will probably not need this function.  You can
 just call the initialization function before you create the first thread.
-\item It is undefined if \emph{once\_control} is a local variable or does not
-have an expected value.
+\item The behavior is undefined if \emph{once\_control} is a local variable or
+does not have an expected value.
 \item This is handy for lazy initialization, i.e. only after one of the threads
 call into APIs of the library (as opposed to when the library is being loaded),
 the library becomes initialized and the semantics of \texttt{pthread\_once}
