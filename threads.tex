@@ -612,8 +612,8 @@ applications.  The standard says:
 \item the calling process contains the exact copy of the calling thread,
 including all the mutex states
 \item other threads are not propagated to the new process
-\item if such other threads held allocated memory, the memory will remain
-allocated but lost
+\item if such other threads contain sole references to allocated memory, the
+memory will remain allocated but lost (leaked)
 \item mutexes locked in other threads will remain locked for ever
 \end{itemize}
 \item creating a process from a multithreaded application makes sense for
