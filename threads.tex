@@ -1197,21 +1197,24 @@ to sleep (\texttt{rdlock()}) or returns an error (\texttt{tryrdlock()}).
 \label{RWLOCKS}
 
 \begin{itemize}
-\item Not a part of POSIX threads from POSIX.1c, rather part of extension
-POSIX.1j called ``advanced real-time extensions''.
+\item You can also use static initialization
+\texttt{PTHREAD\_RWLOCK\_INITIALIZER}, similarly to other synchronization
+mechanisms.
+\item Not a part of pthreads from POSIX.1c, rather part of extension POSIX.1j
+called ``advanced real-time extensions''.
 \item More than one thread can hold the lock for reading or at most one
 thread for writing (and no one for reading).
 \item Read-write locks are semantically similar to locking files using
 \texttt{fcntl} function.
-\item It is common that given implementation prefers writer threads to
-reader threads. E.g. if a lock is owned by writer and some other thread
+\item It is common that a given implementation prefers writer threads to
+reader threads.  E.g. if a lock is owned by a writer while some other thread
 calls function \funnm{pthread\_rwlock\_rdlock} and there is at least one thread
 waiting in \funnm{pthread\_rwlock\_wrlock}, the writer will be given precedence.
 See \example{pthreads/pthread-rwlock-pref.c}.
-\item There is maximal count of locking operations in given implementation
-(inferred from the type that holds the lock count). If the maximum is reached
-\funnm{pthread\_rwlock\_rdlock} returns the \texttt{EAGAIN} error,
-see \example{pthreads/pthread-rwlock-limit.c}.
+\item There is a maximum number of locks allowed for each lock in any pthread
+implementation (inferred from the type that holds the lock count). If the
+maximum is reached \funnm{pthread\_rwlock\_rdlock} returns the \texttt{EAGAIN}
+error, see \example{pthreads/pthread-rwlock-limit.c}.
 \end{itemize}
 
 %%%%%
@@ -1362,27 +1365,24 @@ Example \example{pthreads/pthread-barrier.c} shows the use in such case.
 the \texttt{PTHREAD\_BARRIER\_SERIAL\_THREAD} value
 in the last thread that reached the barrier so e.g. a collection of
 results from the last phase of the run can be done.
-\item The barrier condition is for example value of a counter to be 0.
-Each thread that reaches the barrier decrements the counter which is
-initialized to the number of threads in the beginning.
-Once a thread decrements the counter and realizes it is not 0,
-it will enter sleep on a condition variable.
-If the thread is the one which discovers the counter to be 0, then instead of
-calling \texttt{pthread\_cond\_wait} it will send a broadcast which will
-wake up all the threads sleeping on the barrier.
+\item To implement the barrier without the API above, the fact that all threads
+have reached the barrier may be indicated by a counter value to be 0, for
+example.  Each thread that reaches the barrier decrements the counter which is
+initialized to the number of threads in the beginning.  Once a thread decrements
+the counter and realizes it is not 0, it waits on a condition variable.  If the
+thread is the one which discovers the counter to be 0, instead of waiting it
+sends a broadcast which wakes up all the threads sleeping on the barrier.
 \texttt{pthread\_cond\_signal} is not enough, since it is necessary to wake up
-all the threads, not just one.
-Before entering next phase the counter is initialized to previous value.
-This needs to be done carefully, for example it is not possible just to
-reinitialize the counter after the last thread reaches the barrier,
-because like was shown on page \pageref{CONDITION_VARIABLES} after waking
-up from \texttt{pthread\_cond\_wait} the threads need to test that the counter
-is indeed 0 and if not they need to be put to sleep again. So it can happen
-that only some (or none) of the threads would wake up.
-How would you solve this problem ? See \example{pthreads/implement-barrier.c}
-and \example{pthreads/implement-barrier-fixed.c} for solution.
+all the threads, not just one.  Before entering next phase the counter is
+initialized to previous value.  This needs to be done carefully, for example it
+is not possible just to reinitialize the counter after the last thread reaches
+the barrier, because like was shown on page \pageref{CONDITION_VARIABLES} after
+waking up from \texttt{pthread\_cond\_wait} the threads need to test that the
+counter is indeed 0 and if not they need to be put to sleep again. So it can
+happen that only some (or none) of the threads would wake up.  How would you
+solve this problem? See \example{pthreads/implement-barrier.c} and
+\example{pthreads/implement-barrier-fixed.c} for solution.
 \end{itemize}
-
 
 %%%%%
 

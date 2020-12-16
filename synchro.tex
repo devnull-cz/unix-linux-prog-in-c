@@ -265,15 +265,15 @@ confusing though.
 \begin{slide}
 \sltitle{Lock files}
 \begin{itemize}
-\item for each shared resource there exists previously agreed file path.
-Locking is done by creating the file, unlocking by removing it.  Each process
-must check if the file exists and wait if it does.
+\item for each shared resource there is a previously agreed file path.  Locking
+is done by creating the file, unlocking by removing it.  Each process waits
+until it can create the yet non-existent file.
 \end{itemize}
 \begin{alltt}
 void \funnm{lock}(char *lockfile) \{
-        while( (fd = open(lockfile,
+        while((fd = open(lockfile,
             O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) \{
-                sleep(1); {\rm/* waiting in a loop for unlock */}
+                sleep(1); {\rm/* busy waiting in loop for unlock */}
         \}
         close(fd);
 \}
