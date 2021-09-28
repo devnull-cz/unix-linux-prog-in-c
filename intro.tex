@@ -561,11 +561,12 @@ line}, is a character 0x0A (10).  \emsl{CR}, \emph{carriage return}, or simply
 \item To further confuse the enemy, ``classic'' Mac OS used a single \emsl{CR}
 as line breaks.  As present time macOS comes from the Unix world, it also uses
 \emsl{LF} now.
-\item When you open a text file in classic \texttt{vi} and you see strange
-\verb|^M| characters at the end of every line, it is that \emsl{CR} character
-from a line separator in a file brought over from a Windows system.  Just get
-rid of them via \verb|:%s/^V^M//g| where \verb|^X| means Ctrl+X.  ViM by default
-tries to be smarter in such situations but not always to your benefit.
+\item When you open a text file in the classic \texttt{vi} editor and you see
+strange \verb|^M| characters at the end of every line, it is that \emsl{CR}
+character from a line separator in a file brought over from a Windows system.
+Just get rid of them via \verb|:%s/^V^M//g| where \verb|^X| means Ctrl+X.
+ViM (\emph{Vi IMproved}) by default tries to be smarter in such situations but
+not always to your benefit.
 \item See the \texttt{ascii} man page for the octal, hexadecimal, and decimal
 ASCII character sets (i.e. up to character 127 as ASCII table has only 128
 characters).
