@@ -983,7 +983,7 @@ main(void)
 \begin{tabular}{ll}
 \texttt{-o \emph{file}} & output file name (default \texttt{a.out})\\
 \texttt{-l\emph{lib}} & link with library \texttt{lib\emph{lib}.so} or
-\texttt{lib\emph{lib}.a}\\ 
+\texttt{lib\emph{lib}.a}\\
 \texttt{-L\emph{path}} & path to libraries (\texttt{-l\emph{lib}})\\
 \texttt{-shared} & create a dynamic library\\
 \texttt{-non\_shared} & create a static executable
@@ -998,11 +998,15 @@ phase.
 \item Note that different systems support different options.  For example,
 \texttt{ld} on Solaris does not support \texttt{-shared} and
 \texttt{-non\_shared}, and you have to use alternatives.
-\item An option \texttt{-R} allows to specify where to look for libraries when
-loading the executable via the dynamic linker.  That path might be different
-from the path used during building the object, modifiable via \texttt{-L}.
-\item Often you do not use the linker directly at all but pass all the linker
-options via the compiler.
+\item In most cases the linker is not used directly. Some linker specific
+options (like \texttt{-l}) are specified as compiler options. The compiler then
+passes these to the linker.
+\item For linker options that the compiler is not aware of, one can use
+the \texttt{-Xlinker} or \texttt{-Wl} compiler options to pass them to the
+linker. For example, the \texttt{-rpath} linker option allows to specify where
+to look for libraries when loading the executable via the dynamic linker.
+That path might be different from the path used during building the object,
+modifiable via \texttt{-L}.
 \end{itemize}
 
 %%%%%
