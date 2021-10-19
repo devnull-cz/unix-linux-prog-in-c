@@ -123,8 +123,9 @@ root though otherwise you may end up with a system in a non-supported
 configuration -- installed software may not be possible to run by
 non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
-whatever is on the stack or CPU register. Both flags and mode are stored in the
-system file table, see page \pageref{OPENFILETABLES}.
+whatever is presently on the stack or in the CPU register used to pass the
+argument.  Both flags and mode are stored in the system file table, see page
+\pageref{OPENFILETABLES}.
 \item Macros for use with \emph{mode} can be usually found in the manual page
 for \texttt{chmod(2)}, and you can find them also in the \texttt{sys/stat.h}
 header file (or in another file included from it) where the standard requires
