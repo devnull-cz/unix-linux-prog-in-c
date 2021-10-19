@@ -61,7 +61,7 @@ the main idea stays.
 \item Slots in that table point to the \emph{system file table}.  There is
 only one such a table in kernel.  This table carries the opened file mode and
 also the \emsl{current file position.} Each \texttt{open} call will create
-new entry in the table. However, file descriptor duplication or inheritance
+a new entry in the table. However, file descriptor duplication or inheritance
 will lead to sharing of the slots.
 \item From the system file table, it is pointed to the \emph{system inode
 table}.  Nowadays the table contains so called \emph{vnodes} -- \emph{virtual
