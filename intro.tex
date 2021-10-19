@@ -1983,8 +1983,8 @@ dimanche  7 octobre 2007 13 h 14 PDT
 It may not work like that in your shell as very probably your system will not
 have a French localization package installed.
 \item When replacing the current process image with a different program (page
-\pageref{EXEC}), the child will by default get the full environment from its
-parent.  You can pass a different array as an argument to the function
+\pageref{EXEC}), the child will by default get the full environment from the
+calling process.  You can pass a different array as an argument to the function
 \texttt{exec()}, including passing an empty one.
 \item Different commands use different environment variables.  That should be
 documented in their respective manual pages, sometimes in a separate section
