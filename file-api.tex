@@ -973,7 +973,7 @@ other hardlinks exists. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
 \item \texttt{readlink} is useful in the situation where you want to \texttt{unlink}
 the symlink's target.
-\item \emph{\texttt{bufsize}} is typically set as 1 byte less than the buffer
+\item \emph{\texttt{bufsz}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
 \item See \example{readlink/readlink.c} and fix the problem therein.
 \end{itemize}
