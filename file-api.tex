@@ -974,6 +974,14 @@ other hardlinks exists. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
 \item \texttt{readlink} is useful in the situation where you want to
 \texttt{unlink} the symlink's target.
+\item On some systems (e.g. macOS) there is a \texttt{readlink} command that
+will display symlink target:
+\begin{verbatim}
+$ ls -l /etc/aliases
+lrwxr-xr-x  1 root  wheel  15 Oct 24  2017 /etc/aliases -> postfix/aliases
+$ readlink /etc/aliases
+postfix/aliases
+\end{verbatim}
 \item \emph{\texttt{bufsz}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
 \item See \example{readlink/readlink.c} and fix the problem therein.
