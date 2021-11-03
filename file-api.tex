@@ -1158,14 +1158,17 @@ the calling process.
 \item The function was meant for an SUID process to verify whether the user
 running the process would have had access to a file if it was not for the SUID
 privileges.  However, there is an inherent security hole in this approach.
-The test and the subsequent action on the file is not an atomic operation.  An
-attacker could possibly \texttt{unlink} the file and immediately symlink it to a
-different file to what it actually had no rights to manipulate with.  If the
-timing is right, the SUID process will operate on that other file.  The correct
-solution is not to use the \texttt{access} call but return to the real UID/GID
-and try the operation.  For example, if we succeed in opening the file under the
-real UID/GID and continue working with the file descriptor, the file
-manipulation mentioned above would not gain the attacker anything.
+The test and the subsequent action on the file is not an atomic operation.
+This is called the time-of-check to time-of-use (TOCTOU) problem,
+see \url{https://en.wikipedia.org/wiki/Time-of-check\_to\_time-of-use}.
+An attacker could possibly \texttt{unlink} the file and immediately symlink it
+to a different file to what it actually had no rights to manipulate with.
+If the timing is right, the SUID process will operate on that other file.
+\\
+The correct solution is not to use the \texttt{access} call but return to the
+real UID/GID and try the operation.  For example, if we succeed in opening the
+file under the real UID/GID and continue working with the file descriptor, the
+file manipulation mentioned above would not gain the attacker anything.
 \end{itemize}
 
 %%%%%
