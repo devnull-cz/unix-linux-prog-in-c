@@ -38,4 +38,4 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        asset_path: '["./master/unix-linux-prog-in-c.pdf", "unix-linux-prog-in-c_slides-only.pdf"]'
+        asset_paths: '["./master/unix-linux-prog-in-c.pdf", "unix-linux-prog-in-c_slides-only.pdf"]'
