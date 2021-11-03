@@ -961,7 +961,8 @@ size\_t \emph{bufsz});}
 \item put maximum of \emph{\texttt{bufsz}} bytes from the symlink target path
 to \texttt{\emph{buf}}
 \item returns the number of bytes written to \texttt{\emph{buf}}.
-\item \texttt{\emph{buf}} is \emsl{not} terminated by \verb#'\0'#
+\item The path written to \texttt{\emph{buf}} is \emsl{not} terminated
+by \verb#'\0'#
 \end{itemize}
 \end{slide}
 
@@ -971,8 +972,8 @@ to \texttt{\emph{buf}}
 \item Calling \texttt{unlink} on a hardlink will not release the file data if
 other hardlinks exists. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
-\item \texttt{readlink} is useful in the situation where you want to \texttt{unlink}
-the symlink's target.
+\item \texttt{readlink} is useful in the situation where you want to
+\texttt{unlink} the symlink's target.
 \item \emph{\texttt{bufsz}} is typically set as 1 byte less than the buffer
 size to accommodate the terminating \texttt{NULL} character.
 \item See \example{readlink/readlink.c} and fix the problem therein.
