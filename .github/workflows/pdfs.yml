@@ -32,13 +32,10 @@ jobs:
         release_name: Release ${{ github.ref }}
         draft: false
         prerelease: false
-    - name: Upload PDF with comments
+    - name: Upload PDF
       id: upload-release-asset
-      uses: actions/upload-release-asset@v1
+      uses: alexellis/upload-assets@0.3.0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./master/unix-linux-prog-in-c.pdf
-        asset_name: unix-linux-prog-in-c.pdf
-        asset_content_type: application/pdf
+        asset_path: '["./master/unix-linux-prog-in-c.pdf", "unix-linux-prog-in-c_slides-only.pdf"]'
