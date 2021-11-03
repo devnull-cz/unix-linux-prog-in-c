@@ -867,12 +867,24 @@ const struct utimbuf *\emph{times});}
 \item cannot change i-node status change time (\texttt{ctime})
 \item calling process must have write permission for the file
 \end{itemize}
+ifdef([[[NOSPELLCHECK]]], [[[
+\texttt{int futimens(int fd, const struct timespec times[2]);}
+\texttt{int utimensat(int fd, const char *path, \\
+    const struct timespec times[2], int flag);}
+]]])
+\begin{itemize}
+\item allow to set both access and modification time
+\end{itemize}
 \end{slide}
 
 \begin{itemize}
-\item This call is mostly used the by \texttt{cp} and \texttt{mv} commands and
-also archive utilities to make sure the times are the same for the originals and
-copies.  (e.g. \texttt{tar} or \texttt{rsync}).
+\item The \texttt{utime} call is mostly used the by \texttt{cp} and \texttt{mv}
+commands and also archive utilities to make sure the times are the same for the
+originals and copies. (e.g. \texttt{tar} or \texttt{rsync}).
+\item The \texttt{futimens} and \texttt{utimensat} offer greater deal of
+flexibility. They allow to set the time to current time, using special
+constant in the \texttt{timespec} structure. Also, \texttt{utimensat}
+has a flag that controls whether to work directly on a symlink or its target.
 \item The shell interface for \texttt{utime} is the command \texttt{touch}.
 \item There is an excellent section \emph{1.7 Dates and Times} in [Butenhof]
 that goes through various representations of time in Unix systems, and functions
