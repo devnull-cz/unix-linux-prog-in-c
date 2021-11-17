@@ -385,10 +385,13 @@ the foreground and ifdef([[[NOSPELLCHECK]]], [[[vice versa]]]).
 \item When a process that has a controlling terminal opens the \texttt{/dev/tty}
 file, it gets associated with its controlling terminal, i.e. if two different
 processes open this file, each will be accessing a different terminal.
-\item In bash a process group (job) can be stopped temporarily using
-\texttt{Ctrl-Z}, and can be resumed again using ,,\texttt{fg \%N}'' where
-\texttt{N} is the number from the \texttt{jobs} command listing.  More
-information can be found in the ``JOB CONTROL'' section in the bash man page.
+\item In \texttt{bash} a process group (job) can be stopped temporarily using
+\texttt{Ctrl-Z}. Then it can be resumed again using ,,\texttt{fg \%N}'' where
+\texttt{N} is the number from the \texttt{jobs} command listing. Or, it can
+be resumed in background, using ,,\texttt{bg \%N}''. The job specification
+is (\texttt{\%N}) optional - if omitted, the most recently stopped job will be
+used. More information can be found in the ``JOB CONTROL'' section in the
+\texttt{bash} man page.
 \end{itemize}
 
 \pdfbookmark[1]{fork}{fork}
