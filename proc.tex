@@ -764,8 +764,10 @@ On macOS (which does not use ELF but the Mach-O format), use \texttt{objdump}.
 \item The \emph{ELF header} contains basic information about the file.  Try
 ``\texttt{readelf -h /bin/ls}'' on any Linux distribution.
 \item The \emph{program header table} is only present in files that are
-executable.  For example, dynamic libraries are ELF files that are not
-executable.  It contains information on the virtual memory layout.  You can list
+executable.  For example, dynamic libraries are ELF files that are usually not
+executable (on some systems the dynamic linker which is delivered in the form
+of dynamic library can be executed for debugging purposes).
+The table contains information on the virtual memory layout.  You can list
 the table via ``\texttt{elfdump~-p}'' or ``\texttt{readelf~-l}''.
 \item Sections contain code, data, symbol table, relocation data, etc.
 \item The \emph{section header table} contains information for the linker, see
