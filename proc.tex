@@ -901,7 +901,8 @@ child's return value out of the status information.
 \item \label{SPAWN} Creating new process with \texttt{fork} and replacing the
 process address space etc. with a new one after \texttt{exec} has been done is
 expensive and has other problems. To make kernel create new process directly
-from executable \texttt{posix\_spawn} can be used.
+from executable \texttt{posix\_spawn} can be used. The new process can be waited
+on with \texttt{waitpid} etc. just like in the case of \texttt{fork}.
 Example: \example{exec/spawn.c}
 \end{itemize}
 
