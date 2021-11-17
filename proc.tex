@@ -326,7 +326,8 @@ if the function returns -1.
 the \texttt{-l} option of the \texttt{ps} command or by explicitly specifying
 the fields to be printed out (see the \texttt{-o} option).
 \item The \texttt{renice} command can be used to manipulate the priority/nice
-value. Non privileged users can only increase the nice value (example from
+value. It usually uses the \texttt{setpriority} system call to do that.
+Non privileged users can only increase the nice value (example from
 mac OS 10.13):
 \begin{verbatim}
 $ /bin/sleep 200 &  # use /bin/sleep to avoid invoking shell built-in
