@@ -325,11 +325,11 @@ if the function returns -1.
 \item The priority class and nice value of a given process can be displayed with
 the \texttt{-l} option of the \texttt{ps} command or by explicitly specifying
 the fields to be printed out (see the \texttt{-o} option).
-\item Example: priority values have different scales on different systems.  E.g.
-on macOS~10.9 a process that had the priority value 30 will have the value
-decremented to 21 after increasing the nice value:
+\item The \texttt{renice} command can be used to manipulate the priority/nice
+value. Non privileged users can only increase the nice value (example from
+mac OS 10.13):
 \begin{verbatim}
-$ sleep 200 &
+$ /bin/sleep 200 &  # use /bin/sleep to avoid invoking shell built-in
 [1] 36877
 $ ps -O pri,nice -p $!
   PID PRI NI   TT  STAT      TIME COMMAND
@@ -337,12 +337,11 @@ $ ps -O pri,nice -p $!
 $ renice 10 -p $!
 $ ps -O pri,nice -p $!
   PID PRI NI   TT  STAT      TIME COMMAND
-36877  21 10 s003  SN     0:00.00 sleep 200
+36877  31 10 s003  SN     0:00.00 sleep 200
 \end{verbatim}
 
-With Linux kernel 3.10 it will look differently -- the priority value will be
-increased after a nice value increases.  However, that means the process will be
-running with a smaller priority.
+On Linux (kernel 5.10) this will look differently - after the \texttt{renice}
+is run, the priority will be increased by the nice value.
 \end{itemize}
 
 %%%%%
