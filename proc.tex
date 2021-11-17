@@ -425,8 +425,8 @@ especially if it already spawned multiple children.
 \item Example: \example{fork/fork.c}
 \item \label{VFORK} There is also \texttt{vfork}, used in the past to work
 around the problem that the child address space was usually rewritten on
-subsequent \texttt{exec}.  This problem was solved via already mentioned
-copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
+subsequent \texttt{exec}.  This problem was partially solved via already
+mentioned copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
 \item The problems of \texttt{vfork} are largely solved by
 \texttt{posix\_spawn}. See page \pageref{SPAWN}.
 \end{itemize}
