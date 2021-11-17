@@ -576,8 +576,9 @@ path)
 
 \begin{itemize}
 \item \emph{path} must be an absolute or relative path to the executable file.
-\texttt{PATH} is only used for \funnm{execlp} a \funnm{execvp} (see the one of
-the slides that follow), if \emph{path} does not contain \texttt{'/'}.
+The \texttt{PATH} environment variable is only used for \funnm{execlp} and
+\funnm{execvp} (see one of the slides that follow),
+provided \emph{path} does not contain \texttt{'/'}.
 \item All variants of these calls are commonly just called the \funnm{exec}
 call.  It goes without saying that one of the variants is used but usually that
 is not important for the sake of a discussion.
