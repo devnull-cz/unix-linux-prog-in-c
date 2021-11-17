@@ -760,7 +760,7 @@ up of one Mach-O header, followed by a series of load commands, followed by one
 or more segments, each of which contains between 0 and 255 sections.
 \item On Solaris, the \texttt{elfdump} command allows listing sections of the
 ELF file in a human readable form. On Linux distributions, use \texttt{readelf}.
-macOS (which does not use ELF but the Mach-O format), use \texttt{objdump}.
+On macOS (which does not use ELF but the Mach-O format), use \texttt{objdump}.
 \item The \emph{ELF header} contains basic information about the file.  Try
 ``\texttt{readelf -h /bin/ls}'' on any Linux distribution.
 \item The \emph{program header table} is only present in files that are
