@@ -1321,9 +1321,8 @@ linker, and dynamic libraries constitute a single process.
 \item The following examples \emsl{are from Solaris}.  Finding equivalent
 commands and/or options on Linux is left as an exercise to the reader.
 \begin{itemize}
-\item ELF sections are listed via \texttt{elfdump -c} (GNU has
-\texttt{objdump} and \texttt{readelf}).  More on program sections on page
-\pageref{ELF}.
+\item ELF sections are listed via \texttt{elfdump -c} (GNU has \texttt{readelf},
+macOS has \texttt{objdump}).  More on program sections on page \pageref{ELF}.
 \item What a dynamic linker is used is in section \texttt{.interp}, see
 ''\texttt{elf\-dump -i}'' and ``\texttt{ld -I}''.  It means you could write your
 own dynamic linker and set it via the \texttt{-I} option for \texttt{ld} to your
