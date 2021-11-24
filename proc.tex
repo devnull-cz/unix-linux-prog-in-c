@@ -1017,7 +1017,8 @@ the number of programs in the pipeline.  Before the prompt is printed, it waits
 for all processes it directly created to finish.  Another advantage is that
 since a parent can get exit status for its direct children only, forking all
 processes in a pipeline makes it convenient to provide the \texttt{PIPESTATUS}
-array variable to the user.
+array variable to the user. This array contains exit status values for the
+children executed in the latest pipeline.
 \end{itemize}
 
 %%%%%
