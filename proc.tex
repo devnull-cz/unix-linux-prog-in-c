@@ -950,9 +950,12 @@ not be intermingled with bytes written by other producers.
 \texttt{fildes[0]} is also open for writing and if \texttt{fildes[1]} is also
 open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
 may not.  It is best to assume unidirectional pipes.
+\item Writing to a pipe without readers results in the \texttt{SIGPIPE} signal
+delivered to the process. The default reaction to that event is process
+termination. Example: \example{pipe/broken-pipe.c}
+\item Example: \example{pipe/deadlock-in-read.c}
 \item \emsl{Important:} the same rules applied to reading and writing from/to
 named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
-\item Example: \example{pipe/broken-pipe.c}, \example{pipe/deadlock-in-read.c}
 \end{itemize}
 
 %%%%%
