@@ -916,7 +916,7 @@ Example: \example{exec/spawn.c}
 \sltitle{\texttt{pipe()}}
 \texttt{int \funnm{pipe}(int \emph{fildes}[2]);}
 \begin{itemize}
-\item creates an unnamed pipe and allocates a pair of file descriptors
+\item creates an \emph{unnamed pipe} and allocates a pair of file descriptors
     \begin{itemize}
     \item \texttt{fildes[0]} \dots{} for reading from a pipe
     \item \texttt{fildes[1]} \dots{} for writing to a pipe
@@ -928,15 +928,17 @@ Example: \example{exec/spawn.c}
     \end{itemize}
 \item consumer gets \texttt{EOF} (i.e. \texttt{read()} returns
 \texttt{0}) only if all copies of \texttt{fildes[1]} are closed.
-\item named pipe (i.e. FIFO, see \funnm{mkfifo}) works the same way.  The
-difference is any process can use it.
+\item \emph{named pipe} (i.e. FIFO, see \funnm{mkfifo}) works the same way.
+The difference is that any process (modulo permissions) can use it.
 \end{itemize}
 \end{slide}
 
 \label{PIPE}
 
 \begin{itemize}
-\item An unnamed pipe is created by one process and can be passed to its
+\item \emph{pipe} is an object with 2 endpoints; serves for passing data from
+one to the other.
+\item An \emph{unnamed pipe} is created by one process and can be passed to its
 children only via file descriptors inherited through \funnm{fork}.  That
 limitation can be worked around via passing an open file descriptor via a
 u{}nix-domain socket.  However, such a workaround is out of scope for this
