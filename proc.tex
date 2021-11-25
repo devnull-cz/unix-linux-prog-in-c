@@ -596,6 +596,10 @@ as well, then finally calls the program \texttt{main()}.
 for example.  When done, run the program via \texttt{truss(1)} or
 \texttt{strace(1)} like this: \texttt{truss ./a.out}. You will see what is being
 done before \texttt{open} is called in the end.
+\item The \texttt{FD\_CLOEXEC} file descriptor flag is set using the
+\texttt{fcntl} system call. It can be also set via implementation specific
+(i.e. non-standard) way, e.g. by passing the \texttt{O\_CLOEXEC} flag to
+the \texttt{open} system call on Linux.
 \end{itemize}
 
 \begin{slide}
