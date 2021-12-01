@@ -142,8 +142,9 @@ though.  \item Sending a signal to another process:
     \item FreeBSD: EUID of the processes must match
     \end{itemize}
 \item Example: \example{signals/killing-myself.c}
-\item 0 signal can be also used for a simple check for the specific process
-existence, see \example{signals/check-existence.c}.
+\item Using \texttt{0} as \emph{\texttt{sig}} may be used for a simple check for
+the specific process existence, see \example{signals/check-existence.c}.  Not
+signal is sent in that case.
 \end{itemize}
 
 %%%%%
