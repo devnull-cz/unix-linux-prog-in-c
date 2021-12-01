@@ -718,6 +718,11 @@ $ ./a.out
 ...
 \end{verbatim}
 
+Also note that normally \texttt{ls} prints its command name before the colon.
+However, given that \texttt{NULL} was put in place of \texttt{argv[0]}, the
+command name is printed as an empty string.  The '\texttt{:}' character then
+leads the output lines, adding to the confusion.
+
 Example: \example{exec/execl-buggy.c}
 \end{itemize}
 
@@ -1231,7 +1236,7 @@ int main(int argc, char *argv[])
     p1 = addr = \emprg{mmap}(0, fsz, PROT\_READ | PROT\_WRITE,
         MAP\_SHARED, fd, 0);
     p2 = p1 + fsz - 1;
-    while(p1<p2) \{
+    while(p1 < p2) \{
             c = *p1; *p1++ = *p2; *p2-- = c;
     \}
     \emprg{munmap}(addr, fsz); 
