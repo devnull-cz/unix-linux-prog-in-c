@@ -59,6 +59,24 @@ $ dd if=/dev/zero of=/dev/null
 \end{verbatim}
 \end{itemize}
 
+On BSD systems, there is the \texttt{SIGINFO} signal used for that, usually
+mapped to \texttt{Ctrl-T}.  It looks as follows there:
+
+\begin{verbatim}
+freebsd$ dd if=/dev/zero of=/dev/null
+load: 0.00  cmd: dd 12108 [runnable] 1.09r 0.07u 0.94s 14% 888k
+39941+0 records in
+39940+0 records out
+20449280 bytes transferred in 1.054782 secs (19387211 bytes/sec)
+load: 0.08  cmd: dd 12108 [runnable] 2.00r 0.15u 1.72s 21% 912k
+74278+0 records in
+74278+0 records out
+38030336 bytes transferred in 1.965972 secs (19344292 bytes/sec)
+^C104684+0 records in
+104683+0 records out
+53597696 bytes transferred in 2.774283 secs (19319477 bytes/sec)
+\end{verbatim}
+
 %%%%%
 
 \begin{slide}
