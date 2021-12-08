@@ -409,8 +409,8 @@ only for \texttt{F\_GETLK} when returning.
 the \texttt{flock} structure is returned unchanged except for the first member
 that is set to \texttt{F\_UNLCK}.
 \item \label{FCNTL_LOCKING} example: \example{file-locking/fcntl-locking.c}
-\item \label{FCNTL_FIXED_RACE_C} example on how to use fcntl (it is 
-,,fixed'' version of previous \example{race/race.c} example from page
+\item \label{FCNTL_FIXED_RACE_C} example on how to use \texttt{fcntl} (it is
+,,fixed'' version of the previous \example{race/race.c} example from page
 \pageref{RACE_C}): \example{race/fcntl-fixed-race.c}.
 \item locking via \texttt{fcntl} and \texttt{lockf} has one important property
 that is being described in the \texttt{fcntl} man page in FreeBSD:
