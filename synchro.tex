@@ -352,8 +352,8 @@ the same program are unwanted.
 \item There are 2 types of locks:
     \begin{description}
     \item [advisory locks] -- for correct operation it is necessary that all
-    processes working with locked files to check locks before reading/writing.
-    used more frequently.
+    processes working with locked files check the locks before reading/writing.
+    Used more frequently.
     \item [mandatory locks] -- if a file is locked, read/write operations will
     automatically block the process, i.e. the lock will be applied also on
     processes that do not explicitly work with the lock.
