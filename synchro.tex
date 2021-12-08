@@ -671,9 +671,10 @@ have not mentioned yet:
     \funnm{mq\_send}(), \funnm{mq\_receive}(), \dots{} 
     \item \emsl{System V APIs} for queues, shared memory, and semaphores
     \end{itemize}
-\item \emsl{sockets} come from the BSD world and allow communication in domains
-\texttt{AF\_UNIX} (communication within the same system) and \texttt{AF\_INET}
-(communication within the same system or across network).
+\item \emsl{sockets} come from the BSD world and allow communication in various
+domains, e.g. \texttt{AF\_UNIX} (communication within the same system) and
+\texttt{AF\_INET}/\texttt{AF\_INET6} (communication within the same system or
+across network using internet protocols).
 \end{itemize}
 \end{slide}
 
@@ -684,8 +685,8 @@ lot in existing code.  For System~V semaphore API and examples, see page
 \pageref{SYSVSEM}.
 \item The POSIX API for IPC came in with extension 1003.1b (aka POSIX.4), see
 page \pageref{POSIX4}.
-\item Sockets were accepted by other Unix systems as well and has been a part of
-the UNIX specification since version 2.
+\item Sockets were accepted by other Unix systems as well and have been a part
+of the UNIX specification since version 2.
 \item There are other more system specific facilities.  For example,
 \emph{doors} is an RPC like facility on Solaris, designed to be used within the
 same system only. It has some interesting features - not only it can be used for
