@@ -632,6 +632,11 @@ process.
 \end{slide}
 
 \begin{itemize}
+\item \emph{value} is the initial semaphore value
+\item Both the \emph{mode} and \emph{value} parameters are optional. This means
+that \emph{mode} has to be specified in order to set the initial value.
+\item Named semaphore might appear on a file system. Usually in the form of
+a node on virtual file system like \texttt{/dev/shm/} on Linux.
 \item \emph{\texttt{oflag}} can be a combination of only \texttt{O\_CREAT} and
 \texttt{O\_EXCL}.  If the semaphore already exists, an invocation with only
 \texttt{O\_CREAT} silently succeeds, \texttt{O\_EXCL} will cause an error.
