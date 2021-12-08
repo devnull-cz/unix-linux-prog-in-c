@@ -359,10 +359,10 @@ the same program are unwanted.
     processes that do not explicitly work with the lock.
         \begin{itemize}
 	\label{MANDATORY}
-	\item not universally recommended, do not always work
+	\item not universally recommended, does not always work
         (e.g. \texttt{lockd} implements just advisory locking)
 	\item for given file they are enabled by setting the SGID bit and
-        removing right to execute for the group
+        removing the right to execute for the group
 	(i.e. setting that otherwise does not make sense).
 	One process sets the lock (e.g. using \texttt{fcntl}). Other processes
 	then do not have to check the lock explicitly because each
