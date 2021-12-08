@@ -636,7 +636,7 @@ process.
 \item Both the \emph{mode} and \emph{value} parameters are optional. This means
 that \emph{mode} has to be specified in order to set the initial value.
 \item Named semaphore might appear on a file system. Usually in the form of
-a node on virtual file system like \texttt{/dev/shm/} on Linux.
+a node on virtual file system like \texttt{/dev/shm/} on Linux (if mounted).
 \item \emph{\texttt{oflag}} can be a combination of only \texttt{O\_CREAT} and
 \texttt{O\_EXCL}.  If the semaphore already exists, an invocation with only
 \texttt{O\_CREAT} silently succeeds, \texttt{O\_EXCL} will cause an error.
@@ -650,8 +650,6 @@ identified by the returned handle -- and thus use less resources.  See
 \item Example on POSIX semaphores (it is a fixed version of the previous example
 \example{race/race.c} from page \pageref{RACE_C}):
 \example{race/posix-sem-fixed-race.c}.
-\item To list POSIX semaphores system wide on Linux, list the contents of
-\texttt{/dev/shm} pseudo file system (if mounted).
 \end{itemize}
 
 %%%%%
