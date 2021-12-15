@@ -759,6 +759,9 @@ writes will follow. This is valid for either \texttt{close} or
 \texttt{shutdown(fd, SHUT\_RDWR)}. When using
 \texttt{shutdown(fd, SHUT\_WR)} it is still possible to read from the socket.
 The remote side will get \texttt{EOF} while reading however it can still write.
+\item If \texttt{connect} is used on a datagram socket then calling
+\texttt{shutdown} on the socket will make subsequent send and/or receive calls
+on that socket fail.
 \end{itemize}
 
 %%%%%
