@@ -1211,7 +1211,7 @@ reader threads.  E.g. if a lock is owned by a writer while some other thread
 calls function \funnm{pthread\_rwlock\_rdlock} and there is at least one thread
 waiting in \funnm{pthread\_rwlock\_wrlock}, the writer will be given precedence.
 See \example{pthreads/pthread-rwlock-pref.c}.
-\item There is a maximum number of locks allowed for each lock in any
+\item There is a maximum number of readers that acquired the lock in any
 \texttt{pthread} implementation (inferred from the type that holds the lock
 count). If the maximum is reached \funnm{pthread\_rwlock\_rdlock} returns the
 \texttt{EAGAIN} error, see \example{pthreads/pthread-rwlock-limit.c}.
