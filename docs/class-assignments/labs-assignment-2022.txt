@@ -2,7 +2,7 @@ Labs Assignment for 2021 - Simple Shell
 =======================================
 Write a simple Unix/Linux shell.
 
-Version: Set 5, 2022
+Version: Sep 5, 2022
 
 If in doubt about anything in this file, please ask a question, and we
 strongly prefer you send it to the class mailing list,
