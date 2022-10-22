@@ -883,9 +883,12 @@ commands and also archive utilities to make sure the times are the same for the
 originals and copies. (e.g. \texttt{tar} or \texttt{rsync}).
 \item The \texttt{futimens} and \texttt{utimensat} offer greater deal of
 flexibility. They allow to set the time to current time, using special
-constant in the \texttt{timespec} structure. Also, \texttt{utimensat}
+constant in the \texttt{timespec} structure. Also, \texttt{utimensat()}
 has a flag that controls whether to work directly on a symlink or its target.
-\item The shell interface for \texttt{utime} is the command \texttt{touch}.
+Lastly, they offer greater precision (nanoseconds), compared to legacy
+interfaces such as \texttt{utime()} (seconds) or \texttt{utimes()}
+(microseconds).
+\item The shell interface for the above interfaces is the command \texttt{touch}.
 \item There is an excellent section \emph{1.7 Dates and Times} in [Butenhof]
 that goes through various representations of time in Unix systems, and functions
 that use those.  It is 12 pages of good stuff, highly recommended if you ever
