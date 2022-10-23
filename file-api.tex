@@ -37,6 +37,9 @@ are defined in the standard \texttt{libc} library and use standard system calls
 like \funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions,
 we will only use functions for printing to the terminal output like
 \funnm{fprintf}().
+\item There is usually some upper limit of the number of active file descriptors
+for given process. See the man pages for \texttt{ulimit} command and/or
+the \texttt{setrlimit} syscall.
 \end{itemize}
 
 %%%%%
