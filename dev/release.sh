@@ -34,6 +34,8 @@ if [[ $ver == $VERSION ]]; then
 	exit 1
 fi
 
+echo "Pulling"
 git pull --ff-only
 git tag "$VERSION"
+echo "Pushing"
 git push origin tag "$VERSION"
