@@ -731,9 +731,9 @@ flags for creation, truncation, and exclusive access.
 for file locking
 \end{itemize}
 \item Note that there are two kinds of flags.  Flags associated with the file
-descriptor, having \texttt{FD} in the macro names (only one such exists --
-\texttt{FD\_CLOEXEC}), and flags associated with the slot in the system file
-table of opened files, having \texttt{FL} in the \texttt{fcntl} command macros
+descriptor, having \texttt{FD} in the macro names \texttt{FD\_CLOEXEC},
+and flags associated with the slot in the system file table of opened files,
+having \texttt{FL} in the \texttt{fcntl} command macros
 (i.e. \texttt{F\_GETFL}).  See also the picture on page \pageref{OPENFILETABLES}.
 \item Devices may support reading and writing using \texttt{read} and
 \texttt{write}, and mapping files to memory (\texttt{mmap}, see page
