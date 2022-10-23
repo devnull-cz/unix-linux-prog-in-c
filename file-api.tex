@@ -294,10 +294,10 @@ descriptors
 can \texttt{rm} all hard links to a specific file but if a process has the file
 still open, the file data remains on the disk until the process closes the file
 or terminates.
-\item If a process needs a temporary file, it can create it, \texttt{unlink} it
-right away, and work with it using the existing file descriptor.  When the file
-descriptor is closed (and all of its possible duplicates), the file data is
-released.
+\item If a process needs a temporary file, it can create it, \texttt{unlink}
+(see page \pageref{UNLINK}) it right away, and work with it using the existing
+file descriptor.  When the file descriptor is closed (and all of its possible
+duplicates), the file data is released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure (NFS), and if that write fails, \texttt{close} fails.
 \item If you forget to close file descriptors when you no longer need them,
@@ -912,7 +912,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \emph{path2} to file \emph{path1}.  Hard links cannot span filesystems (use
 \funnm{symlink} for that).
 \end{itemize}
-\texttt{ int \funnm{unlink}(const char *\emph{path});}
+\label{UNLINK} \texttt{ int \funnm{unlink}(const char *\emph{path});}
 \begin{itemize}
 \item deletes a name (i.e. a directory entry) and after deleting the last link to
 the file and after closing the file by all processes, deletes the file data.
