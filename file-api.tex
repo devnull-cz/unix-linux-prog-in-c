@@ -880,9 +880,9 @@ const struct utimbuf *\emph{times});}
 \item calling process must have write permission for the file
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
-\texttt{int futimens(int fd, const struct timespec times[2]);}
-\texttt{int utimensat(int fd, const char *path, \\
-    const struct timespec times[2], int flag);}
+\texttt{int \funnm{futimens}(int fd, const struct timespec times[2]);}
+\texttt{int \funnm{utimensat}(int fd, const char *path, \\
+const struct timespec times[2], int flag);}
 ]]])
 \begin{itemize}
 \item allow to set both access and modification time
