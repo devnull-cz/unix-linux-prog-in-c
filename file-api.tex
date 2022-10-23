@@ -745,8 +745,16 @@ something like the following when setting a new flag:
 
 \begin{verbatim}
 flags = fcntl(fd, F_GETFL);
-if (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)
-  ...
+fcntl(fd, F_SETFL, flags | O_APPEND);
+\end{verbatim}
+
+or better with proper error checks:
+
+\begin{verbatim}
+if (((flags = fcntl(fd, F_GETFL)) == -1) ||
+    (fcntl(fd, F_SETFL, flags | O_APPEND) == -1)) {
+        err(...);
+}
 \end{verbatim}
 
 \dots similarly when removing a flag.
