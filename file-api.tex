@@ -11,9 +11,9 @@ include(`macros.m4')
 More descriptors can share the same file opening (read/write mode, position).
 \item standard file descriptors
     \begin{itemize}
-    \item 0 \dots{} standard input (read only) 
-    \item 1 \dots{} standard output (write only) 
-    \item 2 \dots{} unbuffered error output (write only) 
+    \item 0 \dots{} standard input (read only)
+    \item 1 \dots{} standard output (write only)
+    \item 2 \dots{} unbuffered error output (write only)
     \end{itemize}
 \item for reading and writing a file: \funnm{read}(), \funnm{write}()
 \item position change: \funnm{lseek}(), close: \funnm{close}(),
@@ -31,7 +31,7 @@ we work with pipes and redirect process input and output.
 \item A process inherits file descriptors from its parent so it does not have to
 open already open files.  Usually at least file descriptors 0, 1, and 2 are
 provided.
-\item Functions from a header file \texttt{stdio.h} (e.g. \funnm{fopen}(),
+\item Functions from the \texttt{stdio.h} header file (e.g. \funnm{fopen}(),
 \funnm{fprintf}(), and \funnm{fscanf}()), and their file handle \texttt{FILE}
 are defined in the standard \texttt{libc} library and use standard system calls
 like \funnm{open}(), \funnm{write}(), and \funnm{read}().  From those functions,
