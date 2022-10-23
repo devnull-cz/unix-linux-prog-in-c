@@ -739,9 +739,9 @@ of opened files. See also the picture on page \pageref{OPENFILETABLES}.
 \pageref{MMAP}), all other operations on devices (e.g. setting parameters,
 locking, or eject) are performed using the \texttt{ioctl} system call.
 \item When setting flags, always get the present flags first.  Even when you
-know the flags are zero, you never know how the code is modified in the future,
-and what other flags are possibly added.  So, you should always use something
-like the following when setting a new flag:
+know the flags are zero, you never know how the code will be modified in the
+future, and what other flags are possibly added.  So, you should always use
+something like the following when setting a new flag:
 
 \begin{verbatim}
 flags = fcntl(fd, F_GETFL);
