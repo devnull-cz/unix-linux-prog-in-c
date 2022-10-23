@@ -456,11 +456,11 @@ be to use the \texttt{select} call, see page \pageref{SELECT}.
 (\texttt{limits.h}) is guaranteed as atomic, i.e. data will not be intermingled
 with data written by other writers.  For example, on Linux kernel 4.x it is 4096
 bytes, on Solaris 11 it is 5120 bytes, and on FreeBSD 8.2 it is only 512 bytes.
-It is obvious from the above that if you write less or equal than
-\texttt{PIPE\_BUF}, you always write the whole data or fail, and if
-\texttt{O\_NONBLOCK} is set and the whole data buffer cannot be written (for
-example, a pipe can hold only a limited number of bytes), the call will fail.
-\item A pipe has no file position, you always append data to a pipe.
+It is obvious from the above that if less or equal than \texttt{PIPE\_BUF}
+bytes is written, the data is always written whole or the operation fails,
+and if \texttt{O\_NONBLOCK} is set and the whole data buffer cannot be written
+(for example, a pipe can hold only a limited number of bytes), the call will fail.
+\item A pipe has no file position, data is always appended to a pipe.
 \item All the information here applies to a unnamed pipes as well, see page
 \pageref{PIPE}.
 
