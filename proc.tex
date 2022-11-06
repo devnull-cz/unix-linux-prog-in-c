@@ -593,10 +593,10 @@ As described on page \pageref{RUNTIMELINKER}, the system (i.e. the
 code of the \funnm{exec} call) first maps the dynamic linker, a.k.a. the loader,
 to the process address space.  The loader then maps all dynamic libraries there
 as well, then finally calls the program \texttt{main()}.
-\item A useful exercise is to write a simple program calling \texttt{open()},
-for example.  Then run the program via \texttt{truss(1)} or
-\texttt{strace(1)} like this: \texttt{truss ./a.out}. You will see a number of
-system calls before \texttt{open} is actually called. These system calls
+\item A useful exercise is to write a simple program calling for example
+\texttt{open()} on a distinct file.  Then run the program via \texttt{truss(1)}
+or \texttt{strace(1)} like this: \texttt{truss ./a.out}. You will see a number
+of system calls before the \texttt{open} is actually called. These system calls
 can be attributed to the dynamic linker.
 \item The \texttt{FD\_CLOEXEC} file descriptor flag is set using the
 \texttt{fcntl} system call. It can be also set via implementation specific
