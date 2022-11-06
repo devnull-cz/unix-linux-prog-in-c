@@ -588,7 +588,8 @@ For example, \texttt{login} command prefixes the shell file name with
 function as a login shell.  A login shell reads \texttt{/etc/profile}, for
 example.
 \item \funnm{exec} does not transfer the control to the program in memory
-directly. As described on page \pageref{RUNTIMELINKER}, the system (i.e. the
+directly, at least for dynamically linked programs.
+As described on page \pageref{RUNTIMELINKER}, the system (i.e. the
 code of the \funnm{exec} call) first maps the dynamic linker, a.k.a. the loader,
 to the process address space.  The loader then maps all dynamic libraries there
 as well, then finally calls the program \texttt{main()}.
