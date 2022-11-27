@@ -149,10 +149,10 @@ only in one process (or thread), otherwise the operations can lead to
 inconsistent state, e.g. wrongly connected linked list, mismatched database
 indexes etc. It is possible to say that critical section is code which accesses
 or modifies resource shared with multiple processes (or threads) and therefore
-access to such code should be synchronized. Critical section should be as
+access to such code should be synchronized. A critical section should be as
 short as possible to limit contention. The second definition is more generic,
-it can also include situations where only one process (or thread) can change
-the state however if this is not happening, more processes can read
+it can also include situations where only one process (or thread) can change the
+state but while that is not happening, more processes can read it
 simultaneously.
 \end{itemize}
 
