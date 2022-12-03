@@ -564,8 +564,9 @@ connections and spawn new processes as necessary.
 It is a good idea for child processes to voluntarily exit after serving a
 certain number of connections to avoid issues like memory leaks to affect the
 host as a whole. Apache web server can be configured to work like this.
-\item All server side ways of serving the connections work with the same client.
-The way a client works does not depend on which approach the server chooses.
+\item Any approach of handling the connections on the server side covered so far
+works with the same client. The way a client works does not depend on which
+approach the server chooses.
 \end{itemize}
 
 \begin{slide}
