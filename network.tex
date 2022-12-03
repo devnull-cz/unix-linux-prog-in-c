@@ -531,7 +531,7 @@ find there an example using a non-blocking \funnm{connect}(), page
 process it.  After the connection is finished, the child exits.  The parent
 process can accept new connections meanwhile.  So, multiple connections may be
 served in parallel.
-\item After \funnm{fork}()ing but before starting to use the connection, the
+\item After \funnm{fork}()ing but before performing I/O on the connection, the
 child may \funnm{exec}() -- that is how \texttt{inetd} works, see page
 \pageref{INETD}.
 \item As you already know, by calling \funnm{waitpid}() you are getting rid of
