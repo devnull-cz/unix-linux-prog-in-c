@@ -643,8 +643,8 @@ usually not the case when working with datagrams.
 \item After successful return from \texttt{recvfrom} it is possible to reuse
 \texttt{address} and \texttt{address\_len} unchanged for a \texttt{sendto} call.
 \item Like \texttt{sendto}, \texttt{recvfrom} is possible to use for connected
-service. That said, getting remote's address is better via
-\texttt{getpeername}, see page \pageref{GETPEERNAME}.
+service (TCP). That said, getting remote's address for a TCP connection is
+better via \texttt{getpeername}, see page \pageref{GETPEERNAME}.
 \item Example: \label{UDP_SERVER_C} \example{udp/udp-server.c}
 \end{itemize}
 
