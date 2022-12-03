@@ -226,8 +226,8 @@ constants.
 \item There are other domains, see the \texttt{socket(2)} manual page.
 \item There are also other socket types, for example \texttt{SOCK\_RAW}, for
 full protocol access. In order to use \texttt{SOCK\_RAW} you usually need
-additional privileges.  That is a reason why a command \texttt{ping}, which
-works with ICMP headers of sent packets, might need an SUID privilege:
+additional privileges.  That is a reason why the \texttt{ping} command, which
+works with ICMP headers of sent packets, might need to be a SUID program:
 
 \begin{verbatim}
 $ ls -l /usr/sbin/ping
