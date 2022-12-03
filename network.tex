@@ -613,8 +613,7 @@ If the message does not fit \emph{l{}en}, extra data is discarded
     \begin{itemize}
     \item \texttt{MSG\_PEEK} \dots{} message it considered not read, next
     \texttt{recvfrom} will return it again
-    \item \texttt{MSG\_OOB} \dots{} reads urgent (out-of-band)
-    data 
+    \item \texttt{MSG\_OOB} \dots{} reads urgent (out-of-band) data
     \item \texttt{MSG\_WAITALL} \dots{} waits for the buffer to fill up
     i.e. \emph{l{}en} bytes
     \end{itemize}
@@ -634,9 +633,9 @@ least provide awareness of the truncation (\texttt{MSG\_TRUNC} flag in the
 Depending on the application, using large buffer (based on lower network layer
 constraints) might be the answer (at the cost of wasting memory).
 \item \texttt{address\_len} \emsl{must} be initialized with buffer size if
-the address is not \texttt{NULL}. \texttt{NULL} address is used to express that
-the caller is not interested in remote's address -- however that is usually
-not the case when working with datagrams.
+the \texttt{address} is not \texttt{NULL}. \texttt{NULL} address is used to
+express that the caller is not interested in remote's address -- however that is
+usually not the case when working with datagrams.
 \item Instead of using \texttt{recvfrom} it is possible to use
 \texttt{recvmsg} which is more generic.
 \item If \texttt{connect} was used then \texttt{recv} can be used instead of
