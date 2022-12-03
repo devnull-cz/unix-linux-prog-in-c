@@ -539,10 +539,10 @@ zombies. This only works because the \texttt{WNOHANG} flag is used,
 otherwise the parent would be blocked and the next connection would only be
 accepted after one of the children exited.
 Another way is to set to ignore \texttt{SIGCHLD} in which case you
-completely avoid the grave danger of the living dead attack (see page
+completely avoid the grave danger of the living dead accumulating (see page
 \pageref{IGNORE_SIG_CHLD}).  You could also catch the signal and call
 one of the \funnm{wait}() calls from the handler itself which is fine as the
-call is async-signal-safe (see page \pageref{ASYNCSIGNALSAFE}).
+call is \emph{async-signal-safe} (see page \pageref{ASYNCSIGNALSAFE}).
 \end{itemize}
 
 %%%%%
