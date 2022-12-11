@@ -1251,7 +1251,7 @@ ifdef([[[NOSPELLCHECK]]], [[[(\texttt{0,~...,~\emsl{nfds-1}}).]]])
 \begin{itemize}
 \item \emsl{Motivation:} to read data from multiple file descriptors, it is
 possible to open respective files with the \texttt{O\_NONBLOCK} flag
-(or set the flag after \texttt{open} with \texttt{fncnl} -- with the second
+(or set the flag after \texttt{open} with \texttt{fcntl} -- with the second
 parameter being \texttt{O\_SETFL}, not \texttt{O\_SETFD}, see page
 \pageref{FCNTL}).  Repetitious \texttt{read} (which is non-blocking after we set
 the descriptor as non-blocking, see page \pageref{OPEN}) is then called on all

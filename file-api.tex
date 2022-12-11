@@ -686,7 +686,7 @@ dup2(1, 2);
 \item Example: close standard error output on program execution (exec call):\\
 \texttt{fcntl(2, F\_SETFD, FD\_CLOEXEC);}
 \item We will see later that descriptors are used for sockets as well, so it is
-possible to use \texttt{fnctl} on them, for example to set a non-blocking
+possible to use \texttt{fcntl} on them, for example to set a non-blocking
 socket.  See page \pageref{CONNECT} for more information.
 \item Values for \emph{cmd} in \texttt{fcntl}:
 \begin{itemize}
