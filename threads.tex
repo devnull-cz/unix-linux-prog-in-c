@@ -1154,6 +1154,10 @@ after unlocking and in such a case it can be more efficient (depending on
 a given implementation) because the thread that has been woken up will not get
 immediately blocked by the mutex which is still held by the thread signalling
 from within the critical section.
+\\
+That said, SUSv3 discourages this (unlocking then signalling / broadcasting),
+saying it might cause "unpredictable scheduling behavior", possibly in the
+environment of threads with different scheduling priorities.
 \item \label{QUEUESIMULATION} Example:
 \example{cond-variables/queue-simulation.c}
 \end{itemize}
