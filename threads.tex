@@ -1567,6 +1567,9 @@ individual systems define their own calls.
 \end{slide}
 
 \begin{itemize}
+\item for naming threads, Linux distributions might have
+\texttt{pthread\_setname\_np} (i.e. without the underscore, unlike the
+Solaris/FreeBSD), further cementing the non-portability character.
 \item Non-portable calls should be used either for system programs or
 debugging. You never know when the code will be executed on different system,
 which typically happens once you leave the company and having the time to
