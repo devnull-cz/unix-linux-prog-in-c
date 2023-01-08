@@ -91,6 +91,8 @@ using the \texttt{brk} and \texttt{sbrk} syscalls and is used by the
 heap on demand, and manages acquired memory and distributes it to the process in
 chunks.  When \texttt{free} is called, it does not mean that the memory is
 returned to the kernel; it is only returned to the allocator.
+It depends on the allocator implementation whether this memory is returned
+to the kernel.
 \item The \texttt{mmap} area is used for mapping files into memory, i.e. also
 for shared libraries. Some allocators use also this memory internally,
 e.g. in case a process requests larger chunks of memory at once.  It is possible
