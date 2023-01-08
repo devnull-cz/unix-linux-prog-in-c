@@ -60,7 +60,7 @@ for threads where each thread has its own limited stack).
 the kernel which is not needed when the process is swapped out to disk
 (number of open files, signal handling settings, number of shared memory segments,
 program arguments, environment variables, current working directory, etc.).
-This area is accessible only to the kernel which will see just the area 
+This area is accessible only to the kernel which will see just the area
 of a currently running process. The rest of the data needed even if the process
 is not currently running or while swapped out to disk is stored in the
 \texttt{proc} structure.  \texttt{proc} structures for all processes are always
@@ -70,7 +70,7 @@ resident in memory and accessible in a kernel mode.
 \begin{slide}
 \sltitle{Example: Solaris 11 x86 32-bit}
 \begin{center}
-\includegraphics[width=54mm]{img/eps/x86-memory-proc-mem-layout.eps}  
+\includegraphics[width=54mm]{img/eps/x86-memory-proc-mem-layout.eps}
 \end{center}
 \end{slide}
 
