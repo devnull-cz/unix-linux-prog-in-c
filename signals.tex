@@ -320,7 +320,8 @@ _start+0x7a(2, 8047a74, 8047a7a, 0, 8047a7d, 8047b91)
 \end{verbatim}
 \item \texttt{SIGTERM} is the default signal for command \texttt{kill(1)}.
 \item \texttt{SIGUSR1} and \texttt{SIGUSR2} are not used by any system call and
-are available for use to the user.
+are available for use to the user. These are used to e.g. dump internal state
+of a daemon to a file, display statistics of the program run so far, etc.
 \end{itemize}
 
 %%%%%
