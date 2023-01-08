@@ -1221,6 +1221,10 @@ int \emph{prot});}
 mapped as well will see the memory writes immediately.
 \item memory mapping and setting access rights is used by the Electric Fence
 library which is used for error detection on dynamic memory use.
+\item There is also \texttt{madvise} system call that allows the process
+to give the kernel some hints in how it is going to access the (mapped) memory
+in given address range. E.g. the \texttt{MADV\_SEQUENTIAL} advice implies
+the pages should be read-ahead and then freed once they are accessed.
 \end{itemize}
 
 %%%%%
@@ -1241,7 +1245,7 @@ int main(int argc, char *argv[])
     while(p1 < p2) \{
             c = *p1; *p1++ = *p2; *p2-- = c;
     \}
-    \emprg{munmap}(addr, fsz); 
+    \emprg{munmap}(addr, fsz);
     \emprg{close}(fd);
     return (0);
 \}
@@ -1252,7 +1256,7 @@ int main(int argc, char *argv[])
 \item This program will reverse the bytes in a file.
 \item One of the advantages of shared memory segments is that it is possible
 to work with the data using pointer arithmetic. Generally it is necessary
-to watch out for alignment when dereferencing a pointer, e.g. on SPARC 
+to watch out for alignment when dereferencing a pointer, e.g. on SPARC
 unaligned access will cause the \texttt{SIGBUS} signal, see example
 \example{mmap/aligned.c}.
 \end{itemize}
@@ -1265,7 +1269,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 
 \begin{slide}
 \sltitle{Accessing dynamic link libraries}
-\texttt{void *\funnm{dlopen}(const char *\emph{path}, int \emph{mode});} 
+\texttt{void *\funnm{dlopen}(const char *\emph{path}, int \emph{mode});}
 \begin{itemize}
 \item loads \emph{path} unless already loaded, returns
 a \emsl{handle} or \texttt{NULL}
