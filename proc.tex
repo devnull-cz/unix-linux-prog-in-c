@@ -430,7 +430,8 @@ around the problem that the child address space was usually rewritten on
 subsequent \texttt{exec}.  This problem was partially solved via already
 mentioned copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
 \item The problems of \texttt{vfork} are largely solved by
-\texttt{posix\_spawn}. See page \pageref{SPAWN}.
+\texttt{posix\_spawn} if implemented in kernel (it is usually
+\texttt{vfork} wrapper). See page \pageref{SPAWN}.
 \end{itemize}
 
 %%%%%
