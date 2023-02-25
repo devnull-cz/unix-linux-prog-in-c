@@ -587,7 +587,8 @@ delivery.
 If both are \texttt{NULL} in the same invocation of the function, nothing
 happens.
 \item \texttt{sigpending} sets the set in the argument to the pending mask. \\
-See \example{signals/sigpending.c}.
+Once the signal is unblocked after \texttt{sigpending()} call, the handler
+will not be called. See \example{signals/sigpending.c}.
 \end{itemize}
 
 %%%%%
