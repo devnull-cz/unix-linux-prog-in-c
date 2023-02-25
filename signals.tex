@@ -387,6 +387,8 @@ the current setting.  If you see no \texttt{tostop}, you can set it up with
 \begin{itemize}
 \item \texttt{SIGALRM} and related function \funnm{alarm} is used for setting
 timer alarms, useful for implementation of timeouts, for example.
+\item The timers set by \texttt{alarm()} are not inherited across fork,
+however the signal disposition is.
 \end{itemize}
 
 %%%%%
