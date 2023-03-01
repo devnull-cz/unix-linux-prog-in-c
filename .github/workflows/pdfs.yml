@@ -23,19 +23,11 @@ jobs:
       working-directory: master
       run: make slides notes
     - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
-        draft: false
-        prerelease: false
-    - name: Upload PDF
-      id: upload-release-asset
-      uses: alexellis/upload-assets@0.3.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        asset_paths: '["./master/unix-linux-prog-in-c.pdf", "./master/unix-linux-prog-in-c_slides-only.pdf"]'
+      uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          prerelease: false
+          draft: false
+          files: |
+            ./master/unix-linux-prog-in-c.pdf
+            ./master/unix-linux-prog-in-c_slides-only.pdf
