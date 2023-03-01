@@ -24,10 +24,10 @@ jobs:
       run: make slides notes
     - name: Create Release
       uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          prerelease: false
-          draft: false
-          files: |
-            ./master/unix-linux-prog-in-c.pdf
-            ./master/unix-linux-prog-in-c_slides-only.pdf
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        prerelease: false
+        draft: false
+        files: |
+          ./master/unix-linux-prog-in-c.pdf
+          ./master/unix-linux-prog-in-c_slides-only.pdf
