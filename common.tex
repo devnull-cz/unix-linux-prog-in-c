@@ -1,5 +1,5 @@
 % Unix programming in C
-% (c) 1999-2021, Martin Beran, Jan Pechanec, Vladimir Kotal
+% (c) 1999-2023, Martin Beran, Jan Pechanec, Vladimír Kotal
 
 % (janp) notes
 %
@@ -14,17 +14,10 @@
 
 include(`macros.m4')
 
-%\documentclass[article]{seminar}
-%\documentclass[slidesonly]{seminar}
-%\documentclass[a4paper]{seminar}
-
 \usepackage{multicol}
 \usepackage{tabularx}
 
 \usepackage{nth}
-
-%\input{seminar.bg2}
-%\usepackage{seminar}
 
 % color doc: http://en.wikibooks.org/wiki/LaTeX/Colors
 % color defs: http://www.w3schools.com/html/html_colors.asp
@@ -47,6 +40,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 	pdfkeywords={Unix, programming, C, MFF, MFF-UK},%
 	pagebackref=true,%
 	]{hyperref}
+
 \usepackage{url}
 % by default \url will use monospaced font. suppress this and use normal font.
 \urlstyle{same}
@@ -54,14 +48,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 % for strike-through (\sout)
 \usepackage[normalem]{ulem}
 
-% cannot use hyperref with this one !
-%\usepackage{sem-a4}
-
 \usepackage{alltt}
 \usepackage{graphicx}
-%\usepackage{psfrag}
-%\usepackage{pstricks} % does not work with colortbl
-%\usepackage{colortbl}
 
 \usepackage{upquote}
 
@@ -100,7 +88,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 
 \newenvironment{itemize2} % Itemize with smaller font
     {\begin{itemize}\small} {\end{itemize}}
-    
+
 \newsavebox{\boxTMP}
 \newcommand{\raisetab}[1]{ % Align first table row with other text
     \sbox{\boxTMP}{\begin{tabular}{c}\hline X\\\hline\end{tabular}}
