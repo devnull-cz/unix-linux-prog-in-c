@@ -1456,7 +1456,7 @@ important.
 The first result is expected, i.e. \texttt{3}:
 
 \begin{verbatim}
-$ cat main.c 
+$ cat main.c
 #include <stdio.h>
 
 int my_add(int a, int b);
@@ -1477,7 +1477,7 @@ my_add(int a, int b)
 
 $ gcc -shared -o libadd.so add.c
 $ gcc -L. -ladd -Xlinker -R . main.c
-$ ./a.out 
+$ ./a.out
 3
 \end{verbatim}
 
@@ -1494,8 +1494,8 @@ my_add(int64_t a, int64_t b)
         return (a + b);
 }
 
-$ gcc -shared -o libadd.so add2.c 
-$ ./a.out 
+$ gcc -shared -o libadd.so add2.c
+$ ./a.out
 -1077941135
 \end{verbatim}
 
