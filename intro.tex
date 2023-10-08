@@ -1304,9 +1304,9 @@ a dynamic linker on a command line if you want to, that is mostly useful for
 debugging and experimenting with a dynamic linker.
 \item The linker gets the list of required libraries from the program ELF header,
 maps those libraries to the process address space, and calls their initialization
-functions if those exist.  All dependencies not set as 
+functions if those exist.  All dependencies not set as
 \emph{lazy} (see page \pageref{DLOPEN}) are mapped recursively via breadth
-search.
+first search.
 \item The linker's job is done at that point and calls the program
 \texttt{main()} function.
 \item A process may continue to use the dynamic linker during program execution
@@ -1314,8 +1314,8 @@ via calls like \texttt{dlopen()} etc.  See page \pageref{DLOPEN} for more
 information.
 \end{itemize}
 \item Note that the dynamic linker does not run as a separate process (unless
-you run it like that) even though it has its own \texttt{main()} function.  It is
-used within an address space of an executed program.  The program, dynamic
+you run it like that) even though it has its own \texttt{main()} function.
+It is used within an address space of an executed program. The program, dynamic
 linker, and dynamic libraries constitute a single process.
 
 \item The following examples \emsl{are from Solaris}.  Finding equivalent
