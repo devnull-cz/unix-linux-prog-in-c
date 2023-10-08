@@ -1004,6 +1004,9 @@ linker. For example, the \texttt{-rpath} linker option allows to specify where
 to look for libraries when loading the executable via the dynamic linker.
 That path might be different from the path used during building the object,
 modifiable via \texttt{-L}.
+\item The additional runtime path (\texttt{-rpath}) is handy for projects
+that deliver programs along with shared libraries the programs depend on
+into non-standard location.
 \end{itemize}
 
 %%%%%
