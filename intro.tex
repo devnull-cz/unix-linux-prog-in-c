@@ -1141,28 +1141,11 @@ Makefile01}''.
 
 \begin{itemize}
 \item \emsl{Note that the line with a command starts with a tab, not
-spaces.}  Every command line is executed via its own shell invocation.  If
+spaces.}
+\item Every command line is executed via its own shell invocation.  If
 multiple commands need to be executed via the same shell process, all but the
-last line needs to be terminated with a backslash.  See the following example
-where the last two \texttt{echo} commands are part of the same \texttt{if}
-construct.
-
-\begin{verbatim}
-$ cat basic-utils/Makefile02
-all:
-        @echo $$$$
-        @echo $$$$
-        @if true; then \
-                echo $$$$; \
-                echo $$$$; \
-        fi
-$ make -f Makefile02
-5513
-5514
-5515
-5515
-\end{verbatim}
-
+last line needs to be terminated with a backslash.
+See \example{basic-utils/Makefile02}.
 \item The backslash works as a word separator and a space is inserted.  See
 the following example: \example{basic-utils/Makefile07}.
 \item Using a double \texttt{\$} suppresses the special meaning of a dollar
@@ -1175,7 +1158,7 @@ anything, use option \texttt{-n}.
 ignore a non-zero return value (usually indicating a failure), otherwise
 \texttt{make} reports the error and bails out right away.  Example:
 \example{basic-utils/Makefile04}.
-\item 
+\item
 \begin{verbatim}
 test1:
         false
