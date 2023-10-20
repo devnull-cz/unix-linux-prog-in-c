@@ -1733,7 +1733,7 @@ Program terminated with signal 10, Bus error.
 \end{slide}
 
 \begin{itemize}
-\item The \emph{header file} is a file that contains declarations 
+\item The \emph{header file} is a file that contains declarations
 (\emph{forward declaration}) of functions, variables and macro definitions.
 From the preprocessor's point of view, this is a simple file in the C language.
 \item \emsl{These header files are not specific to UNIX. They are part of
@@ -1763,7 +1763,7 @@ On some systems (Solaris) individual header files have their own manual page
 using the \texttt{NDEBUG} define. Example: \example{assert/assert.c}.
 
 \begin{verbatim}
-cat assert.c 
+cat assert.c
 #include <assert.h>
 
 int
@@ -1772,15 +1772,18 @@ main(void)
         assert(1 == 0);
         return (13);
 }
-$ cc assert.c 
-$ ./a.out 
+$ cc assert.c
+$ ./a.out
 Assertion failed: 1 == 0, file assert.c, line 6
 Abort (core dumped)
-$ cc -DNDEBUG assert.c 
-$ ./a.out 
+$ cc -DNDEBUG assert.c
+$ ./a.out
 $ echo $?
 13
 \end{verbatim}
+\item Next to runtime asserts it is also possible to use static asserts
+which are evaluated during compilation. These are handy e.g. for verification of
+expected structure size/offsets.
 \end{itemize}
 
 
