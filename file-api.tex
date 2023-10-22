@@ -116,15 +116,17 @@ defines the access mode for the newly create file
 \label{OPEN}
 
 \begin{itemize}
-\item The first available file descriptor is always used.  
+\item The first available file descriptor is always used.
 \item When \texttt{O\_CREAT} is used, the \emph{mode} is modified using the
-current mask that can be changed via a shell command \texttt{umask} -- those
-bits in \emph{mode}, also set in the process umask, are nullified.  The
-default umask value is typically (and historically) \texttt{022}.  We recommend
-that you always set it to \texttt{077} in your profile script.  Never do that for
-root though otherwise you may end up with a system in a non-supported
-configuration -- installed software may not be possible to run by
-non-privileged users, what worked before may stop working, etc.
+current mask that can be changed using the \texttt{umask} system call
+(the \texttt{umask} shell command is a wrapper of this system call)
+-- those bits in \emph{mode}, that are also set in the process umask,
+are nullified.
+The default umask value is typically (and historically) \texttt{022}.
+We recommend that you always set it to \texttt{077} in your profile script.
+Never do that for root though otherwise you may end up with a system in
+a non-supported configuration -- installed software may not be possible to run
+by non-privileged users, what worked before may stop working, etc.
 \item If the \emph{mode} argument is required and not specified, you get
 whatever is presently on the stack or in the CPU register used to pass the
 argument.  Both flags and mode are stored in the system file table, see page
