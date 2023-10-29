@@ -347,7 +347,7 @@ supplementary GIDs}
 bigger privileges than the user who executes them. One example is the
 \texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
 \texttt{/etc/shadow}, where the ordinary (i.e. non root) user process cannot
-modify the first and cannot write into the the second. Another example is the
+modify the former and cannot read the latter. Another example is the
 \texttt{su} program, which has to have the right to arbitrarily change user and
 group identity, which is a privilege of programs running with UID~0.
 \item Programs using the SUID and SGID bits should be carefully programmed
