@@ -212,12 +212,13 @@ from a disk upon a page fault.
 \end{slide}
 
 \begin{itemize}
-\item After the process is terminated either using an \texttt{exit} call or as a
-consequence of a signal, it will transition to a zombie state as the kernel
-needs to store a return value for the process. The whole memory of the process is
-freed, the only remaining piece is the \texttt{proc} structure. The process can
-go away for good only after its parent will retrieve its return value using the
-\texttt{wait} call. If the original parent is no longer available, the
+\item After the process is terminated either using the \texttt{\_exit} call
+or as a consequence of a signal, it will transition to a zombie state as the
+kernel needs to store a return value for the process. The whole memory
+of the process is freed, the only remaining piece is the \texttt{proc}
+structure. The process can go away for good only after its parent will
+retrieve its return value using the \texttt{wait} call.
+If the original parent is no longer available, the
 \texttt{init} process which became the new parent will call \texttt{wait}.
 \item In today's Unix systems processes are usually not swapped out as whole,
 only individual pages are.
