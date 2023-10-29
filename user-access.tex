@@ -244,17 +244,19 @@ were running under a user with UID 0. A security vulnerability in such an
 application meant total control of the system. To thwart this, these systems
 employ models like \emph{least privilege} in Solaris or \emph{privilege
 separation} and \emph{pledge} in OpenBSD.
-\item \label{FILEDELETE} In order to delete a file, the user has to have write
-permission for the \emsl{directory} containing the file, because that is actually
-the ``file'' being changed. \emsl{The rights of the file to be deleted are
-not relevant}; the shell might give you a warning that you are about to delete a
-file for which you do not have the right to write, however that is just a
-warning, the operation will proceed.  It is quite logical -- if you set a file
-as read-only the shell will deduce that you probably do not want to delete such
-a file.  See the example below.  \emsl{Unix systems do not have delete-like
+\item \emsl{Unix systems do not have delete-like
 operation for a file}, the file is deleted automatically once it is no longer
 referenced from a directory structure and the file is not presently open by any
 process (see \example{unlink/unlink.c}).
+\item \label{FILEDELETE} In order to delete a file, the user has to have write
+permission for the \emsl{directory} containing the file, because that is actually
+the ``file'' being changed. \emsl{The rights of the file to be deleted are
+not relevant}; the \texttt{rm} command (or shell, if the command is built in)
+might give you a warning that you are about to delete a
+file for which you do not have the right to write, however that is just a
+warning, the operation will proceed.  It is quite logical -- if you set a file
+as read-only then you probably do not want to delete such a file.
+See the example below.
 
 \begin{verbatim}
 $ whoami
