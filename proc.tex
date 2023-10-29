@@ -883,16 +883,16 @@ flags:
     \item \texttt{< -1} \dots{} wait for any child in the process group of
     \texttt{abs(pid)}
     \end{itemize}
-\item There are also \funnm{wait3} and \funnm{wait4} calls. These are more
+\item There are also \texttt{wait3} and \texttt{wait4} calls. These are more
 generic versions, also allowing to gather resource utilization statistics from
 exited child.
 \item A parent should always call one of the wait functions otherwise the system
 will accumulate \emph{zombies} -- terminated processes that occupy process table
 slots only to be waited for by their parents.  Zombies could eventually exhaust
 all the system memory.  Note that if the parent exits, its children are adopted
-by the \texttt{init} process that will call \funnm{wait} on such processes.
-However, you should always use wait for children even if you know the parent
-will exit soon.
+by the \texttt{init} process that will call \texttt{wait} on such processes.
+However, you should always use \texttt{wait} for children even if you know the
+parent will exit soon.
 \item Actually, you could notify the system that the program will not wait for
 its children in which case such zombies will not accumulate.  See page
 \pageref{IGNORE_SIG_CHLD}.
