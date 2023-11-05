@@ -1152,9 +1152,6 @@ assignment operation.
 be aligned correctly (also when using \texttt{MAP\_FIXED} the \texttt{addr}).
 Last page after the end of file is padded with zeroes and this section is
 never written back to the file.
-\item It is possible to share anonymous mapping between processes using
-\texttt{fork()}. The only alternative is shared memory established using
-\texttt{shmat}.
 \item Access to the mapped region beyond the existing page of a mapped object
 causes \texttt{SIGBUS} or \texttt{SIGSEGV} signal.
 This is not universally true, see example \example{mmap/sigsegv.c}.
@@ -1173,6 +1170,9 @@ ifdef([[[NOSPELLCHECK]]], [[[\texttt{addr+l{}en-1}]]]), see example
     \item in IRIX it is possible to use \texttt{MAP\_AUTOGROW} that will
     automatically grow mapped object when accessing beyond its current end.
     \end{itemize}
+\item It is possible to share anonymous mapping between processes using
+\texttt{fork()}. The only alternative is shared memory established using
+\texttt{shmat}.
 \item Example of a system command using memory mapped files is \texttt{cat(1)}
 on Solaris (for regular files). Using mapped memory is more efficient than
 calling \texttt{read} repeatedly, saving the overhead necessary for switching to
