@@ -169,7 +169,7 @@ history, go check \url{https://www.levenez.com/unix/}.
 \end{itemize}
 \end{slide}
 
-\label{UNIXSTANDARDS}
+\hlabel{UNIXSTANDARDS}
 
 \begin{itemize}
 \item The very basic information is that the area of UNIX standards is very
@@ -244,7 +244,7 @@ and miscellaneous, formerly standalone extensions.
 \end{itemize}
 \end{slide}
 
-\label{POSIX}
+\hlabel{POSIX}
 
 \begin{itemize}
 \item The first document is \emph{IEEE Std POSIX1003.1-1988}, formerly simply
@@ -346,7 +346,7 @@ Addison-Wesley; \nth{1} edition, 1997
 \end{enumerate}
 \end{slide}
 
-\label{REF_PROGRAMMING}
+\hlabel{REF_PROGRAMMING}
 
 \begin{enumerate}
 \item One of the best book on programming in Unix environment.  Does not cover
@@ -362,7 +362,7 @@ Communications}, covering interprocess communication in great detail.
 recommended.
 \item UNIX specifications.
 \item Detailed descriptions of system calls and functions.
-\item \label{POSIX4} A book that did not fit the slide and covers topics outside
+\item \hlabel{POSIX4} A book that did not fit the slide and covers topics outside
 of the scope of this class: Gall\-meis\-ter, B. R.: \emsl{POSIX.4 Programmers
 Guide: Programming for the Real World}, O'Reilly; \nth{1} edition, 1995.  A great
 book on real-time POSIX extensions with a beautiful cover.  See also pages
@@ -410,7 +410,7 @@ command for \texttt{less(1)} which is usually the default pager (or possibly
 %%%%%
 
 \pdfbookmark[1]{The C Programming Language}{C}
-\label{C_LANGUAGE}
+\hlabel{C_LANGUAGE}
 
 \begin{slide}
 \sltitle{The C Programming Language}
@@ -499,7 +499,7 @@ See \url{http://www.open-std.org/}.
 \end{itemize}
 \end{slide}
 
-\label{BYTE_ORDERING}
+\hlabel{BYTE_ORDERING}
 
 \begin{itemize}
 \item Be careful when using tools like \texttt{hexdump} that by default print
@@ -551,7 +551,7 @@ thus prints only one character
 \end{itemize}
 \end{slide}
 
-\label{NEWLINECHAR}
+\hlabel{NEWLINECHAR}
 
 \begin{itemize}
 \item \emsl{LF}, \emph{line feed}, sometimes also referred to as \emph{new
@@ -1092,7 +1092,7 @@ util.o : util.c util.h
 \end{minipage}
 \end{slide}
 
-\label{MAKE}.
+\hlabel{MAKE}.
 
 \begin{itemize}
 \item You could compile and link the program via one invocation of a compiler,
@@ -1268,7 +1268,7 @@ an ELF object
 \end{itemize}
 \end{slide}
 
-\label{RUNTIMELINKER}
+\hlabel{RUNTIMELINKER}
 
 \begin{itemize}
 \item An ELF object format is explained on page \pageref{ELF}.
@@ -1365,7 +1365,7 @@ $ pldd 104547
 \item You can also edit ELF objects via \texttt{elfedit(1)} on Solaris.  You can
 change \texttt{RUNPATH}, for example.
 \end{itemize}
-\item \label{EVIL_LDLIBPATH} In general, you should not use
+\item \hlabel{EVIL_LDLIBPATH} In general, you should not use
 \texttt{LD\_LIBRARY\_PATH} for anything else than debugging during the
 development or when moving libraries between directories.  You can find lots of
 articles on ``why is \texttt{LD\_LIBRARY\_PATH} evil?'' etc.  For example,
@@ -1413,7 +1413,7 @@ supported
 \end{itemize}
 \end{slide}
 
-\label{API_ABI}
+\hlabel{API_ABI}
 
 \begin{itemize}
 \item In short -- an API is source code based while an ABI is binary based.
@@ -1482,7 +1482,7 @@ $ ./a.out
 -1077941135
 \end{verbatim}
 
-\item \label{ABI_MAIN} Example: \example{lib-abi/abi-main.c} (see the block
+\item \hlabel{ABI_MAIN} Example: \example{lib-abi/abi-main.c} (see the block
 comment in the file on how to use other files located in the same directory).
 \item To change an ABI safely, you need library versioning -- if the library
 ABI change is not backward compatible, a bumped up version needs to prevent
@@ -1867,7 +1867,7 @@ terminating \texttt{NULL} as the last array item.  Note that \texttt{NULL} is
 different from an empty string.
 \item To go through all the command line arguments, you can either use
 \emph{argc} or test for \texttt{NULL} in \texttt{argv[i]}.
-\item \label{SHELL_ARGV0} \texttt{argv[0]} is sometimes a source of additional
+\item \hlabel{SHELL_ARGV0} \texttt{argv[0]} is sometimes a source of additional
 information.  For example, commands \texttt{cp}, \texttt{mv}, and \texttt{ln} may
 be linked to the same executable (Solaris).  The value of \texttt{argv[0]} then
 tells the process what function it is supposed to perform.  Another example -- if
@@ -1912,7 +1912,7 @@ or:
 prog && echo "success" || echo "failure"
 \end{verbatim}
 Example: \example{main/return-256.c}.
-\item \label{RETURN255} Never use \texttt{return (-1)} in \texttt{main} nor
+\item \hlabel{RETURN255} Never use \texttt{return (-1)} in \texttt{main} nor
 \texttt{exit(-1)}.  Based on the information in the previous paragraph,
 from \texttt{-1} you will get \texttt{255} as the return value you get in the
 shell in \texttt{\$?}.  It just creates confusion.
@@ -1927,7 +1927,7 @@ check its manual page if interested, section \texttt{EXIT STATUS}.
 \emsl{without} printing a new line), and calls functions registered via
 \texttt{atexit()}, and possibly other actions based on a specific system.
 Example: \example{exit/exit.c} and \example{exit/atexit-abort.c}
-\item \label{MAIN_C} Example on printing out command line arguments:
+\item \hlabel{MAIN_C} Example on printing out command line arguments:
 \example{main/print-argv.c}
 \item If a process is killed by a signal, you can get the signal number from its
 return value as presented by the shell.  See page
@@ -2175,7 +2175,7 @@ set the \texttt{optreset} variable to 1.
 processing.
 \item When a undefined option is used, \texttt{getopt} will print an error;
 this can be suppressed by setting the \texttt{opterr} variable to 0.
-\item \label{GETOPT} Example: shell script \example{getopt/getopts.sh}
+\item \hlabel{GETOPT} Example: shell script \example{getopt/getopts.sh}
 rewritten to C language using the \texttt{getopt} function:
 \example{getopt/getopt.c}
 \end{itemize}
@@ -2499,7 +2499,7 @@ necessary to test the return value first and then check \texttt{errno}.
 \item Many \texttt{libc} functions and functions from other libraries set
 \texttt{errno} on failure as well.  You always need to consult the relevant
 documentation.
-\item \label{ERRNO} It is common nowadays that \texttt{errno} is in reality
+\item \hlabel{ERRNO} It is common nowadays that \texttt{errno} is in reality
 defined in \texttt{libc} as a dereferenced pointer to an integer returned by a
 function (returned pointer is specific to a userland thread) and the value is
 set right after the instruction for the system call.  For example, on the i386
@@ -2557,7 +2557,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 %%%%%
 
 \begin{itemize}
-\label{ERR}
+\hlabel{ERR}
 \item The \funnm{errx}() function behaves as \funnm{err}() but does not use
 \texttt{errno} to print that extra error message.  Similarly, \funnm{warnx}().
 \item These functions are very handy especially for smaller programs as they are

@@ -26,6 +26,9 @@ jobs:
     - name: Install pre-requisites for spell check
       working-directory: master
       run: ./dev/install-spellcheck.sh
+    - name: Check labels
+      working-directory: master
+      run: ./dev/check-label.sh
     - name: Run spellcheck
       working-directory: master
       run: make spellcheck

@@ -46,7 +46,7 @@ issue in a single threaded application.
 see page \pageref{REF_PROGRAMMING}. You can also use an online book
 \emph{Multithreaded Programming Guide} available on
 \url{http://docs.oracle.com}.
-\item \label{PRIVILEGE_SEPARATION} An example situation when you do not want to
+\item \hlabel{PRIVILEGE_SEPARATION} An example situation when you do not want to
 use threads is if you want to change a real and effective UID of processes.  Take
 OpenSSH -- every connection is served by two processes.  One, with maximum
 privileges, usually runs as root, and provides services (allocating a pseudo
@@ -98,7 +98,7 @@ non-pre\-emp\-tive. To achieve preemption, you can use timers and signals.
 However, if the objective is more in better modular programming than real
 parallelism, usually non-preemptive threads do fine.  Switching threads will be
 done when a process would normally block in system calls.
-\item \label{SETJMP} If a system call blocks in a library implemented thread
+\item \hlabel{SETJMP} If a system call blocks in a library implemented thread
 model, the whole process will block as the kernel has no knowledge there are
 more threads in the process.  So the threading library is written the way that
 non-blocking calls are used, the thread context is saved after that and the
@@ -141,7 +141,7 @@ multiple threads without any side effects
 
 \end{slide}
 
-\label{POSIXTHREADS}
+\hlabel{POSIXTHREADS}
 
 \begin{itemize}
 \item General information on POSIX is on page \pageref{POSIX}.
@@ -193,7 +193,7 @@ if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
         errx(1, "pthread_create: %s", strerror(e));
 \end{verbatim}
 
-\item \label{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
+\item \hlabel{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
 same with POSIX threads as each thread has its own \texttt{errno}.  In that
 case, it is redefined using a function (which can either return the value or an
 address which is dereferenced).  Check \texttt{/usr/include/errno.h} on Linux if
@@ -223,7 +223,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ]]])
 
 \begin{slide}
-\label{PTHREAD_T}
+\hlabel{PTHREAD_T}
 \sltitle{Thread creation}
 ifdef([[[NOSPELLCHECK]]], [[[
 \funml{int \funnm{pthread\_create}(\=pthread\_t *\emph{thread},
@@ -258,7 +258,7 @@ for (i = 0; i < N; i++)
 
 It looks like we pass each thread its index.  However, before the started thread
 gets scheduled to run, a next iteration might happen, modifying \texttt{i}.
-\item \label{WRONG_USE_OF_ARG} Examples: \example{pthreads/wrong-use-of-arg.c},
+\item \hlabel{WRONG_USE_OF_ARG} Examples: \example{pthreads/wrong-use-of-arg.c},
 \example{pthreads/correct-use-of-arg.c}.
 \item If you need to pass only one value, you could use the following
 (\textbf{note that it is implementation specific in the C standard so it is not
@@ -277,12 +277,12 @@ back to integer.
 printf("thread \%d started\bs{}n", (int)arg);
 \end{alltt}
 
-\label{INT_AS_ARG} Example: \example{pthreads/int-as-arg.c}
+\hlabel{INT_AS_ARG} Example: \example{pthreads/int-as-arg.c}
 \item If we need to pass more bytes than it is the size of the pointer, you must
 pass a pointer to memory where the passed data is stored, or use global
 variables.  Accessing global variables must be synchronized, of course.  More on
 that on page \pageref{THREADSYNCHRONIZATION}.
-\item \label{PTHREAD_CREATE_CYCLE} \texttt{pthread\_t} is a transparent type and
+\item \hlabel{PTHREAD_CREATE_CYCLE} \texttt{pthread\_t} is a transparent type and
 its implementation is not of your concern.  Usually it is an integer though used
 to map to the native threads provided by the system.  If you create several
 threads, you need to pass a different address for a \texttt{pthread\_t} variable
@@ -294,7 +294,7 @@ main thread, e.g. waiting for them to finish.
 
 ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pthread\_self, pthread\_key\_create}{pthreadkey}
-\label{THREAD_ATTRS}
+\hlabel{THREAD_ATTRS}
 ]]])
 
 \begin{slide}
@@ -399,7 +399,7 @@ functionality, e.g.  on Solaris you can use \texttt{0} for a thread ID in
 \funnm{thr\_join}().  If you needed this functionality with POSIX thread API, it
 is easy to set threads as \emph{detached} and use a condition variable together
 with a global variable.  More on that on page \pageref{CONDITION_VARIABLES}.
-\item \label{PTHREAD_JOIN} Examples: \example{pthreads/pthread-join.c},
+\item \hlabel{PTHREAD_JOIN} Examples: \example{pthreads/pthread-join.c},
 \example{pthreads/pthread-detach-join.c}
 \end{itemize}
 
@@ -491,7 +491,7 @@ you could use the cleanup function to unlock it.
 \item Functions \funnm{pthread\_setcancelstate}() and
 \funnm{pthread\_setcanceltype}() provide similar functionality to threads as is
 manipulating a signal mask to processes.
-\item \label{PTHREAD_CANCEL} Example: \example{pthreads/pthread-setcanceltype.c}
+\item \hlabel{PTHREAD_CANCEL} Example: \example{pthreads/pthread-setcanceltype.c}
 \end{itemize}
 
 %%%%%
@@ -534,7 +534,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{slide}
 
 \begin{itemize}
-\item \label{THREAD_SPECIFIC_DATA} Global variables and dynamically
+\item \hlabel{THREAD_SPECIFIC_DATA} Global variables and dynamically
 allocated data are common to all threads.  Thread specific data provides a way to
 create a global variable per thread.  Note the difference between that and a
 local variable in the thread function -- as you know, in C, the local variable
@@ -586,7 +586,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{itemize}
 \end{slide}
 
-\label{PTHREAD_CLEANUP}
+\hlabel{PTHREAD_CLEANUP}
 
 \begin{itemize}
 \item The cleanup function is called as \texttt{routine(arg)}.
@@ -629,13 +629,13 @@ subsequent \funnm{exec}(), for example,  including \funnm{popen}() or
 \begin{itemize}
 \item No cleanup routines or thread specific data destructors are called for
 threads not propagated to the new process.
-\item \label{FORKALL} Note that the way how \funnm{fork}() works also depends on
+\item \hlabel{FORKALL} Note that the way how \funnm{fork}() works also depends on
 the system used.  For example, in Solaris before version 10 (i.e. before 2005),
 \funnm{fork}() in the \texttt{libthread} library (different from
 \texttt{libpthread}) was the same as \funnm{forkall}().
 \item Examples: \example{pthreads/fork.c},
 \example{pthreads/fork-not-in-main.c}, and also \example{pthreads/forkall.c}
-\item \label{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
+\item \hlabel{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
 are executed before \funnm{fork}() is called in the parent process, and then after
 \funnm{fork}() is called both in the parent and its child.  The handlers are
 executed in the context of the thread that calls the \funnm{fork}().  Such
@@ -689,7 +689,7 @@ that do not have such signal blocked.
 \end{itemize}
 \end{slide}
 
-\label{PTHREADSIGMASK}
+\hlabel{PTHREADSIGMASK}
 
 \begin{itemize}
 \item If the action for a signal is set to process exit, the whole process
@@ -706,7 +706,7 @@ any new threads), because the mask will be inherited with each
 \item Do not use \texttt{sigprocmask} (page \pageref{SIGPROCMASK}) in threaded
 environment, because the behavior of this call is not specified by the standard
 in such environment. It may work, or not.
-\item \label{THREADS_SIGWAIT} Example: \example{pthreads/sigwait.c}.
+\item \hlabel{THREADS_SIGWAIT} Example: \example{pthreads/sigwait.c}.
 \item \emsl{Note} that this way of signal handling should not be used for
 synchronous signals such as \texttt{SIGSEGV}, \texttt{SIGILL}, etc. These
 signals are generated directly for a thread, so if blocked the dedicated signal
@@ -755,7 +755,7 @@ for threads on the other hand it is necessary to maintain natural data sharing.
 \end{itemize}
 \end{slide}
 
-\label{THREADSYNCHRONIZATION}
+\hlabel{THREADSYNCHRONIZATION}
 
 \begin{itemize}
 \item Process synchronization is described on pages
@@ -804,7 +804,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ]]])
 \end{slide}
 
-\label{MUTEXES}
+\hlabel{MUTEXES}
 
 \begin{itemize}
 \item Mutex = \emph{mutual exclusion}
@@ -835,7 +835,7 @@ standard or the \texttt{pth\-read\_mutex\-attr\_set\-ty\-pe} man page.  Checking
 return values of mutex functions can make the code slightly less readable
 however it can be wrapped in a macro. Alternatively, the checks can be used
 during development only.  Solaris and Linux use \texttt{NORMAL} type by default,
-FreeBSD uses \texttt{ERRORCHECK}.  \label{NOTMYLOCK}
+FreeBSD uses \texttt{ERRORCHECK}.  \hlabel{NOTMYLOCK}
 Example: \example{mutexes/not-my-lock.c}.
 \item Another type is \texttt{PTHREAD\_MUTEX\_RECURSIVE} that holds a count of
 lock actions done by given thread. The remaining threads will be granted access
@@ -848,7 +848,7 @@ mutex.  Without recursive locks a deadlock will ensue.  With recursive mutexes
 that's fine if these two calls are done by the same thread (another thread will
 get blocked).  That is, assuming \texttt{A:foo()} and \texttt{A:bar()} are aware
 that the same thread can be already in the critical section.
-\item \label{MUTEXTAB} The behavior according to mutex types:\\
+\item \hlabel{MUTEXTAB} The behavior according to mutex types:\\
 \\
 \raisetab{
 \begin{tabular}[t]{r|c|c|c|}
@@ -912,7 +912,7 @@ return error
 \end{itemize}
 \end{slide}
 
-\label{MUTEXES2}
+\hlabel{MUTEXES2}
 
 \begin{itemize}
 \item If you need to unlock a mutex locked by a different thread, use binary
@@ -929,7 +929,7 @@ to synchronize access to many small sections, significant amount of time might
 be spent in the overhead of calling functions implementing the locking.  It is
 therefore desired to search for a compromise.  (Or use an algorithm that does
 not require locks at all).
-\item \label{MUTEX_RACE} Examples: \example{mutexes/race.c},
+\item \hlabel{MUTEX_RACE} Examples: \example{mutexes/race.c},
 \example{mutexes/race-fixed.c}
 \item Mutexes can be shared between processes so that their threads will
 synchronize on them. This is done by using shared memory that will be set as an
@@ -955,7 +955,7 @@ other synchronization primitives -- semaphores, barriers, \dots
 \end{itemize}
 \end{slide}
 
-\label{CONDITION_VARIABLES}
+\hlabel{CONDITION_VARIABLES}
 
 \begin{itemize}
 \item In other words -- condition variables are handy in a situation when a
@@ -1114,7 +1114,7 @@ that it is not necessary to recompute the time difference after wake-up events.
 %%%%%
 
 \begin{slide}
-\label{CONDVAR_USE}
+\hlabel{CONDVAR_USE}
 \sltitle{Using condition variables}
 \begin{alltt}
 pthread\_cond\_t cond; pthread\_mutex\_t mutex;
@@ -1158,7 +1158,7 @@ from within the critical section.
 That said, SUSv3 discourages this (unlocking then signalling / broadcasting),
 saying it might cause "unpredictable scheduling behavior", possibly in the
 environment of threads with different scheduling priorities.
-\item \label{QUEUESIMULATION} Example:
+\item \hlabel{QUEUESIMULATION} Example:
 \example{cond-variables/queue-simulation.c}
 \end{itemize}
 
@@ -1198,7 +1198,7 @@ to sleep (\texttt{rdlock()}) or returns an error (\texttt{tryrdlock()}).
 \end{itemize}
 \end{slide}
 
-\label{RWLOCKS}
+\hlabel{RWLOCKS}
 
 \begin{itemize}
 \item You can also use static initialization
@@ -1285,7 +1285,7 @@ via \emph{\texttt{stdatomic.h}}, e.g. addition:
 \end{slide}
 
 \begin{itemize}
-\item \label{ATOMIC_ADD} Example \example{race/atomic-add.c} demonstrates
+\item \hlabel{ATOMIC_ADD} Example \example{race/atomic-add.c} demonstrates
 the race condition problem when performing addition and its possible solutions.
 The program spawns two threads, each thread works with the same global variable
 \emsl{x}, and in a loop, each increments the variable by numbers from a sequence
@@ -1352,7 +1352,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{itemize}
 \end{slide}
 
-\label{BARRIER}
+\hlabel{BARRIER}
 
 \begin{itemize}
 \item The barrier API has been defined since SUSv3,
@@ -1487,7 +1487,7 @@ the run.
 \end{itemize}
 \end{slide}
 
-\label{THREADSAFE}
+\hlabel{THREADSAFE}
 
 \begin{itemize}
 \item The consequence of the above is that thread-safe is weaker property

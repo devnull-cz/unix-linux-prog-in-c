@@ -26,7 +26,7 @@ include(`macros.m4')
 \end{itemize}
 \end{slide}
 
-\label{SIGNALS}
+\hlabel{SIGNALS}
 
 \begin{itemize}
 \item Interrupts can be viewed as a mean of communication between the CPU and
@@ -129,7 +129,7 @@ processes
 \end{itemize}
 \end{slide}
 
-\label{KILLSYSCALL}
+\hlabel{KILLSYSCALL}
 
 \begin{itemize}
 \item Traditionally, process with EUID~==~0 can send a signal to any other
@@ -223,7 +223,7 @@ We could divide signals into a few groups\dots
 
 \begin{itemize}
 \item Those signals are generated on an error in a program.
-\item \label{SHELLRETVALUEFORSIGNALS} For the first four signals --
+\item \hlabel{SHELLRETVALUEFORSIGNALS} For the first four signals --
 \texttt{SIGBUS}, \texttt{SIGFPE}, \texttt{SIGILL}, and \texttt{SIGSEGV} the
 standard does not specify what exactly has to be the reason but usually those
 are errors detected by hardware.  Try the following examples, and check the
@@ -245,7 +245,7 @@ $ kill -l $((131 - 128))
 QUIT
 \end{verbatim}
 
-\item \label{SPECIALSIGNALS} \emsl{For those four signals, there are some
+\item \hlabel{SPECIALSIGNALS} \emsl{For those four signals, there are some
 special rules as well} (for details, see section \emph{2.4 Signal Concepts} in
 SUSv4):
 \begin{itemize}
@@ -295,7 +295,7 @@ via \texttt{Ctrl-C} and \texttt{Ctrl-\bs}, respectively, and could be redefined
 using the command \texttt{stty} or via a function \funnm{tcsetattr}().
 \item In order to generate core files, your system and settings must allow it.
 Check the \texttt{ulimit} command and associated system call.
-\item \label{SIGKILL} As \texttt{SIGKILL} cannot be handled, use it only if you
+\item \hlabel{SIGKILL} As \texttt{SIGKILL} cannot be handled, use it only if you
 know what you are doing.  For example, if a running process does not respond to
 user input nor any other signal.  Many applications, mainly daemons, rely on the
 fact that they are sent \texttt{SIGTERM} on termination, which they often handle
@@ -348,7 +348,7 @@ required by POSIX.1-2008.  See also page \pageref{UNIXSTANDARDS}.
 terminal but multiple processes can write to it at the same time.
 \item Stopping a process group from a terminal, usually via \texttt{Ctrl-Z}, is
 done with signal \texttt{SIGTSTP}, not \texttt{SIGSTOP}; a program thus can
-catch the signal. \label{SIGTSTP}
+catch the signal. \hlabel{SIGTSTP}
 \item the \texttt{SIGCHLD} signal is always received by the parent
 (no matter if \texttt{wait()} or \texttt{waitpid()} is used) unless
 explicitly ignored. See \example{signals/sigchld.c}
@@ -444,7 +444,7 @@ On Linux, check the \texttt{signal(7)} manual page.  Example:
 \example{signals/interrupted-read.c}.
 \item Beware of deadlocks (will be discussed in the chapter on synchronization).
 If you set \texttt{SA\_NODEFER}, your handler needs to be reentrant.
-\item \label{ASYNCSIGNALSAFE} \emsl{You should only use functions in a safe way
+\item \hlabel{ASYNCSIGNALSAFE} \emsl{You should only use functions in a safe way
 from a handler}.  By safe it is meant either use reentrant functions or you need
 to make sure the signal is not delivered in the wrong time (for example, the
 signal is delivered within a function and the same function is called from the
@@ -471,7 +471,7 @@ with threads, for example.  It can also behave in a very different way on
 different systems, some keep the handler set after delivering the signal, some
 reset it to \texttt{SIG\_DFL}.  Check \example{signals/signal-vs-sigaction.c} if
 interested.
-\item \label{REALTIMEEXTENSIONS} If your system supports a part of POSIX.1b
+\item \hlabel{REALTIMEEXTENSIONS} If your system supports a part of POSIX.1b
 called \emph{Realtime Signals Extension} (RTS), it is possible to use the
 extension if you use flag \texttt{SA\_SIGINFO}.  In that case a
 \texttt{sa\_sigaction} member of the structure \texttt{sigaction} must be used
@@ -482,7 +482,7 @@ specification of the header file, or the book [POSIX.4], page
 \pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
 \pageref{SIGWAITINFO}.  Examples: \example{sig\-nals/siginfo.c},
 \example{sig\-nals/sigqueue.c}.
-\item \label{IGNORE_SIG_CHLD} By ignoring \texttt{SIG\_CHILD} you say you will
+\item \hlabel{IGNORE_SIG_CHLD} By ignoring \texttt{SIG\_CHILD} you say you will
 not wait for child processes and the system will still not accumulate zombies.
 \end{itemize}
 
@@ -512,7 +512,7 @@ int main(void)
 \end{alltt}
 \end{slide}
 
-\label{SIGALRM}
+\hlabel{SIGALRM}
 
 \begin{itemize}
 \item You can also use timers with a finer granularity provided by
@@ -569,7 +569,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{itemize}
 \end{slide}
 
-\label{SIGPROCMASK}
+\hlabel{SIGPROCMASK}
 
 \begin{itemize}
 \item The system silently ignores attempts to block \texttt{KILL} and
@@ -616,7 +616,7 @@ switch(cpid = fork()) \{
 \end{slide}
 
 \begin{itemize}
-\item \label{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a child
+\item \hlabel{SIGNALBLOCKINGEXAMPLE} The example shows a situation when a child
 needs to use a different signal handler from its parent.  If you just changed
 the handler in the child without blocking the signals before \funnm{fork}()
 a potential race would have been created -- a child would have run for a short
@@ -629,7 +629,7 @@ it is not a good idea.
 
 %%%%%
 
-\label{SIGWAIT}
+\hlabel{SIGWAIT}
 ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{pause, sigsuspend, sigwait}{sigwait}
 ]]])
@@ -669,7 +669,7 @@ using \funnm{sigpending}().
 extensions (threads) and you should use this function when dealing with signals
 in the multithreaded application.  As other POSIX thread functions, it returns
 an error number directly, and 0 on success.
-\item \label{SIGWAITINFO} There are also similar functions \funnm{sigwaitinfo}()
+\item \hlabel{SIGWAITINFO} There are also similar functions \funnm{sigwaitinfo}()
 and \funnm{sigtimedwait}() defined with the POSIX-1003.1\emsl{b} extension
 (real-time).  They work in a similar way but set \texttt{errno} on failure and
 it is possible to get more information upon signal delivery using a structure

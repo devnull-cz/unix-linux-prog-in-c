@@ -74,7 +74,7 @@ resident in memory and accessible in a kernel mode.
 \end{center}
 \end{slide}
 
-\label{SOLARIS_PROC_ADDR_SPACE}
+\hlabel{SOLARIS_PROC_ADDR_SPACE}
 
 \begin{itemize}
 \item The following is deductible from the image:
@@ -407,7 +407,7 @@ used. More information can be found in the ``JOB CONTROL'' section in the
 \end{slide}
 
 \begin{itemize}
-\item \label{FORK} The child process is almost an exact copy of its parent
+\item \hlabel{FORK} The child process is almost an exact copy of its parent
 except for the following:
 \begin{itemize}
 \item The child process has a unique process and parent process ID.
@@ -426,7 +426,7 @@ child gets 0 is because it is easy for the child to get its parent PID via
 \texttt{getpid}.  Imagine how the parent would figure out the new child PID,
 especially if it already spawned multiple children.
 \item Example: \example{fork/fork.c}
-\item \label{VFORK} There is also \texttt{vfork}, used in the past to work
+\item \hlabel{VFORK} There is also \texttt{vfork}, used in the past to work
 around the problem that the child address space was usually rewritten on
 subsequent \texttt{exec}.  This problem was partially solved via already
 mentioned copy-on-write mechanism.  See \example{fork/vfork.c} on how it works.
@@ -577,7 +577,7 @@ path)
 \end{itemize}
 \end{slide}
 
-\label{EXEC}
+\hlabel{EXEC}
 
 \begin{itemize}
 \item \emph{path} must be an absolute or relative path to the executable file.
@@ -698,8 +698,8 @@ are also passing to the program being executed the environment variables of the
 calling process, i.e. the \texttt{environ} array.
 \item For some unknown historical reasons, there is no ``p'' with ``e'' together
 in the standard.  However, GNU provides \funnm{execvpe} as an extension.
-\item \label{EXEC_DATE} Example: \example{exec/exec-date.c}
-\item \label{EXECL} The following use of \funnm{execl} is incorrect as it is
+\item \hlabel{EXEC_DATE} Example: \example{exec/exec-date.c}
+\item \hlabel{EXECL} The following use of \funnm{execl} is incorrect as it is
 missing the mandatory argument for \texttt{argv[0]}:
 
 \begin{verbatim}
@@ -764,7 +764,7 @@ section header table\\
 \end{itemize}
 \end{slide}
 
-\label{ELF}
+\hlabel{ELF}
 
 \begin{itemize}
 \item The UNIX standard does not specify what executable file format systems
@@ -913,8 +913,8 @@ termination.  The parent could also choose not to wait for the child termination
 right away but carry on with its life and wait for the child later.
 \item Note that you have to use macros from the previous slide to get the
 child's return value out of the status information.
-\item \label{WAITPID} Example: \example{wait/wait.c}
-\item \label{SPAWN} Alternative for the \texttt{fork}/\texttt{exec} combination
+\item \hlabel{WAITPID} Example: \example{wait/wait.c}
+\item \hlabel{SPAWN} Alternative for the \texttt{fork}/\texttt{exec} combination
 can be the \texttt{posix\_spawn} function. The new process using this function
 can be waited on with \texttt{waitpid} etc. just like in the case of
 \texttt{fork}. Example: \example{exec/spawn.c}
@@ -922,7 +922,7 @@ can be waited on with \texttt{waitpid} etc. just like in the case of
 
 %%%%%
 
-\label{PIPEREADWRITE}
+\hlabel{PIPEREADWRITE}
 
 \pdfbookmark[1]{pipe}{pipe}
 
@@ -947,7 +947,7 @@ The difference is that any process (modulo permissions) can use it.
 \end{itemize}
 \end{slide}
 
-\label{PIPE}
+\hlabel{PIPE}
 
 \begin{itemize}
 \item \emph{pipe} is an object with 2 endpoints; serves for passing data from
@@ -960,7 +960,7 @@ class.
 \item If the function \funnm{write} writes at most \texttt{PIPE\_BUF} bytes to
 the pipe, it is guaranteed that the write will be atomic, i.e. such bytes will
 not be intermingled with bytes written by other producers.
-\item \label{TWO_WAY_PIPES} The SUSv3 standard does not specify whether
+\item \hlabel{TWO_WAY_PIPES} The SUSv3 standard does not specify whether
 \texttt{fildes[0]} is also open for writing and if \texttt{fildes[1]} is also
 open for reading.  FreeBSD and Solaris provide bidirectional pipes while Linux
 may not.  It is best to assume unidirectional pipes.
@@ -981,7 +981,7 @@ named pipes stand for unnamed pipes as well, see page \pageref{NAMEDPIPE}.
 \end{center}
 \end{slide}
 
-\label{FDSHARING}
+\hlabel{FDSHARING}
 
 \begin{itemize}
 \item Remember, open file descriptors are unaffected by \funnm{exec} aside from
@@ -1098,7 +1098,7 @@ the address).
 \end{itemize}
 \end{slide}
 
-\label{MMAP}
+\hlabel{MMAP}
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
@@ -1296,7 +1296,7 @@ through the handle only)
 \end{itemize}
 \end{slide}
 
-\label{DLOPEN}
+\hlabel{DLOPEN}
 
 \begin{itemize}
 \item For example, you could use these functions to implement a dynamically
@@ -1337,7 +1337,7 @@ Be careful when using it, see page \pageref{EVIL_LDLIBPATH}.
     the same library can be mapped multiple times via \funnm{dlopen} and the
     symbols in the mapped instances of the same library will not overlap.
     \end{itemize}
-\item \label{RTLD_NEXT} Special handle \texttt{RTLD\_NEXT} searches the symbol
+\item \hlabel{RTLD_NEXT} Special handle \texttt{RTLD\_NEXT} searches the symbol
 only in libraries loaded after the library that called \funnm{dlsym}.  Handy for
 redefining existing functions if we need to call the original function in our
 redefined one.  The library with a modified function is loaded first, possibly

@@ -103,7 +103,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getpwnam, getpwuid, getpwent}{getpw}
 ]]])
 
-\label{GETPW_FUNC}
+\hlabel{GETPW_FUNC}
 \begin{slide}
 \sltitle{Obtain user/group information}
 \begin{itemize}
@@ -167,7 +167,7 @@ in \texttt{/etc/passwd}, then in LDAP
 \end{itemize}
 \end{slide}
 
-\label{name_service_switch}
+\hlabel{name_service_switch}
 
 \begin{itemize}
 \item Systems using the name service switch typically use the
@@ -248,7 +248,7 @@ separation} and \emph{pledge} in OpenBSD.
 operation for a file}, the file is deleted automatically once it is no longer
 referenced from a directory structure and the file is not presently open by any
 process (see \example{unlink/unlink.c}).
-\item \label{FILEDELETE} In order to delete a file, the user has to have write
+\item \hlabel{FILEDELETE} In order to delete a file, the user has to have write
 permission for the \emsl{directory} containing the file, because that is actually
 the ``file'' being changed. \emsl{The rights of the file to be deleted are
 not relevant}; the \texttt{rm} command (or shell, if the command is built in)
@@ -338,12 +338,12 @@ to the UID of the program owner, the RUID stays the same.
 \end{itemize}
 \end{slide}
 
-\label{ROOT_SETUID}
+\hlabel{ROOT_SETUID}
 
 \begin{itemize}
 \item \emsl{access rights checking always consults the EUID, EGID, and
 supplementary GIDs}
-\item \label{SUID_BIT} The SUID and SGID bits are used for programs that need
+\item \hlabel{SUID_BIT} The SUID and SGID bits are used for programs that need
 bigger privileges than the user who executes them. One example is the
 \texttt{passwd} program that needs to update files \texttt{/etc/passwd} and
 \texttt{/etc/shadow}, where the ordinary (i.e. non root) user process cannot

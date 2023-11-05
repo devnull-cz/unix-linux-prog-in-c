@@ -34,7 +34,7 @@ that share the same structure and have different values of the
 \end{itemize}
 \end{slide}
 
-\label{SYNCHRONIZATION}
+\hlabel{SYNCHRONIZATION}
 
 \begin{itemize}
 \item Operations that can be expressed in C with single statement does not
@@ -54,7 +54,7 @@ much faster than classic synchronization mechanisms.
 More on page \pageref{ATOMIC_ADD}.
 \item In general similar problem happens when multiple processes share a 
 system resource.
-\item \label{RACE_C} example \example{race/race.c}
+\item \hlabel{RACE_C} example \example{race/race.c}
 \end{itemize}
 
 %%%%%
@@ -137,7 +137,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{tabular}
 \end{slide}
 
-\label{CRITICALSECTION}
+\hlabel{CRITICALSECTION}
 
 \begin{itemize}
 \item It is necessary to ensure mutual exclusion also when reading,
@@ -210,7 +210,7 @@ it is not true.
 the condition and goes asleep. The kernel wakes it up if the condition becomes
 true.
 \end{description}
-\item \label{BUSYWAITING} active waiting is justifiable only in special
+\item \hlabel{BUSYWAITING} active waiting is justifiable only in special
 situations.
 \end{itemize}
 
@@ -285,7 +285,7 @@ void \funnm{unlock}(char *lockfile) \{
 \end{slide}
 
 \begin{itemize}
-\item \label{LOCK_UNLOCK} The key is the \texttt{O\_EXCL} flag.
+\item \hlabel{LOCK_UNLOCK} The key is the \texttt{O\_EXCL} flag.
 \item Because the exclusive flag is not accessible in most shells, the shell
 scripts usually use \texttt{mkdir} or \texttt{ln} (hard link) commands for
 lock file synchronization.
@@ -358,7 +358,7 @@ the same program are unwanted.
     automatically block the process, i.e. the lock will be applied also on
     processes that do not explicitly work with the lock.
         \begin{itemize}
-	\label{MANDATORY}
+	\hlabel{MANDATORY}
 	\item not universally recommended, does not always work
         (e.g. \texttt{lockd} implements just advisory locking)
 	\item for given file they are enabled by setting the SGID bit and
@@ -408,8 +408,8 @@ only for \texttt{F\_GETLK} when returning.
 \item If given part is not locked when using \texttt{F\_GETLK},
 the \texttt{flock} structure is returned unchanged except for the first member
 that is set to \texttt{F\_UNLCK}.
-\item \label{FCNTL_LOCKING} example: \example{file-locking/fcntl-locking.c}
-\item \label{FCNTL_FIXED_RACE_C} example on how to use \texttt{fcntl} (it is
+\item \hlabel{FCNTL_LOCKING} example: \example{file-locking/fcntl-locking.c}
+\item \hlabel{FCNTL_FIXED_RACE_C} example on how to use \texttt{fcntl} (it is
 ,,fixed'' version of the previous \example{race/race.c} example from page
 \pageref{RACE_C}): \example{race/fcntl-fixed-race.c}.
 \item locking via \texttt{fcntl} and \texttt{lockf} has one important property
@@ -465,7 +465,7 @@ not closed and therefore the end of file cannot happen until the reading process
 closed the write end however it cannot do it because it is blocked.
 in \texttt{read} syscall:
 
-\label{FIFODEADLOCK}
+\hlabel{FIFODEADLOCK}
 \begin{verbatim}
 int main(void)
 {
@@ -594,7 +594,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{sem\_open, sem\_wait, sam\_post, sem\_close}{posix-semaphores}
 ]]])
 
-\label{NAMED_SEMAPHORES}
+\hlabel{NAMED_SEMAPHORES}
 \begin{slide}
 \sltitle{POSIX API for semaphores}
 
@@ -694,6 +694,6 @@ inter-process communication however it can be used in kernel to request a
 service from a userland program.
 \end{itemize}
 
-\label{SYNCHRONIZATIONEND}
+\hlabel{SYNCHRONIZATIONEND}
 
 \endinput

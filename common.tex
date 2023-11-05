@@ -69,6 +69,10 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \renewcommand{\slidelabel}{}
 \setlength{\textwidth}{0.9\textwidth}
 
+% This command has to be used throught the sources instead of \label
+% for hyperref to be able to create valid links.
+\newcommand{\hlabel}{\phantomsection\label}
+
 \newcommand{\sltitle}[1]{{\centering\textbf{\Large #1}
     \vskip 2em plus 0pt minus 2em\par}} % Slide title
 

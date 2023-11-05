@@ -54,7 +54,7 @@ the \texttt{setrlimit} syscall.
 \end{center}
 \end{slide}
 
-\label{OPENFILETABLES}
+\hlabel{OPENFILETABLES}
 
 \begin{itemize}
 \item This is a simplified view of the kernel tables that deal with files.  It
@@ -113,7 +113,7 @@ defines the access mode for the newly create file
 \end{itemize}
 \end{slide}
 
-\label{OPEN}
+\hlabel{OPEN}
 
 \begin{itemize}
 \item The first available file descriptor is always used.
@@ -145,7 +145,7 @@ returns after the data is physically stored (synchronized I/O).
 reading.
 \item \texttt{O\_NOCTTY} \dots{} when opening a terminal by a process without a
 controlling terminal, the terminal being opened does not become one.
-\item \label{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} if reading or writing
+\item \hlabel{O_NONBLOCK} \texttt{O\_NONBLOCK} \dots{} if reading or writing
 cannot be satisfied right away, calls \texttt{read}/\texttt{write} will fail
 instead of getting blocked and waiting for the completion.  \texttt{errno} is
 set to \texttt{EAGAIN} in such a case.
@@ -187,8 +187,8 @@ dev\_t \emph{dev});}
 \end{itemize}
 \end{slide}
 
-\label{MKFIFO}
-\label{CREAT}
+\hlabel{MKFIFO}
+\hlabel{CREAT}
 
 \begin{itemize}
 \item The \texttt{open} call allows opening of a regular file, device, or named
@@ -230,7 +230,7 @@ descriptor \emph{fd} from the buffer pointed to by \emph{buf}
 \end{itemize}     
 \end{slide}
 
-\label{READCALL}
+\hlabel{READCALL}
 
 \begin{itemize}
 \setlength{\itemsep}{0.8\itemsep}
@@ -306,7 +306,7 @@ data on file closure (NFS), and if that write fails, \texttt{close} fails.
 and it is a long living process, a daemon perhaps, depending on the system
 configuration you may hit memory starvation as the system memory will be filled
 with an ever growing file descriptor table.
-\item \label{SIMPLE_CAT} A very simple \texttt{cat(1)} program:
+\item \hlabel{SIMPLE_CAT} A very simple \texttt{cat(1)} program:
 \example{read/cat.c}
 \end{itemize}
 
@@ -386,7 +386,7 @@ the notes below this slide.
 \end{itemize}
 \end{slide}
 
-\label{NAMEDPIPE}
+\hlabel{NAMEDPIPE}
 
 \begin{itemize}
 \item A named pipe is created using the system call \texttt{mkfifo}, see page
@@ -491,7 +491,7 @@ position
 \end{slide}
 
 \begin{itemize}
-\item \label{LSEEK} The first byte is at position 0.  If it makes sense, you may
+\item \hlabel{LSEEK} The first byte is at position 0.  If it makes sense, you may
 use a negative number for setting the \emph{offset}.  Example:
 \example{read/lseek.c}.
 \item It is legal to move beyond the end of the file.  If data is written there,
@@ -505,7 +505,7 @@ file, and getting the current file position (0 with \texttt{SEEK\_CUR}).
 \item You can obviously use the return value of \texttt{lseek} not only for
 subsequent calls to \texttt{read} and \texttt{write} but also for another call
 to \texttt{lseek}.
-\item \label{BIG_FILE} Beware of files with holes as it may lead to problems
+\item \hlabel{BIG_FILE} Beware of files with holes as it may lead to problems
 with backing up the data.  Example: \example{read/big-file.c} demonstrates that
 moving a sparse file may end up in an actual storage data occupation increase.
 It greatly depends on the system you run, what archiving utility is used, and
@@ -568,7 +568,7 @@ lowest-numbered unused descriptor.  Returns the new descriptor.
 \end{itemize}
 \end{slide}
 
-\label{DUP_CALL}
+\hlabel{DUP_CALL}
 
 \begin{itemize}
 \item We already know that the first available file descriptor is used when
@@ -610,7 +610,7 @@ dup(1);
 \begin{itemize}
 \item Note the flag \texttt{O\_APPEND} used to implement a redirection
 \texttt{>>}.
-\item \label{REDIRECT} Another example of \texttt{dup} use will be provided when
+\item \hlabel{REDIRECT} Another example of \texttt{dup} use will be provided when
 we start working with pipes.  The first redirection example from the slide
 (without \texttt{stderr}) is in \example{read/redirect.c}.  In that example, the
 \texttt{execl} call replaces the current process image with the
@@ -682,7 +682,7 @@ dup2(1, 2);
 \end{itemize}
 \end{slide}
 
-\label{FCNTL}
+\hlabel{FCNTL}
 
 \begin{itemize}
 \item Example: close standard error output on program execution (exec call):\\
@@ -790,7 +790,7 @@ mountable media.
 last modification of the inode.
 \item The UNIX norm does not specify the ordering of the \texttt{struct stat}
 members, nor does it prohibit adding new ones.
-\item \label{STAT} Example: \example{stat/stat.c}
+\item \hlabel{STAT} Example: \example{stat/stat.c}
 \item You can call \texttt{fstat} on file descriptors 0, 1, and 2 as well.  Unless
 redirected before, you will get information on the underlying terminal device
 (e.g. \texttt{/dev/ttys011} on macOS).  Example: \example{stat/stat012.c}.
@@ -897,7 +897,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \emph{path2} to file \emph{path1}.  Hard links cannot span filesystems (use
 \funnm{symlink} for that).
 \end{itemize}
-\label{UNLINK} \texttt{ int \funnm{unlink}(const char *\emph{path});}
+\hlabel{UNLINK} \texttt{ int \funnm{unlink}(const char *\emph{path});}
 \begin{itemize}
 \item deletes a name (i.e. a directory entry) and after deleting the last link to
 the file and after closing the file by all processes, deletes the file data.
@@ -1028,7 +1028,7 @@ does not allow this at all.
 mountpoint; this member contains the i-node number of the directory where the
 filesystem is mounted and not the root of the mounted filesystem as one might
 expect.
-\item \label{D_TYPE} Some system have a \texttt{struct dirent} member
+\item \hlabel{D_TYPE} Some system have a \texttt{struct dirent} member
 \texttt{d\_type}.  It can have values of \texttt{DT\_REG}, \texttt{DT\_DIR},
 \texttt{DT\_FIFO} etc., see the man page for \texttt{dirent}.  It was a BSD
 specific thing and subsequently copied by other systems, including Linux.
@@ -1038,7 +1038,7 @@ The portable way is to call \texttt{stat} on each directory entry.
 to remove all entries before you can delete a directory.  You can use
 \texttt{system("rm -r xxx")} etc. but be careful to sanitize the environment and
 the directory name to avoid any security implications.
-\item \label{REMOVE} The specification also defines \texttt{remove} which
+\item \hlabel{REMOVE} The specification also defines \texttt{remove} which
 behaves like \texttt{unlink} for files and as \texttt{rmdir} for directories.
 \end{itemize}
 

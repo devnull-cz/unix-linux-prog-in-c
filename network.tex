@@ -11,7 +11,7 @@ include(`macros.m4')
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\label{NETWORKING}
+\hlabel{NETWORKING}
 
 \begin{slide}
 \sltitle{Network communication}
@@ -203,7 +203,7 @@ or a valid protocol number (e.g. \texttt{6}~=~TCP, \texttt{17}~=~UDP)
 \end{itemize}
 \end{slide}
 
-\label{SOCKET}
+\hlabel{SOCKET}
 
 \begin{itemize}
 \item Function is declared in \texttt{<sys/socket.h>} as well as other network
@@ -341,7 +341,7 @@ if (bind(s, (struct sockaddr *)&in, sizeof (in)) == -1) ...
 \end{verbatim}
 \end{slide}
 
-\label{BIND_EXAMPLE}
+\hlabel{BIND_EXAMPLE}
 
 \begin{itemize}
 \item As already mentioned, such code is for demonstration purposes only.
@@ -414,7 +414,7 @@ handshake is performed and data is being accepted.  The data is stored
 in a fixed length buffer and after it is filled out, the connection is still
 active but the TCP window is set to 0 which means the system stopped accepting
 further data.  The buffer size is usually a few tens of kilobytes.
-\label{UP_TO_LISTEN_ONLY_C} Example: \example{tcp/up-to-listen-only.c}.
+\hlabel{UP_TO_LISTEN_ONLY_C} Example: \example{tcp/up-to-listen-only.c}.
 \item The example code uses macro \texttt{SOMAXCONN}, required by the UNIX
 specification to be in \texttt{sys/socket.h}.  It specifies the maximum queue
 length for \funnm{listen}().  As far as we know, Linux, FreeBSD, macOS and
@@ -444,7 +444,7 @@ is updated with its real size on return
 \end{itemize}
 \end{slide}
 
-\label{ACCEPT}
+\hlabel{ACCEPT}
 
 \begin{itemize}
 \item The ``remote end'' is the socket on which a \funnm{connect}() is
@@ -466,7 +466,7 @@ use \texttt{struct sockaddr\_storage} for \emph{address}.  Any specific address
 structure is guaranteed to fit in \texttt{struct sockaddr\_storage}, i.e. either
 \texttt{struct sockaddr\_in} or \texttt{struct sockaddr\_in6}.  Also see page
 \pageref{TCPCLNTEXAMPLE}.
-\item \label{TCP_SINK_SERVER_C} Example: \example{tcp/tcp-sink-server.c}
+\item \hlabel{TCP_SINK_SERVER_C} Example: \example{tcp/tcp-sink-server.c}
 \end{itemize}
 
 \pdfbookmark[1]{connect}{connect}
@@ -486,7 +486,7 @@ local address based on the chosen address family
 \end{itemize}
 \end{slide}
 
-\label{CONNECT}
+\hlabel{CONNECT}
 
 \begin{itemize}
 \item As the UNIX specification does not say anything about the socket state
@@ -496,8 +496,8 @@ moving on to create a new socket and trying again.
 \funnm{read}() and \funnm{write}() calls, or \funnm{send}(), \funnm{recv},
 \funnm{sendmsg}(), and \funnm{recvmsg}().  Behavior of the functions is similar
 as if working with pipes.
-\item Example: \label{CONNECT_C} \example{tcp/connect.c}
-\item \label{CONNECT_FOR_UDP} For connection-less services (UDP),
+\item Example: \hlabel{CONNECT_C} \example{tcp/connect.c}
+\item \hlabel{CONNECT_FOR_UDP} For connection-less services (UDP),
 \funnm{connect}() may be used as well.  However, it will only set the remote
 address so that \funnm{send}() and \funnm{recv}() which do not have a remote
 address parameter can be used.
@@ -645,7 +645,7 @@ usually not the case when working with datagrams.
 \item Like \texttt{sendto}, \texttt{recvfrom} is possible to use for connected
 service (TCP). That said, getting remote's address for a TCP connection is
 better via \texttt{getpeername}, see page \pageref{GETPEERNAME}.
-\item Example: \label{UDP_SERVER_C} \example{udp/udp-server.c}
+\item Example: \hlabel{UDP_SERVER_C} \example{udp/udp-server.c}
 \end{itemize}
 
 %%%%%
@@ -691,7 +691,7 @@ which is yet to be sent out.
 \item It is possible to use \texttt{sendto} for stream service, however the
 address will be ignored. The only reason not to use \texttt{write} would be to
 use flags. In that case though it would be simpler to use \texttt{send}.
-\item Example:\label{UDP_CLIENT_C} \example{udp/udp-client.c}.
+\item Example:\hlabel{UDP_CLIENT_C} \example{udp/udp-client.c}.
 \end{itemize}
 
 %%%%%
@@ -720,7 +720,7 @@ the socket in kernel
 \end{itemize}
 \end{slide}
 
-\label{CLOSESOCKET}
+\hlabel{CLOSESOCKET}
 
 \begin{itemize}
 \item Once closed, TCP socket can remain in transitory state which is defined in
@@ -800,7 +800,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \end{itemize}
 \end{slide}
 
-\label{IPv4_IPv6_ADDRESSES}
+\hlabel{IPv4_IPv6_ADDRESSES}
 
 \begin{itemize}
 \item The functions are declared in \texttt{arpa/inet.h}.
@@ -823,7 +823,7 @@ will fail and \texttt{ENOSPC} will be set.
 \texttt{ascii}) were used for IPv4 addresses. Thanks to the functions above
 these are now legacy. All these calls are usually documented in the
 \texttt{inet} man page.
-\item \label{ADDRESSES} Do realize that by using these functions it is only
+\item \hlabel{ADDRESSES} Do realize that by using these functions it is only
 possible to convert one address family per call, either IPv4 or IPv6.  When the
 input can be either of those, try one and if that fails, fallback to the other
 one.  Example: \example{resolving/addresses.c}.
@@ -869,9 +869,9 @@ struct sockaddr *\emph{address}, \\\>socklen\_t *\emph{address\_len});}
 \end{itemize}
 \end{slide}
 
-\label{SETSOCKOPT}
-\label{GETPEERNAME}
-\label{GETSOCKOPT}
+\hlabel{SETSOCKOPT}
+\hlabel{GETPEERNAME}
+\hlabel{GETSOCKOPT}
 
 \begin{itemize}
 \item The \texttt{level} value for \texttt{getsockopt} and \texttt{setsockopt}
@@ -932,7 +932,7 @@ Both network addresses and port numbers are multibyte values.
 \end{itemize}
 \end{slide}
 
-\label{HTON}
+\hlabel{HTON}
 
 \begin{itemize}
 \item If the local system uses the network byte order natively, the functions
@@ -987,7 +987,7 @@ protocols and services.
 the IP packet header, (e.g. TCP, UDP, OSPF, GRE etc., see pages 11 and 14 in
 RFC~791), not HTTP, SSH, telnet or FTP -- these are \emph{services}, represented
 by port numbers.
-\item \label{GETBYNAME} example: \example{resolving/getbyname.c}
+\item \hlabel{GETBYNAME} example: \example{resolving/getbyname.c}
 \end{itemize}
 
 %%%%%
@@ -996,7 +996,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{getaddrinfo}{getaddrinfo}
 ]]])
 
-\label{GETADDRINF}
+\hlabel{GETADDRINF}
 
 \begin{slide}
 \sltitle{Convert hostname to addresses: \texttt{getaddrinfo()}}
@@ -1043,7 +1043,7 @@ See \example{resolving/passive.c}.
 \item After the results are no longer needed, it is prudent to call
 \texttt{freeaddrinfo}, that will free the memory allocated by
 \texttt{getaddrinfo}.
-\item \label{GETADDRINFO} example: \example{resolving/getaddrinfo.c}
+\item \hlabel{GETADDRINFO} example: \example{resolving/getaddrinfo.c}
 \item In the past the functions \funnm{gethostbyname} and
 \funnm{gethostbyaddr} were used. These only work with IPv4 addresses and are
 therefore considered legacy and not recommended to use. The functions
@@ -1111,7 +1111,7 @@ that means the caller is not interested in its resolution.
 reentrant and is therefore safe to use with threads.
 \item The man page for \texttt{getnameinfo} contains the list of usable
 \texttt{NI\_} flags for the \texttt{\emph{flags}} parameter.
-\item \label{GETNAMEINFO} example: \example{resolving/getnameinfo.c}
+\item \hlabel{GETNAMEINFO} example: \example{resolving/getnameinfo.c}
 
 
 \end{itemize}
@@ -1119,7 +1119,7 @@ reentrant and is therefore safe to use with threads.
 %%%%%
 
 \pdfbookmark[1]{TCP server}{tcpservercode}
-\label{TCPSRVEXAMPLE}
+\hlabel{TCPSRVEXAMPLE}
 
 \begin{slide}
 \sltitle{Example: TCP server}
@@ -1171,7 +1171,7 @@ with \texttt{r} NULL check after the end of the first cycle).
 %%%%%
 
 \pdfbookmark[1]{TCP client}{tcpclientcode}
-\label{TCPCLNTEXAMPLE}
+\hlabel{TCPCLNTEXAMPLE}
 
 \begin{slide}
 \sltitle{Example: TCP client}
@@ -1246,7 +1246,7 @@ ifdef([[[NOSPELLCHECK]]], [[[(\texttt{0,~...,~\emsl{nfds-1}}).]]])
 \end{itemize}
 \end{slide}
 
-\label{SELECT}
+\hlabel{SELECT}
 
 \begin{itemize}
 \item \emsl{Motivation:} to read data from multiple file descriptors, it is
@@ -1264,7 +1264,7 @@ user-kernel mode switching, possible delay (up to the wait period between the
 iterations of the cycle).  Correct solution of this situation is to use e.g.
 \texttt{select} and then call \texttt{read} only for those descriptors marked as
 \emph{ready}.
-\item \label{BUSY_WAITING_C} Busy waiting example: \example{select/busy-wait.c}.
+\item \hlabel{BUSY_WAITING_C} Busy waiting example: \example{select/busy-wait.c}.
 Notice that newly created socket does not have the \texttt{O\_NONBLOCK} flag,
 see page \pageref{ACCEPT}, so it is necessary to set it.
 \item A descriptor marked as \emph{ready} means that \texttt{read} or
@@ -1315,12 +1315,12 @@ leading to more time spent in the syscall.
 \item If the time argument is set to 0 (not NULL), then \texttt{select} can be
 used for so called \emph{polling} -- it will check the current state and return
 immediately.
-\item Example: \label{SELECT_C} \example{select/select.c}
+\item Example: \hlabel{SELECT_C} \example{select/select.c}
 \item \texttt{select} can also be used to determine the state after
 \texttt{connect} for non-blocking socket. Use \texttt{getsockopt} with
 \texttt{opt\_name} set to \texttt{SO\_ERROR}, (see page \pageref{GETSOCKOPT}) to
 see if the connection was successful.
-\label{NON_BLOCKING_CONNECT} Example: \example{select/non-blocking-connect.c}.
+\hlabel{NON_BLOCKING_CONNECT} Example: \example{select/non-blocking-connect.c}.
 
 
 \end{itemize}
@@ -1361,7 +1361,7 @@ readiness. For this two buffers are required -- one for each direction of
 communication. Respective read descriptor will be present in the read set for
 \texttt{select} when the buffer is empty. The write descriptor will be in the
 write set when the buffer is non-empty.
-\item \label{WRITE_SELECT_C} \texttt{select} will put the process to sleep
+\item \hlabel{WRITE_SELECT_C} \texttt{select} will put the process to sleep
 when the data is not read from the remote side if only testing write readiness.
 This can be simply simulated by a program that merely connects (TCP handshake)
 however does not read anything. Example: \example{select/write-select.c}.
@@ -1395,7 +1395,7 @@ of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
 \end{itemize}
 \end{slide}
 
-\label{POLL}
+\hlabel{POLL}
 
 \begin{itemize}
 \item Alternative to \texttt{select}.
@@ -1413,7 +1413,7 @@ set the \texttt{fd} member of the \texttt{pollfd} structure to -1
 \item Time set to -1 has the same effect as \texttt{NULL} for \texttt{select}.
 \item If the number of descriptors is set to 0 (\texttt{fds} should be then
 \texttt{NULL}), \texttt{poll} can be simply used to sleep with less than one
-second granularity. Example: \label{POLL_SLEEP_C} \example{sleep/poll-sleep.c}
+second granularity. Example: \hlabel{POLL_SLEEP_C} \example{sleep/poll-sleep.c}
 That said, this "trick" does not work on macOS.
 \begin{itemize}
 \item Another way is to use \texttt{nanosleep}, that is part of POSIX.4
