@@ -1,5 +1,4 @@
 .DS_Store
-.hgignore
 *.m4.tex
 *.aux
 *.log
