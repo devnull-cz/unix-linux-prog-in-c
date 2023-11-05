@@ -1225,7 +1225,7 @@ mapped as well will see the memory writes immediately.
 \item memory mapping and setting access rights is used by the Electric Fence
 library which is used for error detection on dynamic memory use.
 \item There is also \texttt{madvise} system call (and its SUS compliant variant
-\texttt{posix\_madvise} that allows the process to give the kernel some hints
+\texttt{posix\_madvise}) that allows the process to give the kernel some hints
 on how it is going to access the (mapped) memory in given address range.
 E.g. the \texttt{MADV\_SEQUENTIAL} advice implies the pages should be read-ahead
 and then freed once they are accessed.
