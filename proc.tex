@@ -1362,7 +1362,7 @@ invalid.
 \begin{alltt}
 void *handle;
 double y, x = 1.3;
-double (*fun)(double); 
+double (*fun)(double);
 char *libname = "libm.so", *fn\_name = "sin";
 
 if ((handle = \emprg{dlopen}(libname, RTLD\_NOW)) == NULL)
