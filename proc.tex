@@ -1350,6 +1350,9 @@ Example: \example{dyn-lib/rtld\_next.c}.
 \item  All these functions are part of the dynamic linker that each dynamically
 linked program has mapped into its address space upon execution.  Also see pages
 \pageref{RUNTIMELINKER} and \pageref{EXEC}.
+\item \texttt{dlclose} merely decrements the internal reference count held for
+the dynamic library related to the handle. It will fail only if the handle is
+invalid.
 \end{itemize}
 
 %%%%%
