@@ -1059,12 +1059,12 @@ of multiple processes
 \end{slide}
 
 \begin{itemize}
-\item Memory file mapping is one of the implementations of shared memory.  A
-file name is used to describe the shared piece of memory.
-\item A memory mapped file is regularly written to disk.
-\item Memory based disks and filesystem are provided by today's system.  They
-primarily rely on main memory for data storage, thus avoiding overhead of
-physical storage reads and writes.
+\item Memory file mapping is one of the implementations of shared memory.
+A file name is used to describe the shared piece of memory.
+\item Modern Unix systems employ some sort of buffer cache that stores
+file pages in memory. This cache is regularly written to disk.
+A memory mapped file utilizes the cache, therefore the mapped pages
+are also synchronized to disk.
 \end{itemize}
 
 %%%%%
