@@ -226,8 +226,8 @@ corresponding \verb#AF_# constants.  We do recommend to use only \verb#AF_#
 constants.
 \item There are other domains, see the \texttt{socket(2)} manual page.
 \item There are also other socket types, for example \texttt{SOCK\_RAW}, for
-full protocol access. In order to use \texttt{SOCK\_RAW} you usually need
-additional privileges.  That is a reason why the \texttt{ping} command, which
+full protocol access. In order to use \texttt{SOCK\_RAW} additional privileges
+are usually needed.  That is a reason why the \texttt{ping} command, which
 works with ICMP headers of sent packets, might need to be a SUID program:
 
 \begin{verbatim}
@@ -259,9 +259,9 @@ const struct sockaddr *\emph{address}, \\\>socklen\_t \emph{address\_len});}
     \begin{itemize}
     \item ifdef([[[NOSPELLCHECK]]],
     [[[\texttt{sa\_family\_t \emph{sin\_family}}]]]) \dots{} domain
-    (\texttt{AF\_INET}) 
+    (\texttt{AF\_INET})
     \item ifdef([[[NOSPELLCHECK]]],
-    [[[\texttt{in\_port\_t \emph{sin\_port}}]]]) \dots{} port number (16 bits) 
+    [[[\texttt{in\_port\_t \emph{sin\_port}}]]]) \dots{} port number (16 bits)
     \item ifdef([[[NOSPELLCHECK]]],
     [[[\texttt{struct in\_addr \emph{sin\_addr}}]]]) \dots{}
     IP address (32 bits)
