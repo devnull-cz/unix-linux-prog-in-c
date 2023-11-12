@@ -156,7 +156,7 @@ host where the socket was created), in which case it will only accept connection
 requests over that specific interface via that specific IP address, or it can be
 a special "any" value (for so called \emph{wildcard sockets},
 denoting the connection will be accepted on any IP address on any interface of
-the host.
+the host. See page \pageref{ANYADDR}.
 \item \funnm{listen}() -- tells the kernel to start listening on connection
 requests on the socket.
 \item \funnm{accept}() -- blocks the process until there is a connection
@@ -292,6 +292,7 @@ special address that stands for any address on a given host.  Such a socket can
 be used to accept connections on any IP address assigned to any interface on the
 host.  That address is:
 \begin{itemize}
+\hlabel{ANYADDR}
 \item For \texttt{AF\_INET}, use \texttt{INADDR\_ANY} (4 zero
 bytes corresponding to \texttt{0.0.0.0})
 \item With \texttt{AF\_INET6} the situation is more complicated.  You can either
