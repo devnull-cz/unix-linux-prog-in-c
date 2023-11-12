@@ -154,7 +154,7 @@ In other words, it assigns a name to an unnamed socket.  The address must be
 either one of IP addresses assigned to one of the host network interfaces (the
 host where the socket was created), in which case it will only accept connection
 requests over that specific interface via that specific IP address, or it can be
-a special value \texttt{INADDR\_ANY} (for so called \emph{wildcard sockets},
+a special "any" value (for so called \emph{wildcard sockets},
 denoting the connection will be accepted on any IP address on any interface of
 the host.
 \item \funnm{listen}() -- tells the kernel to start listening on connection
