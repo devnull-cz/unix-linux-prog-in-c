@@ -1360,8 +1360,9 @@ data from two sources. This example assumes that the descriptors
 \item Better solution would be to use \texttt{select} also for testing writing
 readiness. For this two buffers are required -- one for each direction of
 communication. Respective read descriptor will be present in the read set for
-\texttt{select} when the buffer is empty. The write descriptor will be in the
-write set when the buffer is non-empty.
+\texttt{select} when the buffer is empty (or e.g. when the buffer contains
+fragment of a message).
+The write descriptor will be in the write set when the buffer is non-empty.
 \item \hlabel{WRITE_SELECT_C} \texttt{select} will put the process to sleep
 when the data is not read from the remote side if only testing write readiness.
 This can be simply simulated by a program that merely connects (TCP handshake)
