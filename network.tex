@@ -1401,7 +1401,7 @@ of \texttt{nfds} items for \texttt{timeout} ms (\texttt{0}
 \begin{itemize}
 \item Alternative to \texttt{select}.
 \item The \emph{timeout} argument is in milliseconds.
-\item There are many more flags, see the man page.
+\item There are more events that can be checked for, see the man page.
 \item Often either \texttt{select} or \texttt{poll} is implemented using the
 other one.  On Solaris, for example, \texttt{poll} is a system call, and
 \texttt{select} is then a library call implemented as a \texttt{poll} wrapper.
