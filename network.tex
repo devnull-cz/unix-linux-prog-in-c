@@ -1313,9 +1313,9 @@ parameter which is system constant for maximal file descriptor count. This is
 not the best solution since this constant is only 1024 on 32-bit systems however
 for 64-bit programs it can be significantly bigger (e.g. 65536 on Solaris),
 leading to more time spent in the syscall.
-\item If the time argument is set to 0 (not NULL), then \texttt{select} can be
-used for so called \emph{polling} -- it will check the current state and return
-immediately.
+\item If the \texttt{timeout} argument is set to 0 (not NULL), then
+\texttt{select} can be used for so called \emph{polling} -- it will check the
+current state and return immediately.
 \item Example: \hlabel{SELECT_C} \example{select/select.c}
 \item \texttt{select} can also be used to determine the state after
 \texttt{connect} for non-blocking socket. Use \texttt{getsockopt} with
