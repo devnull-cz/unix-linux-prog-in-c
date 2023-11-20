@@ -1341,10 +1341,6 @@ for(;;) \{
     \emprg{FD\_ZERO}(&rfdset); \emprg{FD\_SET}(0, &rfdset);
     \emprg{FD\_SET}(fd, &rfdset); efdset = rfdset;
     \emprg{select}(fd+1, &rfdset, NULL, &efdset, NULL);
-    if(\emprg{FD\_ISSET}(0, &efdset))
-        /* exception on stdin */ ;
-    if(\emprg{FD\_ISSET}(fd, &efdset))
-        /* exception on fd */ ;
     if(\emprg{FD\_ISSET}(0, &rfdset)) \{
         sz = read(0, buf, BUFSZ); write(fd, buf, sz); \}
     if(\emprg{FD\_ISSET}(fd, &rfdset)) \{
