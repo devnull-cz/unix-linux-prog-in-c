@@ -668,7 +668,7 @@ have not mentioned yet:
     \begin{itemize}
     \item \emsl{POSIX shared memory} accessible via \funnm{shm\_open}()
     \item \emsl{POSIX queues} \dots{} \funnm{mq\_open}(),
-    \funnm{mq\_send}(), \funnm{mq\_receive}(), \dots{} 
+    \funnm{mq\_send}(), \funnm{mq\_receive}(), \dots{}
     \item \emsl{System V APIs} for queues, shared memory, and semaphores
     \end{itemize}
 \item \emsl{sockets} come from the BSD world and allow communication in various
@@ -692,6 +692,12 @@ of the UNIX specification since version 2.
 same system only. It has some interesting features - not only it can be used for
 inter-process communication however it can be used in kernel to request a
 service from a userland program.
+\item \texttt{shm\_open} returns file descriptor that can be then
+mapped into process memory via \texttt{mmap} (see page \pageref{MMAP}).
+See \example{shm/shm.c}.
+On Linux, the shared segment is visible under \texttt{/dev/shm/} directory,
+along with size and permissions. \texttt{shm\_unlink} destroys the shared
+memory segment.
 \end{itemize}
 
 \hlabel{SYNCHRONIZATIONEND}
