@@ -477,7 +477,7 @@ int main(void)
         return (0);
 }
 
-$ ./a.out 
+$ ./a.out
 ^C
 \end{verbatim}
 \item \texttt{fcntl()} checks for deadlock and returns \texttt{EDEADLK}.
@@ -488,7 +488,7 @@ system.
 
 %%%%%
 
-\pdfbookmark[1]{IPC}{sysvipc}
+\pdfbookmark[1]{IPC}{ipc}
 
 \begin{slide}
 \sltitle{IPC}
@@ -509,12 +509,20 @@ files for owner, group and others.
 \begin{itemize}
 \item IPC resources continue to exist even after the process that created them
 is no longer around. To destroy them it is necessary to explicitly request this.
-From the shell the list of IPS resources can be acquired using
+\item There are two types of standard IPC interfaces: System~V and POSIX.
+In general System~V IPC has more complex albeit in some cases more capable API.
+For more information about System~V IPC mechanisms, see \texttt{svipc(7)} man
+page on any Linux distribution.
+\item POSIX IPC API is much simpler and better designed than the System~V IPC
+API.  However, it is also much younger so you may see the System~V API used a
+lot in existing code.  For System~V semaphore API and examples, see page
+\pageref{SYSVSEM}.
+\item The POSIX API for IPC came in with extension 1003.1b (aka POSIX.4), see
+page \pageref{POSIX4}.
+\item From the shell the list of System~V IPS resources can be acquired using
 the \texttt{ipcs} command. They can be deleted using the \texttt{ipcrm} command.
 The state and contents of existing IPS resources is unchanged even if no process
 works with them at the moment.
-\item For more information, see \texttt{svipc(7)} man page on any Linux
-distribution.
 \end{itemize}
 
 %%%%%
@@ -679,12 +687,6 @@ across network using internet protocols).
 \end{slide}
 
 \begin{itemize}
-\item POSIX IPC API is much simpler and better designed than the System~V IPC
-API.  However, it is also much younger so you may see the System~V API used a
-lot in existing code.  For System~V semaphore API and examples, see page
-\pageref{SYSVSEM}.
-\item The POSIX API for IPC came in with extension 1003.1b (aka POSIX.4), see
-page \pageref{POSIX4}.
 \item Sockets were accepted by other Unix systems as well and have been a part
 of the UNIX specification since version 2.
 \item There are other more system specific facilities.  For example,
