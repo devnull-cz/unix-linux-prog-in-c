@@ -427,8 +427,9 @@ the lock will be lost because \texttt{getpwnam}(3) opens, reads, and
 closes the password database.}
 
 Linux contains a different kind of locking called \emph{Open file description
-locks} that avoids this problem (the per file descriptor locks are released
-only on the last close), however does not provide deadlock detection.
+locks} (non-standard) that avoids this problem (the per file descriptor locks
+are released only on the last close), however does not provide deadlock
+detection.
 \item The \texttt{lockf} function (SUSv3) is simpler variant of
 \texttt{fcntl}, specifies only how to lock and how many bytes from the current
 position in the file. Very often implemented as \texttt{fcntl} wrapper.
