@@ -278,7 +278,7 @@ printf("thread \%d started\bs{}n", (int)arg);
 \end{alltt}
 
 \hlabel{INT_AS_ARG} Example: \example{pthreads/int-as-arg.c}
-\item If we need to pass more bytes than it is the size of the pointer, you must
+\item If we need to pass more bytes than the size of the pointer, you must
 pass a pointer to memory where the passed data is stored, or use global
 variables.  Accessing global variables must be synchronized, of course.  More on
 that on page \pageref{THREADSYNCHRONIZATION}.
