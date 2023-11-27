@@ -168,8 +168,8 @@ if (pthread_create(&thr, NULL, thrfn, NULL) != 0)
         err(1, "pthread_create");
 \end{verbatim}
 
-as it will print possibly something like the following on error (unless
-\texttt{errno} was set by previous code which would make it even more
+as \texttt{err()} will print possibly something like the following on error
+(unless \texttt{errno} was set by previous code which would make it even more
 confusing):
 
 \begin{itemize}
