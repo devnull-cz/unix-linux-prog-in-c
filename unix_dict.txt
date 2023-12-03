@@ -379,3 +379,4 @@ tickless
 ViM
 IMproved
 TOCTOU
+lockless

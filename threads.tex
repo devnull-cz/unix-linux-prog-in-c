@@ -929,7 +929,8 @@ execute the library code.  On the other hand, if using a large number of mutexes
 to synchronize access to many small sections, significant amount of time might
 be spent in the overhead of calling functions implementing the locking.  It is
 therefore desired to search for a compromise.  (Or use an algorithm that does
-not require locks at all).
+not require locks at all - such algorithms/techniques are called \emph{lock
+free} or \emph{lockless}).
 \item \hlabel{MUTEX_RACE} Examples: \example{mutexes/race.c},
 \example{mutexes/race-fixed.c}
 \item Mutexes can be shared between processes so that their threads will
