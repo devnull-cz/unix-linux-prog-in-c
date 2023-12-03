@@ -431,8 +431,9 @@ where multiple threads may be using the library API at the same time
 \end{slide}
 
 \begin{itemize}
-\item In program itself you will probably not need this function.  You can
-just call the initialization function before you create the first thread.
+\item This function is primarily meant to be used in libraries and rarely
+needed in a program. In the latter case, the initialization function can be
+called before the first thread is created.
 \item The behavior is undefined if \emph{once\_control} is a local variable or
 does not have an expected value.
 \item This is handy for lazy initialization, i.e. only after one of the threads
