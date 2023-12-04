@@ -982,7 +982,7 @@ flags of different colors) or whether a single condition variable will be used
 (the same flag color for all situations).  For the latter, the threads waiting
 on \texttt{n > 7} and \texttt{n == 99} must always test \texttt{n} as they know
 that they are woken up whenever the variable changed.  If the variable is not
-equal to 7 the thread must voluntarily put itself to sleep again.  As it is
+equal to 7, the thread must voluntarily put itself to sleep again.  As it is
 explained further, the \emsl{test is necessary to perform after an every
 wake-up} even if a dedicated condition variable is used for every possible
 state -- it may happen that the system can wake up a sleeping thread (because
