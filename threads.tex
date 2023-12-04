@@ -1144,8 +1144,8 @@ function will automatically unlock the mutex and put the thread to sleep. Once
 the thread is woken up, the system will lock the mutex first (this will be done
 by the condition variable implementation) and only after that
 \texttt{pthread\_cond\_wait} will return.
-\item When signalling that something has changed, it does not mean that after
-the change the condition will be true. Moreover,
+\item When a thread receives a signal that something has changed, it does not
+mean that after the wake up the condition will be true. Moreover,
 \texttt{pthread\_cond\_wait} can return even if no thread called
 \texttt{pthread\_cond\_signal} or \texttt{pthread\_cond\_broadcast}.
 This is another reason for testing the condition after wake-up and possibly
