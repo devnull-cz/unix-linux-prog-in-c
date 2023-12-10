@@ -1573,6 +1573,10 @@ individual systems define their own calls.
 \item for naming threads, Linux distributions might have
 \texttt{pthread\_setname\_np} (i.e. without the underscore, unlike the
 Solaris/FreeBSD), further cementing the non-portability character.
+Anyhow, named threads might be visible in debuggers or in the output
+of utilities such as \texttt{ps} (for the latter, that would be in the
+\texttt{COMMAND} column, which is usually reserved for program path and its
+arguments).
 \item Non-portable calls should be used either for system programs or
 debugging. You never know when the code will be executed on different system,
 which typically happens once you leave the company and having the time to
