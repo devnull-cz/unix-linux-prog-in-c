@@ -1212,6 +1212,7 @@ called ``advanced real-time extensions''.
 thread for writing (and no one for reading).
 \item Read-write locks are semantically similar to locking files using
 \texttt{fcntl} function.
+\item See \example{pthreads/pthread-rwlock.c} for a classic use case.
 \item It is common that a given implementation prefers writer threads to
 reader threads.  E.g. if a lock is owned by a writer while some other thread
 calls function \funnm{pthread\_rwlock\_rdlock} and there is at least one thread
