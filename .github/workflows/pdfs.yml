@@ -10,7 +10,7 @@ jobs:
     - name: Update the system
       run: sudo apt-get -qq update
     - name: Checkout master branch
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
         path: master
     - name: Install pre-requisites for LaTeX
