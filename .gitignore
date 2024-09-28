@@ -2,6 +2,7 @@
 *.m4.tex
 *.aux
 *.log
+*.ps
 *.pdf
 *.tmp
 *.out
