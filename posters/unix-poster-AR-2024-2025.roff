@@ -1,27 +1,31 @@
-.\" A poster for the Unix/Linux prog lecture for the winter semester 2024/2025
+.\" A poster for the Unix/Linux programming lecture for the winter semester 2024/2025
 .\"
-.\" To generate a PDF, paste the following (any unix-like system with groff
-.\" should do, including a Mac):
+.\" To generate a PDF for A4 landscape, paste the following (needs Groff with "ms" macro package)
 .\"
-.\" x=unix-poster-AR-2024-2025; groff -Tps -P-pa4 $x.roff > $x.ps; ps2pdf $x.ps $x.pdf
+.\" x=unix-poster-AR-2024-2025; groff -Tps -m ms -U -P-pa4 -P-l $x.roff > $x.ps > $x.ps; ps2pdf $x.ps $x.pdf
 
-.po 0.75i
-.ll 6.8i
+.2C 15.5c 3c
+
+.po 0.5i
+.ll 4.5i
 .ft AR
 
-.sp 0.8i
+.\" insert Matfyz girl picture by Julie K.
+.PDFPIC -R matfyz-girl.pdf
+
+.sp 0.1i
 .ce
 .ps 35
 \f(ARNSWI015\fP
 
-.sp 1i
+.sp 0.5i
 .ce
-.ps 85
+.ps 55
 \f(CBUnix/Linux\fP
 
-.sp 1.5c
+.sp 1.0c
 .ce
-.ps 45
+.ps 35
 .ti 0.5c
 .\"\f(AIProgramming\fP
 .\".ft ABI
@@ -29,53 +33,56 @@
 Programming\fP
 .ft AR
 
-.sp 2.6c
+.sp 1.0c
 .ce
-.ps 80
+.ps 40
 .ti 0.5c
 \f(ABin C\fP
 
-.ps 16
-.sp 1.4c
-.ce
-.\" groff 1.19 does not support -K utf-8
-.\" Vladimír Kotal, Principal Software Engineer, Oracle
-Mgr. Vladim\['i]r Kotal, Oracle
-.sp 1.4c
-.ps 20
-.ce
-http://mff.devnull.cz
+.\" set number of needed lines in the upcoming section to force a column break
+.ne 40
 
-.\" With 0.75i page offset and 8.3i A4 page width, the line length should be
-.\" 6.8i.  However, with the bullets for the list, 6.5i looks much better.
-.ll 6.5i
-.sp 1.2c
+.po 6i
+.ll 5i
+
+.sp 1.0c
 .in 0.6i
 .ps 12
 .ti -0.19i
 \(bu\ \ \f(ABNSWI015, 2/1 (5 credits), SISAL\fP
 .sp 0.4c
 .ti -0.19i
-\(bu\ \ MFF UK, Mal\['a] Strana, \f(ABwinter semester\fP 2024/2025.  The
-schedule is \f(ABMon, 9:00 in S7 for the lecture, and Mon 10:40 in SW1 for the
-labs\fP.  We start on Monday September 30th.
+\(bu\ \ MFF UK, Mal\['a] Strana, \f(ABwinter semester\fP 2024/2025.
+The schedule is \f(ABMon, 9:00 in S7 for the lecture, and Mon 10:40 in SW1 for the labs\fP.
+We start on Monday September 30th.
 
-.sp 0.4c
+.sp 0.2c
 .ti -0.19i
 \(bu\ \ This course prepares students for software development in the Unix/Linux
-environment using the C programming language.
-.sp 0.4c
+environment using the C programming language, a foundation for general systems
+programming and/or troubleshooting.
+.sp 0.2c
 .ti -0.19i
 \(bu\ \ Includes lab work to practise the knowledge gained in the course.
-.sp 0.4c
+.sp 0.2c
 .ti -0.19i
 \(bu\ \ \f(ABLectured in English\fP to accomodate non-Czech speaking students.
-.sp 0.4c
+.sp 0.2c
 .ti -0.19i
 \(bu\ \ You are expected to have passed \f(AIIntroduction to UNIX\fP (NSWI095)
 and you should either know C (e.g. NPRG\%066) or willing to learn it by
 yourself.
-.sp 0.4c
-.ti -0.19i
-\(bu\ \ Let me know if you have any questions: vlada@kotalovi.cz
-.sp 0.4c
+
+.ps 16
+.sp 1.0c
+.ce
+.\" groff 1.19 does not support -K utf-8
+.\" Vladimír Kotal, Principal Software Engineer, Oracle
+Mgr. Vladim\['i]r Kotal, Oracle
+.sp 0.5c
+.ce
+vlada@kotalovi.cz
+.sp 1.4c
+.ps 20
+.ce
+http://mff.devnull.cz
