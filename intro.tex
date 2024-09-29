@@ -744,15 +744,15 @@ Instead of external function pointers in the compiled code, the object file
 contains a table of global symbols.
 \item Then, the \emph{linker} combines the built object files and used
 libraries into an output file.  By default, it also resolves all the references
-to make sure all symbols used are available. 
+to make sure all symbols used are available.
 \item Used code from the static libraries is copied to the executable file.
 When using dynamic libraries, the executable only contains a list of them, the
 linking process is then performed by the runtime linker (aka loader) on the
 program execution.  For more on the dynamic linking process, see page
 \pageref{RUNTIMELINKER}.
-\item To select whether to use static or dynamic libraries, you use options for
-the linker.  By default, dynamic libraries are used nowadays.  The source code
-is same in either case.  There is also a mechanism (\texttt{dlopen},
+\item Linker options decide whether static or dynamic library is created.
+By default, dynamic libraries are used nowadays.  The source code
+is the same in either case.  There is also a mechanism (\texttt{dlopen},
 \texttt{dlsym}\dots) that allows to load an additional dynamic library during
 the program execution, and use it.  For more information, see page
 \pageref{DLOPEN}.
