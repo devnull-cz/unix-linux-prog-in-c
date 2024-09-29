@@ -4,5 +4,6 @@
 *.log
 *.ps
 *.pdf
+*.eps
 *.tmp
 *.out
