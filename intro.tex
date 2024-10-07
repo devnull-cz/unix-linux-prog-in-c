@@ -2201,7 +2201,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \begin{tabbing}
 stru\=ct \funnm{option} \{\\
 \>const char *name; \textrm{/* name of the option */} \\
-\>int has\_arg; \textrm{/* value: yes, no, \emsl{optional} */} \\
+\>int has\_arg; \textrm{/* meaning: yes, no, \emsl{optional} */} \\
 \>int *flag; \textrm{/*~}\=\textrm{if \texttt{NULL}, the function returns
 \texttt{val}}, \\
 \>\>\textrm{otherwise returns 0}
@@ -2224,6 +2224,8 @@ behavior of \texttt{getopt\_long} is compatible with that of \texttt{getopt}.
 \item If \texttt{flag} is set, \texttt{getopt\_long} returns 0, which makes
 these long options without the short variant get processed in a single branch of
 \texttt{case}.
+\item The actual permitted values of the \texttt{has\_arg} member are defines
+\texttt{no\_argument}, \texttt{required\_argument} and \texttt{optional\_argument}.
 \item There is also \texttt{getopt\_long\_only}, which allows long options
 to begin with a single dash (\texttt{-option}).
 \item The \texttt{getopt\_long} function is possible to use in two ways.
