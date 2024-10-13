@@ -305,6 +305,9 @@ data on file closure (NFS), and if that write fails, \texttt{close} fails.
 In such case the error code should be used only for diagnostics. There is not
 point in retrying because the descriptor might have been allocated for something
 else in the meantime.
+\item Usually, esp. on local file systems, \texttt{close} returns right away,
+however there are situations when \texttt{close} will only return after an
+event or certain time, e.g. for TCP sockets with certain options set.
 \item If you forget to close file descriptors when you no longer need them,
 and it is a long living process, a daemon perhaps, depending on the system
 configuration you may hit memory starvation as the system memory will be filled
