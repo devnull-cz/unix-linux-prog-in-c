@@ -302,6 +302,9 @@ file descriptor.  When the file descriptor is closed (and all of its possible
 duplicates), the file data is released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure (NFS), and if that write fails, \texttt{close} fails.
+In such case the error code should be used only for diagnostics. There is not
+point in retrying because the descriptor might have been allocated for something
+else in the meantime.
 \item If you forget to close file descriptors when you no longer need them,
 and it is a long living process, a daemon perhaps, depending on the system
 configuration you may hit memory starvation as the system memory will be filled
