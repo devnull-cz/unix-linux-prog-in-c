@@ -1041,9 +1041,11 @@ specific thing and subsequently copied by other systems, including Linux.
 However, it is not part of SUSv4 and thus not portable, unfortunately.
 The portable way is to call \texttt{stat} on each directory entry.
 \item \texttt{rmdir} does not work on directories that are not empty.  You have
-to remove all entries before you can delete a directory.  You can use
-\texttt{system("rm -r xxx")} etc. but be careful to sanitize the environment and
-the directory name to avoid any security implications.
+to remove all entries before you can delete a directory.  It might be tempting
+to use something like \texttt{system("rm -r xxx")}, e.g. invoke a shell to
+run the \texttt{rm} command etc., however this should be avoided as it is prone
+to errors (the environment and the directory name might be hard to sanitize)
+and might have security implications.
 \item \hlabel{REMOVE} The specification also defines \texttt{remove} which
 behaves like \texttt{unlink} for files and as \texttt{rmdir} for directories.
 \end{itemize}
