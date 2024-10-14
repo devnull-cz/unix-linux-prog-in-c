@@ -967,7 +967,7 @@ by \verb#'\0'#
 \item The shell command \texttt{ln} uses either the \texttt{symlink} or
 \texttt{link} syscall depending on whether the \texttt{-s} option was used.
 \item Calling \texttt{unlink} on a hardlink will not release the file data if
-other hardlinks exists. You can delete the symlink's target in which case you
+other hardlinks exist. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
 \item \texttt{readlink} is useful in the situation where you want to
 \texttt{unlink} the symlink's target.
