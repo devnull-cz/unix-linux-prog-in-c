@@ -2340,6 +2340,8 @@ processes that from today's perspective had only a single thread. The
 possibility of using multiple threads was introduced because it was shown that
 it is beneficial to have multiple lines of execution within the same process on
 commonly shared data.
+\item As Rob Pike mentioned in one of his lectures, this is a concurrency model
+that can lead to parallelism.
 \item The memory areas of processes are isolated between each other, however
 processes can communicate or explicitly share memory.
 \item While processes are kernel entities, threads can be partially or fully
@@ -2349,8 +2351,6 @@ processes.
 \item A system process that is running for the whole time and provides some
 system services (\texttt{inetd}, \texttt{cron}, \texttt{sendmail}\dots) is
 called a \emph{daemon}. The BSD system mascot is not a devil but a daemon.
-\item As Rob Pike mentioned in one of his lectures, this is a concurrency model
-that can lead to parallelism.
 \end{itemize}
 
 %%%%%
