@@ -778,7 +778,7 @@ useful on file systems where there are large numbers of files and performance is
 more critical than updating the file access time (which is rarely ever
 important).  It may also come in handy if your filesystem is on a medium with a
 limited number of erase/write cycles -- a CompactFlash, for example.  If your
-system supports it, it will be a \texttt{noatime} option for the \texttt{mount}
+system supports it, it will be the \texttt{noatime} option for the \texttt{mount}
 command.  See the manual page. Some systems (Linux based) support a non-portable
 \texttt{open} syscall flag to set this per file opening, based on some
 conditions.
