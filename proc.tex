@@ -636,6 +636,11 @@ the executed program has a SUID bit set, the program's EUID and saved EUID are
 set to the UID of the executable program owner.
 \item Today's systems can also execute scripts that start with a line:\\
 \texttt{\#!/\emph{interpreter\_path}/\emph{interpreter\_name} \emph{[args]}}
+\item The \texttt{system} or \texttt{popen} library calls are more
+straightforward to use, however they more often than not execute a shell,
+which might have security implications (shell expansion of arguments,
+environment variables, command injection, etc.), so generally it is better
+to avoid them.
 \end{itemize}
 
 %%%%%
