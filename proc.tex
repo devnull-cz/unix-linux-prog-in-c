@@ -283,20 +283,20 @@ up the CPU while the operation is still in progress.
 \begin{itemize}
 \item \emsl{system}
     \begin{itemize}
-    \item priority 60 to 99 
+    \item priority 60 to 99
     \item reserved for system processes (\texttt{pageout},
-    \texttt{sched}, \dots) 
-    \item fixed priority 
+    \texttt{sched}, \dots)
+    \item fixed priority
     \end{itemize}
 \item \emsl{real-time}
     \begin{itemize}
-    \item priority 100 to 159 
-    \item fixed priority 
+    \item priority 100 to 159
+    \item fixed priority
     \item a time quantum corresponds to priority value
     \end{itemize}
 \item \emsl{time-shared}
     \begin{itemize}
-    \item priority 0 to 59 
+    \item priority 0 to 59
     \item dynamic 2 part priority, fixed user part and
     dynamic system part -- if a process uses CPU extensively,
     its priority is being decreased (and time quantum increased)
