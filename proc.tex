@@ -256,7 +256,7 @@ planning is that one process can block the CPU and other processes forever.
 \item Unix uses only preemptive planning for user processes.
 \item There is also a \emph{tickless kernel} that uses a variable timer tick.
 \item Traditional (historical) UNIX \emsl{kernel} uses cooperative planning,
-i.e. process running in kernel mode is not switched until it gives up the CPU
+i.e. a process running in kernel mode is not switched until it gives up the CPU
 by itself.
 \emsl{Modern Unix kernels are preemptive} -- mainly because of real-time
 systems; where it is necessary to have the possibility to remove a CPU from
