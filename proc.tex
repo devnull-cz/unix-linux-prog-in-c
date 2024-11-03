@@ -501,9 +501,9 @@ If the parent exits before the child, its adoptive parent will become the
 using non-standard API (e.g. the \texttt{libproc} library on Solaris built
 on top of the \texttt{procfs} filesystem that is mounted under \texttt{/proc}).
 \item Note that using the value returned from \texttt{getppid} to check if
-parent exited is not portable (commonly \texttt{init} has \texttt{pid} 1 however
-this is not true in many virtualized/containerized environments, e.g. in
-\emph{PID namespaces} on Linux, Zones in Solaris).\\
+the parent exited is not portable (commonly \texttt{init} has
+\texttt{pid} 1 however this is not true in many virtualized/containerized
+environments, e.g. in \emph{PID namespaces} on Linux, Zones in Solaris).\\
 Example: \example{session/getppid.c}.
 \end{itemize}
 
