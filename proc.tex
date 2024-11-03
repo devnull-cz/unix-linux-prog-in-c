@@ -487,7 +487,7 @@ a process in the background, for example a simple shell script that does
 \texttt{read a}.  On the next shell prompt, you will be notified by the shell
 that the process was stopped (you can set your shell to notify you about such
 events asynchronously -- if you know what you are doing).  The process was
-actually stopped by signal \texttt{SIGTTIN}.  How to verify that?  Run
+actually stopped by the \texttt{SIGTTIN} signal. How to verify that?  Run
 \texttt{strace -o output ./the-script \&} and check the output file.
 
 \item[parent process:] Each process (besides \texttt{swapper},
