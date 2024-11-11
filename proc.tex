@@ -890,7 +890,9 @@ flags:
     \end{itemize}
 \item There are also \texttt{wait3} and \texttt{wait4} calls. These are more
 generic versions, also allowing to gather resource utilization statistics from
-exited child.
+exited child. These are non-standard.
+\item There is also \texttt{waitid} syscall with more direct/exposed semantics
+of the child status and information about signals.
 \item A parent should always call one of the wait functions otherwise the system
 will accumulate \emph{zombies} -- terminated processes that occupy process table
 slots only to be waited for by their parents.  Zombies could eventually exhaust
