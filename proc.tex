@@ -33,7 +33,7 @@ hardware segments):
 \item The sections for initialized and non-initialized variables and heap are
 considered as data
 \item It is also possible to connect segments of shared memory
-(\texttt{shmat}) or files (\texttt{mmap}) into the address space.
+(\texttt{shm\_open}) or files (\texttt{mmap}) into the address space.
 \item The text is shared between all processes which execute the same code.
 The data segment and stack are private for each process.
 \item Each system can use a different layout of a process address space
@@ -1178,8 +1178,8 @@ ifdef([[[NOSPELLCHECK]]], [[[\texttt{addr+l{}en-1}]]]), see example
     automatically grow mapped object when accessing beyond its current end.
     \end{itemize}
 \item It is possible to share anonymous mapping between processes using
-\texttt{fork()}. The only alternative is shared memory established using
-\texttt{shmat}.
+\texttt{fork()}. The alternative is shared memory established using
+\texttt{shm\_open} (\pageref{POSIX_IPC}).
 \item Example of a system command using memory mapped files is \texttt{cat(1)}
 on Solaris (for regular files). Using mapped memory is more efficient than
 calling \texttt{read} repeatedly, saving the overhead necessary for switching to
