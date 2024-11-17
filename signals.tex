@@ -115,12 +115,12 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ]]])
 \begin{itemize}
 \item sends signal \emph{\texttt{sig}} to a process or a process group
-based on value of \emph{\texttt{pid}}: 
+based on value of \emph{\texttt{pid}}:
     \begin{itemize}
     \item \texttt{> 0} \dots{} to process with \emph{\texttt{pid}}
     \item \texttt{== 0} \dots{} to all processes in the same group
     \item \texttt{== -1} \dots{} to all aside from system processes
-    \item \texttt{< -1} \dots{} to processes in a group \texttt{abs(pid)} 
+    \item \texttt{< -1} \dots{} to processes in a group \texttt{abs(pid)}
     \end{itemize}
 \item \texttt{sig == 0} means the system only checks whether the process has
 enough privileges to send a signal without sending it
