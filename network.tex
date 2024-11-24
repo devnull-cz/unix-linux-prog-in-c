@@ -1059,7 +1059,7 @@ the program will only use IPv4.
 \item IPv6 sockets may be used for both IPv4 and IPv6 communications.  That
 means if you try to bind addresses returned by \funnm{getaddrinfo}, \funnm{bind}
 should return \texttt{EADDRINUSE} after its first call if you use both IPv4 and
-IPv6 addresses.  Binding on an IPv6 address should be sufficient to accept
+IPv6 addresses.  Binding an IPv6 address should be sufficient to accept
 connections over IPv4 as well.  Details are in RFC~3493.  If you want to
 restrict a socket to IPv6 only, use the following code on a socket from the
 \texttt{AF\_INET6} family:
