@@ -410,7 +410,7 @@ distinguish between interfaces, you need a socket per an IP address.  This used
 to be used for web servers that distinguished virtual servers based on the IP
 address.  However, that is remote past.  To distinguish between virtual servers
 running on the same host, a HTTP header \uv{\texttt{Host:}} is used.  Similarly,
-the TLS protocol uses \texttt{ServerName}.
+the TLS protocol uses the \texttt{ServerName} extension.
 \item The fact that the system starts listening on a port means that a TCP
 handshake is performed and data is being accepted.  The data is stored
 in a fixed length buffer and after it is filled out, the connection is still
