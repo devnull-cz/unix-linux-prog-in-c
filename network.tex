@@ -612,7 +612,7 @@ If the message does not fit \emph{l{}en}, extra data is discarded
 (\texttt{SOCK\_STREAM} does not divide data, nothing is discarded).
 \item flags \emph{\texttt{flg}} can be:
     \begin{itemize}
-    \item \texttt{MSG\_PEEK} \dots{} message it considered not read, next
+    \item \texttt{MSG\_PEEK} \dots{} message is considered not read, next
     \texttt{recvfrom} will return it again
     \item \texttt{MSG\_OOB} \dots{} reads urgent (out-of-band) data
     \item \texttt{MSG\_WAITALL} \dots{} waits for the buffer to fill up
