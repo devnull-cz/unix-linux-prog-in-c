@@ -1344,7 +1344,7 @@ for(;;) \{
     if(\emprg{FD\_ISSET}(0, &rfdset)) \{
         sz = read(0, buf, BUFSZ); write(fd, buf, sz); \}
     if(\emprg{FD\_ISSET}(fd, &rfdset)) \{
-        sz = read(fd, buf, BUFSZ); write(1,buf,sz); \}
+        sz = read(fd, buf, BUFSZ); write(1, buf, sz); \}
 \}
 \end{alltt}
 \end{slide}
