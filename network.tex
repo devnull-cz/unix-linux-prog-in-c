@@ -1132,7 +1132,7 @@ memset(&hi, 0, sizeof (hi)); hi.ai\_family = AF\_UNSPEC;
 hi.ai\_socktype = SOCK\_STREAM; hi.ai\_flags = AI\_PASSIVE;
 \emprg{getaddrinfo}(NULL, portstr, &hi, &rorig);
 for (r = rorig; r != NULL; r = r->ai\_next) \{
-    int fd = \emprg{socket}(r->ai\_family, r->ai\_socktype,
+    fd = \emprg{socket}(r->ai\_family, r->ai\_socktype,
         r->ai\_protocol);
     if (!\emprg{bind}(fd, r->ai\_addr, r->ai\_addrlen)) break;
 \}
