@@ -271,6 +271,7 @@ until it can create the yet non-existent file.
 \end{itemize}
 \begin{alltt}
 void \funnm{lock}(char *lockfile) \{
+        int fd;
         while((fd = open(lockfile,
             O\_RDWR|O\_CREAT|\emprg{O\_EXCL}, 0600)) == -1) \{
                 sleep(1); {\rm/* busy waiting in loop for unlock */}
