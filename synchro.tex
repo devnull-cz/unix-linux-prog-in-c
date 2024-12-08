@@ -292,7 +292,7 @@ lock file synchronization.
 \item example: \example{file-locking/lock-unlock.c} -- it is to be used together
 with the \example{file-locking/run.sh} shell script.
 \item In case of process crash the locks are not removed and therefore other
-processes would wait forever. Thus it is prudent to write PID of the process
+processes would wait forever. One idea is to write PID of the process
 that created the lock to the lock file. The process that is waiting for unlock
 can verify that the process with given PID number exists. If not, it can remove
 the lock file and retry. User level command that can do this is e.g.
