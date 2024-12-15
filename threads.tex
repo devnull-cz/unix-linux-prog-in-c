@@ -636,12 +636,12 @@ the system used.  For example, in Solaris before version 10 (i.e. before 2005),
 \texttt{libpthread}) was the same as \funnm{forkall}().
 \item Examples: \example{pthreads/fork.c},
 \example{pthreads/fork-not-in-main.c}, and also \example{pthreads/forkall.c}
-\item \hlabel{ATFORK} You can use \funnm{pthread\_atfork}() to set handlers that
-are executed before \funnm{fork}() is called in the parent process, and then after
-\funnm{fork}() is called both in the parent and its child.  The handlers are
-executed in the context of the thread that calls the \funnm{fork}().  Such
-handlers are very useful when \funnm{fork}() is used not only as a wrapper
-around \funnm{exec}().  After \funnm{fork}(), all variables in the child are in
+\item \hlabel{ATFORK} You can use \funnm{pthread\_atfork} to set handlers that
+are executed before \funnm{fork} is called in the parent process, and then after
+\funnm{fork} is called both in the parent and its child.  The handlers are
+executed in the context of the thread that calls the \funnm{fork}.  Such
+handlers are very useful when \funnm{fork} is used not only as a wrapper
+around \funnm{exec}.  After \funnm{fork}, all variables in the child are in
 the state as in the parent, so if a thread not present in the child held a mutex
 in the parent (see page \pageref{MUTEXES}), the mutex stays locked in the child,
 and trying to lock it in the child will lead to a deadlock.  However, if the
@@ -654,9 +654,9 @@ critical section in a short time in well written code).
 \item This scheme will only work if the \emph{\texttt{pre-fork}} handler
 maintains the same locking protocol/ordering as is used in the
 application/library. Sometimes that is just not possible due to multiple complex
-orderings in place. Very often \funnm{fork}() is called just as a means for
-later \funnm{exec}(). In such case the programmer would be better off using
-\funnm{posix\_spawn}().
+orderings in place. Very often \funnm{fork} is called just as a means for
+later \funnm{exec}. In such case the programmer might be better off using
+\funnm{posix\_spawn}.
 \item Example: \example{pthreads/atfork.c}
 \item For more on this topic, see [Butenhof].
 \item See page \pageref{MUTEXES} on why mutexes locked in other threads on
