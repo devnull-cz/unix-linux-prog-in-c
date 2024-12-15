@@ -822,7 +822,7 @@ implementation, similarly to lock-files or semaphores (if used like locks).
 set to \texttt{PTHREAD\_MUTEX\_DEF\-AULT}.  This type by itself does not define
 the result of (a) locking a locked mutex, (b) unlocking a mutex locked by a
 different thread, or (c) unlocking an unlocked mutex.  Unix/Linux systems will
-map that macro to \texttt{PTHREAD\_MUTEX\_NORMAL} or
+map that macro to either \texttt{PTHREAD\_MUTEX\_NORMAL} or
 \texttt{PTHREAD\_\-MUT\-EX\_ERRORCHECK} (ignoring the recursive type, see
 below).  Thus, depending on a specific system, locking an already locked mutex
 will result in a deadlock (\texttt{NORMAL}) or not (\texttt{ERRORCHECK}).  In
