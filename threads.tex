@@ -813,7 +813,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 binary semaphores is that \emsl{mutex has an owner and locked mutex must be
 unlocked only by the thread that acquired it.} This is not the case with
 semaphores. In order to check whether given mutex was locked by different thread
-when acquiring it, it is necessary to test return value of
+when acquiring it, it is necessary to test the return value of
 \texttt{p\-thread\_mutex\_lock}, and also have the lock checking set, see below.
 \item Mutexes are meant to be held for short time only. They are used for
 critical section (see the definition on page \pageref{CRITICALSECTION})
