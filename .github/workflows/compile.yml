@@ -20,6 +20,11 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: master
+    - name: Checkout src repo
+      uses: actions/checkout@v4
+      with:
+        repository: devnull-cz/unix-linux-prog-in-c-src
+        path: src
     - name: Install pre-requisites for LaTeX
       working-directory: master
       run: ./dev/install-latex.sh
