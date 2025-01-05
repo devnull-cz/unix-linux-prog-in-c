@@ -38,8 +38,8 @@ TEX_FILES=	common.tex \
 		history.tex \
 		appendix.tex
 
-SLIDES=		$(TEX_FILES) ${SLIDE}
-NOTES=		$(TEX_FILES) ${NOTE}
+SLIDES=		$(TEX_FILES) $(SLIDE)
+NOTES=		$(TEX_FILES) $(NOTE)
 
 all:		slides notes spellcheck
 
