@@ -52,7 +52,7 @@ slides:		$(SLIDES)
 		mv $(SLIDE:tex=m4.pdf) $(SLIDE_PDF)
 
 notes:		$(NOTES)
-		@for i in $(NOTE) ${NOTES}; do \
+		@for i in ${NOTES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
 			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
