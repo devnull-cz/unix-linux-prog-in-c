@@ -11,6 +11,8 @@
 # Do not edit m4 files, those are automatically created during the document
 # generation.
 #
+# The 'spellcheck' target requires the aspell program.
+#
 
 LATEX=		pdflatex
 M4=		m4
