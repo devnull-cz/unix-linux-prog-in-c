@@ -15,11 +15,11 @@
 LATEX=		pdflatex
 M4=		m4
 
-SLIDE=		unix-linux-prog-in-c_slides-only.tex
-NOTE=		unix-linux-prog-in-c.tex
+SLIDE_TEX=	unix-linux-prog-in-c_slides-only.tex
+NOTE_TEX=	unix-linux-prog-in-c.tex
 
-SLIDE_PDF=	$(SLIDE:tex=pdf)
-NOTE_PDF=	$(NOTE:tex=pdf)
+SLIDE_PDF=	$(SLIDE_TEX:tex=pdf)
+NOTE_PDF=	$(NOTE_TEX:tex=pdf)
 SLIDE_NEW=	$(SLIDE_PDF:pdf=pdf.new)
 NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
@@ -38,8 +38,8 @@ TEX_FILES=	common.tex \
 		history.tex \
 		appendix.tex
 
-SLIDES=		$(TEX_FILES) $(SLIDE)
-NOTES=		$(TEX_FILES) $(NOTE)
+SLIDES=		$(TEX_FILES) $(SLIDE_TEX)
+NOTES=		$(TEX_FILES) $(NOTE_TEX)
 
 all:		slides notes spellcheck
 
@@ -48,16 +48,16 @@ slides:		$(SLIDES)
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
 			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
-		$(LATEX) $(SLIDE:tex=m4.tex)
-		mv $(SLIDE:tex=m4.pdf) $(SLIDE_PDF)
+		$(LATEX) $(SLIDE_TEX:tex=m4.tex)
+		mv $(SLIDE_TEX:tex=m4.pdf) $(SLIDE_PDF)
 
 notes:		$(NOTES)
 		@for i in ${NOTES}; do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
 			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
-		$(LATEX) $(NOTE:tex=m4.tex)
-		mv $(NOTE:tex=m4.pdf) $(NOTE_PDF)
+		$(LATEX) $(NOTE_TEX:tex=m4.tex)
+		mv $(NOTE_TEX:tex=m4.pdf) $(NOTE_PDF)
 
 clean:
 		-rm -f *.log *.aux *.m4.tex *.pdf *.m4.tmp *.out
