@@ -24,7 +24,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         repository: devnull-cz/unix-linux-prog-in-c-src
-        path: src
+        path: unix-linux-prog-in-c-src
     - name: Install pre-requisites for LaTeX
       working-directory: master
       run: ./dev/install-latex.sh
@@ -40,3 +40,6 @@ jobs:
     - name: Compile
       working-directory: master
       run: make slides notes
+    - name: Check example links
+      working-directory: master
+      run: ./dev/check-examples.sh
