@@ -44,7 +44,7 @@ NOTES=		$(TEX_FILES) $(NOTE_TEX)
 all:		slides notes spellcheck
 
 slides:		$(SLIDES)
-		@for i in ${SLIDES}; do \
+		@for i in $(SLIDES); do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
 			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
@@ -52,7 +52,7 @@ slides:		$(SLIDES)
 		mv $(SLIDE_TEX:tex=m4.pdf) $(SLIDE_PDF)
 
 notes:		$(NOTES)
-		@for i in ${NOTES}; do \
+		@for i in $(NOTES); do \
 			new=`echo $$i | sed -e 's/.tex/.m4.tex/g'`; \
 			$(M4) -D NOSPELLCHECK $$i > $$new; \
 		done
