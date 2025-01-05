@@ -249,7 +249,7 @@ will really start running. The thread can voluntarily give up the CPU by using
 \texttt{sched\_yield} (this is POSIX function, unlike \texttt{pthread\_yield}).
 \item If the main thread does not wait for the thread to finish, the whole
 program will terminate even though there are still some threads running,
-see \example{pthreads/pthread\_create.c}
+see \example{pthreads/pthread-create.c}
 \item Be careful not to use this:
 \begin{alltt}
 for (i = 0; i < N; i++)
@@ -259,7 +259,7 @@ for (i = 0; i < N; i++)
 It looks like we pass each thread its index.  However, before the started thread
 gets scheduled to run, a next iteration might happen, modifying \texttt{i}.
 \item \hlabel{WRONG_USE_OF_ARG} Examples: \example{pthreads/wrong-use-of-arg.c},
-\example{pthreads/correct-use-of-arg.c}.
+\example{pthreads/correct-use-of-args.c}.
 \item If you need to pass only one value, you could use the following
 (\textbf{note that it is implementation specific in the C standard so it is not
 portable});
