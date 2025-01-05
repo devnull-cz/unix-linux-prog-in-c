@@ -1424,8 +1424,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 
 \begin{itemize}
 \item Semaphores created using this API do not have a name (as opposed to
-those created via the \texttt{sem\_open} function), hence they are called
-unnamed.
+those created via the \texttt{sem\_open} function,
+see page \pageref{NAMED_SEMAPHORES}), hence they are called unnamed.
 \item The semaphore functions adhere to the classical UNIX semantics --
 they return -1 on error and set \texttt{errno}.
 \item Example: \example{semaphores/sem.c}
