@@ -23,7 +23,7 @@ NOTE_PDF=	$(NOTE:tex=pdf)
 SLIDE_NEW=	$(SLIDE_PDF:pdf=pdf.new)
 NOTE_NEW=	$(NOTE_PDF:pdf=pdf.new)
 
-TEX=		common.tex \
+TEX_FILES=	common.tex \
 		intro.tex \
 		file-api.tex \
 		user-access.tex \
@@ -38,8 +38,8 @@ TEX=		common.tex \
 		history.tex \
 		appendix.tex
 
-SLIDES=		$(TEX) ${SLIDE}
-NOTES=		$(TEX) ${NOTE}
+SLIDES=		$(TEX_FILES) ${SLIDE}
+NOTES=		$(TEX_FILES) ${NOTE}
 
 all:		slides notes spellcheck
 
