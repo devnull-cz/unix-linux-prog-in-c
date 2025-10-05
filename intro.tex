@@ -1347,7 +1347,7 @@ by other libraries and not directly by the program.  To find out what exactly
 depends on what, use the \texttt{-v} option.  macOS does not have \texttt{ldd},
 use \texttt{otool -L} instead.
 \item What libraries are eventually used when running the program could be
-different from what \texttt{ldd} shows.  For example, 
+different from what \texttt{ldd} shows.  For example,
 one could use the \texttt{LD\_PRELOAD} mechanism.  For that reason,
 Solaris has a \texttt{pldd} command which provides the library dependencies for
 a running process.  For an example on \texttt{LD\_PRELOAD} with \texttt{gcc}:
@@ -1611,7 +1611,7 @@ also see \texttt{ulimit -c})
 
 \begin{verbatim}
 $ cc coredump.c
-$ ./a.out 
+$ ./a.out
 Segmentation Fault (core dumped)
 $ dbx ./a.out core
 Reading a.out
@@ -2136,14 +2136,14 @@ ifdef([[[NOSPELLCHECK]]], [[[
 char *const \emph{argv}[],}\\
 \>\texttt{const char *\emph{optstring});}\\
 \texttt{extern char *\emph{optarg};}\\
-\texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};} 
+\texttt{extern int \emph{optind}, \emph{opterr}, \emph{optopt};}
 \end{tabbing}
 ]]])
 \begin{itemize}
 \item the function receives command line parameters and processes and returns
 one option. If a given option has an argument, it is set in the
 \texttt{optarg} variable.
-\item when all options are processed, it returns -1 and the \texttt{optind} 
+\item when all options are processed, it returns -1 and the \texttt{optind}
 variable contains the index of first unprocessed argument of the program.
 \item possible options are passed in the \texttt{optstring} string.
 If an option has mandatory argument, its character is followed by '\texttt{:}'
@@ -2337,18 +2337,18 @@ action in kernel mode.
 \begin{itemize}
 \item a \emsl{process} is a system object characterized by its context,
 identified by a unique number (\emsl{process ID},
-\emsl{PID}); in other words \uv{code and data in memory} 
+\emsl{PID}); in other words \uv{code and data in memory}
 \item a \emsl{thread} is a system object that exists inside a process and
 is characterized by its state. All threads within a single process share
 the same memory area sans registers and stack; \uv{line of execution},
-\uv{what is running} 
+\uv{what is running}
 \item a \emsl{program} is a file with a precisely defined format that contains
 instructions, data and service information needed for execution;
 \uv{executable file on disk}
 \end{itemize}
 
 \begin{itemize}
-\item[$\circ$] \emsl{memory} is assigned to \emsl{processes}. 
+\item[$\circ$] \emsl{memory} is assigned to \emsl{processes}.
 \item[$\circ$] \emsl{processors} are assigned to \emsl{threads}.
 \item[$\circ$] threads of single process can run on different processors.
 \end{itemize}
