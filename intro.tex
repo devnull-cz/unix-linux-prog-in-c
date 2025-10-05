@@ -1315,6 +1315,9 @@ maps those libraries to the process address space, and calls their initializatio
 functions if those exist.  All dependencies not set as
 \emph{lazy} (see page \pageref{DLOPEN}) are mapped recursively via breadth
 first search.
+\item The runtime linker also processes relocation entries in the libraries.
+This allows for the position independent (w.r.t. virtual addresses within the
+address space of the process) code to work.
 \item The linker's job is done at that point and calls the program
 \texttt{main()} function.
 \item A process may continue to use the dynamic linker during program execution
@@ -1325,7 +1328,6 @@ information.
 you run it like that) even though it has its own \texttt{main()} function.
 It is used within an address space of an executed program. The program, dynamic
 linker, and dynamic libraries constitute a single process.
-
 \item The following examples \emsl{are from Solaris}.  Finding equivalent
 commands and/or options on Linux is left as an exercise to the reader.
 \begin{itemize}
