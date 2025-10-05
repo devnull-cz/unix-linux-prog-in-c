@@ -531,7 +531,7 @@ You can use other output formats though, for example as hex bytes and
 characters in the same output:
 
 \begin{verbatim}
-$ hexdump -C test 
+$ hexdump -C test
 00000000 69 6a 6b 6c            |ijkl|
 00000004
 \end{verbatim}
@@ -867,7 +867,7 @@ with AT\&T assembler syntax.
 \begin{tabular}{ll}
 \texttt{-o \emph{file}} & output file name\\
 \texttt{-c} & only compile, do not link\\
-\texttt{-E} & only preprocessor\\ 
+\texttt{-E} & only preprocessor\\
 \texttt{-l} & link with the specified library\\
 \texttt{-L\emph{directory}} & add a directory to search when using \texttt{-l}\\
 \texttt{-O\emph{level}} & optimization level\\
@@ -936,7 +936,7 @@ defined in SUSv3 is \texttt{c99}).  Note that the default behavior of your
 compiler might be same as \texttt{c89}.
 
 \begin{verbatim}
-$ cat standards.c 
+$ cat standards.c
 #define _XOPEN_SOURCE   600
 /* you must #include at least one header !!! */
 #include <stdio.h>
