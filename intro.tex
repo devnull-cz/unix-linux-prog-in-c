@@ -880,11 +880,26 @@ with AT\&T assembler syntax.
 
 \begin{itemize}
 \item \texttt{-l}/\texttt{-L} are actually options for the linker, i.e. the
-compiler will pass them on onto the linker.
+compiler will pass them on onto the linker. To pass options to the linker
+in more robust way, use the \texttt{-Xlinker} option.
 \item Both the compiler and linker have an extensive list of additional options
 that influence the generated code and what warnings are printed during the
 compilation/linking based on the chosen language and the standard.  See manual
-pages for \texttt{cc}, \texttt{gcc}, and/or \texttt{ld}.
+pages for \texttt{cc}, \texttt{gcc} or \texttt{clang}, and/or \texttt{ld}.
+\item There are many additional warnings and sets of warnings which can be
+enabled for compilation such as \texttt{-Wall}, \texttt{-Wextra},
+\texttt{-pedantic} and many others.
+\item Also, it might be worthwhile to convert all warnings into errors via
+\texttt{-Werror} to make sure the problems do not go unaddressed.
+\item These days modern compilers include extra checks which used to be part
+of program called \texttt{lint} which checked for unused variables, mismatches
+in format strings etc. They also provide almost graphical level of warnings
+showing not only what is problematic but also how it can be fixed.
+\item Also, modern compilers feature the capability of formerly standalone
+\emph{static analyzers} e.g. being able to detect problems across function calls.
+\item Further, modern compilers have error checking plugins which change the
+emitted code to employ various checks, e.g. \emph{address sanitizer} (detecting
+out of bounds access, heap allocation problems, etc.) or \emph{thread sanitizer}.
 \end{itemize}
 
 %%%%%
