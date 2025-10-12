@@ -240,7 +240,7 @@ structure.
 the file} (regular, device, pipe, or socket) and whether the file is in a
 blocking or non-blocking mode (flag \texttt{O\_NONBLOCK} on file opening, see
 page \pageref{O_NONBLOCK}).
-\item For both calls there are quite a few situations that may happen, and 
+\item For both calls there are quite a few situations that may happen, and
 those most important are listed in the next few paragraphs.  For the full
 disclosure, consult the standard or a manual page on your system.
 \item \texttt{read} returns a non-zero number of bytes less than \emph{nbyte} if
@@ -302,7 +302,7 @@ file descriptor.  When the file descriptor is closed (and all of its possible
 duplicates), the file data is released.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure (NFS), and if that write fails, \texttt{close} fails.
-In such case the error code should be used only for diagnostics. There is not
+In such case the error code should be used only for diagnostics. There is no
 point in retrying because the descriptor might have been allocated for something
 else in the meantime.
 \item Usually, esp. on local file systems, \texttt{close} returns right away,
