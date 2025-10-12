@@ -614,8 +614,8 @@ dup(1);
 \end{slide}
 
 \begin{itemize}
-\item Note the flag \texttt{O\_APPEND} used to implement a redirection
-\texttt{>>}.
+\item Note the flag \texttt{O\_APPEND} used to implement the \texttt{>>}
+redirection.
 \item \hlabel{REDIRECT} Another example of \texttt{dup} use will be provided when
 we start working with pipes.  The first redirection example from the slide
 (without \texttt{stderr}) is in \example{read/redirect.c}.  In that example, the
@@ -623,7 +623,7 @@ we start working with pipes.  The first redirection example from the slide
 program passed in the first argument.  We got ahead of ourselves here though, we
 will learn about the \texttt{exec} calls on page \pageref{EXEC}.
 \item To fully understand how redirection works it is good to draw the file
-descriptor table for each step and where the slots point to.  In 
+descriptor table for each step and where the slots point to.  In
 the \nth{2} example in the slide above, we have the initial state, after
 \texttt{close(1)} and \texttt{open("out", ...)}, and the final state, as
 follows:
@@ -634,7 +634,7 @@ follows:
 +-------+              +-------+              +-------+
 |   1   +-> stdout ==> |   1   +-> "out"  ==> |   1   +-> "out"
 +-------+              +-------+              +-------+    /
-|   2   +-> stderr     |   2   +-> stderr     |   2   +---' 
+|   2   +-> stderr     |   2   +-> stderr     |   2   +---'
 +-------+              +-------+              +-------+
 \end{verbatim}
 
