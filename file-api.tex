@@ -926,7 +926,8 @@ specific file is only limited by the size of the \texttt{st\_nlink} member of
 says its type \texttt{nlink\_t} is an integer value.
 \item The parameter \emph{path2} must not exist.  So, you cannot rename using
 the \texttt{link} call.
-\item \texttt{unlink} does not work on directories.
+\item \texttt{unlink} does not work on directories, see \texttt{rmdir} on
+p\pageref{RMDIR}.
 \item The shell command \texttt{mv} uses \texttt{rename} to move objects within
 the same filesystem.  To move files between filesystems, a file needs to be
 copied first, then \texttt{unlink}ed from the originating filesystem (the whole
@@ -990,6 +991,8 @@ size to accommodate the terminating \texttt{NULL} character.
 ifdef([[[NOSPELLCHECK]]], [[[
 \pdfbookmark[1]{mkdir, rmdir, opendir, readdir, closedir}{dirfncs}
 ]]])
+
+\hlabel{RMDIR}
 
 \begin{slide}
 \sltitle{Working with directories}
