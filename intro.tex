@@ -2482,7 +2482,7 @@ by a library or kernel.
 \begin{itemize}
 \item The transition from userland to kernel can be costly; if the program
 executes lot of syscalls, it can have a negative effect on its performance.
-\emsl{A library function can but does not have to perform some system calls,
+\emsl{A library function can but does not have to perform any system calls,
 however it commonly does some non-trivial work in user mode.}
 \item It is possible to perform system calls directly in the assembler.
 \item The kernel API is defined w.r.t. function calls of the standard library,
