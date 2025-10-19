@@ -972,8 +972,8 @@ other hardlinks exist. You can delete the symlink's target in which case you
 end up with a \emph{broken link}.
 \item \texttt{readlink} is useful in the situation where you want to
 \texttt{unlink} the symlink's target.
-\item On some systems (e.g. macOS) there is a \texttt{readlink} command that
-will display symlink target:
+\item On some systems (e.g. macOS or systems with GNU coreutils)
+there is a \texttt{readlink} command that will display symlink target:
 \begin{verbatim}
 $ ls -l /etc/aliases
 lrwxr-xr-x  1 root  wheel  15 Oct 24  2017 /etc/aliases -> postfix/aliases
