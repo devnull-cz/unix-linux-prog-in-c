@@ -35,7 +35,7 @@ considered as data
 \item It is also possible to connect segments of shared memory
 (\texttt{shm\_open}) or files (\texttt{mmap}) into the address space.
 \item The text is shared between all processes which execute the same code.
-The data segment and stack are private for each process.
+The~data segment and stack are private for each process.
 \item Each system can use a different layout of a process address space
 (and typically it is indeed so).  See the next slide which also shows
 sections for \texttt{mmap} and \emph{heap}.
@@ -54,13 +54,13 @@ variables is initialized, it will become part of the data segment on disk.
 \item \emph{(User) stack} \dots{} local non-static variables, function
 parameters (on certain architectures in certain modes - e.g. 32-bit x86), return
 addresses.  Each process has 2 stacks -- one for a user mode and another for
-kernel mode.  The user stack automatically grows according to its use (except
+kernel mode.  The~user stack automatically grows according to its use (except
 for threads where each thread has its own limited stack).
 \item \emph{User area (u-area)} \dots{} contains process information used by
 the kernel which is not needed when the process is swapped out to disk
 (number of open files, signal handling settings, number of shared memory segments,
 program arguments, environment variables, current working directory, etc.).
-This area is accessible only to the kernel which will see just the area
+This~area is accessible only to the kernel which will see just the area
 of a currently running process. The rest of the data needed even if the process
 is not currently running or while swapped out to disk is stored in the
 \texttt{proc} structure.  \texttt{proc} structures for all processes are always
