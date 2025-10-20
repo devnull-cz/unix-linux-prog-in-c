@@ -356,7 +356,7 @@ much better to read and write larger blocks, say 8-1024KB.  You can
 \texttt{strace(1)} a \texttt{cat} command on Linux to see what blocks they use
 for \texttt{read}.  It may be around 128 kilobytes.  The following example,
 \example{read/cat.c}, has an option \texttt{-b} for setting the read block size;
-you can try different block sizes, including 1, on a reasonable big file (use
+you can try different block sizes, including~1, on a reasonable big file (use
 \texttt{mkfile(1)} on BSD/macOS or \texttt{fallocate(1)} on Linux to create an
 arbitrarily large file), and use \texttt{time(1)} to measure the system call
 overhead.
