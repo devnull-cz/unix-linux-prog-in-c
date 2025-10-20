@@ -299,7 +299,8 @@ or terminates.
 \item If a process needs a temporary file, it can create it, \texttt{unlink}
 (see page \pageref{UNLINK}) it right away, and work with it using the existing
 file descriptor.  When the file descriptor is closed (and all of its possible
-duplicates), the file data is released.
+duplicates), the file data is released. For persistent and visible temporary
+files, \texttt{mkstemp} is used.
 \item Even \texttt{close} may fail.  For example, some filesystems may write the
 data on file closure (NFS), and if that write fails, \texttt{close} fails.
 In such case the error code should be used only for diagnostics. There is no
