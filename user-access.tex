@@ -333,8 +333,8 @@ process
 \item usually \texttt{RUID==EUID \&\& RGID==EGID}.
 \item \emsl{right vesting} \dots{} execution of a program with
 the SUID (\emsl{set user ID}) bit set changes the EUID and the saved UID of the process
-to the UID of the program owner, the RUID stays the same.
-\item similarly the SGID bit changes the EGID of the process. 
+to the UID of the program file owner, the RUID stays the same.
+\item similarly the SGID bit changes the EGID of the process.
 \end{itemize}
 \end{slide}
 
