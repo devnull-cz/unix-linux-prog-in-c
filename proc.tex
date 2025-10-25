@@ -867,8 +867,8 @@ and restart it with ''\texttt{kill -CONT <PID>}''.
 \item \emph{opts} in \funnm{waitpid} are an OR combination of the following
 flags:
     \begin{itemize}
-    \item \texttt{WNOHANG} \dots{} does not hang if there are no processes
-    that wish to report status
+    \item \texttt{WNOHANG} \dots{} does not block the process if there are
+    no processes that wish to report status.
     \item \texttt{WUNTRACED} \dots{} children of the current process that were
     stopped due to a \texttt{SIGTTIN}, \texttt{SIGTTOU}, \texttt{SIGTSTP}, or
     \texttt{SIGSTOP} signal also have their status reported.  Such processes are
