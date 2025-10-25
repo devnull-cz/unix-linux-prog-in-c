@@ -54,8 +54,9 @@ variables is initialized, it will become part of the data segment on disk.
 \item \emph{(User) stack} \dots{} local non-static variables, function
 parameters (on certain architectures in certain modes - e.g. 32-bit x86), return
 addresses.  Each process has 2 stacks -- one for a user mode and another for
-kernel mode.  The~user stack automatically grows according to its use (except
-for threads where each thread has its own limited stack).
+kernel mode.  The~user stack automatically grows according to its use,
+up to some limit (for threads where each thread has its own stack the limit
+is usually smaller). See \example{pmap/stack-overflow.c}.
 \item \emph{User area (u-area)} \dots{} contains process information used by
 the kernel which is not needed when the process is swapped out to disk
 (number of open files, signal handling settings, number of shared memory segments,
