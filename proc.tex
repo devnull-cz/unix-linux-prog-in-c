@@ -1247,7 +1247,7 @@ and then freed once they are accessed.
 \begin{alltt}
 int main(int argc, char *argv[])
 \{
-    int fd, fsz; char *addr, *p1, *p2, c;
+    int fd; off\_t fsz; char *addr, *p1, *p2, c;
 
     fd = \emprg{open}(argv[1], O\_RDWR);
     fsz = \emprg{lseek}(fd, 0, SEEK\_END);
