@@ -43,7 +43,8 @@ Start \texttt{dd} first, then send a couple of \texttt{USR1} signals its way,
 like this:
 
 \begin{verbatim}
-$ kill -USR1 $(pgrep -f "dd if=/dev/zero of=/dev/null")
+$ dd if=/dev/zero of=/dev/null &
+$ kill -USR1 $!
 \end{verbatim}
 
 You will see something like this:
@@ -53,9 +54,6 @@ $ dd if=/dev/zero of=/dev/null
 9179287+0 records in
 9179286+0 records out
 4699794432 bytes (4.7 GB, 4.4 GiB) copied, 1.79083 s, 2.6 GB/s
-14211424+0 records in
-14211423+0 records out
-7276248576 bytes (7.3 GB, 6.8 GiB) copied, 2.76889 s, 2.6 GB/s
 \end{verbatim}
 \end{itemize}
 
