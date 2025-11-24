@@ -316,8 +316,8 @@ reading file contents and removing it is not atomic:
 \item Another \emsl{problem} is that the \texttt{lock()} function above contains
 active waiting.
 This can be solved e.g. so that the process that acquired the lock can open
-named pipe for writing. Reader processes will enter sleep by reading from the
-pipe.
+named pipe for writing. The processes that fail to acquire the lock (i.e.~create
+the file exclusively) will enter sleep by reading from the pipe.
 The \texttt{unlock()} will close the pipe and so the waiting processes will
 be unblocked. See \example{pipe/countdown.c} for example with one reader.
 \item Lock files are usually used for situations where multiple instances of
