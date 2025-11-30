@@ -413,7 +413,7 @@ IPv4 addresses that would not be practical. To distinguish between virtual serve
 running on the same host, the \uv{\texttt{Host:}} HTTP header is used.
 Similarly, the TLS protocol uses the \texttt{ServerName} extension.
 \item The fact that the system starts listening on a port means that a TCP
-handshake is performed and data is being accepted.  The data is stored
+handshake can be performed and data is being accepted.  The data is stored
 in a fixed length buffer and after it is filled out, the connection is still
 active but the TCP window is set to 0 which means the system stopped accepting
 further data.  The buffer size is usually a few tens of kilobytes.
