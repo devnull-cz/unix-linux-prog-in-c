@@ -511,10 +511,11 @@ service in which case each call sets the remote address again.  If we use
 \funnm{connect}() will not block while waiting to connect.  It will return
 \texttt{-1} with \texttt{errno} set to \texttt{EINPROGRESS} (= ``not possible to
 create a connection right away'') and the connection request is stored in the
-system queue to be processed.  Until the connection is ready, subsequent
-\funnm{connect}()s return \texttt{-1} with \texttt{errno} set to
-\texttt{EALREADY}.  However, using this way to test the connection readiness is
-not the right approach as if the background connection attempt fails, the next
+system queue to be processed.  Until the connection is known (i.e. successfully
+connected or failed), subsequent \funnm{connect}()s return \texttt{-1} with
+\texttt{errno} set to \texttt{EALREADY}.
+However, using this way to test the connection readiness is not the right
+approach as if the background connection attempt fails, the next
 \funnm{connect}() tries to create a new connection and we would end up in a
 never ending loop.  The right approach is to use \funnm{select}() or
 \funnm{poll}(), see pages \pageref{SELECT} and \pageref{POLL}.  You can also
