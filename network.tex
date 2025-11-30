@@ -539,7 +539,7 @@ served in parallel.
 child may redirect standard file descriptors to the socket and call
 \funnm{exec}() -- that is how \texttt{inetd} works.
 \item As you already know, by calling \funnm{waitpid}() you are getting rid of
-zombies. This only works because the \texttt{WNOHANG} flag is used,
+zombies. This only works in this case because the \texttt{WNOHANG} flag is used,
 otherwise the parent would be blocked and the next connection would only be
 accepted after one of the children exited.
 Another way is to set to ignore \texttt{SIGCHLD} in which case you
