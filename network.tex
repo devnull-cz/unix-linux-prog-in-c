@@ -421,7 +421,7 @@ further data.  The buffer size is usually a few tens of kilobytes.
 \item The example code uses macro \texttt{SOMAXCONN}, required by the UNIX
 specification to be in \texttt{sys/socket.h}.  It specifies the maximum queue
 length for \funnm{listen}().  As far as we know, Linux, FreeBSD, macOS and
-Solaris use value of 128.
+Solaris use the value of 128.
 \item This function is specific to connection-oriented protocols, so it does not
 work with UDP.
 \end{itemize}
