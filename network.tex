@@ -807,6 +807,7 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \hlabel{IPv4_IPv6_ADDRESSES}
 
 \begin{itemize}
+\item \texttt{n} stands for \texttt{network}, \texttt{p} stands for \texttt{presentable}
 \item The functions are declared in \texttt{arpa/inet.h}.
 \item \texttt{inet\_pton} returns 1 if the conversion successfully happened,
 0 if given string is not an address or -1 if \emph{\texttt{af}} is not supported
@@ -817,12 +818,10 @@ is OK otherwise returns \texttt{NULL} with \texttt{errno} set.
 specifying the size. This is not a problem since according to the value of
 \texttt{af} appropriate address structure or character array can be passed in.
 For maximal lengths of strings for addresses, 2 macros can be used --
-\texttt{INET\_ADDRSTR\-LEN} (16) or \texttt{INET6\_ADDRSTRLEN} (48). 
+\texttt{INET\_ADDRSTR\-LEN} (16) or \texttt{INET6\_ADDRSTRLEN} (48).
 These values contain space for terminating \texttt{\bs{}0}.
 \item \texttt{size} is string size of \texttt{dst}. If not sufficient, the call
 will fail and \texttt{ENOSPC} will be set.
-\item \texttt{n} stands for \texttt{network}, \texttt{p} stands for
-\texttt{presentable}
 \item In the past \texttt{inet\_aton} and \texttt{inet\_ntoa} (\texttt{a} as
 \texttt{ascii}) were used for IPv4 addresses. Thanks to the functions above
 these are now legacy. All these calls are usually documented in the
