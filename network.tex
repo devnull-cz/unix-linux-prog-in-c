@@ -900,7 +900,7 @@ setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 \end{verbatim}
 
 \item See \verb#SO_REUSEADDR# being used in example \example{tcp/reuseaddr.c}.
-For the demonstration it is necessary to establish at least once connection,
+For the demonstration it is necessary to establish at least one connection,
 otherwise there is nothing to wait for and repeated \texttt{bind} will succeed
 anyway.
 \end{itemize}
