@@ -160,60 +160,6 @@ threading library.  For example, on Solaris, it's the \texttt{thr\_} API
 functions.
 \item We will talk more on reentrant functions in connection with threads on
 page \pageref{THREADSAFE}.
-\item As already mentioned, given that the POSIX thread API uses \texttt{errno}
-codes directly as return values, the following piece of code is not correct:
-
-\begin{verbatim}
-if (pthread_create(&thr, NULL, thrfn, NULL) != 0)
-        err(1, "pthread_create");
-\end{verbatim}
-
-as \texttt{err()} will print possibly something like the following on error
-(unless \texttt{errno} was set by previous code which would make it even more
-confusing):
-
-\begin{itemize}
-\item ``\texttt{a.out: pthread\_create: Success}'' on Linux distributions
-\item ``\texttt{a.out: pthread\_create: Error 0}'' on Solaris
-\item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' on FreeBSD
-\item or something else based on the system and the concrete message it uses for
-\texttt{errno} equal to 0, unless \texttt{errno} is already set otherwise.
-\end{itemize}
-
-The Linux approach might confuse the programmer as leaving \texttt{errno} zero
-does not have to mean the function did not fail, as we just showed.  FreeBSD
-makes it obvious that something is not entirely right.  Example that shows such
-a situation: \example{pthreads/wrong-err-use.c}. The correct code could look
-like this:
-
-\begin{verbatim}
-int e;
-
-if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
-        errx(1, "pthread_create: %s", strerror(e));
-\end{verbatim}
-
-\item \hlabel{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
-same with POSIX threads as each thread has its own \texttt{errno}.  In that
-case, it is redefined using a function (which can either return the value or an
-address which is dereferenced).  Check \texttt{/usr/include/errno.h} on Linux if
-interested.
-\end{itemize}
-
-%%%%%
-
-\begin{slide}
-\sltitle{Example: thread creation}
-{\catcode95=12\catcode38=12
-\begin{center}
-\input{img/tex/threads.pstex_t}
-\end{center}}
-\end{slide}
-
-\begin{itemize}
-\item This is a trivial example.  The process (main thread) creates two more
-threads and waits for them to finish.  This process thus has 3 threads in
-total.
 \end{itemize}
 
 %%%%%
@@ -288,6 +234,61 @@ to map to the native threads provided by the system.  If you create several
 threads, you need to pass a different address for a \texttt{pthread\_t} variable
 otherwise you will not be able to further manipulate with the threads from the
 main thread, e.g. waiting for them to finish.
+\item As already mentioned, given that the POSIX thread API uses \texttt{errno}
+codes directly as return values, the following piece of code is not correct:
+
+\begin{verbatim}
+if (pthread_create(&thr, NULL, thrfn, NULL) != 0)
+        err(1, "pthread_create");
+\end{verbatim}
+
+as \texttt{err()} will print possibly something like the following on error
+(unless \texttt{errno} was set by previous code which would make it even more
+confusing):
+
+\begin{itemize}
+\item ``\texttt{a.out: pthread\_create: Success}'' on Linux distributions
+\item ``\texttt{a.out: pthread\_create: Error 0}'' on Solaris
+\item ``\texttt{a.out: pthread\_create: Unknown error: 0}'' on FreeBSD
+\item or something else based on the system and the concrete message it uses for
+\texttt{errno} equal to 0, unless \texttt{errno} is already set otherwise.
+\end{itemize}
+
+The Linux approach might confuse the programmer as leaving \texttt{errno} zero
+does not have to mean the function did not fail, as we just showed.  FreeBSD
+makes it obvious that something is not entirely right.  Example that shows such
+a situation: \example{pthreads/wrong-err-use.c}. The correct code could look
+like this:
+
+\begin{verbatim}
+int e;
+
+if ((e = pthread_create(&thr, NULL, thrfn, NULL)) != 0)
+        errx(1, "pthread_create: %s", strerror(e));
+\end{verbatim}
+
+\item \hlabel{ERRNO_IN_THREADS} Other functions that use \texttt{errno} work the
+same with POSIX threads as each thread has its own \texttt{errno}.  In that
+case, it is redefined using a function (which can either return the value or an
+address which is dereferenced).  Check \texttt{/usr/include/errno.h} on Linux if
+interested.
+
+\end{itemize}
+
+%%%%%
+
+\begin{slide}
+\sltitle{Example: thread creation}
+{\catcode95=12\catcode38=12
+\begin{center}
+\input{img/tex/threads.pstex_t}
+\end{center}}
+\end{slide}
+
+\begin{itemize}
+\item This is a trivial example.  The process (main thread) creates two more
+threads and waits for them to finish.  This process thus has 3 threads in
+total.
 \end{itemize}
 
 %%%%%
