@@ -494,8 +494,8 @@ the ability to cancel is disabled.
 it may lead to data inconsistency as the cancellation may happen any time, even
 in your critical sections.
 \item Cleanup functions are called on cancellation, see page
-\pageref{PTHREAD_CLEANUP}.  For example, if cancelling a thread holding a mutex,
-you could use the cleanup function to unlock it.
+\pageref{PTHREAD_CLEANUP}.  For example, if cancelling a thread that is holding
+a lock, a cleanup function can be used to unlock it.
 \item Functions \funnm{pthread\_setcancelstate}() and
 \funnm{pthread\_setcanceltype}() provide similar functionality to threads as is
 manipulating a signal mask to processes.
