@@ -400,7 +400,7 @@ value.
 to make sure you wait for the right thread.  If you use an incorrect thread ID,
 the function returns immediately with an error.
 \item In contrast to waiting for processes to finish, \emsl{one cannot wait for
-any thread to finish}.  The rationale is that since there is not parent--child
+arbitrary thread to finish}.  The rationale is that since there is not parent--child
 relation, it was not deemed necessary.  However, some system provide that
 functionality, e.g.  on Solaris you can use \texttt{0} for a thread ID in
 \funnm{thr\_join}().  If you needed this functionality with POSIX thread API, it
