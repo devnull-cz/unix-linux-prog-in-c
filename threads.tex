@@ -554,8 +554,8 @@ contention.  You can easily create a thread specific data to create a storage
 place per thread with minimal changes to the original code.
 \item When you create a key, the \texttt{NULL} value is associated with it.
 \item If you do not need the destructor function, use \texttt{NULL}.
-\item Destructors are called at thread exit in unspecified order on all keys
-with a value different from \texttt{NULL}.  Its value is set to \texttt{NULL}
+\item Destructors are called at thread exit in unspecified order on non-deleted
+keys with a value different from \texttt{NULL}. Its value is set to \texttt{NULL}
 and the original value is used as a parameter to the destructor.  If, after
 all the destructors have been called for all non-\texttt{NULL} values with
 associated destructors, there are still some non-\texttt{NULL} values with
