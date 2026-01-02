@@ -54,7 +54,8 @@ terminal is one of them) to a second, unprivileged process.  The idea is that
 most of the OpenSSH code does not need any special privilege so if a bug is
 found in code that is run under an unprivileged user, the damage is much smaller
 than if such code was run with maximum privileges.  This technique is called a
-\emph{privilege separation} and you could not do the same thing with threads.
+\emph{privilege separation} and is not applicable in classical threaded
+environment.
 \end{itemize}
 
 \begin{slide}
