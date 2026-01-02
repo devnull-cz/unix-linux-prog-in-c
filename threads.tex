@@ -655,7 +655,7 @@ in the parent (see page \pageref{MUTEXES}), the mutex stays locked in the child,
 and trying to lock it in the child will lead to a deadlock.  However, if the
 parent locks all the mutexes in the \emph{\texttt{pre-fork}} handler and then
 unlocks them in the \emph{\texttt{post-fork}} handler (both for the parent and
-the child), you will avoid such deadlocks.  That is because when locking mutexes
+the child), such deadlocks will be avoided. That is because when locking mutexes
 in the \emph{\texttt{pre-fork}} handler, other threads are still running so the
 mutexes held by them should be released eventually (usually each thread exits a
 critical section in a short time in well written code).
