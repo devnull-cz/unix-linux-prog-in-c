@@ -517,8 +517,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 ]]])
 \begin{itemize}
 \item creates a key that can be associated with a value of
-\texttt{(void *)} type. The \emph{destructor()} function is called for all keys
-whose value is not \texttt{NULL} on thread termination.
+\texttt{(void *)} type. The \emph{\texttt{destructor}} function is called for
+all keys whose value is not \texttt{NULL} on thread termination.
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{int \funnm{pthread\_key\_delete}(pthread\_key\_t \emph{key});}
@@ -531,13 +531,14 @@ ifdef([[[NOSPELLCHECK]]], [[[
 \\\>const void *\emph{value});}
 ]]])
 \begin{itemize}
-\item binds pointer \emph{value} to previously created \emph{key}
+\item binds pointer \emph{\texttt{value}} to previously created
+\emph{\texttt{key}}
 \end{itemize}
 ifdef([[[NOSPELLCHECK]]], [[[
 \texttt{void *\funnm{pthread\_getspecific}(pthread\_key\_t \emph{key});}
 ]]])
 \begin{itemize}
-\item returns the value of \emph{key}
+\item returns the value of \emph{\texttt{key}}
 \end{itemize}
 \end{slide}
 
