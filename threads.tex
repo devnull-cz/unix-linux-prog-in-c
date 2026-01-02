@@ -202,7 +202,7 @@ see \example{pthreads/pthread-create.c}
 \begin{alltt}
 pthread\_t tid;
 int i;
-extern void *(*start\_routine)(void *);
+extern void *start\_routine(void *);
 
 for (i = 0; i < N; i++)
     pthread\_create(&tid, NULL, start\_routine, &i);
