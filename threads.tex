@@ -200,8 +200,12 @@ program will terminate even though there are still some threads running,
 see \example{pthreads/pthread-create.c}
 \item Be careful not to use this:
 \begin{alltt}
+pthread\_t tid;
+int i;
+extern void *(*start\_routine)(void *);
+
 for (i = 0; i < N; i++)
-    pthread\_create(&tid, attr, start\_routine, &i);
+    pthread\_create(&tid, NULL, start\_routine, &i);
 \end{alltt}
 
 It looks like we pass each thread its index.  However, before the started thread
