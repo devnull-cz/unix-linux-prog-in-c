@@ -219,7 +219,7 @@ portable});
 \begin{alltt}
 assert(sizeof (void *) >= sizeof (int));
 for (i = 0; i < N; i++)
-    pthread\_create(&tid, attr, start\_routine, (void *)(intptr\_t)i);
+    pthread\_create(&tid, NULL, start\_routine, (void *)(intptr\_t)i);
 \end{alltt}
 
 \dots and in function \texttt{void *start\_routine(void *arg)} cast the pointer
