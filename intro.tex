@@ -1873,8 +1873,7 @@ expected structure size/offsets.
 	\item \texttt{argv[0]} is an executed program name (without path)
 	\item the last item is \texttt{argv[argc] == NULL}
 	\end{itemize2}
-    \item returning from \texttt{main()} or calling \texttt{exit()} terminates the
-    process
+    \item returning from \texttt{main()} or calling \texttt{exit()}/\texttt{\_exit()} terminates the process
     \item standard return values are \verb#EXIT_SUCCESS# (0) and
     \verb#EXIT_FAILURE# (1) (\texttt{stdlib.h})
     \end{itemize}
