@@ -247,7 +247,7 @@ disclosure, consult the standard or a manual page on your system.
 less than \emph{nbyte} bytes remain in a file, if the call was interrupted
 by a signal, or if the file is a pipe, device, or socket and there is less than
 \emph{nbyte} bytes available at the moment.  For the last case, if there is no
-data, a blocking \texttt{read} will block unless some data gets available, a
+data, a blocking \texttt{read} will block unless some data becomes available, a
 non-blocking \texttt{read} returns -1 and sets \texttt{errno} to
 \texttt{EAGAIN}.
 \item \texttt{write} returns a non-zero number of bytes less than \emph{nbyte}
