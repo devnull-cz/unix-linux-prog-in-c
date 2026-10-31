@@ -1027,6 +1027,8 @@ ifdef([[[NOSPELLCHECK]]], [[[
 filesystem implementation.  \texttt{NULL} is returned on failure
 and \texttt{errno} is set.  \texttt{NULL} is also returned upon reaching the end
 of a directory but in that case, \texttt{errno} is not changed.
+\item \texttt{readdir} returns entries also for the "\texttt{.}" and
+"\texttt{..}" directory entries. This is handy when traversing a directory hierarchy.
 \item \texttt{readdir} is a stateful function.  To read the directory from the
 beginning again, \texttt{rewinddir} can be used.  If you want to read the
 directory from multiple threads, use the reentrant version, \texttt{readdir\_r}.
