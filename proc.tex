@@ -715,7 +715,7 @@ missing the mandatory argument for \texttt{argv[0]}:
 
 On some systems, the above has very interesting consequences.  As \texttt{NULL}
 is taken as an expected \texttt{argv[0]}, the data on the stack (assuming 32-bit
-x86 program) are then accepted as the program arguments until the next
+x86 program) is then accepted as the program arguments until the next
 \texttt{NULL} is found there.
 In the following example, run on some version of the FreeBSD system, \texttt{ls}
 is trying to list file names that are environment variable names and values (the
