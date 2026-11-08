@@ -1,10 +1,12 @@
+<!DOCTYPE HTML>
+<html>
 <head>
-<title>ViM tips</title>
-<meta charset="utf-8">
+  <title>ViM tips</title>
+  <meta charset="utf-8">
 
-<script type="text/javascript">
-function write_last_mod ()
-{
+  <script type="text/javascript">
+  function write_last_mod ()
+  {
 	var loc = new String (document.location);
 	if (loc.match (/\.html($|\?.*)|\/$/)) {
 		var last_modified = new Date (document.lastModified);
@@ -12,12 +14,12 @@ function write_last_mod ()
 		// document.writeln (date_stamp);
 		document.writeln (last_modified);
 	}
-}
-</script>
-
+  }
+  </script>
 </head>
 
 <body>
+<main>
 
 <h1>ViM tips for source code file editing</h1>
 
@@ -102,5 +104,17 @@ Last changed:
 <script>
 write_last_mod ();
 </script>
+</main>
+
+<script src="darkmode-js.min.js"></script>
+<script>
+  new Darkmode({
+    bottom: '32px',
+    right: '32px',
+    time: '0.5s',
+    label: '🌓'
+  }).showWidget();
+</script>
 
 </body>
+</html>
