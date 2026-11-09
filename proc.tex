@@ -1159,7 +1159,7 @@ The signal is also received when attempting to write to a file mapped read-only
 -- and that makes sense as there is no way to indicate (and test) a failed
 assignment operation.
 \item the mapping is done in whole pages, the \texttt{off} values have to
-be aligned correctly (also when using \texttt{MAP\_FIXED} the \texttt{addr}).
+be aligned correctly (also the \texttt{addr} when using \texttt{MAP\_FIXED}).
 Last page after the end of file is padded with zeroes and this section is
 never written back to the file.
 \item Access to the mapped region beyond the existing page of a mapped object
