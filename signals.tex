@@ -132,8 +132,9 @@ processes
 \begin{itemize}
 \item Traditionally, process with EUID~==~0 can send a signal to any other
 process.  However, some systems optionally provide fine grain privileges and the
-situation there is different even for root.  That is out of scope for this class
-though.  \item Sending a signal to another process:
+situation there is different even for \emph{root}. That is out of scope for
+this class though.
+\item Sending a signal to another process:
     \begin{itemize}
     \item Linux, Solaris: RUID or EUID of the process that sent the signal must
     match the RUID or saved UID of the target process.
