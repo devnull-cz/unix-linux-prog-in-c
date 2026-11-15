@@ -481,8 +481,9 @@ specification of the header file, or the book [POSIX.4], page
 \pageref{REF_PROGRAMMING}.  More information is also on page \pageref{POSIX} and
 \pageref{SIGWAITINFO}.  Examples: \example{signals/siginfo.c},
 \example{signals/sigqueue.c}.
-\item \hlabel{IGNORE_SIG_CHLD} By ignoring \texttt{SIG\_CHILD} you say you will
-not wait for child processes and the system will still not accumulate zombies.
+\item \hlabel{IGNORE_SIG_CHLD} By ignoring \texttt{SIG\_CHILD} the process
+does not have to wait for child processes and the system will still not
+accumulate zombies.
 \end{itemize}
 
 %%%%%
